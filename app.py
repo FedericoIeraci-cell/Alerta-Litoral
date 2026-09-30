@@ -42,3 +42,22 @@ try:
     components.html(html_data, height=700, scrolling=True)
 except FileNotFoundError:
     st.error("No se encontró el archivo 'mapa.html'. Asegurate de haberlo subido al repositorio.")
+# --- EVALUACIÓN AUTOMÁTICA AL CARGAR LA PÁGINA ---
+# Aquí simulas la lectura de tu fuente de datos (ej. si el nivel supera el umbral crítico)
+estado_actual_semaforo = "ROJO (Crítico)"  # Esto vendría de tu lógica de datos
+zona_critica = "Goya (CR)"
+
+# Bandera para evitar spam: Streamlit guarda estado en la sesión
+if "alerta_enviada" not in st.session_state:
+    if "ROJO" in estado_actual_semaforo:
+        mensaje_auto = f"🚨 *AVISO AUTOMÁTICO DE RIESGO* 🚨\nLa estación de {zona_critica} registró parámetros en nivel ROJO. Se recomienda activar protocolos preventivos."
+        
+        # Envío automático al canal o chat configurado
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        payload = {"chat_id": CHAT_ID, "text": mensaje_auto, "parse_mode": "Markdown"}
+        
+        try:
+            requests.post(url, json=payload)
+            st.session_state.alerta_enviada = True  # Marca que ya se envió en esta sesión
+        except:
+            pass
