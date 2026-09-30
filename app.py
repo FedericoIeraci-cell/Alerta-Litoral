@@ -12,14 +12,33 @@ st.markdown("Sistema de alerta temprana y semáforo hídrico para productores de
 TOKEN = "8835711157:AAFqiN_KCMrYYRImWP5dzc11DzM7GvWL-yY"
 CHAT_ID = "8813171047"
 
-# Coordenadas exactas de los nodos para consulta en vivo
-COORDS_NODOS = {
-    "Concordia (ER)": {"lat": -31.39, "lon": -58.02, "prov": "ER"},
-    "Goya (CR)": {"lat": -29.14, "lon": -59.26, "prov": "CR"},
-    "Mercedes (CR)": {"lat": -29.18, "lon": -58.07, "prov": "CR"},
-    "Reconquista (SF)": {"lat": -29.15, "lon": -59.65, "prov": "SF"},
-    "Santa Fe Capital (SF)": {"lat": -31.63, "lon": -60.7, "prov": "SF"}
-}
+# Las 24 ciudades completas del Litoral sincronizadas con el mapa
+NODOS_LITORAL = [
+    {'nombre': 'Goya', 'provincia': 'CR', 'lat': -29.14, 'lon': -59.26},
+    {'nombre': 'Mercedes', 'provincia': 'CR', 'lat': -29.18, 'lon': -58.07},
+    {'nombre': 'Curuzú Cuatiá', 'provincia': 'CR', 'lat': -29.79, 'lon': -58.05},
+    {'nombre': 'Paso de los Libres', 'provincia': 'CR', 'lat': -29.71, 'lon': -57.08},
+    {'nombre': 'Santo Tomé', 'provincia': 'CR', 'lat': -28.55, 'lon': -56.04},
+    {'nombre': 'Corrientes Capital', 'provincia': 'CR', 'lat': -27.46, 'lon': -58.83},
+    {'nombre': 'Reconquista', 'provincia': 'SF', 'lat': -29.15, 'lon': -59.65},
+    {'nombre': 'San Javier', 'provincia': 'SF', 'lat': -30.58, 'lon': -59.93},
+    {'nombre': 'Vera', 'provincia': 'SF', 'lat': -29.46, 'lon': -60.21},
+    {'nombre': 'Santa Fe Capital', 'provincia': 'SF', 'lat': -31.63, 'lon': -60.7},
+    {'nombre': 'Rosario', 'provincia': 'SF', 'lat': -32.95, 'lon': -60.66},
+    {'nombre': 'Tostado', 'provincia': 'SF', 'lat': -29.23, 'lon': -61.77},
+    {'nombre': 'Concordia', 'provincia': 'ER', 'lat': -31.39, 'lon': -58.02},
+    {'nombre': 'La Paz', 'provincia': 'ER', 'lat': -30.74, 'lon': -59.64},
+    {'nombre': 'Victoria', 'provincia': 'ER', 'lat': -32.62, 'lon': -60.15},
+    {'nombre': 'Gualeguay', 'provincia': 'ER', 'lat': -33.14, 'lon': -59.31},
+    {'nombre': 'Gualeguaychú', 'provincia': 'ER', 'lat': -33.01, 'lon': -58.51},
+    {'nombre': 'Paraná', 'provincia': 'ER', 'lat': -31.73, 'lon': -60.52},
+    {'nombre': 'Clorinda', 'provincia': 'FM', 'lat': -25.28, 'lon': -57.71},
+    {'nombre': 'Formosa Capital', 'provincia': 'FM', 'lat': -26.18, 'lon': -58.17},
+    {'nombre': 'General San Martín', 'provincia': 'CH', 'lat': -26.53, 'lon': -59.34},
+    {'nombre': 'Resistencia', 'provincia': 'CH', 'lat': -27.45, 'lon': -58.98},
+    {'nombre': 'Posadas', 'provincia': 'MN', 'lat': -27.36, 'lon': -55.89},
+    {'nombre': 'Eldorado', 'provincia': 'MN', 'lat': -26.4, 'lon': -54.63}
+]
 
 def consultar_estado_real(lat, lon):
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=precipitation_sum&hourly=soil_moisture_0_to_7cm&timezone=America%2FArgentina%2FBuenos_Aires&past_days=1"
@@ -61,18 +80,23 @@ def enviar_alerta_telegram(zona, estado, detalle):
 
 # --- PANEL LATERAL DINÁMICO ---
 st.sidebar.header("🤖 Panel de Alertas Telegram")
-zona_sel = st.sidebar.selectbox("Zona Crítica", list(COORDS_NODOS.keys()))
+
+# Creamos las opciones formateadas para el selectbox con las 24 ciudades
+opciones_nodos = [f"{n['nombre']} ({n['provincia']})" for n in NODOS_LITORAL]
+zona_sel_str = st.sidebar.selectbox("Zona Crítica", opciones_nodos)
+
+# Buscamos los datos de la ciudad seleccionada
+nodo_seleccionado = next(n for n in NODOS_LITORAL if f"{n['nombre']} ({n['provincia']})" == zona_sel_str)
 
 # Consultamos en tiempo real el estado de la zona elegida
-info_coord = COORDS_NODOS[zona_sel]
-estado_real, detalle_real, color_badge = consultar_estado_real(info_coord["lat"], info_coord["lon"])
+estado_real, detalle_real, color_badge = consultar_estado_real(nodo_seleccionado["lat"], nodo_seleccionado["lon"])
 
 st.sidebar.markdown(f"**Estado Real en Vivo:**")
 st.sidebar.markdown(f"<div style='background-color: {color_badge}; color: white; padding: 6px; border-radius: 5px; text-align: center; font-weight: bold;'>{estado_real}</div>", unsafe_allow_html=True)
 st.sidebar.caption(detalle_real)
 
 if st.sidebar.button("📲 Enviar Alerta de esta Zona a Telegram"):
-    exito = enviar_alerta_telegram(zona_sel, estado_real, detalle_real)
+    exito = enviar_alerta_telegram(zona_sel_str, estado_real, detalle_real)
     if exito:
         st.sidebar.success("¡Alerta enviada con éxito a tu Telegram!")
     else:
