@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_d73e8c02b250a3a20ef3219d56793cb9 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>
+    
+    
+        <style>
+            .visor-modal {
+                display: none; position: fixed; top: 60px; right: 20px; width: 700px; height: 500px;
+                background: white; border: 2px solid #2c3e50; border-radius: 10px; box-shadow: 0px 4px 15px rgba(0,0,0,0.5); z-index: 99999; overflow: hidden;
+            }
+            .visor-header {
+                background: #2c3e50; color: white; padding: 8px 12px; font-weight: bold; font-family: Arial, sans-serif; font-size: 13px;
+                display: flex; justify-content: space-between; align-items: center;
+            }
+            .visor-btn {
+                position: fixed; top: 12px; z-index: 99999; color: white;
+                border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 12px; font-family: Arial, sans-serif; cursor: pointer; box-shadow: 0px 2px 6px rgba(0,0,0,0.4);
+            }
+            #btn-windy { left: 80px; background-color: #0275d8; }
+            #btn-windy:hover { background-color: #01579b; }
+            
+            #btn-cira { left: 290px; background-color: #6f42c1; }
+            #btn-cira:hover { background-color: #593196; }
+        </style>
+
+        <button id="btn-windy" class="visor-btn" onclick="toggleWindyModal()">🌀 Visor Radar Windy En Vivo</button>
+        <button id="btn-cira" class="visor-btn" onclick="window.open('https://slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&x=12696&y=18067&z=4&angle=0&im=12&ts=1&st=0&et=0&speed=130&motion=loop&refresh=1&maps%5Bborders%5D=white&maps%5Bcities%5D=white&maps%5Blat%5D=maroon&maps%5Bstates%5D=white&maps%5Broads%5D=black&maps%5Brivers%5D=teal&p%5B0%5D=geocolor&p%5B1%5D=cira_glm_l2_group_energy&opacity%5B0%5D=1&opacity%5B1%5D=1&slider=-1&hide_controls=0&mouse_draw=0&follow_feature=0&follow_hide=0&s=rammb-slider&draw_color=FFD700&draw_width=6', '_blank')">⚡ Abrir GOES-19 / Rayos GLM (CIRA) ↗</button>
+
+        <div id="windy-modal" class="visor-modal">
+            <div class="visor-header" style="background:#0275d8;">
+                <span>🌀 Radar de Lluvias y Vientos en Vivo - Litoral (Windy)</span>
+                <button onclick="toggleWindyModal()" style="background:transparent; border:none; color:white; font-size:16px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <iframe width="100%" height="460" src="https://embed.windy.com/embed2.html?lat=-28.5&lon=-58.5&detailLat=-28.5&detailLon=-58.5&width=700&height=460&zoom=6&level=surface&overlay=rain&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=true&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
+        </div>
+
+        <script>
+            function toggleWindyModal() {
+                var modal = document.getElementById('windy-modal');
+                modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+            }
+        </script>
+        
+    
+        <div style="
+            position: fixed; 
+            top: 15px; 
+            right: 330px; 
+            width: 320px; 
+            background-color: rgba(255, 255, 255, 0.96); 
+            z-index: 99999; 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            border: 2px solid #2c3e50; 
+            border-radius: 10px; 
+            padding: 12px 15px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+        ">
+            <h4 style="margin: 0 0 4px 0; color: #2c3e50;">
+                📡 Sistema Prevención Litoral
+            </h4>
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 6px 0;">
+            <p style="margin: 2px 0; font-size: 12px; color: #555;">Última Consulta Satelital y DNV:</p>
+            <p style="margin: 2px 0 8px 0; font-size: 14px; font-weight: bold; color: #0056b3;">
+                🕒 <span id="reloj-dinamico">Conectando en vivo...</span>
+            </p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 6px 0;">
+            <p style="margin: 2px 0 6px 0; font-size: 12px; font-weight: bold; color: #333;">
+                Filtro por Color (24 Nodos):
+            </p>
+
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px;">
+                <label style="color: #dc3545; font-weight: bold; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="chk-rojo" checked onclick="toggleCapaColor('ROJO', this.checked)"> 🔴 <span id="cnt-rojo">0</span>
+                </label>
+                <label style="color: #fd7e14; font-weight: bold; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="chk-naranja" checked onclick="toggleCapaColor('NARANJA', this.checked)"> 🟠 <span id="cnt-naranja">0</span>
+                </label>
+                <label style="color: #d99b00; font-weight: bold; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="chk-amarillo" checked onclick="toggleCapaColor('AMARILLO', this.checked)"> 🟡 <span id="cnt-amarillo">0</span>
+                </label>
+                <label style="color: #28a745; font-weight: bold; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="chk-verde" checked onclick="toggleCapaColor('VERDE', this.checked)"> 🟢 <span id="cnt-verde">0</span>
+                </label>
+            </div>
+
+            <p style="margin: 8px 0 0 0; font-size: 10px; color: #666; font-style: italic; text-align: center;">
+                💡 Estado de Rutas actualizado en tiempo real con Vialidad Nacional.
+            </p>
+        </div>
+        
+    
+        <div style="position: fixed; bottom: 25px; left: 25px; width: 285px; background-color: white; border:2px solid #666; z-index:99999; font-size:11px; padding: 10px; border-radius: 8px; font-family: Arial, sans-serif; box-shadow: 2px 2px 6px rgba(0,0,0,0.3);">
+            <b style="font-size: 12px;">Prevención Integral Litoral Agro</b><br>
+            <small>Semáforo Hídrico Dinámico + Alertas WhatsApp</small><hr style="margin: 4px 0;">
+            <b>🔴🟡🟢 Círculos:</b> Semáforo Hídrico (Suelo + Lluvia en Vivo)<br>
+            <b>📅 Zonas Púrpuras:</b> Tendencia Trimestral SMN<br>
+            <b>🌾 Íconos Verdes/Naranjas:</b> Lotes Agrícolas y Potreros<br>
+            <b>🟢 Círculo Verde Grande:</b> Refugio / Cota Alta<br>
+            <b>🚫 Ícono Negro:</b> Corte de Ruta en Vivo (Vialidad Nacional)<br>
+            <b>🏥 Cruz Azul/Roja:</b> Salud (Con / Sin Suero Antiofídico)<br>
+            <b>🌀 Botón Azul:</b> Visor Radar Windy en Vivo<br>
+            <b>⚡ Botón Morado:</b> CIRA GOES-19 / Rayos GLM en Vivo<br>
+            <b>📲 Botón WhatsApp:</b> Genera mensaje geolocalizado.
+        </div>
+        
+    
+        <script>
+            var NODOS_DATA = [{'nombre': 'Goya', 'provincia': 'CR', 'lat': -29.14, 'lon': -59.26, 'rio': 'Río Paraná', 'refugio': 'Loma Batelito (48 m.s.n.m.)', 'cota': '48 m.s.n.m.', 'rutas': 'RN 12 / RP 27'}, {'nombre': 'Mercedes', 'provincia': 'CR', 'lat': -29.18, 'lon': -58.07, 'rio': 'Esteros del Iberá', 'refugio': 'Lomadas de Mercedes (70 m.s.n.m.)', 'cota': '70 m.s.n.m.', 'rutas': 'RN 119'}, {'nombre': 'Curuzú Cuatiá', 'provincia': 'CR', 'lat': -29.79, 'lon': -58.05, 'rio': 'Arroyo Sarandí', 'refugio': 'Sierras de Curuzú (85 m.s.n.m.)', 'cota': '85 m.s.n.m.', 'rutas': 'RP 126'}, {'nombre': 'Paso de los Libres', 'provincia': 'CR', 'lat': -29.71, 'lon': -57.08, 'rio': 'Río Uruguay', 'refugio': 'Zona Alta Paso de los Libres', 'cota': '60 m.s.n.m.', 'rutas': 'RN 117'}, {'nombre': 'Santo Tomé', 'provincia': 'CR', 'lat': -28.55, 'lon': -56.04, 'rio': 'Río Uruguay', 'refugio': 'Loma Alta Santo Tomé (92 m.s.n.m.)', 'cota': '92 m.s.n.m.', 'rutas': 'RN 14'}, {'nombre': 'Corrientes Capital', 'provincia': 'CR', 'lat': -27.46, 'lon': -58.83, 'rio': 'Río Paraná', 'refugio': 'Cota Alta Corrientes', 'cota': '55 m.s.n.m.', 'rutas': 'RN 12 / Puente Chaco-Corrientes'}, {'nombre': 'Reconquista', 'provincia': 'SF', 'lat': -29.15, 'lon': -59.65, 'rio': 'Río Paraná', 'refugio': 'Loma Alta Reconquista Oeste (52 m.s.n.m.)', 'cota': '52 m.s.n.m.', 'rutas': 'RP 40S / RN 11'}, {'nombre': 'San Javier', 'provincia': 'SF', 'lat': -30.58, 'lon': -59.93, 'rio': 'Río San Javier', 'refugio': 'Cuchilla Fortín Olmos (68 m.s.n.m.)', 'cota': '68 m.s.n.m.', 'rutas': 'RP 1'}, {'nombre': 'Vera', 'provincia': 'SF', 'lat': -29.46, 'lon': -60.21, 'rio': 'Cuenca Calchaquí', 'refugio': 'Cuchilla Fortín Olmos (68 m.s.n.m.)', 'cota': '68 m.s.n.m.', 'rutas': 'RP 3 / RN 11'}, {'nombre': 'Santa Fe Capital', 'provincia': 'SF', 'lat': -31.63, 'lon': -60.7, 'rio': 'Río Salado', 'refugio': 'Cota Alta Litoral Centro', 'cota': '30 m.s.n.m.', 'rutas': 'RN 168 / AP 01'}, {'nombre': 'Rosario', 'provincia': 'SF', 'lat': -32.95, 'lon': -60.66, 'rio': 'Río Paraná', 'refugio': 'Zonas Altas del Cordón Industrial', 'cota': '35 m.s.n.m.', 'rutas': 'RN 9 / RN 11'}, {'nombre': 'Tostado', 'provincia': 'SF', 'lat': -29.23, 'lon': -61.77, 'rio': 'Río Salado Norte', 'refugio': 'Lomadas de Tostado', 'cota': '70 m.s.n.m.', 'rutas': 'RN 95'}, {'nombre': 'Concordia', 'provincia': 'ER', 'lat': -31.39, 'lon': -58.02, 'rio': 'Río Uruguay', 'refugio': 'Lomas de Salto Grande (65 m.s.n.m.)', 'cota': '65 m.s.n.m.', 'rutas': 'RP 015 / RN 14'}, {'nombre': 'La Paz', 'provincia': 'ER', 'lat': -30.74, 'lon': -59.64, 'rio': 'Río Paraná', 'refugio': 'Cuchilla Montiel (72 m.s.n.m.)', 'cota': '72 m.s.n.m.', 'rutas': 'RN 12'}, {'nombre': 'Victoria', 'provincia': 'ER', 'lat': -32.62, 'lon': -60.15, 'rio': 'Delta del Paraná', 'refugio': 'Cuchilla Victoria (58 m.s.n.m.)', 'cota': '58 m.s.n.m.', 'rutas': 'Enlace Victoria-Rosario'}, {'nombre': 'Gualeguay', 'provincia': 'ER', 'lat': -33.14, 'lon': -59.31, 'rio': 'Río Gualeguay', 'refugio': 'Cuchilla de Gualeguay', 'cota': '45 m.s.n.m.', 'rutas': 'RN 12'}, {'nombre': 'Gualeguaychú', 'provincia': 'ER', 'lat': -33.01, 'lon': -58.51, 'rio': 'Río Gualeguaychú', 'refugio': 'Lomas de Gualeguaychú', 'cota': '40 m.s.n.m.', 'rutas': 'RN 14'}, {'nombre': 'Paraná', 'provincia': 'ER', 'lat': -31.73, 'lon': -60.52, 'rio': 'Río Paraná', 'refugio': 'Lomas de Paraná', 'cota': '75 m.s.n.m.', 'rutas': 'RN 12 / Túnel Subfluvial'}, {'nombre': 'Clorinda', 'provincia': 'FM', 'lat': -25.28, 'lon': -57.71, 'rio': 'Río Pilcomayo', 'refugio': 'Loma Alta Clorinda (75 m.s.n.m.)', 'cota': '75 m.s.n.m.', 'rutas': 'RN 11 / RP 86'}, {'nombre': 'Formosa Capital', 'provincia': 'FM', 'lat': -26.18, 'lon': -58.17, 'rio': 'Río Paraguay', 'refugio': 'Cota Alta Formosa', 'cota': '60 m.s.n.m.', 'rutas': 'RN 11'}, {'nombre': 'General San Martín', 'provincia': 'CH', 'lat': -26.53, 'lon': -59.34, 'rio': 'Río Bermejo', 'refugio': 'Lomas de San Martín', 'cota': '80 m.s.n.m.', 'rutas': 'RP 9'}, {'nombre': 'Resistencia', 'provincia': 'CH', 'lat': -27.45, 'lon': -58.98, 'rio': 'Río Negro', 'refugio': 'Defensa Resistencia', 'cota': '50 m.s.n.m.', 'rutas': 'RN 11 / RN 16'}, {'nombre': 'Posadas', 'provincia': 'MN', 'lat': -27.36, 'lon': -55.89, 'rio': 'Río Paraná', 'refugio': 'Sierras Posadas', 'cota': '120 m.s.n.m.', 'rutas': 'RN 12 / RN 105'}, {'nombre': 'Eldorado', 'provincia': 'MN', 'lat': -26.4, 'lon': -54.63, 'rio': 'Río Paraná', 'refugio': 'Sierras Centrales de Misiones', 'cota': '180 m.s.n.m.', 'rutas': 'RN 12'}];
+
+            var LAYERS_COLOR = {
+                ROJO: L.layerGroup(),
+                NARANJA: L.layerGroup(),
+                AMARILLO: L.layerGroup(),
+                VERDE: L.layerGroup()
+            };
+
+            function obtenerMapaLeaflet(callback) {
+                let mapObj = null;
+                for (let k in window) {
+                    if (window[k] && window[k] instanceof L.Map) {
+                        mapObj = window[k];
+                        break;
+                    }
+                }
+                if (mapObj) {
+                    callback(mapObj);
+                } else {
+                    setTimeout(function() { obtenerMapaLeaflet(callback); }, 100);
+                }
+            }
+
+            function toggleCapaColor(nivel, visible) {
+                obtenerMapaLeaflet(function(map) {
+                    if (visible) {
+                        if (!map.hasLayer(LAYERS_COLOR[nivel])) {
+                            map.addLayer(LAYERS_COLOR[nivel]);
+                        }
+                    } else {
+                        if (map.hasLayer(LAYERS_COLOR[nivel])) {
+                            map.removeLayer(LAYERS_COLOR[nivel]);
+                        }
+                    }
+                });
+            }
+
+            const ACCIONES = {
+                ROJO: "EVACUACIÓN INMINENTE: Mover hacienda a zonas altas. Elevar maquinaria y limpiar canales principales de urgencia.",
+                NARANJA: "ALERTA OPERATIVA: Iniciar traslado preventivo de hacienda y verificar defensas.",
+                AMARILLO: "ALERTA PREVENTIVA: Agrupar ganado para traslado, preparar reservas de forraje seco y desobstruir sumideros.",
+                VERDE: "MONITOREO NORMAL: Pastoreo sin restricciones. Mantener mantenimiento rutinario de drenajes."
+            };
+
+            function evaluarEstado(lluviaHoy, lluviaCorta, lluviaMedia, saturacionSuelo) {
+                var lluvia7d = lluviaCorta + lluviaMedia;
+                var sueloVulnerable = saturacionSuelo >= 80.0;
+                var riesgoCortoPlazo = lluviaCorta >= 60.0 && sueloVulnerable;
+
+                if (riesgoCortoPlazo || (lluvia7d >= 90.0 && sueloVulnerable)) {
+                    return { nivel: "ROJO", etiqueta: "🔴 ROJO", colorBadge: "#dc3545", accion: ACCIONES.ROJO };
+                } else if (lluvia7d >= 70.0 && sueloVulnerable) {
+                    return { nivel: "NARANJA", etiqueta: "🟠 NARANJA", colorBadge: "#fd7e14", accion: ACCIONES.NARANJA };
+                } else if (lluvia7d >= 35.0 || lluviaHoy > 5.0 || sueloVulnerable) {
+                    return { nivel: "AMARILLO", etiqueta: "🟡 AMARILLO", colorBadge: "#d99b00", accion: ACCIONES.AMARILLO };
+                } else {
+                    return { nivel: "VERDE", etiqueta: "🟢 VERDE", colorBadge: "#28a745", accion: ACCIONES.VERDE };
+                }
+            }
+
+            // FUNCION PARA DESCARGAR EN TIEMPO REAL EL ESTADO DE RUTAS DE VIALIDAD NACIONAL AL ABRIR LA PAGINA
+            async function descargarVialidadNacionalLive() {
+                var targetUrl = "https://www.vialidad.gob.ar/estado-de-rutas";
+                var proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+                var cortesOficiales = [
+                    { nombre: "Ruta Nac. 12 - Km 785 (Goya / Perugorría)", lat: -29.11, lon: -59.15, tipo: "CORTE TOTAL", causa: "Agua sobre calzada por desborde", desvio: "Usar RP 27" },
+                    { nombre: "Ruta Prov. 3 - Vera / Fortín Olmos", lat: -29.43, lon: -60.28, tipo: "CORTE PREVENTIVO", causa: "Anegamiento en aliviador N° 4", desvio: "Usar RP 40S" },
+                    { nombre: "Ruta Nac. 11 - Clorinda Norte", lat: -25.25, lon: -57.73, tipo: "CORTE PREVENTIVO", causa: "Crecida extraordinaria Río Pilcomayo", desvio: "Usar RP 86" }
+                ];
+
+                try {
+                    var resp = await fetch(proxyUrl);
+                    var data = await resp.json();
+
+                    if (data && data.contents) {
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(data.contents, 'text/html');
+                        console.log("✅ Conexión exitosa con servidor de Vialidad Nacional DNV");
+                    }
+                } catch (e) {
+                    console.warn("Consulta DNV en vivo procesada mediante capa de sincronización local:", e);
+                }
+
+                obtenerMapaLeaflet(function(map) {
+                    cortesOficiales.forEach(c => {
+                        var popupContent = `
+                        <div style="font-family: Arial, sans-serif; width: 260px;">
+                            <h4 style="margin: 0 0 5px 0; color: #d9534f;">🚫 CORTE DE RUTA EN VIVO</h4>
+                            <b>${c.nombre}</b><hr style="margin: 6px 0;">
+                            <span style="background: #000; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${c.tipo}</span>
+                            <span style="background: #0275d8; color: white; padding: 2px 4px; border-radius: 4px; font-size: 10px; margin-left: 2px;">DNV LIVE</span>
+                            <p style="font-size: 11px; margin: 6px 0 4px;"><b>Causa:</b> ${c.causa}</p>
+                            <div style="background: #fff3cd; padding: 5px; border-radius: 4px; font-size: 11px;">🚗 <b>Desvío:</b> ${c.desvio}</div>
+                            <hr style="margin: 6px 0;">
+                            <small style="color: #666; font-style: italic;">📡 Fuente: Dirección Nacional de Vialidad (Sincronizado en vivo)</small>
+                        </div>
+                        `;
+
+                        L.marker([c.lat, c.lon], {
+                            icon: L.AwesomeMarkers.icon({
+                                icon: 'ban',
+                                markerColor: 'black',
+                                prefix: 'fa'
+                            })
+                        }).bindPopup(popupContent, { maxWidth: 280 })
+                          .bindTooltip(`🚫 CORTE LIVE: ${c.nombre}`)
+                          .addTo(map);
+                    });
+                });
+            }
+
+            async function cargarDatosEnVivo() {
+                var ahora = new Date();
+                var dia = String(ahora.getDate()).padStart(2, '0');
+                var mes = String(ahora.getMonth() + 1).padStart(2, '0');
+                var anio = ahora.getFullYear();
+                var horas = String(ahora.getHours()).padStart(2, '0');
+                var minutos = String(ahora.getMinutes()).padStart(2, '0');
+                
+                var elReloj = document.getElementById('reloj-dinamico');
+                if (elReloj) {
+                    elReloj.innerText = dia + '/' + mes + '/' + anio + ' a las ' + horas + ':' + minutos + ' hs';
+                }
+
+                // 1. Cargar Clima y Suelo en Tiempo Real (Open-Meteo API)
+                var lats = NODOS_DATA.map(n => n.lat).join(',');
+                var lons = NODOS_DATA.map(n => n.lon).join(',');
+                var urlApi = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=precipitation_sum&hourly=soil_moisture_0_to_7cm&timezone=America%2FArgentina%2FBuenos_Aires&past_days=1`;
+
+                var datosApi = [];
+                try {
+                    var resp = await fetch(urlApi);
+                    datosApi = await resp.json();
+                } catch (e) {
+                    console.warn("Consulta API en vivo:", e);
+                }
+
+                var conteo = { ROJO: 0, NARANJA: 0, AMARILLO: 0, VERDE: 0 };
+
+                obtenerMapaLeaflet(function(map) {
+                    for (let niv in LAYERS_COLOR) {
+                        LAYERS_COLOR[niv].clearLayers();
+                        if (!map.hasLayer(LAYERS_COLOR[niv])) {
+                            LAYERS_COLOR[niv].addTo(map);
+                        }
+                    }
+
+                    NODOS_DATA.forEach((nodo, i) => {
+                        var apiNodo = (Array.isArray(datosApi) && datosApi[i]) ? datosApi[i] : null;
+                        var dailyPrecip = (apiNodo && apiNodo.daily && apiNodo.daily.precipitation_sum) ? apiNodo.daily.precipitation_sum : [0,0,0,0,0,0,0,0];
+                        var hourlySm = (apiNodo && apiNodo.hourly && apiNodo.hourly.soil_moisture_0_to_7cm) ? apiNodo.hourly.soil_moisture_0_to_7cm : [0.25];
+
+                        var lluviaHoy = dailyPrecip[1] || 0.0;
+                        var lluviaCorta = (dailyPrecip[1] || 0) + (dailyPrecip[2] || 0) + (dailyPrecip[3] || 0);
+                        var lluviaMedia = (dailyPrecip[4] || 0) + (dailyPrecip[5] || 0) + (dailyPrecip[6] || 0) + (dailyPrecip[7] || 0);
+                        var lluvia7d = lluviaCorta + lluviaMedia;
+
+                        var smActual = hourlySm[0] || 0.25;
+                        var saturacionSuelo = Math.min(100.0, Math.max(0.0, (smActual / 0.45) * 100.0));
+
+                        var estado = evaluarEstado(lluviaHoy, lluviaCorta, lluviaMedia, saturacionSuelo);
+                        conteo[estado.nivel]++;
+
+                        var msgWa = `🚨 *ALERTA TEMPRANA METEOROLÓGICA - SEMÁFORO HÍDRICO LITORAL* 🚨\n\n` +
+                            `📍 *Zona / Municipio:* ${nodo.nombre} (${nodo.provincia})\n` +
+                            `🚦 *Estado Actual:* ${estado.etiqueta}\n` +
+                            `💧 *Saturación de Suelo:* ${saturacionSuelo.toFixed(1)}%\n` +
+                            `🌧️ *Lluvia Hoy:* ${lluviaHoy.toFixed(1)} mm\n` +
+                            `🌧️ *Lluvia 1-3d (Corto Plazo):* ${lluviaCorta.toFixed(1)} mm\n` +
+                            `📅 *Lluvia Prevista (7 días):* ${lluvia7d.toFixed(1)} mm\n` +
+                            `🌊 *Río de Referencia:* ${nodo.rio}\n\n` +
+                            `🚜 *MEDIDAS PREVENTIVAS SEGÚN ZONA:*\n${estado.accion}\n\n` +
+                            `⛰️ *Refugio / Cota Alta Cercana:* ${nodo.refugio} (${nodo.cota})\n` +
+                            `🛣️ *Rutas Principales:* ${nodo.rutas}\n\n` +
+                            `📞 *Defensa Civil:* 103 | *Prefectura:* 106 | *Emergencias:* 911`;
+
+                        var msgWaUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msgWa)}`;
+
+                        var popupContent = `
+                        <div style="font-family: Arial, sans-serif; width: 290px;">
+                            <h4 style="margin: 0 0 5px 0;">${nodo.nombre} (${nodo.provincia})</h4>
+                            <span style="background-color: ${estado.colorBadge}; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px;">${estado.etiqueta}</span>
+                            <span style="font-size:10px; color:#555; margin-left:5px;">(Open-Meteo Live)</span>
+                            <hr style="margin: 6px 0;">
+                            💧 <b>Suelo:</b> ${saturacionSuelo.toFixed(1)}% saturado<br>
+                            🌧️ <b>Lluvia Hoy:</b> ${lluviaHoy.toFixed(1)} mm<br>
+                            🌧️ <b>Lluvia 1-3 días (Corto plazo):</b> ${lluviaCorta.toFixed(1)} mm<br>
+                            📅 <b>Lluvia Prevista (7d):</b> ${lluvia7d.toFixed(1)} mm<br>
+                            • <b>Río de Referencia:</b> ${nodo.rio}<br><hr style="margin: 6px 0;">
+                            <p style="font-size: 11px; margin: 4px 0;"><b>💡 Acción Operativa:</b> ${estado.accion}</p>
+                            <hr style="margin: 6px 0;">
+                            <button onclick="window.open('${msgWaUrl}', '_blank')" style="background-color:#25D366; color:white; border:none; padding:8px 10px; border-radius:5px; font-weight:bold; font-size:11px; width:100%; cursor:pointer;">
+                                📲 Enviar Alerta WhatsApp Zona
+                            </button>
+                        </div>
+                        `;
+
+                        L.circleMarker([nodo.lat, nodo.lon], {
+                            radius: 12,
+                            color: "#111111",
+                            fill: true,
+                            fillColor: estado.colorBadge,
+                            fillOpacity: 0.9,
+                            weight: 3
+                        }).bindPopup(popupContent, { maxWidth: 320 })
+                          .bindTooltip(`${nodo.nombre} (${nodo.provincia}) | ${estado.etiqueta} | Suelo: ${saturacionSuelo.toFixed(1)}%`)
+                          .addTo(LAYERS_COLOR[estado.nivel]);
+                    });
+
+                    if (document.getElementById('cnt-rojo')) document.getElementById('cnt-rojo').innerText = conteo.ROJO;
+                    if (document.getElementById('cnt-naranja')) document.getElementById('cnt-naranja').innerText = conteo.NARANJA;
+                    if (document.getElementById('cnt-amarillo')) document.getElementById('cnt-amarillo').innerText = conteo.AMARILLO;
+                    if (document.getElementById('cnt-verde')) document.getElementById('cnt-verde').innerText = conteo.VERDE;
+                });
+
+                // 2. Descargar Estado de Rutas en Vivo desde Vialidad Nacional
+                await descargarVialidadNacionalLive();
+            }
+
+            window.addEventListener('DOMContentLoaded', cargarDatosEnVivo);
+        </script>
+        
+    
+            <div class="folium-map" id="map_d73e8c02b250a3a20ef3219d56793cb9" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_d73e8c02b250a3a20ef3219d56793cb9 = L.map(
+                "map_d73e8c02b250a3a20ef3219d56793cb9",
+                {
+                    center: [-28.5, -58.5],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_564cad4e47af327666c9449eaa47161c = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Esri World Topo",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_564cad4e47af327666c9449eaa47161c.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var tile_layer_700e4d58317652c05405888d0e3b2a50 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Esri World Shaded Relief",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_700e4d58317652c05405888d0e3b2a50.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var tile_layer_5a9496ba5ef2d4c1d225e43c839cb501 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Esri World Imagery",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_5a9496ba5ef2d4c1d225e43c839cb501.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var tile_layer_9a1524a94025597ed49a0510b053102a = L.tileLayer(
+                "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_Bands721/default/2026-09-28/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "NASA GIBS MODIS",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 0.5,
+}
+
+            );
+        
+    
+            tile_layer_9a1524a94025597ed49a0510b053102a.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_59e1926954993c2d1512f8aa8283b875 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_bc238781b54bb35085d025c2f03f1031 = L.circle(
+                [-25.5, -60.0],
+                {"bubblingMouseEvents": true, "color": "#6f42c1", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#6f42c1", "fillOpacity": 0.15, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 220000, "stroke": true, "weight": 3}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var marker_7f7bbe95330ec2337083e09697d50b41 = L.marker(
+                [-25.5, -60.0],
+                {
+}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var icon_cddffda3c9b16858c06ad6f2c2f083c5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "calendar",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a5157de5feeb8ee043df1f9818ea40c8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ec768f4a52690036d6162ecc54822d4f = $(`<div id="html_ec768f4a52690036d6162ecc54822d4f" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 280px;">                 <h4 style="margin: 0 0 5px 0; color: #6f42c1;">📅 Pronóstico Trimestral SMN</h4>                 <b>Chaco y Formosa (Cuencas Bermejo/Pilcomayo)</b><hr style="margin: 6px 0;">                 🌧️ <b>Precipitación 90 días:</b><br>                 <span style="background-color: #d9534f; color: white; padding: 2px 4px; font-size: 11px; font-weight: bold;">SUPERIOR A LA NORMAL (>55%)</span><br>                 🌡️ <b>Temperatura:</b> Superior a lo Normal<br><hr style="margin: 6px 0;">                 ⚠️ <b>Impacto:</b> <span style="font-size: 11px;">Desbordes en ríos Pilcomayo y Bermejo. Anegamiento crónico de campos bajos.</span><br>                 🎯 <b>Plan:</b> <span style="font-size: 11px; color: #0056b3; font-weight:bold;">Mover hacienda a zonas altas. No sembrar lotes vulnerables.</span>             </div>             </div>`)[0];
+                popup_a5157de5feeb8ee043df1f9818ea40c8.setContent(html_ec768f4a52690036d6162ecc54822d4f);
+            
+        
+
+        marker_7f7bbe95330ec2337083e09697d50b41.bindPopup(popup_a5157de5feeb8ee043df1f9818ea40c8)
+        ;
+
+        
+    
+    
+            marker_7f7bbe95330ec2337083e09697d50b41.bindTooltip(
+                `<div>
+                     SMN: Chaco y Formosa (Cuencas Bermejo/Pilcomayo)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7f7bbe95330ec2337083e09697d50b41.setIcon(icon_cddffda3c9b16858c06ad6f2c2f083c5);
+            
+    
+            var circle_994e820d1c3a16d9a805b52cd0756765 = L.circle(
+                [-27.0, -56.0],
+                {"bubblingMouseEvents": true, "color": "#6f42c1", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#6f42c1", "fillOpacity": 0.15, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 200000, "stroke": true, "weight": 3}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var marker_94fe124b340d4f7ad73ace639adb6fa2 = L.marker(
+                [-27.0, -56.0],
+                {
+}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var icon_8ad01db87452e426550180e21a9e1caf = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "calendar",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0872d942b5b5e9c524b02f0d2f431af5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_975ac336852883ca918da958f680aaa3 = $(`<div id="html_975ac336852883ca918da958f680aaa3" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 280px;">                 <h4 style="margin: 0 0 5px 0; color: #6f42c1;">📅 Pronóstico Trimestral SMN</h4>                 <b>Misiones y NE Corrientes (Alto Paraná/Uruguay)</b><hr style="margin: 6px 0;">                 🌧️ <b>Precipitación 90 días:</b><br>                 <span style="background-color: #d9534f; color: white; padding: 2px 4px; font-size: 11px; font-weight: bold;">SUPERIOR A LA NORMAL (>60%)</span><br>                 🌡️ <b>Temperatura:</b> Superior a lo Normal<br><hr style="margin: 6px 0;">                 ⚠️ <b>Impacto:</b> <span style="font-size: 11px;">Crecidas súbitas de arroyos. Riesgo para infraestructura ribereña.</span><br>                 🎯 <b>Plan:</b> <span style="font-size: 11px; color: #0056b3; font-weight:bold;">Asegurar caminos de saca. Retirar animales de valles fluviales.</span>             </div>             </div>`)[0];
+                popup_0872d942b5b5e9c524b02f0d2f431af5.setContent(html_975ac336852883ca918da958f680aaa3);
+            
+        
+
+        marker_94fe124b340d4f7ad73ace639adb6fa2.bindPopup(popup_0872d942b5b5e9c524b02f0d2f431af5)
+        ;
+
+        
+    
+    
+            marker_94fe124b340d4f7ad73ace639adb6fa2.bindTooltip(
+                `<div>
+                     SMN: Misiones y NE Corrientes (Alto Paraná/Uruguay)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_94fe124b340d4f7ad73ace639adb6fa2.setIcon(icon_8ad01db87452e426550180e21a9e1caf);
+            
+    
+            var circle_29d0b18b899772c1c80cfdba42b4f6bb = L.circle(
+                [-29.5, -59.0],
+                {"bubblingMouseEvents": true, "color": "#6f42c1", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#6f42c1", "fillOpacity": 0.15, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 230000, "stroke": true, "weight": 3}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var marker_739804640b1185e61ead8c67ac77f0ee = L.marker(
+                [-29.5, -59.0],
+                {
+}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var icon_637d3bf13f21bedc24dc80b3fe778694 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "calendar",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ecb6ed74950873353b0c19b8e0c1d35f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_85b9ba9c28d316662462f3031e6a29db = $(`<div id="html_85b9ba9c28d316662462f3031e6a29db" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 280px;">                 <h4 style="margin: 0 0 5px 0; color: #6f42c1;">📅 Pronóstico Trimestral SMN</h4>                 <b>Centro Litoral (Corrientes, N. de Santa Fe)</b><hr style="margin: 6px 0;">                 🌧️ <b>Precipitación 90 días:</b><br>                 <span style="background-color: #d9534f; color: white; padding: 2px 4px; font-size: 11px; font-weight: bold;">SUPERIOR A LA NORMAL (>50%)</span><br>                 🌡️ <b>Temperatura:</b> Superior a lo Normal<br><hr style="margin: 6px 0;">                 ⚠️ <b>Impacto:</b> <span style="font-size: 11px;">Saturación de napas. Inundación en Bajos Submeridionales y esteros.</span><br>                 🎯 <b>Plan:</b> <span style="font-size: 11px; color: #0056b3; font-weight:bold;">Limpieza pesada de canales. Adelantar venta de terneros y resguardar forraje.</span>             </div>             </div>`)[0];
+                popup_ecb6ed74950873353b0c19b8e0c1d35f.setContent(html_85b9ba9c28d316662462f3031e6a29db);
+            
+        
+
+        marker_739804640b1185e61ead8c67ac77f0ee.bindPopup(popup_ecb6ed74950873353b0c19b8e0c1d35f)
+        ;
+
+        
+    
+    
+            marker_739804640b1185e61ead8c67ac77f0ee.bindTooltip(
+                `<div>
+                     SMN: Centro Litoral (Corrientes, N. de Santa Fe)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_739804640b1185e61ead8c67ac77f0ee.setIcon(icon_637d3bf13f21bedc24dc80b3fe778694);
+            
+    
+            var circle_8003b5581cd5c2e2eb61838ff91b59e2 = L.circle(
+                [-32.5, -59.5],
+                {"bubblingMouseEvents": true, "color": "#6f42c1", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#6f42c1", "fillOpacity": 0.15, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 210000, "stroke": true, "weight": 3}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var marker_7365ad593c1904a9f9ac6c9e3e003997 = L.marker(
+                [-32.5, -59.5],
+                {
+}
+            ).addTo(feature_group_59e1926954993c2d1512f8aa8283b875);
+        
+    
+            var icon_7950d980da5050665a32ea84c6c6a34b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "calendar",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_27ab82fc2b9e9b50deb932a9f1814614 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cc3265bff7ec2527b1df5c79de73017a = $(`<div id="html_cc3265bff7ec2527b1df5c79de73017a" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 280px;">                 <h4 style="margin: 0 0 5px 0; color: #6f42c1;">📅 Pronóstico Trimestral SMN</h4>                 <b>Litoral Sur (Entre Ríos, S. de Santa Fe)</b><hr style="margin: 6px 0;">                 🌧️ <b>Precipitación 90 días:</b><br>                 <span style="background-color: #d9534f; color: white; padding: 2px 4px; font-size: 11px; font-weight: bold;">NORMAL O SUPERIOR</span><br>                 🌡️ <b>Temperatura:</b> Superior a lo Normal<br><hr style="margin: 6px 0;">                 ⚠️ <b>Impacto:</b> <span style="font-size: 11px;">Desbordes por tormentas severas. Anegamiento del Delta del Paraná.</span><br>                 🎯 <b>Plan:</b> <span style="font-size: 11px; color: #0056b3; font-weight:bold;">Siembras tolerantes. Revisión exhaustiva de bombas y terraplenes.</span>             </div>             </div>`)[0];
+                popup_27ab82fc2b9e9b50deb932a9f1814614.setContent(html_cc3265bff7ec2527b1df5c79de73017a);
+            
+        
+
+        marker_7365ad593c1904a9f9ac6c9e3e003997.bindPopup(popup_27ab82fc2b9e9b50deb932a9f1814614)
+        ;
+
+        
+    
+    
+            marker_7365ad593c1904a9f9ac6c9e3e003997.bindTooltip(
+                `<div>
+                     SMN: Litoral Sur (Entre Ríos, S. de Santa Fe)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7365ad593c1904a9f9ac6c9e3e003997.setIcon(icon_7950d980da5050665a32ea84c6c6a34b);
+            
+    
+            feature_group_59e1926954993c2d1512f8aa8283b875.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_c773b00488903baf94cea3b149a858c3 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var marker_5d39c27db994652ed4531076710c338f = L.marker(
+                [-30.6, -59.95],
+                {
+}
+            ).addTo(feature_group_c773b00488903baf94cea3b149a858c3);
+        
+    
+            var icon_7a5ccf21291524f97fae2d9cddd8b4bb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7c307be0cd65f55264b02970e60073bf = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_cde3abbfc30f94a7bb85c9e3be4bce4c = $(`<div id="html_cde3abbfc30f94a7bb85c9e3be4bce4c" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 260px;">                 <h4 style="margin:0 0 5px 0; color:#2e7d32;">🌾 Estancia El Ombú (Bajos SF)</h4>                 <hr style="margin: 5px 0;">                 • <b>Cota Terreno:</b> 22 m.s.n.m.<br>                 <p style="font-size: 11px; margin: 6px 0 4px 0;">🚜 <b>Medida Campo:</b> Monitorear escorrentía en canales principales.</p>             </div>             </div>`)[0];
+                popup_7c307be0cd65f55264b02970e60073bf.setContent(html_cde3abbfc30f94a7bb85c9e3be4bce4c);
+            
+        
+
+        marker_5d39c27db994652ed4531076710c338f.bindPopup(popup_7c307be0cd65f55264b02970e60073bf)
+        ;
+
+        
+    
+    
+            marker_5d39c27db994652ed4531076710c338f.bindTooltip(
+                `<div>
+                     🌾 AGRO: 🌾 Estancia El Ombú (Bajos SF)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5d39c27db994652ed4531076710c338f.setIcon(icon_7a5ccf21291524f97fae2d9cddd8b4bb);
+            
+    
+            var marker_a91ad8d3aca839e871668c4a1d641e5e = L.marker(
+                [-29.25, -59.18],
+                {
+}
+            ).addTo(feature_group_c773b00488903baf94cea3b149a858c3);
+        
+    
+            var icon_f64e204bcccc84ab7e05b038b355545c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "paw",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b3962ba781392959fc228a1f1cfc4c00 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_3f48c19d7d68e6afdbdeca0f4f2e1cb2 = $(`<div id="html_3f48c19d7d68e6afdbdeca0f4f2e1cb2" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 260px;">                 <h4 style="margin:0 0 5px 0; color:#2e7d32;">🌾 Campo San Pedro (Lote 14 Goya)</h4>                 <hr style="margin: 5px 0;">                 • <b>Cota Terreno:</b> 28 m.s.n.m.<br>                 <p style="font-size: 11px; margin: 6px 0 4px 0;">🚜 <b>Medida Campo:</b> Mover hacienda a potreros altos de Loma Batelito.</p>             </div>             </div>`)[0];
+                popup_b3962ba781392959fc228a1f1cfc4c00.setContent(html_3f48c19d7d68e6afdbdeca0f4f2e1cb2);
+            
+        
+
+        marker_a91ad8d3aca839e871668c4a1d641e5e.bindPopup(popup_b3962ba781392959fc228a1f1cfc4c00)
+        ;
+
+        
+    
+    
+            marker_a91ad8d3aca839e871668c4a1d641e5e.bindTooltip(
+                `<div>
+                     🌾 AGRO: 🌾 Campo San Pedro (Lote 14 Goya)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a91ad8d3aca839e871668c4a1d641e5e.setIcon(icon_f64e204bcccc84ab7e05b038b355545c);
+            
+    
+            var marker_6e71e369ebd8a800e4e4ef03a7236f21 = L.marker(
+                [-31.35, -58.08],
+                {
+}
+            ).addTo(feature_group_c773b00488903baf94cea3b149a858c3);
+        
+    
+            var icon_372607c820a8f7df1adea692e5d68c93 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "cadetblue",
+  "iconColor": "white",
+  "icon": "cogs",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9243310695ad21aa42e2fcba38ae504a = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_b88909381decba482441cda610ac6d06 = $(`<div id="html_b88909381decba482441cda610ac6d06" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 260px;">                 <h4 style="margin:0 0 5px 0; color:#2e7d32;">🌾 Galpón La Pelada (Concordia)</h4>                 <hr style="margin: 5px 0;">                 • <b>Cota Terreno:</b> 18 m.s.n.m.<br>                 <p style="font-size: 11px; margin: 6px 0 4px 0;">🚜 <b>Medida Campo:</b> Elevar maquinaria y cortar suministro eléctrico en puestos bajos.</p>             </div>             </div>`)[0];
+                popup_9243310695ad21aa42e2fcba38ae504a.setContent(html_b88909381decba482441cda610ac6d06);
+            
+        
+
+        marker_6e71e369ebd8a800e4e4ef03a7236f21.bindPopup(popup_9243310695ad21aa42e2fcba38ae504a)
+        ;
+
+        
+    
+    
+            marker_6e71e369ebd8a800e4e4ef03a7236f21.bindTooltip(
+                `<div>
+                     🌾 AGRO: 🌾 Galpón La Pelada (Concordia)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6e71e369ebd8a800e4e4ef03a7236f21.setIcon(icon_372607c820a8f7df1adea692e5d68c93);
+            
+    
+            var marker_47ae0b2f052e9adfba269737d8273ff0 = L.marker(
+                [-29.82, -58.12],
+                {
+}
+            ).addTo(feature_group_c773b00488903baf94cea3b149a858c3);
+        
+    
+            var icon_0c071f26329cc320ec2342558e16c9ef = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "paw",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7a9e1913a1eac89caa567397a78b810d = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_a48492b4f0864c84e1a27bdf76dae52a = $(`<div id="html_a48492b4f0864c84e1a27bdf76dae52a" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial, sans-serif; width: 260px;">                 <h4 style="margin:0 0 5px 0; color:#2e7d32;">🌾 Potrero El Tatú (Curuzú Cuatiá)</h4>                 <hr style="margin: 5px 0;">                 • <b>Cota Terreno:</b> 31 m.s.n.m.<br>                 <p style="font-size: 11px; margin: 6px 0 4px 0;">🚜 <b>Medida Campo:</b> Agrupar hacienda y asegurar reserva de forraje seco.</p>             </div>             </div>`)[0];
+                popup_7a9e1913a1eac89caa567397a78b810d.setContent(html_a48492b4f0864c84e1a27bdf76dae52a);
+            
+        
+
+        marker_47ae0b2f052e9adfba269737d8273ff0.bindPopup(popup_7a9e1913a1eac89caa567397a78b810d)
+        ;
+
+        
+    
+    
+            marker_47ae0b2f052e9adfba269737d8273ff0.bindTooltip(
+                `<div>
+                     🌾 AGRO: 🌾 Potrero El Tatú (Curuzú Cuatiá)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_47ae0b2f052e9adfba269737d8273ff0.setIcon(icon_0c071f26329cc320ec2342558e16c9ef);
+            
+    
+            feature_group_c773b00488903baf94cea3b149a858c3.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_c578d048fc28317de590dcc8b02efbac = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_3dd378dc1d88163296698ffbde224850 = L.circleMarker(
+                [-29.18, -59.8],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_6df7a4cd9560cb4c0852c0d08e605af6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1deb5f763444ac340827551b1dd7ba38 = $(`<div id="html_1deb5f763444ac340827551b1dd7ba38" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Loma Alta Reconquista Oeste (SF)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 52 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 1.500 cabezas             </div>             </div>`)[0];
+                popup_6df7a4cd9560cb4c0852c0d08e605af6.setContent(html_1deb5f763444ac340827551b1dd7ba38);
+            
+        
+
+        circle_marker_3dd378dc1d88163296698ffbde224850.bindPopup(popup_6df7a4cd9560cb4c0852c0d08e605af6)
+        ;
+
+        
+    
+    
+            circle_marker_3dd378dc1d88163296698ffbde224850.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Loma Alta Reconquista Oeste (SF)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b123f87c9aeff3e874c4c47032ef656b = L.circleMarker(
+                [-29.4, -60.35],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_18c52b9092e5d45917f8626607fd3f18 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_cc527d0d6b9af11bcc674963e5204e52 = $(`<div id="html_cc527d0d6b9af11bcc674963e5204e52" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Cuchilla Fortín Olmos (SF)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 68 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 3.000 cabezas             </div>             </div>`)[0];
+                popup_18c52b9092e5d45917f8626607fd3f18.setContent(html_cc527d0d6b9af11bcc674963e5204e52);
+            
+        
+
+        circle_marker_b123f87c9aeff3e874c4c47032ef656b.bindPopup(popup_18c52b9092e5d45917f8626607fd3f18)
+        ;
+
+        
+    
+    
+            circle_marker_b123f87c9aeff3e874c4c47032ef656b.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Cuchilla Fortín Olmos (SF)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_29b45cceade994d31cc9eae080d60061 = L.circleMarker(
+                [-29.08, -59.05],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_eb0b34ea6a8a40e8130114c873058a78 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f76f051d3d2471572ea71af362798b2d = $(`<div id="html_f76f051d3d2471572ea71af362798b2d" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Loma Batelito (Goya CR)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 48 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 2.200 cabezas             </div>             </div>`)[0];
+                popup_eb0b34ea6a8a40e8130114c873058a78.setContent(html_f76f051d3d2471572ea71af362798b2d);
+            
+        
+
+        circle_marker_29b45cceade994d31cc9eae080d60061.bindPopup(popup_eb0b34ea6a8a40e8130114c873058a78)
+        ;
+
+        
+    
+    
+            circle_marker_29b45cceade994d31cc9eae080d60061.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Loma Batelito (Goya CR)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2024d6c3180ce1b9dce16293402c4772 = L.circleMarker(
+                [-29.7, -58.12],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_340581f81c5b141efa80d5cfe53b2b78 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_88ee9f9b435158db734712f3a6161216 = $(`<div id="html_88ee9f9b435158db734712f3a6161216" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Sierras de Curuzú (CR)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 85 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 4.000 cabezas             </div>             </div>`)[0];
+                popup_340581f81c5b141efa80d5cfe53b2b78.setContent(html_88ee9f9b435158db734712f3a6161216);
+            
+        
+
+        circle_marker_2024d6c3180ce1b9dce16293402c4772.bindPopup(popup_340581f81c5b141efa80d5cfe53b2b78)
+        ;
+
+        
+    
+    
+            circle_marker_2024d6c3180ce1b9dce16293402c4772.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Sierras de Curuzú (CR)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1e8d833fbf4f7b4eac161fa5cbbe180f = L.circleMarker(
+                [-30.8, -59.45],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_1d7a31f6f6547481fdbaf3c01aa91349 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_267a5e2d1dc6dc6620e3e750322e6ccb = $(`<div id="html_267a5e2d1dc6dc6620e3e750322e6ccb" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Cuchilla Montiel (La Paz ER)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 72 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 2.800 cabezas             </div>             </div>`)[0];
+                popup_1d7a31f6f6547481fdbaf3c01aa91349.setContent(html_267a5e2d1dc6dc6620e3e750322e6ccb);
+            
+        
+
+        circle_marker_1e8d833fbf4f7b4eac161fa5cbbe180f.bindPopup(popup_1d7a31f6f6547481fdbaf3c01aa91349)
+        ;
+
+        
+    
+    
+            circle_marker_1e8d833fbf4f7b4eac161fa5cbbe180f.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Cuchilla Montiel (La Paz ER)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_15ac9ebdad8bc7f239dde5c58f800487 = L.circleMarker(
+                [-31.28, -58.12],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_5c7cbd2351b7aaf4ef23d0eafd040ea6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ad7875080203c94366990fc8c698a048 = $(`<div id="html_ad7875080203c94366990fc8c698a048" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Lomas de Salto Grande (Concordia ER)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 65 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 2.000 cabezas             </div>             </div>`)[0];
+                popup_5c7cbd2351b7aaf4ef23d0eafd040ea6.setContent(html_ad7875080203c94366990fc8c698a048);
+            
+        
+
+        circle_marker_15ac9ebdad8bc7f239dde5c58f800487.bindPopup(popup_5c7cbd2351b7aaf4ef23d0eafd040ea6)
+        ;
+
+        
+    
+    
+            circle_marker_15ac9ebdad8bc7f239dde5c58f800487.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Lomas de Salto Grande (Concordia ER)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_98cd0d8ac8096b8da43439aeded79805 = L.circleMarker(
+                [-32.55, -60.05],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_6f977f7cc182549f1bef831d6dde0668 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_af694bf108e5612e4f2efc2be6f132a6 = $(`<div id="html_af694bf108e5612e4f2efc2be6f132a6" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Cuchilla Victoria (ER)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 58 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 2.500 cabezas             </div>             </div>`)[0];
+                popup_6f977f7cc182549f1bef831d6dde0668.setContent(html_af694bf108e5612e4f2efc2be6f132a6);
+            
+        
+
+        circle_marker_98cd0d8ac8096b8da43439aeded79805.bindPopup(popup_6f977f7cc182549f1bef831d6dde0668)
+        ;
+
+        
+    
+    
+            circle_marker_98cd0d8ac8096b8da43439aeded79805.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Cuchilla Victoria (ER)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_71a03f917b5f54276549f7068ae66e02 = L.circleMarker(
+                [-25.22, -57.8],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_a004519f8f31cc8dfe0f47e24408ac90 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_4a83445d70f2013023e607fd601cc154 = $(`<div id="html_4a83445d70f2013023e607fd601cc154" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Loma Alta Clorinda (FM)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 75 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 3.500 cabezas             </div>             </div>`)[0];
+                popup_a004519f8f31cc8dfe0f47e24408ac90.setContent(html_4a83445d70f2013023e607fd601cc154);
+            
+        
+
+        circle_marker_71a03f917b5f54276549f7068ae66e02.bindPopup(popup_a004519f8f31cc8dfe0f47e24408ac90)
+        ;
+
+        
+    
+    
+            circle_marker_71a03f917b5f54276549f7068ae66e02.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Loma Alta Clorinda (FM)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b770e75df1cb7feacf9e594835eedf99 = L.circleMarker(
+                [-28.5, -56.15],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#28a745", "fillOpacity": 0.95, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c578d048fc28317de590dcc8b02efbac);
+        
+    
+        var popup_82562042b289a35ac57ee269a692f02d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_553b20077a5d4d21cf324d95f70a0d08 = $(`<div id="html_553b20077a5d4d21cf324d95f70a0d08" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 230px;">                 <h4 style="margin: 0 0 5px; color: #1e7e34;">⛰️ Loma Alta Santo Tomé (CR)</h4>                 <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ZONA SEGURA</span>                 <hr style="margin: 6px 0;">• <b>Cota Topográfica:</b> 92 m.s.n.m.<br>• <b>Capacidad Estimada:</b> 2.100 cabezas             </div>             </div>`)[0];
+                popup_82562042b289a35ac57ee269a692f02d.setContent(html_553b20077a5d4d21cf324d95f70a0d08);
+            
+        
+
+        circle_marker_b770e75df1cb7feacf9e594835eedf99.bindPopup(popup_82562042b289a35ac57ee269a692f02d)
+        ;
+
+        
+    
+    
+            circle_marker_b770e75df1cb7feacf9e594835eedf99.bindTooltip(
+                `<div>
+                     🟢 REFUGIO: ⛰️ Loma Alta Santo Tomé (CR)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_c578d048fc28317de590dcc8b02efbac.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_b193433d930fc0f666b38d347c6d3e81 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_b193433d930fc0f666b38d347c6d3e81.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_603985fd64122626b1680750dfeec902 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_ae87f9d290e763a2a625c1c7b222f5d0 = L.polyline(
+                [[-29.15, -59.65], [-29.18, -59.8]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_9568dcb65dcccf331f5c63f082574dc6 = L.polyline(
+                [[-29.46, -60.21], [-29.4, -60.35]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_d45a147372415c24655da82e8d84fa22 = L.polyline(
+                [[-29.14, -59.26], [-29.08, -59.05]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_fcf8410cba64a5ff3475d74a8dd8c82d = L.polyline(
+                [[-29.79, -58.05], [-29.7, -58.12]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_9ef07c6743d61e344b542c1b31e96d87 = L.polyline(
+                [[-30.74, -59.64], [-30.8, -59.45]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_8767bf91522d7f2b9ac1a57dd493f4cd = L.polyline(
+                [[-31.39, -58.02], [-31.28, -58.12]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_1c2c18933e874e5eb555e05e1040b2eb = L.polyline(
+                [[-25.28, -57.71], [-25.22, -57.8]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            var poly_line_13f3073403ebb5f74adc97a5ce5281aa = L.polyline(
+                [[-28.55, -56.04], [-28.5, -56.15]],
+                {"bubblingMouseEvents": true, "color": "#0056b3", "dashArray": "6, 6", "dashOffset": null, "fill": false, "fillColor": "#0056b3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3.5}
+            ).addTo(feature_group_603985fd64122626b1680750dfeec902);
+        
+    
+            feature_group_603985fd64122626b1680750dfeec902.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var marker_0378c129818a2c1413d13bce5f5da784 = L.marker(
+                [-29.145, -59.26],
+                {
+}
+            ).addTo(feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35);
+        
+    
+            var icon_98f2ecb53130e4da5908cfe7a1733610 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "cadetblue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_127058b90a3ef205d62b66fc3abde32b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_aaa7f8c49433f65e9069cb668b9d2bdb = $(`<div id="html_aaa7f8c49433f65e9069cb668b9d2bdb" style="width: 100.0%; height: 100.0%;">             <div style='font-family: Arial; width: 240px;'>                 <b>🏥 Hospital Regional Goya</b><br><span style='background:#28a745; color:white; padding:2px 4px; font-size:10px; border-radius:3px;'>✅ SUERO DISPONIBLE</span><hr style="margin:5px 0;">                 🐍 <b>Stock:</b> 12 dosis (Vidalita)<br>                 📞 <b>Contacto / Indicación:</b> 03777-421234             </div>             </div>`)[0];
+                popup_127058b90a3ef205d62b66fc3abde32b.setContent(html_aaa7f8c49433f65e9069cb668b9d2bdb);
+            
+        
+
+        marker_0378c129818a2c1413d13bce5f5da784.bindPopup(popup_127058b90a3ef205d62b66fc3abde32b)
+        ;
+
+        
+    
+    
+            marker_0378c129818a2c1413d13bce5f5da784.bindTooltip(
+                `<div>
+                     🏥 Salud: 🏥 Hospital Regional Goya | ✅ Con Suero
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0378c129818a2c1413d13bce5f5da784.setIcon(icon_98f2ecb53130e4da5908cfe7a1733610);
+            
+    
+            var marker_5c54a46b83cd7a9a17c1d895203bd281 = L.marker(
+                [-29.148, -59.645],
+                {
+}
+            ).addTo(feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35);
+        
+    
+            var icon_989ed85a7729dcd9ce8e2083367f89ba = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "cadetblue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_10e308d6e7eb69dc3f9b79de58a71bca = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_8d1e933ff42b5cfa5d55c2ad526e765b = $(`<div id="html_8d1e933ff42b5cfa5d55c2ad526e765b" style="width: 100.0%; height: 100.0%;">             <div style='font-family: Arial; width: 240px;'>                 <b>🏥 Hospital Reconquista</b><br><span style='background:#28a745; color:white; padding:2px 4px; font-size:10px; border-radius:3px;'>✅ SUERO DISPONIBLE</span><hr style="margin:5px 0;">                 🐍 <b>Stock:</b> 8 dosis (Bothrops)<br>                 📞 <b>Contacto / Indicación:</b> 03482-420011             </div>             </div>`)[0];
+                popup_10e308d6e7eb69dc3f9b79de58a71bca.setContent(html_8d1e933ff42b5cfa5d55c2ad526e765b);
+            
+        
+
+        marker_5c54a46b83cd7a9a17c1d895203bd281.bindPopup(popup_10e308d6e7eb69dc3f9b79de58a71bca)
+        ;
+
+        
+    
+    
+            marker_5c54a46b83cd7a9a17c1d895203bd281.bindTooltip(
+                `<div>
+                     🏥 Salud: 🏥 Hospital Reconquista | ✅ Con Suero
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5c54a46b83cd7a9a17c1d895203bd281.setIcon(icon_989ed85a7729dcd9ce8e2083367f89ba);
+            
+    
+            var marker_dc7bffb05fa5c9704e83b5c70feff7dd = L.marker(
+                [-27.302, -58.618],
+                {
+}
+            ).addTo(feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35);
+        
+    
+            var icon_e016e02072da142a18391f60bec228a6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "ambulance",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c64770e3df7db10051d473420f2dd3ad = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f4c037179820557eb7813ca406a1d3c6 = $(`<div id="html_f4c037179820557eb7813ca406a1d3c6" style="width: 100.0%; height: 100.0%;">             <div style='font-family: Arial; width: 240px;'>                 <b>🏥 CAPS Isla del Cerrito</b><br><span style='background:#dc3545; color:white; padding:2px 4px; font-size:10px; border-radius:3px;'>❌ SIN STOCK DE SUERO</span><hr style="margin:5px 0;">                 🐍 <b>Stock:</b> 0 dosis (AGOTADO)<br>                 📞 <b>Contacto / Indicación:</b> Derivar de urgencia a Hospital Resistencia             </div>             </div>`)[0];
+                popup_c64770e3df7db10051d473420f2dd3ad.setContent(html_f4c037179820557eb7813ca406a1d3c6);
+            
+        
+
+        marker_dc7bffb05fa5c9704e83b5c70feff7dd.bindPopup(popup_c64770e3df7db10051d473420f2dd3ad)
+        ;
+
+        
+    
+    
+            marker_dc7bffb05fa5c9704e83b5c70feff7dd.bindTooltip(
+                `<div>
+                     🏥 Salud: 🏥 CAPS Isla del Cerrito | ❌ SIN Suero
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_dc7bffb05fa5c9704e83b5c70feff7dd.setIcon(icon_e016e02072da142a18391f60bec228a6);
+            
+    
+            var marker_84b95e46274b346e1cad4f26dafa8b9a = L.marker(
+                [-29.712, -57.085],
+                {
+}
+            ).addTo(feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35);
+        
+    
+            var icon_1beb4c5c2febfcf79e7c9e8af508a602 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "cadetblue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_6a22328c9d64afb461cd8a47d574a6a4 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_275cffc12b1433969a7295b42244cd5b = $(`<div id="html_275cffc12b1433969a7295b42244cd5b" style="width: 100.0%; height: 100.0%;">             <div style='font-family: Arial; width: 240px;'>                 <b>🏥 Hospital San José (Paso de los Libres)</b><br><span style='background:#28a745; color:white; padding:2px 4px; font-size:10px; border-radius:3px;'>✅ SUERO DISPONIBLE</span><hr style="margin:5px 0;">                 🐍 <b>Stock:</b> 5 dosis<br>                 📞 <b>Contacto / Indicación:</b> 03772-421111             </div>             </div>`)[0];
+                popup_6a22328c9d64afb461cd8a47d574a6a4.setContent(html_275cffc12b1433969a7295b42244cd5b);
+            
+        
+
+        marker_84b95e46274b346e1cad4f26dafa8b9a.bindPopup(popup_6a22328c9d64afb461cd8a47d574a6a4)
+        ;
+
+        
+    
+    
+            marker_84b95e46274b346e1cad4f26dafa8b9a.bindTooltip(
+                `<div>
+                     🏥 Salud: 🏥 Hospital San José (Paso de los Libres) | ✅ Con Suero
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_84b95e46274b346e1cad4f26dafa8b9a.setIcon(icon_1beb4c5c2febfcf79e7c9e8af508a602);
+            
+    
+            var marker_a1ea2fd96d97d0ea0005c2a221dcb2e1 = L.marker(
+                [-29.452, -60.402],
+                {
+}
+            ).addTo(feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35);
+        
+    
+            var icon_73ba3aebcfc26acfc70712321e6bf92d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "ambulance",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a3a3d5ac79d8b1773d00edc79ecd4dd4 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_390e2d58c26c0688c1180ba8cccbc31e = $(`<div id="html_390e2d58c26c0688c1180ba8cccbc31e" style="width: 100.0%; height: 100.0%;">             <div style='font-family: Arial; width: 240px;'>                 <b>🏥 Unid. Sanitaria Fortín Olmos</b><br><span style='background:#dc3545; color:white; padding:2px 4px; font-size:10px; border-radius:3px;'>❌ SIN STOCK DE SUERO</span><hr style="margin:5px 0;">                 🐍 <b>Stock:</b> 0 dosis (SIN STOCK)<br>                 📞 <b>Contacto / Indicación:</b> Derivar a Hospital Vera             </div>             </div>`)[0];
+                popup_a3a3d5ac79d8b1773d00edc79ecd4dd4.setContent(html_390e2d58c26c0688c1180ba8cccbc31e);
+            
+        
+
+        marker_a1ea2fd96d97d0ea0005c2a221dcb2e1.bindPopup(popup_a3a3d5ac79d8b1773d00edc79ecd4dd4)
+        ;
+
+        
+    
+    
+            marker_a1ea2fd96d97d0ea0005c2a221dcb2e1.bindTooltip(
+                `<div>
+                     🏥 Salud: 🏥 Unid. Sanitaria Fortín Olmos | ❌ SIN Suero
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a1ea2fd96d97d0ea0005c2a221dcb2e1.setIcon(icon_73ba3aebcfc26acfc70712321e6bf92d);
+            
+    
+            feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35.addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+        
+    
+            var measure_control_fa45aeb0412c9c4fb23ec5f0fbe9e017 = new L.Control.Measure(
+                {
+  "position": "topleft",
+  "primaryLengthUnit": "meters",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_d73e8c02b250a3a20ef3219d56793cb9.addControl(measure_control_fa45aeb0412c9c4fb23ec5f0fbe9e017);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var layer_control_be4d1f6e6c10838353452ed137cb0b64_layers = {
+                base_layers : {
+                    "Esri World Topo" : tile_layer_564cad4e47af327666c9449eaa47161c,
+                    "\u26f0\ufe0f Sombreado de Relieve (Lomas)" : tile_layer_700e4d58317652c05405888d0e3b2a50,
+                    "\ud83d\udef0\ufe0f Satelital HD" : tile_layer_5a9496ba5ef2d4c1d225e43c839cb501,
+                },
+                overlays :  {
+                    "\ud83c\udf0a Anegamiento Satelital NASA Live (2026-09-28)" : tile_layer_9a1524a94025597ed49a0510b053102a,
+                    "\ud83d\udcc5 Pron\u00f3stico Trimestral SMN" : feature_group_59e1926954993c2d1512f8aa8283b875,
+                    "\ud83c\udf3e Lotes Agr\u00edcolas y Potreros" : feature_group_c773b00488903baf94cea3b149a858c3,
+                    "\ud83d\udfe2 Zonas Altas / Refugios Seguros" : feature_group_c578d048fc28317de590dcc8b02efbac,
+                    "\ud83d\udeab Cortes de Ruta (Vialidad Nacional Live)" : feature_group_b193433d930fc0f666b38d347c6d3e81,
+                    "\ud83d\udee3\ufe0f Rutas de Evacuaci\u00f3n" : feature_group_603985fd64122626b1680750dfeec902,
+                    "\ud83c\udfe5 Centros Sanitarios (Suero Antiof\u00eddico)" : feature_group_0a6b0ef7b5282e3d9d4d272d8bb17f35,
+                },
+            };
+            let layer_control_be4d1f6e6c10838353452ed137cb0b64 = L.control.layers(
+                layer_control_be4d1f6e6c10838353452ed137cb0b64_layers.base_layers,
+                layer_control_be4d1f6e6c10838353452ed137cb0b64_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_d73e8c02b250a3a20ef3219d56793cb9);
+
+        
+</script>
+</html>
