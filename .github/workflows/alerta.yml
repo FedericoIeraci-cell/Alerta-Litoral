@@ -1,0 +1,25 @@
+name: Monitoreo Litoral 24/7
+
+on:
+  schedule:
+    # Se ejecuta automáticamente cada 6 horas
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Permite probarlo manualmente desde GitHub cuando quieras
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar librerías
+        run: pip install requests
+
+      - name: Ejecutar análisis y alerta
+        run: python verificar.py
