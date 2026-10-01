@@ -1,5 +1,0 @@
-streamlit
-folium
-streamlit-folium
-requests
-python-telegram-bot
