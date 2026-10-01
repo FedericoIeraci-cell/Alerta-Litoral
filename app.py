@@ -49,15 +49,15 @@ ACCIONES = {
     "VERDE (Normal)": "MONITOREO NORMAL: Pastoreo sin restricciones. Mantener mantenimiento rutinario de drenajes."
 }
 
-# --- FUNCIÓN CON CACHÉ DE 15 MINUTOS PARA EVITAR TRABAR LA APP ---
+# --- FUNCIÓN CON CACHÉ DE 15 MINUTOS PARA LEER PREFECTURA ---
 @st.cache_data(ttl=900)
 def obtener_tabla_rios_pref():
-    """Descarga la tabla de Prefectura una sola vez cada 15 min."""
+    """Descarga la tabla de Prefectura Naval en vivo."""
     dict_alturas = {}
     try:
         url = "https://www.argentina.gob.ar/prefecturanaval/alturas-de-rios"
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        resp = requests.get(url, headers=headers, timeout=3)
+        resp = requests.get(url, headers=headers, timeout=5)
         
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, 'html.parser')
@@ -70,7 +70,7 @@ def obtener_tabla_rios_pref():
                         dict_alturas[puerto] = float(altura_raw)
                     except:
                         pass
-    except Exception as e:
+    except Exception:
         pass
     return dict_alturas
 
@@ -85,14 +85,14 @@ def consultar_altura_rio(puerto_nombre):
     return None
 
 def consultar_estado_real(lat, lon, puerto_nombre, cota_alerta, cota_evac):
-    # 1. Consulta Metereológica (Open-Meteo) con timeout
+    # 1. Consulta Metereológica (Open-Meteo)
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=precipitation_sum&hourly=soil_moisture_0_to_7cm&timezone=America%2FArgentina%2FBuenos_Aires&past_days=1"
     
     lluvia_hoy, lluvia_corta, lluvia_7d, saturacion = 0, 0, 0, 0
     suelo_vulnerable = False
     
     try:
-        resp = requests.get(url, timeout=3).json()
+        resp = requests.get(url, timeout=4).json()
         daily = resp.get("daily", {}).get("precipitation_sum", [0]*8)
         hourly_sm = resp.get("hourly", {}).get("soil_moisture_0_to_7cm", [0.25])
         
@@ -107,7 +107,7 @@ def consultar_estado_real(lat, lon, puerto_nombre, cota_alerta, cota_evac):
     except:
         pass
 
-    # 2. Consulta Altura Río
+    # 2. Consulta Altura Río en Vivo
     altura_rio = consultar_altura_rio(puerto_nombre)
     info_rio = " | Río no medido en este punto."
     rio_critico, rio_alerta = False, False
