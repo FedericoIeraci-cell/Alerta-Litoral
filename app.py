@@ -42,7 +42,6 @@ NODOS_LITORAL = [
     {'nombre': 'Eldorado', 'provincia': 'MN', 'lat': -26.4, 'lon': -54.63, 'id_rio': 'ELDORADO', 'alerta': 16.00, 'evacuacion': 17.00}
 ]
 
-# Diccionario con las acciones detalladas
 ACCIONES = {
     "ROJO (Crítico)": "EVACUACIÓN INMINENTE: Mover hacienda a zonas altas. Elevar maquinaria y limpiar canales principales de urgencia.",
     "NARANJA (Alerta Operativa)": "ALERTA OPERATIVA: Iniciar traslado preventivo de hacienda y verificar defensas.",
@@ -50,38 +49,50 @@ ACCIONES = {
     "VERDE (Normal)": "MONITOREO NORMAL: Pastoreo sin restricciones. Mantener mantenimiento rutinario de drenajes."
 }
 
-def consultar_altura_rio(puerto_nombre):
-    """Consulta la altura del río en vivo desde la web de Prefectura Naval."""
-    if not puerto_nombre:
-        return None
+# --- FUNCIÓN CON CACHÉ DE 15 MINUTOS PARA EVITAR TRABAR LA APP ---
+@st.cache_data(ttl=900)
+def obtener_tabla_rios_pref():
+    """Descarga la tabla de Prefectura una sola vez cada 15 min."""
+    dict_alturas = {}
     try:
         url = "https://www.argentina.gob.ar/prefecturanaval/alturas-de-rios"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        resp = requests.get(url, headers=headers, timeout=5)
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        resp = requests.get(url, headers=headers, timeout=3)
         
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, 'html.parser')
             for fila in soup.find_all('tr'):
-                texto_fila = fila.text.upper()
-                if puerto_nombre.upper() in texto_fila:
-                    columnas = fila.find_all('td')
-                    if len(columnas) >= 3:
-                        altura_str = columnas[2].text.strip().replace(',', '.')
-                        return float(altura_str)
-    except:
+                columnas = fila.find_all('td')
+                if len(columnas) >= 3:
+                    puerto = columnas[0].text.strip().upper()
+                    altura_raw = columnas[2].text.strip().replace(',', '.')
+                    try:
+                        dict_alturas[puerto] = float(altura_raw)
+                    except:
+                        pass
+    except Exception as e:
         pass
+    return dict_alturas
+
+def consultar_altura_rio(puerto_nombre):
+    if not puerto_nombre:
+        return None
+    tabla = obtener_tabla_rios_pref()
+    puerto_buscar = puerto_nombre.upper()
+    for k, v in tabla.items():
+        if puerto_buscar in k:
+            return v
     return None
 
 def consultar_estado_real(lat, lon, puerto_nombre, cota_alerta, cota_evac):
-    """Evalúa la lluvia satelital (Open-Meteo) y el nivel del río (PNA) para determinar el semáforo."""
-    # 1. Consulta Metereológica (Open-Meteo)
+    # 1. Consulta Metereológica (Open-Meteo) con timeout
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=precipitation_sum&hourly=soil_moisture_0_to_7cm&timezone=America%2FArgentina%2FBuenos_Aires&past_days=1"
     
     lluvia_hoy, lluvia_corta, lluvia_7d, saturacion = 0, 0, 0, 0
     suelo_vulnerable = False
     
     try:
-        resp = requests.get(url).json()
+        resp = requests.get(url, timeout=3).json()
         daily = resp.get("daily", {}).get("precipitation_sum", [0]*8)
         hourly_sm = resp.get("hourly", {}).get("soil_moisture_0_to_7cm", [0.25])
         
@@ -133,7 +144,7 @@ def enviar_alerta_telegram(zona, estado, detalle):
     
     payload = {"chat_id": CHAT_ID, "text": texto, "parse_mode": "Markdown"}
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=3)
         return response.status_code == 200
     except:
         return False
