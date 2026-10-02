@@ -9,6 +9,11 @@ st.set_page_config(page_title="Prevención Litoral Agro", layout="wide")
 st.title("🚨 Prevención Integral Litoral Agro")
 st.markdown("Sistema de alerta temprana hídrica (Lluvia + Saturación + Nivel de Ríos) para el Litoral.")
 
+# --- CONTADOR DE VISITAS ---
+# Agrega un badge visual interactivo que se actualiza solo
+st.markdown("[![Visitas](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Falerta-litoral.streamlit.app&count_bg=%2328a745&title_bg=%23555555&title=Visitas+Totales&edge_flat=false)](https://alerta-litoral.streamlit.app)")
+st.divider()
+
 # --- CONFIGURACIÓN DE TELEGRAM ---
 TOKEN = "8835711157:AAFqiN_KCMrYYRImWP5dzc11DzM7GvWL-yY"
 CHAT_ID = "8813171047"
