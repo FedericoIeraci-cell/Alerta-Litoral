@@ -10,8 +10,8 @@ st.title("🚨 Prevención Integral Litoral Agro")
 st.markdown("Sistema de alerta temprana hídrica (Lluvia + Saturación + Nivel de Ríos) para el Litoral.")
 
 # --- CONTADOR DE VISITAS ---
-# Usamos st.image nativo para evitar bloqueos de caché
-st.image("https://visitor-badge.laobi.icu/badge?page_id=federicoieraci.alerta-litoral", width=120)
+# En castellano y tamaño reducido
+st.image("https://visitor-badge.laobi.icu/badge?page_id=federicoieraci.alerta-litoral&left_text=Visitas", width=90)
 st.divider()
 
 # --- CONFIGURACIÓN DE TELEGRAM ---
