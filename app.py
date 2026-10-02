@@ -9,8 +9,9 @@ st.set_page_config(page_title="Prevención Litoral Agro", layout="wide")
 st.title("🚨 Prevención Integral Litoral Agro")
 st.markdown("Sistema de alerta temprana hídrica (Lluvia + Saturación + Nivel de Ríos) para el Litoral.")
 
-# --- CONTADOR DE VISITAS (NUEVO SERVIDOR MÁS ESTABLE) ---
-st.markdown("![Visitas](https://komarev.com/ghpvc/?username=federicoieraci-alerta-litoral&label=VISITAS&color=green&style=flat)")
+# --- CONTADOR DE VISITAS ---
+# Usamos st.image nativo para evitar bloqueos de caché
+st.image("https://visitor-badge.laobi.icu/badge?page_id=federicoieraci.alerta-litoral", width=120)
 st.divider()
 
 # --- CONFIGURACIÓN DE TELEGRAM ---
