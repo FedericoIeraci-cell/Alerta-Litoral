@@ -9,15 +9,8 @@ st.set_page_config(page_title="Prevención Litoral Agro", layout="wide")
 st.title("🚨 Prevención Integral Litoral Agro")
 st.markdown("Sistema de alerta temprana hídrica (Lluvia + Saturación + Nivel de Ríos) para el Litoral.")
 
-# --- CONTADOR DE VISITAS (Corregido con HTML) ---
-st.markdown(
-    """
-    <div style="margin-top: 5px; margin-bottom: 15px;">
-        <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Falerta-litoral.streamlit.app&count_bg=%2328a745&title_bg=%23555555&title=VISITAS&edge_flat=false" alt="Contador de visitas">
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
+# --- CONTADOR DE VISITAS (NUEVO SERVIDOR MÁS ESTABLE) ---
+st.markdown("![Visitas](https://komarev.com/ghpvc/?username=federicoieraci-alerta-litoral&label=VISITAS&color=green&style=flat)")
 st.divider()
 
 # --- CONFIGURACIÓN DE TELEGRAM ---
