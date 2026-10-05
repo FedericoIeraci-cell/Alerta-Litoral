@@ -6,7 +6,7 @@ import folium
 import streamlit as st
 
 from streamlit_folium import st_folium
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -17,21 +17,17 @@ from zoneinfo import ZoneInfo
 # Sistema experimental de apoyo a la toma de decisiones para
 # riesgo de anegamiento agropecuario.
 #
-# ÁREA:
+# Área:
 #   Santa Fe
 #   Corrientes
 #   Entre Ríos
 #
-# COMPONENTES:
-#   1. Amenaza meteorológica
-#   2. Condición antecedente
-#   3. Humedad superficial del suelo
-#   4. Hidrología observada INA
-#   5. Vulnerabilidad territorial
-#   6. Tendencia
+# COMPONENTES DEL ÍNDICE 0–100:
 #
-# RESULTADO:
-#   Índice de Riesgo 0–100
+#   Meteorología       35 %
+#   Suelo              25 %
+#   Hidrología         25 %
+#   Vulnerabilidad     15 %
 #
 # FUENTES:
 #   - Open-Meteo
@@ -40,18 +36,19 @@ from zoneinfo import ZoneInfo
 #   - Esri
 #   - Windy
 #   - CIRA / GOES
-#   - Telegram Bot API (opcional)
+#   - Telegram Bot API
 #
 # IMPORTANTE:
-# Este sistema NO reemplaza alertas oficiales.
 #
-# La humedad del suelo de Open-Meteo es MODELADA.
-# La hidrología INA incorporada en esta versión corresponde a
-# lecturas hidrométricas publicadas por el sistema consultado.
+# Open-Meteo aporta variables meteorológicas MODELADAS.
 #
-# El índice 0–100 es un modelo experimental que requiere
-# calibración y validación histórica antes de ser utilizado
-# para decisiones oficiales.
+# La capa INA utiliza las últimas lecturas hidrométricas
+# publicadas por el sistema DSIyAH.
+#
+# El índice 0–100 es EXPERIMENTAL.
+# No representa una probabilidad estadística de inundación.
+# No reemplaza alertas oficiales.
+#
 # ============================================================
 
 
@@ -60,7 +57,7 @@ from zoneinfo import ZoneInfo
 # ============================================================
 
 st.set_page_config(
-    page_title="Alerta Litoral Agro V3",
+    page_title="Alerta Litoral Agro",
     page_icon="🌧️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -71,7 +68,6 @@ TZ_ARG = ZoneInfo("America/Argentina/Buenos_Aires")
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
-# Servicio hidrológico INA / DSIyAH.
 INA_WFS_URL = "https://alerta.ina.gob.ar/geoserver/public2/ows"
 
 TELEGRAM_API = "https://api.telegram.org"
@@ -82,6 +78,11 @@ TELEGRAM_API = "https://api.telegram.org"
 # ============================================================
 
 NODOS = [
+
+    # -------------------------
+    # CORRIENTES
+    # -------------------------
+
     {
         "nombre": "Goya",
         "provincia": "Corrientes",
@@ -92,6 +93,7 @@ NODOS = [
         "vulnerabilidad": 78,
         "tipo_territorio": "Bajos fluviales y sectores productivos próximos al Paraná",
     },
+
     {
         "nombre": "Mercedes",
         "provincia": "Corrientes",
@@ -102,6 +104,7 @@ NODOS = [
         "vulnerabilidad": 82,
         "tipo_territorio": "Entorno de humedales y bajos naturales",
     },
+
     {
         "nombre": "Curuzú Cuatiá",
         "provincia": "Corrientes",
@@ -112,6 +115,7 @@ NODOS = [
         "vulnerabilidad": 62,
         "tipo_territorio": "Cuencas interiores y sectores rurales",
     },
+
     {
         "nombre": "Paso de los Libres",
         "provincia": "Corrientes",
@@ -122,6 +126,7 @@ NODOS = [
         "vulnerabilidad": 70,
         "tipo_territorio": "Área ribereña del Uruguay",
     },
+
     {
         "nombre": "Santo Tomé",
         "provincia": "Corrientes",
@@ -132,6 +137,7 @@ NODOS = [
         "vulnerabilidad": 68,
         "tipo_territorio": "Zona ribereña y sectores rurales bajos",
     },
+
     {
         "nombre": "Corrientes Capital",
         "provincia": "Corrientes",
@@ -143,6 +149,11 @@ NODOS = [
         "tipo_territorio": "Área urbana y sectores bajos próximos al Paraná",
     },
 
+
+    # -------------------------
+    # SANTA FE
+    # -------------------------
+
     {
         "nombre": "Reconquista",
         "provincia": "Santa Fe",
@@ -153,6 +164,7 @@ NODOS = [
         "vulnerabilidad": 88,
         "tipo_territorio": "Bajos y áreas productivas vinculadas al valle de inundación",
     },
+
     {
         "nombre": "San Javier",
         "provincia": "Santa Fe",
@@ -163,6 +175,7 @@ NODOS = [
         "vulnerabilidad": 92,
         "tipo_territorio": "Valle de inundación y sectores bajos del Paraná",
     },
+
     {
         "nombre": "Vera",
         "provincia": "Santa Fe",
@@ -173,6 +186,7 @@ NODOS = [
         "vulnerabilidad": 76,
         "tipo_territorio": "Cuencas interiores y áreas rurales",
     },
+
     {
         "nombre": "Santa Fe Capital",
         "provincia": "Santa Fe",
@@ -183,6 +197,7 @@ NODOS = [
         "vulnerabilidad": 95,
         "tipo_territorio": "Área urbana y confluencia de sistemas fluviales",
     },
+
     {
         "nombre": "Rosario",
         "provincia": "Santa Fe",
@@ -193,6 +208,7 @@ NODOS = [
         "vulnerabilidad": 70,
         "tipo_territorio": "Área urbana e industrial próxima al Paraná",
     },
+
     {
         "nombre": "Tostado",
         "provincia": "Santa Fe",
@@ -204,6 +220,11 @@ NODOS = [
         "tipo_territorio": "Cuenca interior con riesgo de anegamiento rural",
     },
 
+
+    # -------------------------
+    # ENTRE RÍOS
+    # -------------------------
+
     {
         "nombre": "Concordia",
         "provincia": "Entre Ríos",
@@ -214,6 +235,7 @@ NODOS = [
         "vulnerabilidad": 88,
         "tipo_territorio": "Área ribereña del Uruguay",
     },
+
     {
         "nombre": "La Paz",
         "provincia": "Entre Ríos",
@@ -224,6 +246,7 @@ NODOS = [
         "vulnerabilidad": 82,
         "tipo_territorio": "Sectores bajos vinculados al Paraná",
     },
+
     {
         "nombre": "Victoria",
         "provincia": "Entre Ríos",
@@ -234,6 +257,7 @@ NODOS = [
         "vulnerabilidad": 96,
         "tipo_territorio": "Delta y humedales del Paraná",
     },
+
     {
         "nombre": "Gualeguay",
         "provincia": "Entre Ríos",
@@ -244,6 +268,7 @@ NODOS = [
         "vulnerabilidad": 83,
         "tipo_territorio": "Cuenca rural y sectores bajos",
     },
+
     {
         "nombre": "Gualeguaychú",
         "provincia": "Entre Ríos",
@@ -254,6 +279,7 @@ NODOS = [
         "vulnerabilidad": 81,
         "tipo_territorio": "Cuenca fluvial y sectores productivos",
     },
+
     {
         "nombre": "Paraná",
         "provincia": "Entre Ríos",
@@ -268,34 +294,39 @@ NODOS = [
 
 
 # ============================================================
-# NIVELES
+# NIVELES DE RIESGO
 # ============================================================
 
 NIVELES = {
+
     "BAJO": {
         "emoji": "🟢",
         "color": "#28a745",
         "min": 0,
         "max": 20,
     },
+
     "MODERADO": {
         "emoji": "🟡",
         "color": "#d99b00",
         "min": 21,
         "max": 40,
     },
+
     "ALTO": {
         "emoji": "🟠",
         "color": "#fd7e14",
         "min": 41,
         "max": 60,
     },
+
     "MUY ALTO": {
         "emoji": "🔴",
         "color": "#dc3545",
         "min": 61,
         "max": 80,
     },
+
     "CRÍTICO": {
         "emoji": "🟣",
         "color": "#7b2cbf",
@@ -306,44 +337,13 @@ NIVELES = {
 
 
 # ============================================================
-# FUNCIONES GENERALES
+# FUNCIONES BÁSICAS
 # ============================================================
 
-def nivel_riesgo(score):
-    score = max(0, min(100, float(score)))
-
-    for nombre, datos in NIVELES.items():
-        if datos["min"] <= score <= datos["max"]:
-            return nombre
-
-    return "CRÍTICO"
-
-
-def distancia_km(lat1, lon1, lat2, lon2):
-    """
-    Distancia aproximada mediante Haversine.
-    """
-
-    r = 6371.0
-
-    p1 = math.radians(lat1)
-    p2 = math.radians(lat2)
-
-    dp = math.radians(lat2 - lat1)
-    dl = math.radians(lon2 - lon1)
-
-    a = (
-        math.sin(dp / 2) ** 2
-        + math.cos(p1)
-        * math.cos(p2)
-        * math.sin(dl / 2) ** 2
-    )
-
-    return 2 * r * math.asin(math.sqrt(a))
-
-
 def valor_seguro(valor, default=None):
+
     try:
+
         if valor is None:
             return default
 
@@ -351,60 +351,69 @@ def valor_seguro(valor, default=None):
             valor = valor.replace(",", ".")
 
         return float(valor)
+
     except Exception:
+
         return default
 
 
-# ============================================================
-# CALIDAD DE DATOS
-# ============================================================
+def nivel_riesgo(score):
 
-def calidad_dato(valor, antiguedad_min=None):
-    """
-    Clasificación simple de calidad.
-    """
+    score = max(
+        0,
+        min(
+            100,
+            float(score),
+        ),
+    )
 
-    if valor is None:
-        return {
-            "estado": "SIN DATO",
-            "emoji": "🔴",
-            "score": 0,
-        }
+    for nombre, datos in NIVELES.items():
 
-    if antiguedad_min is not None:
+        if (
+            datos["min"]
+            <= score
+            <= datos["max"]
+        ):
+            return nombre
 
-        if antiguedad_min <= 30:
-            return {
-                "estado": "BUENA",
-                "emoji": "🟢",
-                "score": 100,
-            }
+    return "CRÍTICO"
 
-        if antiguedad_min <= 120:
-            return {
-                "estado": "ACEPTABLE",
-                "emoji": "🟡",
-                "score": 70,
-            }
 
-        if antiguedad_min <= 360:
-            return {
-                "estado": "RETRASADA",
-                "emoji": "🟠",
-                "score": 40,
-            }
+def distancia_km(
+    lat1,
+    lon1,
+    lat2,
+    lon2,
+):
 
-        return {
-            "estado": "MUY ANTIGUA",
-            "emoji": "🔴",
-            "score": 15,
-        }
+    radio = 6371.0
 
-    return {
-        "estado": "DISPONIBLE",
-        "emoji": "🟢",
-        "score": 100,
-    }
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+
+    dlat = math.radians(
+        lat2 - lat1
+    )
+
+    dlon = math.radians(
+        lon2 - lon1
+    )
+
+    a = (
+        math.sin(dlat / 2) ** 2
+        +
+        math.cos(lat1_rad)
+        * math.cos(lat2_rad)
+        * math.sin(dlon / 2) ** 2
+    )
+
+    return (
+        2
+        * radio
+        * math.asin(
+            math.sqrt(a)
+        )
+    )
 
 
 # ============================================================
@@ -412,14 +421,14 @@ def calidad_dato(valor, antiguedad_min=None):
 # ============================================================
 
 def obtener_secret(nombre):
-    """
-    Permite usar Streamlit Secrets o variables de entorno.
-    """
 
     try:
+
         valor = st.secrets.get(nombre)
+
         if valor:
             return valor
+
     except Exception:
         pass
 
@@ -427,29 +436,40 @@ def obtener_secret(nombre):
 
 
 def telegram_configurado():
+
     return bool(
-        obtener_secret("TELEGRAM_BOT_TOKEN")
-        and obtener_secret("TELEGRAM_CHAT_ID")
+        obtener_secret(
+            "TELEGRAM_BOT_TOKEN"
+        )
+        and
+        obtener_secret(
+            "TELEGRAM_CHAT_ID"
+        )
     )
 
 
 def enviar_telegram(mensaje):
-    """
-    Envía una alerta mediante Telegram.
 
-    Requiere:
+    token = obtener_secret(
+        "TELEGRAM_BOT_TOKEN"
+    )
 
-    TELEGRAM_BOT_TOKEN
-    TELEGRAM_CHAT_ID
-    """
-
-    token = obtener_secret("TELEGRAM_BOT_TOKEN")
-    chat_id = obtener_secret("TELEGRAM_CHAT_ID")
+    chat_id = obtener_secret(
+        "TELEGRAM_CHAT_ID"
+    )
 
     if not token or not chat_id:
-        return False, "Telegram no configurado."
 
-    url = f"{TELEGRAM_API}/bot{token}/sendMessage"
+        return (
+            False,
+            "Telegram no configurado."
+        )
+
+    url = (
+        f"{TELEGRAM_API}"
+        f"/bot{token}"
+        f"/sendMessage"
+    )
 
     payload = {
         "chat_id": chat_id,
@@ -458,6 +478,7 @@ def enviar_telegram(mensaje):
     }
 
     try:
+
         response = requests.post(
             url,
             json=payload,
@@ -466,104 +487,27 @@ def enviar_telegram(mensaje):
 
         response.raise_for_status()
 
-        return True, "Mensaje enviado."
-
-    except Exception as exc:
-        return False, str(exc)
-
-
-# ============================================================
-# ALERTA TELEGRAM
-# ============================================================
-
-def construir_alerta_telegram(row):
-    nivel = nivel_riesgo(row["riesgo"])
-
-    return (
-        "🚨 ALERTA LITORAL AGRO\n\n"
-        f"📍 {row['nombre']} — {row['provincia']}\n"
-        f"{NIVELES[nivel]['emoji']} "
-        f"Riesgo: {nivel} — {row['riesgo']:.0f}/100\n\n"
-        f"🌧️ Meteorología: {row['score_meteorologia']:.0f}/100\n"
-        f"💧 Suelo: {row['score_suelo']:.0f}/100\n"
-        f"🌊 Hidrología: {row['score_hidrologia']:.0f}/100\n"
-        f"🗺️ Vulnerabilidad: {row['vulnerabilidad']:.0f}/100\n\n"
-        f"🌧️ Lluvia reciente 72 h: "
-        f"{row['lluvia_reciente_72h']:.1f} mm\n"
-        f"🔮 Pronóstico 72 h: "
-        f"{row['lluvia_pronostico_72h']:.1f} mm\n"
-        f"🔮 Pronóstico 7 días: "
-        f"{row['lluvia_pronostico_7d']:.1f} mm\n"
-    )
-
-
-def procesar_alertas_telegram(df):
-    """
-    Envía Telegram solamente cuando un nodo:
-
-    - entra en MUY ALTO o CRÍTICO
-    - o cambia significativamente de categoría.
-
-    Se guarda el último nivel durante la sesión para evitar spam.
-    """
-
-    if not telegram_configurado():
-        return []
-
-    if "telegram_ultimo_nivel" not in st.session_state:
-        st.session_state.telegram_ultimo_nivel = {}
-
-    resultados = []
-
-    for _, row in df.iterrows():
-
-        nivel_actual = nivel_riesgo(row["riesgo"])
-        nivel_anterior = st.session_state.telegram_ultimo_nivel.get(
-            row["nombre"]
+        return (
+            True,
+            "Mensaje enviado correctamente."
         )
 
-        enviar = False
+    except Exception as exc:
 
-        if nivel_anterior is None:
-            if nivel_actual in ["MUY ALTO", "CRÍTICO"]:
-                enviar = True
-
-        elif nivel_actual != nivel_anterior:
-
-            if nivel_actual in [
-                "ALTO",
-                "MUY ALTO",
-                "CRÍTICO",
-            ]:
-                enviar = True
-
-        if enviar:
-
-            mensaje = construir_alerta_telegram(row)
-
-            ok, detalle = enviar_telegram(mensaje)
-
-            resultados.append(
-                {
-                    "nodo": row["nombre"],
-                    "nivel": nivel_actual,
-                    "ok": ok,
-                    "detalle": detalle,
-                }
-            )
-
-        st.session_state.telegram_ultimo_nivel[
-            row["nombre"]
-        ] = nivel_actual
-
-    return resultados
+        return (
+            False,
+            str(exc)
+        )
 
 
 # ============================================================
 # OPEN-METEO
 # ============================================================
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(
+    ttl=900,
+    show_spinner=False,
+)
 def consultar_open_meteo():
 
     latitudes = ",".join(
@@ -576,8 +520,23 @@ def consultar_open_meteo():
         for n in NODOS
     )
 
+    # ========================================================
+    # IMPORTANTE:
+    #
+    # NO usamos simultáneamente:
+    #
+    # forecast_days + forecast_hours
+    # past_days + past_hours
+    #
+    # Usamos past_days + forecast_days.
+    #
+    # Esto evita el error 400 de la versión anterior.
+    # ========================================================
+
     params = {
+
         "latitude": latitudes,
+
         "longitude": longitudes,
 
         "hourly": (
@@ -594,151 +553,256 @@ def consultar_open_meteo():
             "precipitation_probability_max"
         ),
 
-        "timezone": "America/Argentina/Buenos_Aires",
+        "timezone":
+            "America/Argentina/Buenos_Aires",
 
         "past_days": 3,
+
         "forecast_days": 7,
 
-        "forecast_hours": 168,
-        "past_hours": 72,
+        "cell_selection": "land",
     }
 
     response = requests.get(
         OPEN_METEO_URL,
         params=params,
-        timeout=40,
+        timeout=45,
         headers={
-            "User-Agent": "Alerta-Litoral-Agro/3.0"
+            "User-Agent":
+                "Alerta-Litoral-Agro/3.0"
         },
     )
 
-    response.raise_for_status()
+    # --------------------------------------------------------
+    # Mostrar detalle real si Open-Meteo devuelve 400.
+    # --------------------------------------------------------
+
+    if response.status_code != 200:
+
+        try:
+            detalle = response.json()
+        except Exception:
+            detalle = response.text
+
+        raise RuntimeError(
+            "Open-Meteo respondió "
+            f"{response.status_code}.\n\n"
+            f"Detalle:\n{detalle}"
+        )
 
     data = response.json()
 
     if isinstance(data, dict):
+
         data = [data]
 
     if len(data) != len(NODOS):
+
         raise RuntimeError(
-            "Open-Meteo no devolvió la cantidad esperada "
-            f"de ubicaciones: {len(data)} / {len(NODOS)}"
+            "Open-Meteo devolvió "
+            f"{len(data)} ubicaciones, "
+            f"pero se esperaban "
+            f"{len(NODOS)}."
         )
 
     ahora = datetime.now(TZ_ARG)
-    hoy = ahora.date()
 
     resultados = []
 
-    for nodo, item in zip(NODOS, data):
 
-        daily = item.get("daily", {})
-        hourly = item.get("hourly", {})
+    # ========================================================
+    # PROCESAR CADA NODO
+    # ========================================================
 
-        # ----------------------------------------------------
-        # LLUVIA DIARIA
-        # ----------------------------------------------------
+    for nodo, item in zip(
+        NODOS,
+        data,
+    ):
 
-        fechas = daily.get("time", [])
-        precipitaciones = daily.get(
-            "precipitation_sum",
-            []
+        hourly = item.get(
+            "hourly",
+            {},
         )
 
-        lluvia_reciente_24h = 0.0
-        lluvia_reciente_72h = 0.0
+        daily = item.get(
+            "daily",
+            {},
+        )
 
-        lluvia_pronostico_24h = 0.0
-        lluvia_pronostico_72h = 0.0
-        lluvia_pronostico_7d = 0.0
+        tiempos = hourly.get(
+            "time",
+            [],
+        )
 
-        pares = []
-
-        for fecha, lluvia in zip(
-            fechas,
-            precipitaciones
-        ):
-            try:
-
-                fecha_dt = datetime.fromisoformat(
-                    fecha
-                ).date()
-
-                pares.append(
-                    (
-                        fecha_dt,
-                        valor_seguro(
-                            lluvia,
-                            0.0
-                        ),
-                    )
-                )
-
-            except Exception:
-                continue
-
-        recientes = [
-            lluvia
-            for fecha, lluvia in pares
-            if fecha < hoy
-        ]
-
-        futuros = [
-            lluvia
-            for fecha, lluvia in pares
-            if fecha >= hoy
-        ]
-
-        if recientes:
-            lluvia_reciente_24h = recientes[-1]
-
-            lluvia_reciente_72h = sum(
-                recientes[-3:]
-            )
-
-        if futuros:
-            lluvia_pronostico_24h = futuros[0]
-
-            lluvia_pronostico_72h = sum(
-                futuros[:3]
-            )
-
-            lluvia_pronostico_7d = sum(
-                futuros[:7]
-            )
-
-        # ----------------------------------------------------
-        # HUMEDAD DE SUELO
-        # ----------------------------------------------------
-
-        horas = hourly.get("time", [])
+        precipitacion = hourly.get(
+            "precipitation",
+            [],
+        )
 
         humedad_0_7 = hourly.get(
             "soil_moisture_0_to_7cm",
-            []
+            [],
         )
 
         humedad_7_28 = hourly.get(
             "soil_moisture_7_to_28cm",
-            []
+            [],
         )
 
         humedad_28_100 = hourly.get(
             "soil_moisture_28_to_100cm",
-            []
+            [],
         )
 
         runoff = hourly.get(
             "surface_runoff",
-            []
+            [],
         )
 
         viento = hourly.get(
             "wind_gusts_10m",
-            []
+            [],
         )
 
-        # Último valor disponible.
+
+        # ====================================================
+        # CREAR SERIE HORARIA
+        # ====================================================
+
+        serie = []
+
+        cantidad = min(
+            len(tiempos),
+            len(precipitacion),
+        )
+
+        for i in range(cantidad):
+
+            try:
+
+                tiempo = datetime.fromisoformat(
+                    tiempos[i]
+                )
+
+                if tiempo.tzinfo is None:
+
+                    tiempo = tiempo.replace(
+                        tzinfo=TZ_ARG
+                    )
+
+                lluvia = valor_seguro(
+                    precipitacion[i],
+                    0.0,
+                )
+
+                serie.append(
+                    {
+                        "time": tiempo,
+                        "precip": lluvia,
+                    }
+                )
+
+            except Exception:
+
+                continue
+
+
+        # ====================================================
+        # SEPARAR PASADO / FUTURO
+        # ====================================================
+
+        pasadas = [
+            x
+            for x in serie
+            if x["time"] <= ahora
+        ]
+
+        futuras = [
+            x
+            for x in serie
+            if x["time"] > ahora
+        ]
+
+
+        # ====================================================
+        # LLUVIA ÚLTIMAS 24 H
+        # ====================================================
+
+        inicio_24 = ahora - timedelta(
+            hours=24
+        )
+
+        lluvia_reciente_24h = sum(
+            x["precip"]
+            for x in pasadas
+            if x["time"] >= inicio_24
+        )
+
+
+        # ====================================================
+        # LLUVIA ÚLTIMAS 72 H
+        # ====================================================
+
+        inicio_72 = ahora - timedelta(
+            hours=72
+        )
+
+        lluvia_reciente_72h = sum(
+            x["precip"]
+            for x in pasadas
+            if x["time"] >= inicio_72
+        )
+
+
+        # ====================================================
+        # PRÓXIMAS 24 H
+        # ====================================================
+
+        fin_24 = ahora + timedelta(
+            hours=24
+        )
+
+        lluvia_pronostico_24h = sum(
+            x["precip"]
+            for x in futuras
+            if x["time"] <= fin_24
+        )
+
+
+        # ====================================================
+        # PRÓXIMAS 72 H
+        # ====================================================
+
+        fin_72 = ahora + timedelta(
+            hours=72
+        )
+
+        lluvia_pronostico_72h = sum(
+            x["precip"]
+            for x in futuras
+            if x["time"] <= fin_72
+        )
+
+
+        # ====================================================
+        # PRÓXIMOS 7 DÍAS
+        # ====================================================
+
+        fin_7d = ahora + timedelta(
+            days=7
+        )
+
+        lluvia_pronostico_7d = sum(
+            x["precip"]
+            for x in futuras
+            if x["time"] <= fin_7d
+        )
+
+
+        # ====================================================
+        # HUMEDAD ACTUAL
+        # ====================================================
+
         def ultimo_valor(lista):
 
             valores = [
@@ -747,7 +811,11 @@ def consultar_open_meteo():
                 if valor_seguro(v) is not None
             ]
 
-            return valores[-1] if valores else None
+            if not valores:
+                return None
+
+            return valores[-1]
+
 
         humedad_actual = ultimo_valor(
             humedad_0_7
@@ -769,101 +837,126 @@ def consultar_open_meteo():
             viento
         )
 
-        # ----------------------------------------------------
-        # ÍNDICE DE SUELO
-        # ----------------------------------------------------
 
-        if humedad_actual is None:
+        # ====================================================
+        # ÍNDICE DE HUMEDAD DEL SUELO
+        # ====================================================
+
+        def humedad_a_indice(valor):
+
+            if valor is None:
+                return None
+
+            return max(
+                0,
+                min(
+                    100,
+                    (
+                        valor
+                        / 0.45
+                    ) * 100,
+                ),
+            )
+
+
+        indice_0_7 = humedad_a_indice(
+            humedad_actual
+        )
+
+        indice_7_28 = humedad_a_indice(
+            humedad_7_28_actual
+        )
+
+        indice_28_100 = humedad_a_indice(
+            humedad_28_100_actual
+        )
+
+
+        if indice_0_7 is None:
 
             score_suelo = 0.0
+
             humedad_indice = None
 
         else:
 
-            humedad_indice = max(
-                0.0,
-                min(
-                    100.0,
-                    (
-                        humedad_actual
-                        / 0.45
-                    ) * 100.0,
-                ),
-            )
+            if indice_7_28 is None:
+                indice_7_28 = indice_0_7
 
-            score_superficial = humedad_indice
+            if indice_28_100 is None:
+                indice_28_100 = indice_7_28
 
-            if humedad_7_28_actual is not None:
-
-                score_7_28 = max(
-                    0.0,
-                    min(
-                        100.0,
-                        (
-                            humedad_7_28_actual
-                            / 0.45
-                        ) * 100.0,
-                    ),
-                )
-
-            else:
-                score_7_28 = score_superficial
-
-            if humedad_28_100_actual is not None:
-
-                score_28_100 = max(
-                    0.0,
-                    min(
-                        100.0,
-                        (
-                            humedad_28_100_actual
-                            / 0.45
-                        ) * 100.0,
-                    ),
-                )
-
-            else:
-                score_28_100 = score_7_28
+            humedad_indice = indice_0_7
 
             score_suelo = (
-                score_superficial * 0.50
-                + score_7_28 * 0.30
-                + score_28_100 * 0.20
+                indice_0_7 * 0.50
+                +
+                indice_7_28 * 0.30
+                +
+                indice_28_100 * 0.20
             )
 
-        # ----------------------------------------------------
-        # COMPONENTE METEOROLÓGICO
-        # ----------------------------------------------------
+
+        # ====================================================
+        # SCORE METEOROLÓGICO
+        # ====================================================
 
         score_reciente = min(
-            100.0,
-            lluvia_reciente_72h
-            / 120.0
-            * 100.0,
+            100,
+            (
+                lluvia_reciente_72h
+                / 120
+            ) * 100,
         )
 
         score_futuro = min(
-            100.0,
-            lluvia_pronostico_72h
-            / 120.0
-            * 100.0,
+            100,
+            (
+                lluvia_pronostico_72h
+                / 120
+            ) * 100,
         )
 
         score_7d = min(
-            100.0,
-            lluvia_pronostico_7d
-            / 180.0
-            * 100.0,
+            100,
+            (
+                lluvia_pronostico_7d
+                / 180
+            ) * 100,
         )
+
 
         score_meteorologia = (
             score_reciente * 0.35
-            + score_futuro * 0.45
-            + score_7d * 0.20
+            +
+            score_futuro * 0.45
+            +
+            score_7d * 0.20
         )
+
+
+        # ====================================================
+        # CALIDAD
+        # ====================================================
+
+        calidad_meteo = "🟢 DISPONIBLE"
+
+        if not serie:
+
+            calidad_meteo = "🔴 SIN DATOS"
+
+        elif len(serie) < 100:
+
+            calidad_meteo = "🟡 DATOS PARCIALES"
+
+
+        # ====================================================
+        # RESULTADO
+        # ====================================================
 
         resultados.append(
             {
+
                 **nodo,
 
                 "lluvia_reciente_24h":
@@ -906,9 +999,10 @@ def consultar_open_meteo():
                     score_meteorologia,
 
                 "calidad_meteorologia":
-                    "🟢 Disponible",
+                    calidad_meteo,
             }
         )
+
 
     return resultados
 
@@ -917,17 +1011,30 @@ def consultar_open_meteo():
 # INA — HIDROLOGÍA
 # ============================================================
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(
+    ttl=900,
+    show_spinner=False,
+)
 def consultar_ina():
 
     params = {
+
         "service": "WFS",
+
         "version": "1.0.0",
+
         "request": "GetFeature",
-        "typeName": "public2:ultimas_alturas",
-        "outputFormat": "application/json",
-        "srsName": "EPSG:4326",
+
+        "typeName":
+            "public2:ultimas_alturas",
+
+        "outputFormat":
+            "application/json",
+
+        "srsName":
+            "EPSG:4326",
     }
+
 
     response = requests.get(
         INA_WFS_URL,
@@ -939,91 +1046,152 @@ def consultar_ina():
         },
     )
 
-    response.raise_for_status()
+
+    if response.status_code != 200:
+
+        raise RuntimeError(
+            "INA respondió "
+            f"{response.status_code}: "
+            f"{response.text[:500]}"
+        )
+
 
     data = response.json()
 
+
     features = data.get(
         "features",
-        []
+        [],
     )
 
+
     estaciones = []
+
 
     for feature in features:
 
         props = feature.get(
             "properties",
-            {}
+            {},
         )
 
         geometry = feature.get(
             "geometry",
-            {}
+            {},
         )
 
         coords = geometry.get(
             "coordinates",
-            []
+            [],
         )
+
 
         if len(coords) < 2:
             continue
 
-        lon = valor_seguro(coords[0])
-        lat = valor_seguro(coords[1])
 
-        if lat is None or lon is None:
+        lon = valor_seguro(
+            coords[0]
+        )
+
+        lat = valor_seguro(
+            coords[1]
+        )
+
+
+        if (
+            lat is None
+            or lon is None
+        ):
             continue
+
 
         estaciones.append(
             {
-                "properties": props,
-                "lat": lat,
-                "lon": lon,
+                "properties":
+                    props,
+
+                "lat":
+                    lat,
+
+                "lon":
+                    lon,
             }
         )
+
 
     return estaciones
 
 
-def buscar_estacion_ina(nodo, estaciones):
+# ============================================================
+# BÚSQUEDA ESTACIÓN INA
+# ============================================================
+
+def buscar_estacion_ina(
+    nodo,
+    estaciones,
+):
 
     if not estaciones:
         return None
 
+
     mejor = None
-    mejor_distancia = float("inf")
+
+    mejor_distancia = float(
+        "inf"
+    )
+
 
     for estacion in estaciones:
 
         distancia = distancia_km(
+
             nodo["lat"],
+
             nodo["lon"],
+
             estacion["lat"],
+
             estacion["lon"],
         )
 
-        # Evitamos asociar estaciones demasiado lejanas.
+
+        # Máximo 120 km.
         if distancia > 120:
             continue
+
 
         if distancia < mejor_distancia:
 
             mejor_distancia = distancia
+
             mejor = estacion
+
 
     if mejor is None:
         return None
 
-    mejor["distancia_km"] = mejor_distancia
+
+    mejor["distancia_km"] = (
+        mejor_distancia
+    )
+
 
     return mejor
 
 
-def extraer_propiedad(props, candidatos):
+# ============================================================
+# EXTRAER PROPIEDADES INA
+# ============================================================
+
+def extraer_propiedad(
+    props,
+    candidatos,
+):
 
     normalizadas = {}
+
 
     for key, value in props.items():
 
@@ -1037,6 +1205,7 @@ def extraer_propiedad(props, candidatos):
 
         normalizadas[clave] = value
 
+
     for candidato in candidatos:
 
         clave = (
@@ -1047,21 +1216,35 @@ def extraer_propiedad(props, candidatos):
             .replace(" ", "")
         )
 
+
         if clave in normalizadas:
+
             return normalizadas[clave]
+
 
     return None
 
 
-def procesar_hidrologia(nodo, estacion):
+# ============================================================
+# PROCESAR HIDROLOGÍA
+# ============================================================
+
+def procesar_hidrologia(
+    nodo,
+    estacion,
+):
 
     if estacion is None:
 
         return {
+
             "nivel_hidrometrico":
                 None,
 
             "nivel_24h":
+                None,
+
+            "diferencia_24h":
                 None,
 
             "tendencia_hidrologica":
@@ -1071,7 +1254,7 @@ def procesar_hidrologia(nodo, estacion):
                 0.0,
 
             "calidad_hidrologia":
-                "🔴 Sin estación cercana",
+                "🔴 SIN ESTACIÓN CERCANA",
 
             "estacion_ina":
                 None,
@@ -1080,7 +1263,11 @@ def procesar_hidrologia(nodo, estacion):
                 None,
         }
 
-    props = estacion["properties"]
+
+    props = estacion[
+        "properties"
+    ]
+
 
     nombre = extraer_propiedad(
         props,
@@ -1089,8 +1276,10 @@ def procesar_hidrologia(nodo, estacion):
             "name",
             "estacion",
             "site_name",
+            "nombre_estacion",
         ],
     )
+
 
     nivel = extraer_propiedad(
         props,
@@ -1101,8 +1290,10 @@ def procesar_hidrologia(nodo, estacion):
             "valor_actual",
             "h",
             "real",
+            "alturareal",
         ],
     )
+
 
     nivel_24 = extraer_propiedad(
         props,
@@ -1112,63 +1303,87 @@ def procesar_hidrologia(nodo, estacion):
             "valor24",
             "valor_24h",
             "h24",
+            "alturareal24",
         ],
     )
 
-    # --------------------------------------------------------
-    # TENDENCIA
-    # --------------------------------------------------------
 
-    nivel_num = valor_seguro(nivel)
-    nivel_24_num = valor_seguro(nivel_24)
+    nivel_num = valor_seguro(
+        nivel
+    )
+
+    nivel_24_num = valor_seguro(
+        nivel_24
+    )
+
 
     diferencia = None
 
+
     if (
         nivel_num is not None
-        and nivel_24_num is not None
+        and
+        nivel_24_num is not None
     ):
+
         diferencia = (
             nivel_num
-            - nivel_24_num
+            -
+            nivel_24_num
         )
+
+
+    # ========================================================
+    # TENDENCIA
+    # ========================================================
 
     if diferencia is None:
 
         tendencia = "SIN DATO"
+
         score = 35.0
 
     elif diferencia >= 0.30:
 
         tendencia = "ASCENDENTE FUERTE"
+
         score = 90.0
 
     elif diferencia >= 0.10:
 
         tendencia = "ASCENDENTE"
+
         score = 75.0
 
     elif diferencia <= -0.30:
 
         tendencia = "DESCENDENTE FUERTE"
+
         score = 15.0
 
     elif diferencia <= -0.10:
 
         tendencia = "DESCENDENTE"
+
         score = 25.0
 
     else:
 
         tendencia = "ESTABLE"
+
         score = 40.0
 
+
     return {
+
         "nivel_hidrometrico":
             nivel_num,
 
         "nivel_24h":
             nivel_24_num,
+
+        "diferencia_24h":
+            diferencia,
 
         "tendencia_hidrologica":
             tendencia,
@@ -1177,18 +1392,20 @@ def procesar_hidrologia(nodo, estacion):
             score,
 
         "calidad_hidrologia":
-            "🟢 INA disponible",
+            "🟢 INA DISPONIBLE",
 
         "estacion_ina":
             nombre,
 
         "distancia_ina":
-            estacion["distancia_km"],
+            estacion[
+                "distancia_km"
+            ],
     }
 
 
 # ============================================================
-# ÍNDICE DE RIESGO
+# RIESGO 0–100
 # ============================================================
 
 def calcular_riesgo(
@@ -1202,25 +1419,42 @@ def calcular_riesgo(
     # PESOS
     # --------------------------------------------------------
     #
-    # Meteorología       35 %
-    # Suelo              25 %
-    # Hidrología         25 %
-    # Vulnerabilidad     15 %
+    # Meteorología      35 %
+    # Suelo             25 %
+    # Hidrología        25 %
+    # Vulnerabilidad    15 %
     #
-    # Estos pesos son iniciales y deben calibrarse.
     # --------------------------------------------------------
 
-    score = (
-        score_meteorologia * 0.35
-        + score_suelo * 0.25
-        + score_hidrologia * 0.25
-        + vulnerabilidad * 0.15
+    riesgo = (
+
+        score_meteorologia
+        * 0.35
+
+        +
+
+        score_suelo
+        * 0.25
+
+        +
+
+        score_hidrologia
+        * 0.25
+
+        +
+
+        vulnerabilidad
+        * 0.15
     )
+
 
     return round(
         max(
-            0.0,
-            min(100.0, score)
+            0,
+            min(
+                100,
+                riesgo,
+            ),
         ),
         1,
     )
@@ -1230,44 +1464,74 @@ def calcular_riesgo(
 # TENDENCIA DEL RIESGO
 # ============================================================
 
-def calcular_tendencia(nombre, riesgo_actual):
+def calcular_tendencia(
+    nombre,
+    riesgo_actual,
+):
 
-    if "historial" not in st.session_state:
+    if (
+        "historial"
+        not in st.session_state
+    ):
+
         st.session_state.historial = []
 
+
     anteriores = [
+
         item["riesgo"]
-        for item in st.session_state.historial
+
+        for item
+        in st.session_state.historial
+
         if item["nombre"] == nombre
     ]
 
+
     if not anteriores:
-        return "NUEVO"
+
+        return "🆕 NUEVO"
+
 
     anterior = anteriores[-1]
 
-    diferencia = riesgo_actual - anterior
+    diferencia = (
+        riesgo_actual
+        -
+        anterior
+    )
+
 
     if diferencia >= 10:
+
         return "⬆️ ASCENDENTE FUERTE"
 
+
     if diferencia >= 3:
+
         return "↗️ ASCENDENTE"
 
+
     if diferencia <= -10:
+
         return "⬇️ DESCENDENTE FUERTE"
 
+
     if diferencia <= -3:
+
         return "↘️ DESCENDENTE"
+
 
     return "➡️ ESTABLE"
 
 
 # ============================================================
-# ACCIONES
+# ACCIONES OPERATIVAS
 # ============================================================
 
-def accion_operativa(nivel):
+def accion_operativa(
+    nivel,
+):
 
     acciones = {
 
@@ -1278,14 +1542,15 @@ def accion_operativa(nivel):
             "Mantener seguimiento de lluvia, suelo y niveles hidrológicos.",
 
         "ALTO":
-            "Revisar bajos, drenajes y accesos rurales. Preparar medidas preventivas.",
+            "Revisar sectores bajos, drenajes y accesos rurales. Preparar medidas preventivas.",
 
         "MUY ALTO":
             "Preparar medidas preventivas para hacienda, maquinaria, drenajes y accesos.",
 
         "CRÍTICO":
-            "Evaluar activación de protocolos locales y traslado preventivo hacia sectores seguros, según situación local.",
+            "Evaluar activación de protocolos locales y medidas preventivas de protección y traslado hacia sectores seguros según la situación local.",
     }
+
 
     return acciones.get(
         nivel,
@@ -1294,87 +1559,295 @@ def accion_operativa(nivel):
 
 
 # ============================================================
-# PROCESAMIENTO PRINCIPAL
+# GENERAR DATOS
 # ============================================================
 
 def generar_datos():
 
     meteo = consultar_open_meteo()
 
+
     try:
-        hidrologia = consultar_ina()
+
+        estaciones_ina = (
+            consultar_ina()
+        )
+
         ina_ok = True
+
         ina_error = None
 
     except Exception as exc:
 
-        hidrologia = []
+        estaciones_ina = []
+
         ina_ok = False
+
         ina_error = str(exc)
+
 
     resultados = []
 
+
     for nodo in meteo:
 
-        estacion = buscar_estacion_ina(
-            nodo,
-            hidrologia,
+        estacion = (
+            buscar_estacion_ina(
+                nodo,
+                estaciones_ina,
+            )
         )
 
-        hidro = procesar_hidrologia(
-            nodo,
-            estacion,
+
+        hidro = (
+            procesar_hidrologia(
+                nodo,
+                estacion,
+            )
         )
+
 
         riesgo = calcular_riesgo(
-            nodo["score_meteorologia"],
-            nodo["score_suelo"],
-            hidro["score_hidrologia"],
-            nodo["vulnerabilidad"],
+
+            nodo[
+                "score_meteorologia"
+            ],
+
+            nodo[
+                "score_suelo"
+            ],
+
+            hidro[
+                "score_hidrologia"
+            ],
+
+            nodo[
+                "vulnerabilidad"
+            ],
         )
 
-        nivel = nivel_riesgo(riesgo)
 
-        tendencia = calcular_tendencia(
-            nodo["nombre"],
-            riesgo,
+        nivel = nivel_riesgo(
+            riesgo
         )
 
-        resultado = {
-            **nodo,
-            **hidro,
 
-            "riesgo": riesgo,
+        tendencia = (
+            calcular_tendencia(
+                nodo["nombre"],
+                riesgo,
+            )
+        )
 
-            "nivel": nivel,
 
-            "tendencia": tendencia,
+        resultados.append(
+            {
 
-            "accion":
-                accion_operativa(nivel),
+                **nodo,
 
-            "calidad_general":
-                "🟢 Buena"
-                if nodo["score_suelo"] > 0
-                else "🟡 Parcial",
-        }
+                **hidro,
 
-        resultados.append(resultado)
+                "riesgo":
+                    riesgo,
 
-    return resultados, ina_ok, ina_error
+                "nivel":
+                    nivel,
+
+                "tendencia":
+                    tendencia,
+
+                "accion":
+                    accion_operativa(
+                        nivel
+                    ),
+            }
+        )
+
+
+    return (
+        resultados,
+        ina_ok,
+        ina_error,
+    )
+
+
+# ============================================================
+# TELEGRAM — MENSAJE
+# ============================================================
+
+def construir_alerta_telegram(
+    row,
+):
+
+    nivel = row["nivel"]
+
+
+    return (
+        "🚨 ALERTA LITORAL AGRO\n\n"
+
+        f"📍 {row['nombre']} — "
+        f"{row['provincia']}\n"
+
+        f"{NIVELES[nivel]['emoji']} "
+        f"RIESGO: {nivel} — "
+        f"{row['riesgo']:.0f}/100\n\n"
+
+        f"🌧️ Meteorología: "
+        f"{row['score_meteorologia']:.0f}/100\n"
+
+        f"💧 Suelo: "
+        f"{row['score_suelo']:.0f}/100\n"
+
+        f"🌊 Hidrología: "
+        f"{row['score_hidrologia']:.0f}/100\n"
+
+        f"🗺️ Vulnerabilidad: "
+        f"{row['vulnerabilidad']:.0f}/100\n\n"
+
+        f"🌧️ Lluvia 72 h previas: "
+        f"{row['lluvia_reciente_72h']:.1f} mm\n"
+
+        f"🔮 Pronóstico 72 h: "
+        f"{row['lluvia_pronostico_72h']:.1f} mm\n"
+
+        f"🔮 Pronóstico 7 días: "
+        f"{row['lluvia_pronostico_7d']:.1f} mm\n\n"
+
+        f"📈 Tendencia: "
+        f"{row['tendencia']}\n\n"
+
+        f"🎯 Acción:\n"
+        f"{row['accion']}"
+    )
+
+
+# ============================================================
+# TELEGRAM — CONTROL DE CAMBIOS
+# ============================================================
+
+def procesar_alertas_telegram(
+    df,
+):
+
+    if not telegram_configurado():
+
+        return []
+
+
+    if (
+        "telegram_ultimo_nivel"
+        not in st.session_state
+    ):
+
+        st.session_state.telegram_ultimo_nivel = {}
+
+
+    resultados = []
+
+
+    for _, row in df.iterrows():
+
+        nombre = row["nombre"]
+
+        nivel_actual = row["nivel"]
+
+
+        nivel_anterior = (
+            st.session_state
+            .telegram_ultimo_nivel
+            .get(nombre)
+        )
+
+
+        enviar = False
+
+
+        # Primera ejecución:
+        # solamente alertar si ya es MUY ALTO o CRÍTICO.
+        if nivel_anterior is None:
+
+            if nivel_actual in [
+                "MUY ALTO",
+                "CRÍTICO",
+            ]:
+
+                enviar = True
+
+
+        # Cambio posterior.
+        elif (
+            nivel_actual
+            != nivel_anterior
+        ):
+
+            if nivel_actual in [
+                "ALTO",
+                "MUY ALTO",
+                "CRÍTICO",
+            ]:
+
+                enviar = True
+
+
+        if enviar:
+
+            mensaje = (
+                construir_alerta_telegram(
+                    row
+                )
+            )
+
+
+            ok, detalle = (
+                enviar_telegram(
+                    mensaje
+                )
+            )
+
+
+            resultados.append(
+                {
+                    "nodo":
+                        nombre,
+
+                    "nivel":
+                        nivel_actual,
+
+                    "ok":
+                        ok,
+
+                    "detalle":
+                        detalle,
+                }
+            )
+
+
+        st.session_state[
+            "telegram_ultimo_nivel"
+        ][nombre] = nivel_actual
+
+
+    return resultados
 
 
 # ============================================================
 # INTERFAZ
 # ============================================================
 
-ahora = datetime.now(TZ_ARG)
+ahora = datetime.now(
+    TZ_ARG
+)
 
-st.title("🌧️ Alerta Litoral Agro")
+
+st.title(
+    "🌧️ Alerta Litoral Agro"
+)
+
 
 st.subheader(
     "Sistema experimental de alerta temprana para riesgo de anegamiento agropecuario"
 )
+
 
 st.info(
     "📍 Santa Fe · Corrientes · Entre Ríos  |  "
@@ -1388,7 +1861,10 @@ st.info(
 
 with st.sidebar:
 
-    st.header("⚙️ Control")
+    st.header(
+        "⚙️ Control"
+    )
+
 
     if st.button(
         "🔄 Actualizar datos ahora",
@@ -1396,38 +1872,49 @@ with st.sidebar:
     ):
 
         consultar_open_meteo.clear()
+
         consultar_ina.clear()
 
         st.rerun()
 
+
     st.markdown("---")
 
-    st.markdown("### 📡 Fuentes")
+
+    st.markdown(
+        "### 📡 Fuentes"
+    )
+
 
     st.markdown(
         """
-        **Meteorología**
-        - Open-Meteo
+**Meteorología**
+- Open-Meteo
 
-        **Hidrología**
-        - INA / DSIyAH
+**Hidrología**
+- INA / DSIyAH
 
-        **Cartografía**
-        - OpenStreetMap
-        - Esri
+**Cartografía**
+- OpenStreetMap
+- Esri
 
-        **Monitoreo**
-        - Windy
-        - CIRA / GOES
+**Monitoreo**
+- Windy
+- CIRA / GOES
 
-        **Alertas**
-        - Telegram
-        """
+**Notificaciones**
+- Telegram
+"""
     )
+
 
     st.markdown("---")
 
-    st.markdown("### 🚨 Telegram")
+
+    st.markdown(
+        "### 🚨 Telegram"
+    )
+
 
     if telegram_configurado():
 
@@ -1442,13 +1929,19 @@ with st.sidebar:
         )
 
         st.caption(
-            "Configurar TELEGRAM_BOT_TOKEN y "
-            "TELEGRAM_CHAT_ID en Streamlit Secrets."
+            "Agregar TELEGRAM_BOT_TOKEN "
+            "y TELEGRAM_CHAT_ID en "
+            "Streamlit Secrets."
         )
+
 
     st.markdown("---")
 
-    st.markdown("### 🧮 Modelo")
+
+    st.markdown(
+        "### 🧮 Modelo"
+    )
+
 
     st.caption(
         "Meteorología 35% · "
@@ -1457,54 +1950,90 @@ with st.sidebar:
         "Vulnerabilidad 15%"
     )
 
+
     st.markdown("---")
 
+
     st.caption(
-        "El índice 0–100 es experimental y "
-        "requiere validación histórica."
+        "Modelo experimental. "
+        "Requiere validación histórica."
     )
 
 
 # ============================================================
-# CARGA
+# CARGAR DATOS
 # ============================================================
 
 try:
 
-    datos, ina_ok, ina_error = generar_datos()
+    (
+        datos,
+        ina_ok,
+        ina_error,
+    ) = generar_datos()
+
 
     sistema_ok = True
+
     error_datos = None
+
 
 except Exception as exc:
 
     datos = []
+
     ina_ok = False
+
+    ina_error = None
+
     sistema_ok = False
+
     error_datos = str(exc)
 
+
+# ============================================================
+# ERROR
+# ============================================================
 
 if not sistema_ok:
 
     st.error(
-        "🔴 No fue posible obtener los datos meteorológicos."
+        "🔴 NO FUE POSIBLE ACTUALIZAR "
+        "LOS DATOS METEOROLÓGICOS."
     )
 
-    st.code(error_datos)
+
+    st.code(
+        error_datos
+    )
+
+
+    st.info(
+        "La aplicación detuvo el cálculo "
+        "para evitar mostrar un índice "
+        "que no tenga datos meteorológicos válidos."
+    )
+
 
     st.stop()
 
 
-df = pd.DataFrame(datos)
+df = pd.DataFrame(
+    datos
+)
 
 
 # ============================================================
 # ESTADO DE FUENTES
 # ============================================================
 
-st.markdown("## 📡 Estado de las fuentes")
+st.markdown(
+    "## 📡 Estado de las fuentes"
+)
+
 
 f1, f2, f3 = st.columns(3)
+
 
 with f1:
 
@@ -1512,6 +2041,7 @@ with f1:
         "🟢 Open-Meteo\n\n"
         "Datos meteorológicos disponibles"
     )
+
 
 with f2:
 
@@ -1529,13 +2059,14 @@ with f2:
             "Sin datos hidrológicos disponibles"
         )
 
+
 with f3:
 
     if telegram_configurado():
 
         st.success(
             "🟢 Telegram\n\n"
-            "Sistema de notificaciones configurado"
+            "Notificaciones configuradas"
         )
 
     else:
@@ -1549,27 +2080,39 @@ with f3:
 if not ina_ok:
 
     st.warning(
-        "⚠️ La capa hidrológica no pudo actualizarse. "
-        "El índice continúa funcionando, pero el componente "
-        "hidrológico queda sin aporte observado."
+        "⚠️ La fuente hidrológica INA no "
+        "pudo actualizarse. El componente "
+        "hidrológico se mantiene sin "
+        "aporte observado."
     )
 
+
     if ina_error:
-        with st.expander("Detalle técnico INA"):
-            st.code(ina_error)
+
+        with st.expander(
+            "Detalle técnico INA"
+        ):
+
+            st.code(
+                ina_error
+            )
 
 
 st.caption(
-    f"Consulta del sistema: "
+    "Consulta del sistema: "
     f"{ahora.strftime('%d/%m/%Y %H:%M:%S')} ART"
 )
 
 
 # ============================================================
-# HISTORIAL
+# HISTORIAL DE SESIÓN
 # ============================================================
 
-if "historial" not in st.session_state:
+if (
+    "historial"
+    not in st.session_state
+):
+
     st.session_state.historial = []
 
 
@@ -1577,6 +2120,7 @@ for row in datos:
 
     st.session_state.historial.append(
         {
+
             "fecha":
                 ahora.strftime(
                     "%d/%m/%Y %H:%M"
@@ -1595,6 +2139,7 @@ for row in datos:
 
 
 # Limitar tamaño.
+
 st.session_state.historial = (
     st.session_state.historial[-5000:]
 )
@@ -1607,20 +2152,29 @@ st.session_state.historial = (
 if telegram_configurado():
 
     resultados_telegram = (
-        procesar_alertas_telegram(df)
+        procesar_alertas_telegram(
+            df
+        )
     )
 
-    if resultados_telegram:
+    for resultado in resultados_telegram:
 
-        for resultado in resultados_telegram:
+        if resultado["ok"]:
 
-            if resultado["ok"]:
+            st.toast(
+                "Telegram enviado: "
+                f"{resultado['nodo']}",
+                icon="🚨",
+            )
 
-                st.toast(
-                    f"Telegram enviado: "
-                    f"{resultado['nodo']}",
-                    icon="🚨",
-                )
+        else:
+
+            st.warning(
+                "Telegram no pudo enviar "
+                f"la alerta de "
+                f"{resultado['nodo']}: "
+                f"{resultado['detalle']}"
+            )
 
 
 # ============================================================
@@ -1628,7 +2182,11 @@ if telegram_configurado():
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🚨 Situación actual")
+
+
+st.markdown(
+    "## 🚨 Situación actual"
+)
 
 
 conteo = (
@@ -1640,43 +2198,65 @@ conteo = (
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
+
 c1.metric(
     "🟢 Bajo",
-    conteo.get("BAJO", 0),
+    conteo.get(
+        "BAJO",
+        0,
+    ),
 )
+
 
 c2.metric(
     "🟡 Moderado",
-    conteo.get("MODERADO", 0),
+    conteo.get(
+        "MODERADO",
+        0,
+    ),
 )
+
 
 c3.metric(
     "🟠 Alto",
-    conteo.get("ALTO", 0),
+    conteo.get(
+        "ALTO",
+        0,
+    ),
 )
+
 
 c4.metric(
     "🔴 Muy alto",
-    conteo.get("MUY ALTO", 0),
+    conteo.get(
+        "MUY ALTO",
+        0,
+    ),
 )
+
 
 c5.metric(
     "🟣 Crítico",
-    conteo.get("CRÍTICO", 0),
+    conteo.get(
+        "CRÍTICO",
+        0,
+    ),
 )
 
 
 # ============================================================
-# NODO DE MAYOR RIESGO
+# MAYOR RIESGO
 # ============================================================
 
 mayor = df.loc[
     df["riesgo"].idxmax()
 ]
 
-nivel_mayor = nivel_riesgo(
-    mayor["riesgo"]
+
+nivel_mayor = (
+    mayor["nivel"]
 )
+
 
 st.warning(
     f"{NIVELES[nivel_mayor]['emoji']} "
@@ -1692,7 +2272,11 @@ st.warning(
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🗺️ Mapa operativo de riesgo")
+
+
+st.markdown(
+    "## 🗺️ Mapa operativo de riesgo"
+)
 
 
 m = folium.Map(
@@ -1700,8 +2284,11 @@ m = folium.Map(
         -30.5,
         -59.5,
     ],
+
     zoom_start=6,
+
     tiles="OpenStreetMap",
+
     control_scale=True,
 )
 
@@ -1723,63 +2310,98 @@ folium.TileLayer(
 
 for row in datos:
 
-    nivel = NIVELES[row["nivel"]]
+    nivel = NIVELES[
+        row["nivel"]
+    ]
+
 
     humedad_texto = (
+
         f"{row['humedad_indice']:.1f}%"
+
         if row["humedad_indice"]
         is not None
+
         else "Sin dato"
     )
+
 
     nivel_hidro = (
-        f"{row['nivel_hidrometrico']:.2f} m"
-        if row["nivel_hidrometrico"]
-        is not None
+
+        f"{row['nivel_hidrometrico']:.2f}"
+
+        if row[
+            "nivel_hidrometrico"
+        ] is not None
+
         else "Sin dato"
     )
+
 
     nivel_hidro_24 = (
-        f"{row['nivel_24h']:.2f} m"
+
+        f"{row['nivel_24h']:.2f}"
+
         if row["nivel_24h"]
         is not None
+
         else "Sin dato"
     )
 
+
+    diferencia_hidro = (
+
+        f"{row['diferencia_24h']:+.2f}"
+
+        if row["diferencia_24h"]
+        is not None
+
+        else "Sin dato"
+    )
+
+
     estacion = (
+
         row["estacion_ina"]
+
         if row["estacion_ina"]
+
         else "No disponible"
     )
 
+
     distancia = (
+
         f"{row['distancia_ina']:.1f} km"
+
         if row["distancia_ina"]
         is not None
+
         else "-"
     )
 
+
     popup_html = f"""
+
     <div style="
-        width:350px;
+        width:360px;
         font-family:Arial,sans-serif;
         line-height:1.45;
     ">
 
-        <h3 style="margin-bottom:4px;">
+        <h2 style="margin-bottom:3px;">
             {nivel["emoji"]}
             {row["nombre"]}
-        </h3>
+        </h2>
 
         <b>{row["provincia"]}</b>
 
         <hr>
 
-        <h3>
-            Riesgo:
-            {row["riesgo"]:.0f}/100
+        <h2>
             {nivel["emoji"]}
-        </h3>
+            {row["riesgo"]:.0f}/100
+        </h2>
 
         <b>Nivel:</b>
         {row["nivel"]}<br>
@@ -1789,76 +2411,99 @@ for row in datos:
 
         <hr>
 
-        <b>Componentes del índice</b><br>
+        <b>🧮 Componentes del índice</b><br><br>
 
         🌧️ Meteorología:
-        {row["score_meteorologia"]:.0f}/100<br>
+        {row["score_meteorologia"]:.0f}/100
+        <br>
 
         💧 Suelo:
-        {row["score_suelo"]:.0f}/100<br>
+        {row["score_suelo"]:.0f}/100
+        <br>
 
         🌊 Hidrología:
-        {row["score_hidrologia"]:.0f}/100<br>
+        {row["score_hidrologia"]:.0f}/100
+        <br>
 
         🗺️ Vulnerabilidad:
         {row["vulnerabilidad"]:.0f}/100
 
         <hr>
 
-        <b>Precipitación</b><br>
+        <b>🌧️ Precipitación</b><br>
 
-        🌧️ 24 h recientes:
-        {row["lluvia_reciente_24h"]:.1f} mm<br>
+        Últimas 24 h:
+        {row["lluvia_reciente_24h"]:.1f} mm
+        <br>
 
-        🌧️ 72 h recientes:
-        {row["lluvia_reciente_72h"]:.1f} mm<br>
+        Últimas 72 h:
+        {row["lluvia_reciente_72h"]:.1f} mm
+        <br>
 
-        🔮 24 h:
-        {row["lluvia_pronostico_24h"]:.1f} mm<br>
+        Próximas 24 h:
+        {row["lluvia_pronostico_24h"]:.1f} mm
+        <br>
 
-        🔮 72 h:
-        {row["lluvia_pronostico_72h"]:.1f} mm<br>
+        Próximas 72 h:
+        {row["lluvia_pronostico_72h"]:.1f} mm
+        <br>
 
-        🔮 7 días:
+        Próximos 7 días:
         {row["lluvia_pronostico_7d"]:.1f} mm
 
         <hr>
 
-        <b>Suelo</b><br>
+        <b>💧 Suelo</b><br>
 
-        💧 Índice superficial:
-        {humedad_texto}<br>
+        Índice superficial:
+        {humedad_texto}
+        <br>
 
-        <small>
-        Humedad 0–7 cm modelada:
+        Humedad 0–7 cm:
         {row["humedad_volumetrica"] or "Sin dato"}
-        </small>
+        <br>
+
+        Humedad 7–28 cm:
+        {row["humedad_7_28"] or "Sin dato"}
+        <br>
+
+        Humedad 28–100 cm:
+        {row["humedad_28_100"] or "Sin dato"}
 
         <hr>
 
-        <b>Hidrología INA</b><br>
+        <b>🌊 Hidrología INA</b><br>
 
-        🌊 Estación:
-        {estacion}<br>
+        Estación:
+        {estacion}
+        <br>
 
-        📍 Distancia:
-        {distancia}<br>
+        Distancia:
+        {distancia}
+        <br>
 
-        📏 Nivel actual:
-        {nivel_hidro}<br>
+        Nivel actual:
+        {nivel_hidro}
+        <br>
 
-        📏 Nivel 24 h:
-        {nivel_hidro_24}<br>
+        Nivel 24 h:
+        {nivel_hidro_24}
+        <br>
 
-        📈 Tendencia:
+        Variación 24 h:
+        {diferencia_hidro}
+        <br>
+
+        Tendencia:
         {row["tendencia_hidrologica"]}
 
         <hr>
 
-        <b>Vulnerabilidad territorial</b><br>
+        <b>🗺️ Vulnerabilidad</b><br>
 
-        🗺️ Índice:
-        {row["vulnerabilidad"]}/100<br>
+        Índice:
+        {row["vulnerabilidad"]}/100
+        <br>
 
         {row["tipo_territorio"]}
 
@@ -1872,13 +2517,16 @@ for row in datos:
 
         <small>
         ⚠️ Modelo experimental.
-        No constituye alerta oficial.
+        No constituye una alerta oficial.
         </small>
 
     </div>
+
     """
 
+
     folium.CircleMarker(
+
         location=[
             row["lat"],
             row["lon"],
@@ -1898,7 +2546,7 @@ for row in datos:
 
         popup=folium.Popup(
             popup_html,
-            max_width=400,
+            max_width=410,
         ),
 
         tooltip=(
@@ -1923,11 +2571,15 @@ st_folium(
 
 
 # ============================================================
-# TABLA PRINCIPAL
+# TABLA OPERATIVA
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 📊 Estado operativo por nodo")
+
+
+st.markdown(
+    "## 📊 Estado operativo por nodo"
+)
 
 
 tabla = df[
@@ -1941,7 +2593,9 @@ tabla = df[
         "score_suelo",
         "score_hidrologia",
         "vulnerabilidad",
+        "lluvia_reciente_24h",
         "lluvia_reciente_72h",
+        "lluvia_pronostico_24h",
         "lluvia_pronostico_72h",
         "lluvia_pronostico_7d",
         "nivel_hidrometrico",
@@ -1950,18 +2604,35 @@ tabla = df[
 
 
 tabla.columns = [
+
     "Localidad",
+
     "Provincia",
+
     "Riesgo",
+
     "Nivel",
+
     "Tendencia",
+
     "Meteorología",
+
     "Suelo",
+
     "Hidrología",
+
     "Vulnerabilidad",
+
+    "Lluvia 24 h previas (mm)",
+
     "Lluvia 72 h previas (mm)",
+
+    "Pronóstico 24 h (mm)",
+
     "Pronóstico 72 h (mm)",
+
     "Pronóstico 7 días (mm)",
+
     "Nivel río (m)",
 ]
 
@@ -1969,22 +2640,39 @@ tabla.columns = [
 tabla["Nivel"] = tabla[
     "Nivel"
 ].map(
+
     lambda x:
         f"{NIVELES[x]['emoji']} {x}"
 )
 
 
-for columna in [
+columnas_numericas = [
+
     "Riesgo",
+
     "Meteorología",
+
     "Suelo",
+
     "Hidrología",
+
     "Vulnerabilidad",
+
+    "Lluvia 24 h previas (mm)",
+
     "Lluvia 72 h previas (mm)",
+
+    "Pronóstico 24 h (mm)",
+
     "Pronóstico 72 h (mm)",
+
     "Pronóstico 7 días (mm)",
+
     "Nivel río (m)",
-]:
+]
+
+
+for columna in columnas_numericas:
 
     tabla[columna] = pd.to_numeric(
         tabla[columna],
@@ -2006,41 +2694,15 @@ st.dataframe(
 
 
 # ============================================================
-# DESGLOSE DEL MODELO
+# ANALIZAR NODO
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🧮 Desglose del índice de riesgo")
-
-
-st.info(
-    "El índice no es una medición directa de inundación. "
-    "Es una combinación ponderada de variables meteorológicas, "
-    "condición del suelo, hidrología y vulnerabilidad territorial."
-)
 
 
 st.markdown(
-    """
-### Fórmula V3.0
-
-**Riesgo =**
-
-- 🌧️ Meteorología × **35%**
-- 💧 Condición del suelo × **25%**
-- 🌊 Hidrología × **25%**
-- 🗺️ Vulnerabilidad territorial × **15%**
-
-**Resultado final: 0–100**
-"""
+    "## 🔎 Analizar nodo"
 )
-
-
-# ============================================================
-# NODO SELECCIONADO
-# ============================================================
-
-st.markdown("### 🔎 Analizar nodo")
 
 
 nombres = [
@@ -2056,12 +2718,15 @@ seleccion = st.selectbox(
 
 
 row = next(
-    r for r in datos
+    r
+    for r in datos
     if r["nombre"] == seleccion
 )
 
 
-nivel = NIVELES[row["nivel"]]
+nivel = NIVELES[
+    row["nivel"]
+]
 
 
 a1, a2, a3, a4 = st.columns(4)
@@ -2100,9 +2765,55 @@ with a4:
 
 
 st.markdown(
-    f"### 🎯 Acción orientativa"
-
+    "### 🧮 Desglose"
 )
+
+
+desglose = pd.DataFrame(
+    [
+        [
+            "🌧️ Meteorología",
+            row["score_meteorologia"],
+            "35%",
+        ],
+
+        [
+            "💧 Suelo",
+            row["score_suelo"],
+            "25%",
+        ],
+
+        [
+            "🌊 Hidrología",
+            row["score_hidrologia"],
+            "25%",
+        ],
+
+        [
+            "🗺️ Vulnerabilidad",
+            row["vulnerabilidad"],
+            "15%",
+        ],
+    ],
+    columns=[
+        "Componente",
+        "Valor",
+        "Peso",
+    ],
+)
+
+
+st.dataframe(
+    desglose,
+    use_container_width=True,
+    hide_index=True,
+)
+
+
+st.markdown(
+    "### 🎯 Acción orientativa"
+)
+
 
 st.warning(
     row["accion"]
@@ -2114,7 +2825,11 @@ st.warning(
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 📈 Historial de evolución del riesgo")
+
+
+st.markdown(
+    "## 📈 Historial de evolución del riesgo"
+)
 
 
 historial_df = pd.DataFrame(
@@ -2130,9 +2845,12 @@ if not historial_df.empty:
         errors="coerce",
     )
 
+
     historial_nodo = historial_df[
-        historial_df["nombre"] == seleccion
+        historial_df["nombre"]
+        == seleccion
     ].copy()
+
 
     if not historial_nodo.empty:
 
@@ -2141,21 +2859,24 @@ if not historial_df.empty:
             .sort_values("fecha")
         )
 
+
         st.line_chart(
             historial_nodo.set_index(
                 "fecha"
             )["riesgo"]
         )
 
+
         st.caption(
-            "El historial de esta versión se conserva "
-            "durante la sesión activa de Streamlit."
+            "El historial de esta V3.0 "
+            "se conserva durante la sesión "
+            "activa de Streamlit."
         )
 
     else:
 
         st.info(
-            "Todavía no hay suficientes registros "
+            "Todavía no hay registros "
             "para este nodo."
         )
 
@@ -2167,41 +2888,51 @@ else:
 
 
 # ============================================================
-# ACCIONES
+# MATRIZ DE DECISIÓN
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🎯 Matriz de decisión")
+
+
+st.markdown(
+    "## 🎯 Matriz de decisión"
+)
 
 
 acciones_df = pd.DataFrame(
     [
+
         [
             "🟢 BAJO",
             "0–20",
             "Monitoreo rutinario.",
         ],
+
         [
             "🟡 MODERADO",
             "21–40",
             "Seguimiento de lluvia, suelo y niveles.",
         ],
+
         [
             "🟠 ALTO",
             "41–60",
             "Revisar bajos, drenajes y accesos rurales.",
         ],
+
         [
             "🔴 MUY ALTO",
             "61–80",
             "Preparar medidas preventivas.",
         ],
+
         [
             "🟣 CRÍTICO",
             "81–100",
             "Evaluar activación de protocolos locales.",
         ],
     ],
+
     columns=[
         "Nivel",
         "Índice",
@@ -2222,7 +2953,11 @@ st.dataframe(
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🛰️ Monitoreo meteorológico complementario")
+
+
+st.markdown(
+    "## 🛰️ Monitoreo meteorológico complementario"
+)
 
 
 r1, r2 = st.columns(2)
@@ -2236,10 +2971,13 @@ with r1:
 
     st.caption(
         "Herramienta complementaria. "
-        "No forma parte directamente del cálculo 0–100."
+        "No forma parte directamente "
+        "del cálculo 0–100."
     )
 
+
     st.components.v1.iframe(
+
         "https://embed.windy.com/embed2.html"
         "?lat=-30.5"
         "&lon=-59.5"
@@ -2262,7 +3000,9 @@ with r1:
         "&metricWind=km%2Fh"
         "&metricTemp=%C2%B0C"
         "&radarRange=-1",
+
         height=500,
+
         scrolling=False,
     )
 
@@ -2273,14 +3013,18 @@ with r2:
         "### ⚡ GOES-19 / GLM"
     )
 
+
     st.caption(
-        "Seguimiento complementario de "
-        "nubosidad y actividad eléctrica."
+        "Seguimiento complementario "
+        "de nubosidad y actividad eléctrica."
     )
+
 
     st.link_button(
         "⚡ Abrir visor CIRA GOES-19 / GLM",
+
         "https://slider.cira.colostate.edu/",
+
         use_container_width=True,
     )
 
@@ -2290,17 +3034,23 @@ with r2:
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🧪 Control de calidad de datos")
+
+
+st.markdown(
+    "## 🧪 Control de calidad de datos"
+)
 
 
 calidad_df = pd.DataFrame(
     [
+
         [
             "Open-Meteo",
             "Meteorología",
             "🟢 Disponible",
             "Datos modelados",
         ],
+
         [
             "INA / DSIyAH",
             "Hidrología",
@@ -2309,14 +3059,16 @@ calidad_df = pd.DataFrame(
                 if ina_ok
                 else "🔴 No disponible"
             ),
-            "Lecturas hidrométricas",
+            "Nivel hidrométrico observado publicado",
         ],
+
         [
             "OpenStreetMap / Esri",
             "Cartografía",
             "🟢 Disponible",
-            "Información cartográfica",
+            "Cartografía",
         ],
+
         [
             "Telegram",
             "Notificaciones",
@@ -2328,6 +3080,7 @@ calidad_df = pd.DataFrame(
             "Alertas automáticas",
         ],
     ],
+
     columns=[
         "Fuente",
         "Componente",
@@ -2344,18 +3097,16 @@ st.dataframe(
 )
 
 
-st.caption(
-    "La aplicación diferencia entre información "
-    "modelada y datos hidrométricos publicados."
-)
-
-
 # ============================================================
 # METODOLOGÍA
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🧭 Metodología V3.0")
+
+
+st.markdown(
+    "## 🧭 Metodología V3.0"
+)
 
 
 with st.expander(
@@ -2367,77 +3118,93 @@ with st.expander(
         """
 ### 1. Amenaza meteorológica
 
-Se considera:
+Se utilizan acumulados horarios para estimar:
 
-- precipitación reciente de 24 h;
-- precipitación acumulada reciente de 72 h;
-- precipitación prevista para 24 h;
-- precipitación prevista para 72 h;
-- acumulado previsto de 7 días.
+- precipitación de las últimas 24 horas;
+- precipitación de las últimas 72 horas;
+- precipitación prevista para las próximas 24 horas;
+- precipitación prevista para las próximas 72 horas;
+- precipitación prevista para los próximos 7 días.
 
-La información meteorológica de Open-Meteo utilizada
-por el modelo debe interpretarse como **información modelada**,
-no como medición directa de un pluviómetro local.
+Esto permite diferenciar condición antecedente y amenaza futura.
 
 ### 2. Condición del suelo
 
-La V3.0 utiliza:
+El modelo utiliza humedad volumétrica modelada en:
 
-- humedad 0–7 cm;
-- humedad 7–28 cm;
-- humedad 28–100 cm.
+- 0–7 cm;
+- 7–28 cm;
+- 28–100 cm.
 
-La condición del suelo aporta el 25% del índice.
+El componente de suelo representa el 25% del índice.
 
-La humedad del suelo es una variable modelada y no equivale
-por sí misma a una medición de saturación hidrológica.
+La humedad modelada NO equivale a una medición directa de
+saturación hidrológica de todo el perfil.
 
 ### 3. Hidrología
 
-La V3.0 busca la estación hidrométrica disponible
-más cercana al nodo.
+Se busca la estación hidrométrica INA más cercana al nodo,
+con un radio máximo de 120 km.
 
-Se incorpora:
+Se intenta incorporar:
 
-- nivel hidrométrico;
-- nivel de referencia de 24 h cuando está disponible;
-- tendencia;
-- distancia entre estación y nodo.
+- nivel actual;
+- nivel 24 horas antes;
+- diferencia de nivel;
+- tendencia.
 
 ### 4. Vulnerabilidad territorial
 
-Cada nodo posee un índice inicial de vulnerabilidad
+Cada nodo posee actualmente un valor inicial de vulnerabilidad
 entre 0 y 100.
 
-Este componente representa una aproximación territorial
-y debe ser calibrado posteriormente mediante:
+Esta variable representa una parametrización inicial.
+
+Debe ser posteriormente calibrada mediante:
 
 - mapas de inundabilidad;
-- usos del suelo;
+- uso del suelo;
 - tipo de suelo;
 - antecedentes de anegamiento;
-- exposición de producción agropecuaria;
+- exposición agropecuaria;
 - infraestructura;
 - drenaje;
 - proximidad a cursos de agua.
 
-### 5. Índice final
+### 5. Índice de riesgo
+
+La fórmula inicial es:
+
+Riesgo =
+Meteorología × 35%
++
+Suelo × 25%
++
+Hidrología × 25%
++
+Vulnerabilidad × 15%
 
 El resultado se normaliza entre 0 y 100.
 
-Los pesos actuales son:
+### 6. Interpretación
 
-| Componente | Peso |
-|---|---:|
-| Meteorología | 35% |
-| Suelo | 25% |
-| Hidrología | 25% |
-| Vulnerabilidad | 15% |
+0–20:
+BAJO
 
-Estos pesos constituyen una **configuración inicial experimental**.
+21–40:
+MODERADO
 
-Para una futura versión profesional deberán calibrarse
-contra eventos históricos conocidos.
+41–60:
+ALTO
+
+61–80:
+MUY ALTO
+
+81–100:
+CRÍTICO
+
+Los umbrales y pesos son experimentales.
+Deben validarse contra eventos históricos.
 """
     )
 
@@ -2447,7 +3214,11 @@ contra eventos históricos conocidos.
 # ============================================================
 
 st.markdown("---")
-st.markdown("## ⚠️ Limitaciones")
+
+
+st.markdown(
+    "## ⚠️ Limitaciones actuales"
+)
 
 
 st.markdown(
@@ -2455,50 +3226,58 @@ st.markdown(
 - El índice 0–100 es experimental.
 - No representa una probabilidad estadística de inundación.
 - Open-Meteo aporta información meteorológica modelada.
-- La humedad del suelo no equivale a saturación completa del perfil.
-- La estación hidrométrica más cercana puede encontrarse a una distancia significativa del nodo.
+- La humedad del suelo es modelada.
+- La estación hidrométrica más cercana puede estar a distancia significativa.
 - La vulnerabilidad territorial actual es una parametrización inicial.
-- El historial de esta V3.0 se conserva durante la sesión de Streamlit.
-- Telegram depende de la configuración de un Bot.
-- La herramienta no reemplaza alertas oficiales ni organismos de emergencia.
+- El historial se conserva durante la sesión activa.
+- Telegram requiere configuración mediante Secrets.
+- Los datos hidrológicos INA deben interpretarse según las advertencias del organismo.
+- El sistema no reemplaza alertas oficiales.
 """
 )
 
 
 # ============================================================
-# PRÓXIMA EVOLUCIÓN
+# EVOLUCIÓN
 # ============================================================
 
 st.markdown("---")
-st.markdown("## 🚀 Evolución prevista")
+
+
+st.markdown(
+    "## 🚀 Evolución prevista"
+)
 
 
 st.markdown(
     """
 ### V3.1
-- Persistencia histórica externa.
-- Base de datos de eventos.
+- Base de datos histórica persistente.
 - Exportación CSV.
-- Gráficos históricos.
+- Historial de eventos.
+- Registro de alertas Telegram.
 
 ### V3.2
-- Pluviómetros observados.
-- Mayor cantidad de estaciones hidrométricas.
+- Incorporación de precipitaciones observadas.
+- Más estaciones hidrométricas.
 - Análisis de anomalías.
+- Validación automática de fuentes.
 
 ### V4.0
 - Calibración histórica del índice.
-- Mapas de vulnerabilidad reales.
-- Modelos de suelo.
-- Uso del suelo agropecuario.
-- Validación retrospectiva.
+- Mapas de inundabilidad.
+- Uso real del suelo.
+- Tipo de suelo.
+- Exposición agropecuaria.
 
 ### V4.x
-- Sistema de puntuación probabilística.
+- Validación estadística.
+- POD.
+- FAR.
+- CSI.
+- BIAS.
+- Modelos probabilísticos.
 - Machine Learning.
-- Detección automática de eventos.
-- Evaluación del desempeño:
-  **POD / FAR / CSI / BIAS**.
 """
 )
 
@@ -2509,13 +3288,16 @@ st.markdown(
 
 st.markdown("---")
 
-st.caption(
-    "Alerta Litoral Agro V3.0 — "
-    "Sistema experimental de apoyo a la toma de decisiones "
-    "frente al riesgo de anegamiento agropecuario."
-)
 
 st.caption(
-    f"Última ejecución: "
+    "Alerta Litoral Agro V3.0 — "
+    "Sistema experimental de apoyo a la toma "
+    "de decisiones frente al riesgo de "
+    "anegamiento agropecuario."
+)
+
+
+st.caption(
+    "Última ejecución: "
     f"{ahora.strftime('%d/%m/%Y %H:%M:%S')} ART"
 )
