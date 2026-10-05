@@ -1,46 +1,29 @@
-# ============================================================
-# ALERTA LITORAL AGRO — V3.3.3
-# Sistema experimental de alerta temprana para riesgo de
-# anegamiento agropecuario en Santa Fe, Corrientes y Entre Ríos.
-#
-# Fuentes:
-#   - Open-Meteo / ECMWF
-#   - INA / DSIyAH
-#   - Windy (visualización meteorológica)
-#   - NOAA / GOES-19 (GeoColor + GLM)
-#
-# Funciones:
-#   - Riesgo meteorológico
-#   - Humedad de suelo
-#   - Escorrentía
-#   - Hidrología observada INA
-#   - Vulnerabilidad experimental
-#   - Mapa regional
-#   - Windy
-#   - GOES-19
-#   - Telegram
-#   - Historial
-#   - Exportación CSV
-#
-# IMPORTANTE:
-# Este sistema es un prototipo experimental y no reemplaza
-# alertas oficiales ni sistemas de protección civil.
-# ============================================================
-
 import math
 import requests
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-import streamlit.components.v1 as components
-
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
+import streamlit.components.v1 as components
 from urllib.parse import urlencode
 
-
 # ============================================================
-# CONFIGURACIÓN
+# ALERTA LITORAL AGRO — V3.3.3
+# Prototipo de alerta temprana para riesgo de anegamiento
+# agropecuario en Santa Fe, Corrientes y Entre Ríos.
+#
+# Fuentes:
+# - Open-Meteo / ECMWF
+# - INA / DSIyAH
+# - Windy
+# - NOAA GOES-19
+#
+# Telegram:
+# - Configuración mediante Streamlit Secrets
+#
+# IMPORTANTE:
+# El índice de riesgo y los umbrales son EXPERIMENTALES.
 # ============================================================
 
 st.set_page_config(
@@ -50,30 +33,8 @@ st.set_page_config(
 )
 
 APP_VERSION = "3.3.3"
-
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
-
 REQUEST_TIMEOUT = 25
-
-
-# ============================================================
-# COLORES / NIVELES
-# ============================================================
-
-COLORES_RIESGO = {
-    "BAJO": "#2ca02c",
-    "MODERADO": "#f1c40f",
-    "ALTO": "#e67e22",
-    "MUY ALTO": "#e74c3c",
-}
-
-ICONOS_RIESGO = {
-    "BAJO": "🟢",
-    "MODERADO": "🟡",
-    "ALTO": "🟠",
-    "MUY ALTO": "🔴",
-}
-
 
 # ============================================================
 # FUENTES
@@ -93,23 +54,22 @@ INA_VAR_CAUDAL = 4
 WINDY_EMBED_BASE = "https://embed.windy.com/embed2.html"
 
 GOES19_GEOCOLOR_URL = (
-    "https://www.goes.noaa.gov/"
-    "sector_band.php?band=GEOCOLOR&length=24&sat=G19&sector=ssa"
+    "https://www.goes.noaa.gov/sector_band.php"
+    "?band=GEOCOLOR&length=24&sat=G19&sector=ssa"
 )
 
 GOES19_GLM_URL = (
-    "https://www.goes.noaa.gov/"
-    "sector_band.php?band=EXTENT3&length=12&sat=G19&sector=ssa"
+    "https://www.goes.noaa.gov/sector_band.php"
+    "?band=EXTENT3&length=12&sat=G19&sector=ssa"
 )
 
 GOES19_SECTOR_URL = (
-    "https://www.goes.noaa.gov/"
-    "sector.php?sat=G19&sector=ssa"
+    "https://www.goes.noaa.gov/sector.php"
+    "?sat=G19&sector=ssa"
 )
 
-
 # ============================================================
-# NODOS DEL LITORAL
+# NODOS DE MONITOREO
 # ============================================================
 
 NODOS = [
@@ -241,702 +201,79 @@ NODOS = [
     },
 ]
 
+# ============================================================
+# NIVELES DE RIESGO
+# ============================================================
+
+RIESGOS = [
+    ("BAJO", 0, 24, "🟢"),
+    ("MODERADO", 25, 49, "🟡"),
+    ("ALTO", 50, 74, "🟠"),
+    ("MUY ALTO", 75, 100, "🔴"),
+]
+
 
 # ============================================================
-# UTILIDADES
+# FUNCIONES GENERALES
 # ============================================================
 
-def ahora_local():
+def ahora():
     return datetime.now(TZ)
 
 
-def safe_float(value, default=0.0):
-    try:
-        if value is None:
-            return default
+def emoji_riesgo(nivel):
+    for nombre, _, _, emoji in RIESGOS:
+        if nivel == nombre:
+            return emoji
 
-        if isinstance(value, str):
-            value = value.replace(",", ".")
-
-        result = float(value)
-
-        if math.isnan(result):
-            return default
-
-        return result
-
-    except Exception:
-        return default
-
-
-def promedio_seguro(values):
-    values = [
-        safe_float(v)
-        for v in values
-        if v is not None
-    ]
-
-    values = [
-        v for v in values
-        if not math.isnan(v)
-    ]
-
-    if not values:
-        return None
-
-    return sum(values) / len(values)
-
-
-def distancia_km(lat1, lon1, lat2, lon2):
-    """
-    Distancia aproximada mediante fórmula de Haversine.
-    """
-
-    R = 6371.0
-
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-
-    a = (
-        math.sin(dphi / 2) ** 2
-        + math.cos(phi1)
-        * math.cos(phi2)
-        * math.sin(dlambda / 2) ** 2
-    )
-
-    return 2 * R * math.asin(math.sqrt(a))
+    return "⚪"
 
 
 def nivel_riesgo(score):
-    score = max(0, min(100, safe_float(score)))
+    score = max(0, min(100, float(score)))
 
-    if score < 25:
-        return "BAJO"
-
-    if score < 50:
-        return "MODERADO"
-
-    if score < 75:
-        return "ALTO"
+    for nombre, minimo, maximo, _ in RIESGOS:
+        if minimo <= score <= maximo:
+            return nombre
 
     return "MUY ALTO"
 
 
-def emoji_riesgo(nivel):
-    return ICONOS_RIESGO.get(nivel, "⚪")
-
-
-# ============================================================
-# OPEN-METEO
-# ============================================================
-
-def obtener_datos_open_meteo(lat, lon):
-
-    variables = [
-        "precipitation",
-        "soil_moisture_0_to_7cm",
-        "soil_moisture_7_to_28cm",
-        "soil_moisture_28_to_100cm",
-        "soil_moisture_100_to_255cm",
-        "runoff",
-        "wind_gusts_10m",
-    ]
-
-    params = {
-        "latitude": lat,
-        "longitude": lon,
-        "hourly": ",".join(variables),
-        "past_days": 3,
-        "forecast_days": 7,
-        "timezone": "America/Argentina/Buenos_Aires",
-        "cell_selection": "land",
-    }
-
+def safe_float(value):
     try:
-
-        response = requests.get(
-            OPEN_METEO_ECMWF,
-            params=params,
-            timeout=REQUEST_TIMEOUT,
-        )
-
-        if response.status_code != 200:
-            response = requests.get(
-                OPEN_METEO_FORECAST,
-                params=params,
-                timeout=REQUEST_TIMEOUT,
-            )
-
-        response.raise_for_status()
-
-        data = response.json()
-
-        hourly = data.get("hourly", {})
-
-        times = hourly.get("time", [])
-
-        if not times:
+        if value is None:
             return None
 
-        df = pd.DataFrame(hourly)
+        if isinstance(value, str) and not value.strip():
+            return None
 
-        df["time"] = pd.to_datetime(
-            df["time"],
-            errors="coerce",
-        )
-
-        df = df.dropna(subset=["time"])
-
-        ahora = pd.Timestamp.now(
-            tz=TZ
-        ).tz_localize(None)
-
-        df["time"] = df["time"].dt.tz_localize(
-            None
-        )
-
-        # ====================================================
-        # PERÍODOS
-        # ====================================================
-
-        ult_24 = df[
-            df["time"] >= ahora - pd.Timedelta(hours=24)
-        ]
-
-        ult_72 = df[
-            df["time"] >= ahora - pd.Timedelta(hours=72)
-        ]
-
-        # ====================================================
-        # LLUVIA
-        # ====================================================
-
-        lluvia_24 = (
-            ult_24["precipitation"].sum()
-            if "precipitation" in ult_24
-            else 0
-        )
-
-        lluvia_72 = (
-            ult_72["precipitation"].sum()
-            if "precipitation" in ult_72
-            else 0
-        )
-
-        # ====================================================
-        # HUMEDAD DE SUELO
-        # ====================================================
-
-        soil_columns = [
-            "soil_moisture_0_to_7cm",
-            "soil_moisture_7_to_28cm",
-            "soil_moisture_28_to_100cm",
-            "soil_moisture_100_to_255cm",
-        ]
-
-        humedad_values = []
-
-        for column in soil_columns:
-
-            if column in df.columns:
-
-                serie = pd.to_numeric(
-                    df[column],
-                    errors="coerce",
-                ).dropna()
-
-                if len(serie) > 0:
-                    humedad_values.append(
-                        serie.iloc[-1]
-                    )
-
-        humedad = (
-            promedio_seguro(humedad_values)
-            if humedad_values
-            else None
-        )
-
-        # ====================================================
-        # ESCORRENTÍA
-        # ====================================================
-
-        if "runoff" in ult_72.columns:
-            escorrentia_72 = ult_72[
-                "runoff"
-            ].sum()
-        else:
-            escorrentia_72 = 0
-
-        # ====================================================
-        # RÁFAGA MÁXIMA
-        # ====================================================
-
-        if "wind_gusts_10m" in ult_72.columns:
-
-            gust_series = pd.to_numeric(
-                ult_72["wind_gusts_10m"],
-                errors="coerce",
-            ).dropna()
-
-            rafaga_max = (
-                gust_series.max()
-                if len(gust_series)
-                else None
-            )
-
-        else:
-            rafaga_max = None
-
-        return {
-            "lluvia_24h": safe_float(lluvia_24),
-            "lluvia_72h": safe_float(lluvia_72),
-            "humedad_suelo": (
-                safe_float(humedad)
-                if humedad is not None
-                else None
-            ),
-            "escorrentia_72h": safe_float(
-                escorrentia_72
-            ),
-            "rafaga_max": (
-                safe_float(rafaga_max)
-                if rafaga_max is not None
-                else None
-            ),
-            "horas_datos": len(df),
-            "cobertura": True,
-            "fuente_meteo": "Open-Meteo / ECMWF",
-            "actualizado": ahora_local(),
-        }
-
-    except Exception as e:
-
-        return {
-            "lluvia_24h": None,
-            "lluvia_72h": None,
-            "humedad_suelo": None,
-            "escorrentia_72h": None,
-            "rafaga_max": None,
-            "horas_datos": 0,
-            "cobertura": False,
-            "fuente_meteo": "Error Open-Meteo",
-            "error": str(e),
-            "actualizado": ahora_local(),
-        }
-
-
-# ============================================================
-# INA — ESTACIONES
-# ============================================================
-
-@st.cache_data(ttl=900, show_spinner=False)
-def obtener_estaciones_ina():
-
-    try:
-
-        response = requests.get(
-            INA_ESTACIONES,
-            timeout=REQUEST_TIMEOUT,
-        )
-
-        response.raise_for_status()
-
-        data = response.json()
-
-        if isinstance(data, dict):
-
-            for key in [
-                "data",
-                "estaciones",
-                "stations",
-                "results",
-            ]:
-
-                if key in data:
-                    data = data[key]
-                    break
-
-        if not isinstance(data, list):
-            return []
-
-        estaciones = []
-
-        for item in data:
-
-            if not isinstance(item, dict):
-                continue
-
-            lat = (
-                item.get("lat")
-                or item.get("latitude")
-                or item.get("latitud")
-            )
-
-            lon = (
-                item.get("lon")
-                or item.get("longitude")
-                or item.get("longitud")
-            )
-
-            if lat is None or lon is None:
-                continue
-
-            estaciones.append(
-                {
-                    "codigo": (
-                        item.get("siteCode")
-                        or item.get("codigo")
-                        or item.get("code")
-                        or item.get("id")
-                    ),
-                    "nombre": (
-                        item.get("nombre")
-                        or item.get("name")
-                        or item.get("stationName")
-                        or "Estación INA"
-                    ),
-                    "lat": safe_float(lat),
-                    "lon": safe_float(lon),
-                    "provincia": (
-                        item.get("provincia")
-                        or item.get("province")
-                        or ""
-                    ),
-                    "nivel_alerta": (
-                        item.get("nivel_de_alerta")
-                        or item.get("nivel_alerta")
-                    ),
-                    "nivel_evacuacion": (
-                        item.get("nivel_de_evacuacion")
-                        or item.get("nivel_evacuacion")
-                    ),
-                    "raw": item,
-                }
-            )
-
-        return estaciones
+        return float(value)
 
     except Exception:
-        return []
-
-
-def encontrar_estacion_cercana(
-    lat,
-    lon,
-    estaciones,
-    max_km=150,
-):
-
-    mejor = None
-    mejor_distancia = None
-
-    for estacion in estaciones:
-
-        distancia = distancia_km(
-            lat,
-            lon,
-            estacion["lat"],
-            estacion["lon"],
-        )
-
-        if distancia <= max_km:
-
-            if (
-                mejor_distancia is None
-                or distancia < mejor_distancia
-            ):
-                mejor = estacion
-                mejor_distancia = distancia
-
-    if mejor is None:
         return None
 
-    resultado = mejor.copy()
 
-    resultado["distancia_km"] = mejor_distancia
+def distancia_km(lat1, lon1, lat2, lon2):
+    radio = 6371.0
 
-    return resultado
+    p1 = math.radians(lat1)
+    p2 = math.radians(lat2)
+
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+
+    a = (
+        math.sin(dp / 2) ** 2
+        + math.cos(p1)
+        * math.cos(p2)
+        * math.sin(dl / 2) ** 2
+    )
+
+    return 2 * radio * math.asin(math.sqrt(a))
 
 
 # ============================================================
-# INA — DATOS
-# ============================================================
-
-def normalizar_registros_ina(data):
-
-    if isinstance(data, dict):
-
-        for key in [
-            "data",
-            "datos",
-            "results",
-            "resultados",
-        ]:
-
-            if key in data:
-
-                data = data[key]
-                break
-
-    if not isinstance(data, list):
-        return []
-
-    registros = []
-
-    for item in data:
-
-        if not isinstance(item, dict):
-            continue
-
-        fecha = (
-            item.get("fecha")
-            or item.get("date")
-            or item.get("timestamp")
-            or item.get("datetime")
-            or item.get("time")
-        )
-
-        valor = (
-            item.get("valor")
-            or item.get("value")
-            or item.get("dato")
-            or item.get("nivel")
-        )
-
-        if fecha is None or valor is None:
-            continue
-
-        try:
-
-            fecha_dt = pd.to_datetime(
-                fecha,
-                errors="coerce",
-            )
-
-            valor_float = safe_float(
-                valor,
-                default=float("nan"),
-            )
-
-            if pd.isna(fecha_dt):
-                continue
-
-            if math.isnan(valor_float):
-                continue
-
-            registros.append(
-                {
-                    "fecha": fecha_dt,
-                    "valor": valor_float,
-                }
-            )
-
-        except Exception:
-            continue
-
-    return registros
-
-
-def obtener_dato_ina(
-    estacion,
-    var_id,
-):
-
-    if not estacion:
-        return []
-
-    codigo = estacion.get("codigo")
-
-    if codigo is None:
-        return []
-
-    params = {
-        "siteCode": codigo,
-        "varId": var_id,
-    }
-
-    try:
-
-        response = requests.get(
-            INA_DATOS,
-            params=params,
-            timeout=REQUEST_TIMEOUT,
-        )
-
-        response.raise_for_status()
-
-        return normalizar_registros_ina(
-            response.json()
-        )
-
-    except Exception:
-        return []
-
-
-def analizar_hidrologia_ina(estacion):
-
-    if not estacion:
-
-        return {
-            "valor_actual": None,
-            "tendencia_24h": None,
-            "nivel_alerta": None,
-            "nivel_evacuacion": None,
-            "score": 0,
-            "estado": "SIN DATOS",
-            "serie": [],
-        }
-
-    registros = obtener_dato_ina(
-        estacion,
-        INA_VAR_ALTURA,
-    )
-
-    if not registros:
-
-        registros = obtener_dato_ina(
-            estacion,
-            INA_VAR_CAUDAL,
-        )
-
-    if not registros:
-
-        return {
-            "valor_actual": None,
-            "tendencia_24h": None,
-            "nivel_alerta": estacion.get(
-                "nivel_alerta"
-            ),
-            "nivel_evacuacion": estacion.get(
-                "nivel_evacuacion"
-            ),
-            "score": 0,
-            "estado": "SIN DATOS",
-            "serie": [],
-        }
-
-    df = pd.DataFrame(registros)
-
-    df = df.sort_values("fecha")
-
-    valor_actual = safe_float(
-        df.iloc[-1]["valor"]
-    )
-
-    limite_24 = (
-        df["fecha"].max()
-        - pd.Timedelta(hours=24)
-    )
-
-    antiguos = df[
-        df["fecha"] <= limite_24
-    ]
-
-    if len(antiguos) > 0:
-
-        valor_24 = safe_float(
-            antiguos.iloc[-1]["valor"]
-        )
-
-        tendencia = (
-            valor_actual - valor_24
-        )
-
-    else:
-        tendencia = None
-
-    nivel_alerta = safe_float(
-        estacion.get("nivel_alerta"),
-        default=float("nan"),
-    )
-
-    nivel_evacuacion = safe_float(
-        estacion.get("nivel_evacuacion"),
-        default=float("nan"),
-    )
-
-    score = 0
-
-    # --------------------------------------------------------
-    # NIVEL HIDROLÓGICO
-    # --------------------------------------------------------
-
-    if not math.isnan(nivel_evacuacion):
-
-        if valor_actual >= nivel_evacuacion:
-            score = 100
-
-        elif valor_actual >= nivel_evacuacion * 0.9:
-            score = max(score, 85)
-
-        elif valor_actual >= nivel_evacuacion * 0.75:
-            score = max(score, 65)
-
-    if not math.isnan(nivel_alerta):
-
-        if valor_actual >= nivel_alerta:
-            score = max(score, 70)
-
-        elif valor_actual >= nivel_alerta * 0.9:
-            score = max(score, 50)
-
-        elif valor_actual >= nivel_alerta * 0.75:
-            score = max(score, 30)
-
-    # --------------------------------------------------------
-    # TENDENCIA
-    # --------------------------------------------------------
-
-    if tendencia is not None:
-
-        if tendencia > 0.50:
-            score = max(score, 80)
-
-        elif tendencia > 0.25:
-            score = max(score, 60)
-
-        elif tendencia > 0.10:
-            score = max(score, 40)
-
-        elif tendencia > 0:
-            score = max(score, 20)
-
-    if score >= 75:
-        estado = "MUY ALTO"
-
-    elif score >= 50:
-        estado = "ALTO"
-
-    elif score >= 25:
-        estado = "MODERADO"
-
-    else:
-        estado = "BAJO"
-
-    return {
-        "valor_actual": valor_actual,
-        "tendencia_24h": tendencia,
-        "nivel_alerta": (
-            None
-            if math.isnan(nivel_alerta)
-            else nivel_alerta
-        ),
-        "nivel_evacuacion": (
-            None
-            if math.isnan(nivel_evacuacion)
-            else nivel_evacuacion
-        ),
-        "score": score,
-        "estado": estado,
-        "serie": registros,
-    }
-
-
-# ============================================================
-# CÁLCULO DE RIESGO
+# SCORE METEOROLÓGICO
 # ============================================================
 
 def calcular_score_lluvia_24h(mm):
@@ -990,9 +327,6 @@ def calcular_score_humedad(humedad):
     if humedad is None:
         return None
 
-    # Open-Meteo expresa la humedad volumétrica
-    # aproximadamente en m3/m3.
-
     if humedad >= 0.45:
         return 100
 
@@ -1034,131 +368,990 @@ def calcular_score_escorrentia(valor):
     return 0
 
 
-def calcular_score_vulnerabilidad(valor):
+# ============================================================
+# TELEGRAM
+# ============================================================
 
-    if valor is None:
-        return None
+def obtener_config_telegram():
 
-    return max(
-        0,
-        min(100, safe_float(valor))
+    try:
+        token = st.secrets.get(
+            "TELEGRAM_BOT_TOKEN",
+            "",
+        )
+
+        chat_id = st.secrets.get(
+            "TELEGRAM_CHAT_ID",
+            "",
+        )
+
+        return (
+            str(token).strip(),
+            str(chat_id).strip(),
+        )
+
+    except Exception:
+        return "", ""
+
+
+def telegram_configurado():
+
+    token, chat_id = obtener_config_telegram()
+
+    return bool(
+        token
+        and chat_id
+        and token != "TU_TOKEN_DEL_BOT"
+        and chat_id != "TU_CHAT_ID"
     )
 
 
-def calcular_riesgo(
-    lluvia_24,
-    lluvia_72,
-    humedad,
-    escorrentia,
-    hidrologia,
+def enviar_telegram(texto):
+
+    token, chat_id = obtener_config_telegram()
+
+    if not token or not chat_id:
+        return (
+            False,
+            "Telegram no configurado en Streamlit Secrets.",
+        )
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{token}/sendMessage"
+    )
+
+    payload = {
+        "chat_id": chat_id,
+        "text": texto,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+    }
+
+    try:
+
+        response = requests.post(
+            url,
+            data=payload,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        if response.ok:
+            return (
+                True,
+                "Mensaje enviado correctamente.",
+            )
+
+        return (
+            False,
+            (
+                f"Telegram respondió HTTP "
+                f"{response.status_code}: "
+                f"{response.text[:300]}"
+            ),
+        )
+
+    except Exception as exc:
+
+        return (
+            False,
+            f"Error de conexión con Telegram: {exc}",
+        )
+
+
+def formatear_mensaje_alerta(resultado):
+
+    humedad = (
+        f"{resultado['humedad_suelo']:.3f}"
+        if resultado["humedad_suelo"] is not None
+        else "s/d"
+    )
+
+    lluvia_24 = (
+        f"{resultado['lluvia_24h']:.1f}"
+        if resultado["lluvia_24h"] is not None
+        else "s/d"
+    )
+
+    lluvia_72 = (
+        f"{resultado['lluvia_72h']:.1f}"
+        if resultado["lluvia_72h"] is not None
+        else "s/d"
+    )
+
+    escorrentia = (
+        f"{resultado['escorrentia_72h']:.1f}"
+        if resultado["escorrentia_72h"] is not None
+        else "s/d"
+    )
+
+    hidro = (
+        f"{resultado['hidro_score']:.0f}"
+        if resultado["hidro_score"] is not None
+        else "s/d"
+    )
+
+    nivel = resultado["nivel"]
+
+    return (
+        f"{emoji_riesgo(nivel)} "
+        f"<b>ALERTA LITORAL AGRO</b>\n\n"
+        f"<b>{resultado['nombre']}</b> — "
+        f"{resultado['provincia']}\n"
+        f"Riesgo: <b>{resultado['score']:.1f}/100</b>\n"
+        f"Nivel: <b>{nivel}</b>\n\n"
+        f"🌧️ Lluvia 24h: {lluvia_24} mm\n"
+        f"🌧️ Lluvia 72h: {lluvia_72} mm\n"
+        f"💧 Humedad suelo: {humedad}\n"
+        f"🌊 Escorrentía 72h: {escorrentia}\n"
+        f"📈 Hidrología: {hidro}/100\n\n"
+        f"Actualizado: "
+        f"{resultado['actualizado'].strftime('%d/%m/%Y %H:%M')}"
+    )
+
+
+def enviar_alertas_automaticas(resultados):
+
+    if not telegram_configurado():
+        return []
+
+    enviados = []
+
+    ultimo = st.session_state.setdefault(
+        "telegram_alertas_enviadas",
+        set(),
+    )
+
+    for resultado in resultados:
+
+        if resultado["nivel"] not in (
+            "ALTO",
+            "MUY ALTO",
+        ):
+            continue
+
+        clave = (
+            f"{resultado['nombre']}|"
+            f"{resultado['nivel']}|"
+            f"{resultado['score']:.0f}|"
+            f"{resultado['actualizado'].strftime('%Y%m%d%H')}"
+        )
+
+        if clave in ultimo:
+            continue
+
+        ok, _ = enviar_telegram(
+            formatear_mensaje_alerta(resultado)
+        )
+
+        if ok:
+            ultimo.add(clave)
+            enviados.append(resultado["nombre"])
+
+    return enviados
+
+
+def enviar_resumen_telegram(resultados):
+
+    if not resultados:
+        return False, "No hay resultados."
+
+    df = pd.DataFrame(resultados)
+
+    df = df.sort_values(
+        "score",
+        ascending=False,
+    )
+
+    top = df.head(8)
+
+    lineas = [
+        "🌧️ <b>ALERTA LITORAL AGRO</b>",
+        (
+            "Actualización: "
+            f"{ahora().strftime('%d/%m/%Y %H:%M')}"
+        ),
+        "",
+    ]
+
+    for _, row in top.iterrows():
+
+        lineas.append(
+            f"{emoji_riesgo(row['nivel'])} "
+            f"<b>{row['nombre']}</b> — "
+            f"{row['score']:.1f}/100 "
+            f"({row['nivel']})"
+        )
+
+    return enviar_telegram(
+        "\n".join(lineas)
+    )
+
+
+# ============================================================
+# INA
+# ============================================================
+
+def normalizar_estaciones(data):
+
+    if isinstance(data, dict):
+
+        for key in (
+            "estaciones",
+            "stations",
+            "data",
+            "results",
+        ):
+
+            if isinstance(data.get(key), list):
+
+                data = data[key]
+                break
+
+    if not isinstance(data, list):
+        return pd.DataFrame()
+
+    df = pd.json_normalize(data)
+
+    rename = {}
+
+    for column in df.columns:
+
+        cl = column.lower()
+
+        if cl in (
+            "lat",
+            "latitude",
+            "latitud",
+            "ubicacion.lat",
+        ):
+            rename[column] = "lat"
+
+        elif cl in (
+            "lon",
+            "lng",
+            "longitude",
+            "longitud",
+            "ubicacion.lon",
+        ):
+            rename[column] = "lon"
+
+        elif (
+            "sitecode" in cl
+            or cl in (
+                "codigo",
+                "code",
+                "id",
+            )
+        ):
+            rename[column] = "siteCode"
+
+        elif (
+            "nombre" in cl
+            or cl in (
+                "name",
+                "station_name",
+            )
+        ):
+            rename[column] = "nombre"
+
+    df = df.rename(
+        columns=rename
+    )
+
+    if (
+        "lat" not in df.columns
+        or "lon" not in df.columns
+    ):
+        return pd.DataFrame()
+
+    df["lat"] = pd.to_numeric(
+        df["lat"],
+        errors="coerce",
+    )
+
+    df["lon"] = pd.to_numeric(
+        df["lon"],
+        errors="coerce",
+    )
+
+    return df.dropna(
+        subset=["lat", "lon"]
+    ).copy()
+
+
+@st.cache_data(
+    ttl=900,
+    show_spinner=False,
+)
+def obtener_estaciones_ina():
+
+    try:
+
+        response = requests.get(
+            INA_ESTACIONES,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        response.raise_for_status()
+
+        return normalizar_estaciones(
+            response.json()
+        )
+
+    except Exception:
+
+        return pd.DataFrame()
+
+
+def extraer_registros_ina(data):
+
+    if isinstance(data, dict):
+
+        for key in (
+            "datos",
+            "data",
+            "results",
+            "series",
+            "observaciones",
+        ):
+
+            if isinstance(data.get(key), list):
+                return data[key]
+
+    if isinstance(data, list):
+        return data
+
+    return []
+
+
+def normalizar_datos_ina(data):
+
+    registros = extraer_registros_ina(data)
+
+    if not registros:
+        return pd.DataFrame()
+
+    df = pd.json_normalize(
+        registros
+    )
+
+    fecha_col = None
+    valor_col = None
+
+    for column in df.columns:
+
+        cl = column.lower()
+
+        if (
+            fecha_col is None
+            and any(
+                x in cl
+                for x in (
+                    "fecha",
+                    "date",
+                    "time",
+                    "timestamp",
+                )
+            )
+        ):
+            fecha_col = column
+
+        if (
+            valor_col is None
+            and any(
+                x in cl
+                for x in (
+                    "valor",
+                    "value",
+                    "dato",
+                    "nivel",
+                    "caudal",
+                )
+            )
+        ):
+            valor_col = column
+
+    if (
+        fecha_col is None
+        or valor_col is None
+    ):
+        return pd.DataFrame()
+
+    df["fecha"] = pd.to_datetime(
+        df[fecha_col],
+        errors="coerce",
+        utc=True,
+    )
+
+    df["valor"] = pd.to_numeric(
+        df[valor_col],
+        errors="coerce",
+    )
+
+    return (
+        df.dropna(
+            subset=[
+                "fecha",
+                "valor",
+            ]
+        )
+        .sort_values("fecha")
+    )
+
+
+def obtener_datos_ina(
+    site_code,
+    var_id,
+):
+
+    if site_code is None:
+        return pd.DataFrame()
+
+    params = {
+        "siteCode": site_code,
+        "varId": var_id,
+    }
+
+    try:
+
+        response = requests.get(
+            INA_DATOS,
+            params=params,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        response.raise_for_status()
+
+        return normalizar_datos_ina(
+            response.json()
+        )
+
+    except Exception:
+
+        return pd.DataFrame()
+
+
+def calcular_hidrologia(estacion):
+
+    if estacion is None:
+
+        return {
+            "score": None,
+            "nivel": None,
+            "evacuacion": None,
+            "tendencia": None,
+            "serie": pd.DataFrame(),
+        }
+
+    site = estacion.get(
+        "siteCode"
+    )
+
+    altura = obtener_datos_ina(
+        site,
+        INA_VAR_ALTURA,
+    )
+
+    caudal = obtener_datos_ina(
+        site,
+        INA_VAR_CAUDAL,
+    )
+
+    df = (
+        altura
+        if not altura.empty
+        else caudal
+    )
+
+    if df.empty:
+
+        return {
+            "score": None,
+            "nivel": estacion.get(
+                "nivel_de_alerta"
+            ),
+            "evacuacion": estacion.get(
+                "nivel_de_evacuacion"
+            ),
+            "tendencia": None,
+            "serie": df,
+        }
+
+    ultimo = float(
+        df.iloc[-1]["valor"]
+    )
+
+    corte = (
+        df["fecha"].max()
+        - pd.Timedelta(hours=24)
+    )
+
+    prev = df[
+        df["fecha"] <= corte
+    ]
+
+    tendencia = None
+
+    if not prev.empty:
+
+        tendencia = (
+            ultimo
+            - float(
+                prev.iloc[-1]["valor"]
+            )
+        )
+
+    score = 20.0
+
+    if tendencia is not None:
+
+        if tendencia > 1.0:
+            score = 100.0
+
+        elif tendencia > 0.5:
+            score = 80.0
+
+        elif tendencia > 0.2:
+            score = 60.0
+
+        elif tendencia > 0.0:
+            score = 40.0
+
+        else:
+            score = 20.0
+
+    alerta = safe_float(
+        estacion.get(
+            "nivel_de_alerta"
+        )
+    )
+
+    evacuacion = safe_float(
+        estacion.get(
+            "nivel_de_evacuacion"
+        )
+    )
+
+    if alerta is not None:
+
+        if ultimo >= alerta:
+            score = max(
+                score,
+                85.0,
+            )
+
+    if evacuacion is not None:
+
+        if ultimo >= evacuacion:
+            score = 100.0
+
+    return {
+        "score": score,
+        "nivel": ultimo,
+        "evacuacion": evacuacion,
+        "tendencia": tendencia,
+        "serie": df,
+    }
+
+
+def obtener_estacion_cercana(
+    nodo,
+    estaciones,
+    max_km=150,
+):
+
+    if (
+        estaciones is None
+        or estaciones.empty
+    ):
+        return None
+
+    mejor = None
+    mejor_dist = None
+
+    for _, row in estaciones.iterrows():
+
+        d = distancia_km(
+            nodo["lat"],
+            nodo["lon"],
+            float(row["lat"]),
+            float(row["lon"]),
+        )
+
+        if (
+            mejor_dist is None
+            or d < mejor_dist
+        ):
+            mejor = row.to_dict()
+            mejor_dist = d
+
+    if (
+        mejor is not None
+        and mejor_dist <= max_km
+    ):
+
+        mejor["_distancia_km"] = (
+            mejor_dist
+        )
+
+        return mejor
+
+    return None
+
+
+# ============================================================
+# OPEN-METEO
+# ============================================================
+
+def preparar_meteo(data):
+
+    if (
+        not isinstance(data, dict)
+        or "hourly" not in data
+    ):
+        return pd.DataFrame()
+
+    hourly = data["hourly"]
+
+    df = pd.DataFrame(
+        hourly
+    )
+
+    if "time" not in df.columns:
+        return pd.DataFrame()
+
+    df["time"] = pd.to_datetime(
+        df["time"],
+        errors="coerce",
+    )
+
+    return (
+        df.dropna(
+            subset=["time"]
+        )
+        .sort_values("time")
+    )
+
+
+@st.cache_data(
+    ttl=600,
+    show_spinner=False,
+)
+def obtener_meteo(
+    lat,
+    lon,
+):
+
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": ",".join(
+            [
+                "precipitation",
+                "soil_moisture_0_to_7cm",
+                "soil_moisture_7_to_28cm",
+                "soil_moisture_28_to_100cm",
+                "soil_moisture_100_to_255cm",
+                "runoff",
+                "wind_gusts_10m",
+            ]
+        ),
+        "past_days": 3,
+        "forecast_days": 7,
+        "timezone": (
+            "America/Argentina/"
+            "Buenos_Aires"
+        ),
+        "cell_selection": "land",
+    }
+
+    try:
+
+        response = requests.get(
+            OPEN_METEO_ECMWF,
+            params=params,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        response.raise_for_status()
+
+        df = preparar_meteo(
+            response.json()
+        )
+
+        if df.empty:
+
+            response = requests.get(
+                OPEN_METEO_FORECAST,
+                params=params,
+                timeout=REQUEST_TIMEOUT,
+            )
+
+            response.raise_for_status()
+
+            df = preparar_meteo(
+                response.json()
+            )
+
+        return df
+
+    except Exception:
+
+        return pd.DataFrame()
+
+
+def calcular_meteo(df):
+
+    if df.empty:
+
+        return {
+            "lluvia_24h": None,
+            "lluvia_72h": None,
+            "humedad_suelo": None,
+            "escorrentia_72h": None,
+            "max_gust": None,
+            "cobertura": 0,
+        }
+
+    ahora_local = (
+        pd.Timestamp.now(
+            tz=TZ
+        ).tz_localize(None)
+    )
+
+    df = df.copy()
+
+    if getattr(
+        df["time"].dt,
+        "tz",
+        None,
+    ) is not None:
+
+        df["time"] = (
+            df["time"]
+            .dt
+            .tz_localize(None)
+        )
+
+    pasado = df[
+        df["time"] <= ahora_local
+    ]
+
+    if pasado.empty:
+        pasado = df
+
+    ult24 = pasado[
+        pasado["time"]
+        >= ahora_local
+        - pd.Timedelta(hours=24)
+    ]
+
+    ult72 = pasado[
+        pasado["time"]
+        >= ahora_local
+        - pd.Timedelta(hours=72)
+    ]
+
+    def suma(frame, columna):
+
+        if columna not in frame.columns:
+            return None
+
+        serie = pd.to_numeric(
+            frame[columna],
+            errors="coerce",
+        ).dropna()
+
+        if serie.empty:
+            return None
+
+        return float(
+            serie.sum()
+        )
+
+    def media_humedad(frame):
+
+        columnas = [
+            columna
+            for columna in [
+                "soil_moisture_0_to_7cm",
+                "soil_moisture_7_to_28cm",
+                "soil_moisture_28_to_100cm",
+                "soil_moisture_100_to_255cm",
+            ]
+            if columna in frame.columns
+        ]
+
+        if not columnas:
+            return None
+
+        valores = (
+            frame[columnas]
+            .apply(
+                pd.to_numeric,
+                errors="coerce",
+            )
+            .stack()
+        )
+
+        if valores.empty:
+            return None
+
+        return float(
+            valores.mean()
+        )
+
+    lluvia24 = suma(
+        ult24,
+        "precipitation",
+    )
+
+    lluvia72 = suma(
+        ult72,
+        "precipitation",
+    )
+
+    escorrentia = suma(
+        ult72,
+        "runoff",
+    )
+
+    gust = None
+
+    if "wind_gusts_10m" in df.columns:
+
+        valores = pd.to_numeric(
+            df["wind_gusts_10m"],
+            errors="coerce",
+        ).dropna()
+
+        if not valores.empty:
+
+            gust = float(
+                valores.max()
+            )
+
+    cobertura = int(
+        len(pasado)
+    )
+
+    return {
+        "lluvia_24h": lluvia24,
+        "lluvia_72h": lluvia72,
+        "humedad_suelo": media_humedad(
+            ult24
+            if not ult24.empty
+            else pasado
+        ),
+        "escorrentia_72h": escorrentia,
+        "max_gust": gust,
+        "cobertura": cobertura,
+    }
+
+
+# ============================================================
+# SCORE TOTAL
+# ============================================================
+
+def calcular_score_componentes(
+    meteo,
+    hidro,
     vulnerabilidad,
 ):
 
     componentes = [
         (
-            "lluvia_24h",
             calcular_score_lluvia_24h(
-                lluvia_24
+                meteo["lluvia_24h"]
             ),
             20,
         ),
         (
-            "lluvia_72h",
             calcular_score_lluvia_72h(
-                lluvia_72
+                meteo["lluvia_72h"]
             ),
             20,
         ),
         (
-            "humedad",
             calcular_score_humedad(
-                humedad
+                meteo["humedad_suelo"]
             ),
             15,
         ),
         (
-            "escorrentia",
             calcular_score_escorrentia(
-                escorrentia
+                meteo["escorrentia_72h"]
             ),
             5,
         ),
         (
-            "hidrologia",
-            hidrologia,
+            hidro["score"],
             20,
         ),
         (
-            "vulnerabilidad",
-            calcular_score_vulnerabilidad(
-                vulnerabilidad
-            ),
+            float(vulnerabilidad),
             10,
         ),
     ]
 
-    suma = 0
-    pesos_disponibles = 0
+    disponibles = [
+        (score, peso)
+        for score, peso in componentes
+        if score is not None
+    ]
 
-    for _, score, peso in componentes:
+    if not disponibles:
+        return 0.0
 
-        if score is None:
-            continue
-
-        suma += score * peso
-        pesos_disponibles += peso
-
-    if pesos_disponibles == 0:
-        return 0
-
-    score_final = (
-        suma / pesos_disponibles
+    return (
+        sum(
+            score * peso
+            for score, peso
+            in disponibles
+        )
+        / sum(
+            peso
+            for _, peso
+            in disponibles
+        )
     )
 
-    return round(
-        max(0, min(100, score_final)),
-        1,
-    )
-
-
-# ============================================================
-# PROCESAMIENTO DE NODO
-# ============================================================
 
 def procesar_nodo(
     nodo,
     estaciones,
-    max_km_ina=150,
+    max_km_ina,
 ):
 
-    meteo = obtener_datos_open_meteo(
+    meteo_df = obtener_meteo(
         nodo["lat"],
         nodo["lon"],
     )
 
-    estacion = encontrar_estacion_cercana(
-        nodo["lat"],
-        nodo["lon"],
+    meteo = calcular_meteo(
+        meteo_df
+    )
+
+    estacion = obtener_estacion_cercana(
+        nodo,
         estaciones,
         max_km=max_km_ina,
     )
 
-    hidro = analizar_hidrologia_ina(
+    hidro = calcular_hidrologia(
         estacion
     )
 
-    score = calcular_riesgo(
-        meteo.get("lluvia_24h"),
-        meteo.get("lluvia_72h"),
-        meteo.get("humedad_suelo"),
-        meteo.get("escorrentia_72h"),
-        hidro.get("score"),
-        nodo.get("vulnerabilidad"),
+    score = calcular_score_componentes(
+        meteo,
+        hidro,
+        nodo["vulnerabilidad"],
     )
 
-    nivel = nivel_riesgo(score)
+    actualizado = ahora()
 
-    resultado = {
+    return {
         "nombre": nodo["nombre"],
         "provincia": nodo["provincia"],
         "lat": nodo["lat"],
@@ -1166,77 +1359,51 @@ def procesar_nodo(
         "vulnerabilidad": nodo[
             "vulnerabilidad"
         ],
-
-        "lluvia_24h": meteo.get(
+        "lluvia_24h": meteo[
             "lluvia_24h"
-        ),
-        "lluvia_72h": meteo.get(
+        ],
+        "lluvia_72h": meteo[
             "lluvia_72h"
-        ),
-        "humedad_suelo": meteo.get(
+        ],
+        "humedad_suelo": meteo[
             "humedad_suelo"
-        ),
-        "escorrentia_72h": meteo.get(
+        ],
+        "escorrentia_72h": meteo[
             "escorrentia_72h"
-        ),
-        "rafaga_max": meteo.get(
-            "rafaga_max"
-        ),
-
-        "hidro_score": hidro.get(
+        ],
+        "max_gust": meteo[
+            "max_gust"
+        ],
+        "cobertura_meteo": meteo[
+            "cobertura"
+        ],
+        "hidro_score": hidro[
             "score"
-        ),
-        "nivel_hidro": hidro.get(
-            "estado"
-        ),
-        "nivel_hidrologico_actual": hidro.get(
-            "valor_actual"
-        ),
-        "tendencia_hidro_24h": hidro.get(
-            "tendencia_24h"
-        ),
-
-        "nivel_alerta": hidro.get(
-            "nivel_alerta"
-        ),
-        "nivel_evacuacion": hidro.get(
-            "nivel_evacuacion"
-        ),
-
-        "score": score,
-        "nivel": nivel,
-
+        ],
+        "nivel_hidro": hidro[
+            "nivel"
+        ],
+        "tendencia_hidro": hidro[
+            "tendencia"
+        ],
         "estacion_ina": (
             estacion.get("nombre")
             if estacion
             else None
         ),
-
-        "estacion_ina_codigo": (
-            estacion.get("codigo")
-            if estacion
-            else None
-        ),
-
         "distancia_ina_km": (
-            estacion.get("distancia_km")
+            estacion.get(
+                "_distancia_km"
+            )
             if estacion
             else None
         ),
-
-        "cobertura_meteo": meteo.get(
-            "cobertura",
-            False,
+        "score": score,
+        "nivel": nivel_riesgo(
+            score
         ),
-
-        "fuente_meteo": meteo.get(
-            "fuente_meteo"
-        ),
-
-        "actualizado": ahora_local(),
+        "actualizado": actualizado,
     }
-
-    return resultado
 
 
 # ============================================================
@@ -1250,157 +1417,144 @@ def crear_mapa(
 
     fig = go.Figure()
 
-    if resultados:
+    if not estaciones.empty:
 
-        lats = [
-            r["lat"]
-            for r in resultados
-        ]
-
-        lons = [
-            r["lon"]
-            for r in resultados
-        ]
-
-        scores = [
-            r["score"]
-            for r in resultados
-        ]
-
-        nombres = [
-            r["nombre"]
-            for r in resultados
-        ]
-
-        niveles = [
-            r["nivel"]
-            for r in resultados
-        ]
-
-        hover = []
-
-        for r in resultados:
-
-            hover.append(
-                f"<b>{r['nombre']}</b><br>"
-                f"{r['provincia']}<br>"
-                f"Riesgo: {r['score']:.1f}/100<br>"
-                f"Nivel: {emoji_riesgo(r['nivel'])} "
-                f"{r['nivel']}<br>"
-                f"Lluvia 24h: "
-                f"{r['lluvia_24h']:.1f} mm<br>"
-                f"Lluvia 72h: "
-                f"{r['lluvia_72h']:.1f} mm"
-            )
-
-        fig.add_trace(
-            go.Scattergeo(
-                lat=lats,
-                lon=lons,
-                mode="markers",
-                text=nombres,
-                customdata=[
-                    [n]
-                    for n in niveles
-                ],
-                hovertext=hover,
-                hoverinfo="text",
-                marker=dict(
-                    size=15,
-                    color=scores,
-                    colorscale=[
-                        [0.00, "#2ca02c"],
-                        [0.25, "#2ca02c"],
-                        [0.26, "#f1c40f"],
-                        [0.49, "#f1c40f"],
-                        [0.50, "#e67e22"],
-                        [0.74, "#e67e22"],
-                        [0.75, "#e74c3c"],
-                        [1.00, "#e74c3c"],
-                    ],
-                    cmin=0,
-                    cmax=100,
-                    colorbar=dict(
-                        title="Riesgo",
-                    ),
-                    line=dict(
-                        color="white",
-                        width=1,
-                    ),
-                ),
-                name="Nodos de riesgo",
+        nombres_estaciones = (
+            estaciones["nombre"]
+            if "nombre"
+            in estaciones.columns
+            else pd.Series(
+                [
+                    "Estación INA"
+                ]
+                * len(estaciones)
             )
         )
 
-    # --------------------------------------------------------
-    # ESTACIONES INA
-    # --------------------------------------------------------
-
-    if estaciones:
-
         fig.add_trace(
             go.Scattergeo(
-                lat=[
-                    e["lat"]
-                    for e in estaciones
+                lon=estaciones[
+                    "lon"
                 ],
-                lon=[
-                    e["lon"]
-                    for e in estaciones
+                lat=estaciones[
+                    "lat"
                 ],
                 mode="markers",
-                text=[
-                    e["nombre"]
-                    for e in estaciones
-                ],
-                hovertemplate=(
-                    "<b>%{text}</b>"
-                    "<extra>INA</extra>"
-                ),
                 marker=dict(
-                    size=6,
-                    color="#1f77b4",
-                    symbol="circle",
-                    line=dict(
-                        color="white",
-                        width=1,
-                    ),
+                    size=5,
+                    color="gray",
+                    opacity=0.55,
                 ),
                 name="Estaciones INA",
+                text=nombres_estaciones,
+                hovertemplate=(
+                    "%{text}<br>"
+                    "Lat: %{lat:.3f}<br>"
+                    "Lon: %{lon:.3f}"
+                    "<extra></extra>"
+                ),
             )
         )
 
-    fig.update_geos(
-        scope="south america",
-        projection_type="mercator",
-        lonaxis=dict(
-            range=[-64, -54]
-        ),
-        lataxis=dict(
-            range=[-35, -26]
-        ),
-        showland=True,
-        showcountries=True,
-        showsubunits=True,
-        showocean=True,
-        showlakes=True,
-        coastlinecolor="#777777",
-        countrycolor="#777777",
-        subunitcolor="#aaaaaa",
+    df = pd.DataFrame(
+        resultados
     )
+
+    color_map = {
+        "BAJO": "#2ca02c",
+        "MODERADO": "#f1c40f",
+        "ALTO": "#e67e22",
+        "MUY ALTO": "#d62728",
+    }
+
+    for nivel in [
+        "BAJO",
+        "MODERADO",
+        "ALTO",
+        "MUY ALTO",
+    ]:
+
+        sub = df[
+            df["nivel"] == nivel
+        ]
+
+        if sub.empty:
+            continue
+
+        fig.add_trace(
+            go.Scattergeo(
+                lon=sub["lon"],
+                lat=sub["lat"],
+                mode="markers+text",
+                text=sub["nombre"],
+                textposition="top center",
+                marker=dict(
+                    size=13,
+                    color=color_map[nivel],
+                    line=dict(
+                        width=1,
+                        color="black",
+                    ),
+                ),
+                name=(
+                    f"{emoji_riesgo(nivel)} "
+                    f"{nivel}"
+                ),
+                customdata=sub[
+                    [
+                        "score",
+                        "lluvia_24h",
+                        "lluvia_72h",
+                    ]
+                ]
+                .fillna(0)
+                .values,
+                hovertemplate=(
+                    "<b>%{text}</b><br>"
+                    "Riesgo: "
+                    "%{customdata[0]:.1f}/100"
+                    "<br>"
+                    "Lluvia 24h: "
+                    "%{customdata[1]:.1f} mm"
+                    "<br>"
+                    "Lluvia 72h: "
+                    "%{customdata[2]:.1f} mm"
+                    "<extra></extra>"
+                ),
+            )
+        )
 
     fig.update_layout(
         height=650,
         margin=dict(
             l=0,
             r=0,
-            t=20,
+            t=10,
             b=0,
+        ),
+        geo=dict(
+            scope="south america",
+            projection_type="mercator",
+            showland=True,
+            landcolor="rgb(235,235,235)",
+            showcountries=True,
+            lonaxis=dict(
+                range=[
+                    -64,
+                    -54,
+                ]
+            ),
+            lataxis=dict(
+                range=[
+                    -35,
+                    -26,
+                ]
+            ),
         ),
         legend=dict(
             orientation="h",
             yanchor="bottom",
-            y=1.01,
+            y=0.01,
             xanchor="left",
             x=0,
         ),
@@ -1452,427 +1606,185 @@ def windy_embed_url(
     )
 
 
-def mostrar_windy(resultados):
-
-    st.subheader(
-        "🌬️ Windy — análisis meteorológico"
-    )
-
-    st.caption(
-        "Herramienta complementaria para "
-        "analizar precipitación, viento, "
-        "ráfagas, temperatura, nubosidad "
-        "y presión."
-    )
-
-    opciones = {
-        "Litoral completo": (
-            -31.0,
-            -59.0,
-        )
-    }
-
-    for r in resultados:
-
-        opciones[
-            f"{r['nombre']} — "
-            f"{r['provincia']}"
-        ] = (
-            r["lat"],
-            r["lon"],
-        )
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        seleccion = st.selectbox(
-            "Centro del mapa",
-            list(opciones.keys()),
-            key="windy_node",
-        )
-
-    with col2:
-
-        overlay = st.selectbox(
-            "Variable meteorológica",
-            [
-                "rain",
-                "wind",
-                "gust",
-                "temp",
-                "clouds",
-                "pressure",
-            ],
-            format_func=lambda x: {
-                "rain": "🌧️ Precipitación",
-                "wind": "💨 Viento",
-                "gust": "💨 Ráfagas",
-                "temp": "🌡️ Temperatura",
-                "clouds": "☁️ Nubosidad",
-                "pressure": "🧭 Presión",
-            }.get(x, x),
-            key="windy_overlay",
-        )
-
-    lat, lon = opciones[
-        seleccion
-    ]
-
-    zoom = (
-        6
-        if seleccion == "Litoral completo"
-        else 8
-    )
-
-    url = windy_embed_url(
-        lat,
-        lon,
-        zoom,
-        overlay,
-    )
-
-    components.iframe(
-        url,
-        height=650,
-        scrolling=False,
-    )
-
-    st.caption(
-        "Windy funciona aquí como capa de "
-        "visualización y análisis meteorológico. "
-        "Actualmente no modifica el índice "
-        "numérico de riesgo."
-    )
-
-
-# ============================================================
-# GOES-19
-# ============================================================
-
-def mostrar_goes19():
-
-    st.subheader(
-        "🛰️ GOES-19 — observación satelital"
-    )
-
-    st.caption(
-        "Observación complementaria de la "
-        "actividad atmosférica sobre Sudamérica."
-    )
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        st.markdown(
-            "### 🌎 GOES-19 GeoColor"
-        )
-
-        components.iframe(
-            GOES19_GEOCOLOR_URL,
-            height=650,
-            scrolling=True,
-        )
-
-        st.link_button(
-            "Abrir GeoColor directamente en NOAA",
-            GOES19_GEOCOLOR_URL,
-        )
-
-    with col2:
-
-        st.markdown(
-            "### ⚡ GOES-19 GLM"
-        )
-
-        components.iframe(
-            GOES19_GLM_URL,
-            height=650,
-            scrolling=True,
-        )
-
-        st.link_button(
-            "Abrir GLM directamente en NOAA",
-            GOES19_GLM_URL,
-        )
-
-    st.link_button(
-        "🛰️ Abrir sector completo GOES-19 / South America–Southern",
-        GOES19_SECTOR_URL,
-    )
-
-    st.info(
-        "GeoColor permite observar la estructura "
-        "nubosa y convectiva. GLM permite seguir "
-        "la actividad de descargas eléctricas. "
-        "En esta versión ambos productos son "
-        "herramientas de observación y todavía "
-        "no ingresan matemáticamente al índice "
-        "de riesgo."
-    )
-
-
-# ============================================================
-# TELEGRAM
-# ============================================================
-
-def obtener_config_telegram():
-
-    try:
-
-        token = st.secrets.get(
-            "TELEGRAM_BOT_TOKEN",
-            "",
-        )
-
-        chat_id = st.secrets.get(
-            "TELEGRAM_CHAT_ID",
-            "",
-        )
-
-        return (
-            str(token).strip(),
-            str(chat_id).strip(),
-        )
-
-    except Exception:
-
-        return "", ""
-
-
-def telegram_configurado():
-
-    token, chat_id = (
-        obtener_config_telegram()
-    )
-
-    return bool(
-        token and chat_id
-    )
-
-
-def enviar_telegram(mensaje):
-
-    token, chat_id = (
-        obtener_config_telegram()
-    )
-
-    if not token or not chat_id:
-
-        return False, (
-            "Telegram no está configurado."
-        )
-
-    url = (
-        f"https://api.telegram.org/"
-        f"bot{token}/sendMessage"
-    )
-
-    payload = {
-        "chat_id": chat_id,
-        "text": mensaje,
-        "parse_mode": "HTML",
-        "disable_web_page_preview": True,
-    }
-
-    try:
-
-        response = requests.post(
-            url,
-            json=payload,
-            timeout=20,
-        )
-
-        response.raise_for_status()
-
-        return True, "Mensaje enviado."
-
-    except Exception as e:
-
-        return False, str(e)
-
-
-def formatear_mensaje_alerta(
-    resultado
-):
-
-    nivel = resultado["nivel"]
-
-    return (
-        f"{emoji_riesgo(nivel)} "
-        f"<b>ALERTA LITORAL AGRO</b>\n\n"
-        f"<b>{resultado['nombre']}</b> — "
-        f"{resultado['provincia']}\n"
-        f"Riesgo: <b>"
-        f"{resultado['score']:.1f}/100</b>\n"
-        f"Nivel: <b>{nivel}</b>\n\n"
-        f"🌧️ Lluvia 24h: "
-        f"{resultado['lluvia_24h']:.1f} mm\n"
-        f"🌧️ Lluvia 72h: "
-        f"{resultado['lluvia_72h']:.1f} mm\n"
-        f"💧 Humedad suelo: "
-        f"{(
-            resultado['humedad_suelo']:.3f
-            if resultado['humedad_suelo'] is not None
-            else 's/d'
-        )}\n"
-        f"🌊 Escorrentía 72h: "
-        f"{resultado['escorrentia_72h']:.1f}\n"
-        f"📈 Hidrología: "
-        f"{resultado['hidro_score']:.0f}/100\n\n"
-        f"Actualizado: "
-        f"{resultado['actualizado'].strftime('%d/%m/%Y %H:%M')}"
-    )
-
-
-def enviar_alertas_automaticas(
-    resultados
-):
-
-    if not telegram_configurado():
-        return []
-
-    enviados = []
-
-    for resultado in resultados:
-
-        if resultado["nivel"] not in [
-            "ALTO",
-            "MUY ALTO",
-        ]:
-            continue
-
-        key = (
-            f"telegram_alerta_"
-            f"{resultado['nombre']}_"
-            f"{resultado['nivel']}"
-        )
-
-        if st.session_state.get(
-            key,
-            False,
-        ):
-            continue
-
-        mensaje = (
-            formatear_mensaje_alerta(
-                resultado
-            )
-        )
-
-        ok, _ = enviar_telegram(
-            mensaje
-        )
-
-        if ok:
-
-            st.session_state[
-                key
-            ] = True
-
-            enviados.append(
-                resultado["nombre"]
-            )
-
-    return enviados
-
-
-def enviar_resumen_telegram(
-    resultados
-):
-
-    if not resultados:
-        return False
-
-    ordenados = sorted(
-        resultados,
-        key=lambda x: x["score"],
-        reverse=True,
-    )
-
-    lineas = [
-        "<b>🌧️ ALERTA LITORAL AGRO</b>",
-        "",
-        "<b>Resumen regional</b>",
-        "",
-    ]
-
-    for r in ordenados:
-
-        lineas.append(
-            f"{emoji_riesgo(r['nivel'])} "
-            f"<b>{r['nombre']}</b>: "
-            f"{r['score']:.1f}/100 "
-            f"({r['nivel']})"
-        )
-
-    lineas.extend(
-        [
-            "",
-            f"Actualizado: "
-            f"{ahora_local().strftime('%d/%m/%Y %H:%M')}",
-        ]
-    )
-
-    ok, _ = enviar_telegram(
-        "\n".join(lineas)
-    )
-
-    return ok
-
-
 # ============================================================
 # HISTORIAL
 # ============================================================
 
 def guardar_historial(
-    resultados
+    resultados,
 ):
 
-    if "historial" not in st.session_state:
-        st.session_state[
-            "historial"
-        ] = []
+    filas = []
 
-    timestamp = ahora_local()
+    for resultado in resultados:
 
-    for r in resultados:
-
-        st.session_state[
-            "historial"
-        ].append(
+        filas.append(
             {
-                "fecha": timestamp,
-                "nodo": r["nombre"],
-                "provincia": r[
+                "actualizado": resultado[
+                    "actualizado"
+                ],
+                "nombre": resultado[
+                    "nombre"
+                ],
+                "provincia": resultado[
                     "provincia"
                 ],
-                "score": r["score"],
-                "nivel": r["nivel"],
-                "lluvia_24h": r[
+                "score": resultado[
+                    "score"
+                ],
+                "nivel": resultado[
+                    "nivel"
+                ],
+                "lluvia_24h": resultado[
                     "lluvia_24h"
                 ],
-                "lluvia_72h": r[
+                "lluvia_72h": resultado[
                     "lluvia_72h"
                 ],
-                "humedad_suelo": r[
+                "humedad_suelo": resultado[
                     "humedad_suelo"
                 ],
-                "hidrologia": r[
+                "escorrentia_72h": resultado[
+                    "escorrentia_72h"
+                ],
+                "hidro_score": resultado[
                     "hidro_score"
                 ],
             }
         )
 
-    # Mantener solamente los últimos
-    # 1000 registros de sesión.
+    nuevo = pd.DataFrame(
+        filas
+    )
+
+    anterior = st.session_state.get(
+        "historial",
+        pd.DataFrame(),
+    )
 
     st.session_state[
         "historial"
-    ] = st.session_state[
-        "historial"
-    ][-1000:]
+    ] = pd.concat(
+        [
+            anterior,
+            nuevo,
+        ],
+        ignore_index=True,
+    )
+
+
+# ============================================================
+# TABLA
+# ============================================================
+
+def formatear_tabla(
+    resultados,
+):
+
+    rows = []
+
+    for resultado in resultados:
+
+        rows.append(
+            {
+                "Nivel": (
+                    f"{emoji_riesgo(resultado['nivel'])} "
+                    f"{resultado['nivel']}"
+                ),
+                "Nodo": resultado[
+                    "nombre"
+                ],
+                "Provincia": resultado[
+                    "provincia"
+                ],
+                "Riesgo": round(
+                    resultado["score"],
+                    1,
+                ),
+                "Lluvia 24h (mm)": (
+                    None
+                    if resultado[
+                        "lluvia_24h"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "lluvia_24h"
+                        ],
+                        1,
+                    )
+                ),
+                "Lluvia 72h (mm)": (
+                    None
+                    if resultado[
+                        "lluvia_72h"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "lluvia_72h"
+                        ],
+                        1,
+                    )
+                ),
+                "Humedad suelo": (
+                    None
+                    if resultado[
+                        "humedad_suelo"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "humedad_suelo"
+                        ],
+                        3,
+                    )
+                ),
+                "Escorrentía 72h": (
+                    None
+                    if resultado[
+                        "escorrentia_72h"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "escorrentia_72h"
+                        ],
+                        1,
+                    )
+                ),
+                "Hidrología": (
+                    None
+                    if resultado[
+                        "hidro_score"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "hidro_score"
+                        ],
+                        0,
+                    )
+                ),
+                "Ráfaga máx. (km/h)": (
+                    None
+                    if resultado[
+                        "max_gust"
+                    ]
+                    is None
+                    else round(
+                        resultado[
+                            "max_gust"
+                        ],
+                        1,
+                    )
+                ),
+            }
+        )
+
+    return pd.DataFrame(
+        rows
+    )
 
 
 # ============================================================
@@ -1883,17 +1795,25 @@ st.title(
     "🌧️ Alerta Litoral Agro"
 )
 
-st.markdown(
-    """
-### Sistema experimental de alerta temprana
-
-Monitorea condiciones meteorológicas,
-humedad del suelo y estado hidrológico
-para estimar el riesgo de anegamiento
-agropecuario en **Santa Fe, Corrientes
-y Entre Ríos**.
-"""
+st.caption(
+    "Prototipo de alerta temprana para "
+    "riesgo de anegamiento agropecuario "
+    f"· V{APP_VERSION}"
 )
+
+# ============================================================
+# SESSION STATE
+# ============================================================
+
+if "resultados" not in st.session_state:
+    st.session_state[
+        "resultados"
+    ] = []
+
+if "historial" not in st.session_state:
+    st.session_state[
+        "historial"
+    ] = pd.DataFrame()
 
 
 # ============================================================
@@ -1902,7 +1822,9 @@ y Entre Ríos**.
 
 with st.sidebar:
 
-    st.header("⚙️ Configuración")
+    st.header(
+        "⚙️ Configuración"
+    )
 
     auto_telegram = st.checkbox(
         "📲 Alertas automáticas Telegram",
@@ -1910,33 +1832,11 @@ with st.sidebar:
     )
 
     max_km_ina = st.slider(
-        "📍 Distancia máxima a estación INA",
-        min_value=25,
-        max_value=250,
-        value=150,
-        step=25,
-    )
-
-    st.divider()
-
-    st.subheader(
-        "📡 Fuentes de datos"
-    )
-
-    st.write(
-        "🌦️ Open-Meteo / ECMWF"
-    )
-
-    st.write(
-        "🌊 INA / DSIyAH"
-    )
-
-    st.write(
-        "🌬️ Windy"
-    )
-
-    st.write(
-        "🛰️ NOAA / GOES-19"
+        "Radio máximo estación INA (km)",
+        25,
+        250,
+        150,
+        25,
     )
 
     st.divider()
@@ -1953,27 +1853,39 @@ with st.sidebar:
             "Telegram no configurado"
         )
 
-    st.caption(
-        "Los secretos de Telegram se "
-        "configuran en Streamlit Cloud."
+        st.caption(
+            "Configurar "
+            "TELEGRAM_BOT_TOKEN y "
+            "TELEGRAM_CHAT_ID en "
+            "Streamlit Secrets."
+        )
+
+    st.divider()
+
+    st.markdown(
+        "**Fuentes**"
     )
 
+    st.caption(
+        "🌦️ Open-Meteo / ECMWF"
+    )
 
-# ============================================================
-# BOTONES
-# ============================================================
+    st.caption(
+        "🌊 INA / DSIyAH"
+    )
 
-col1, col2 = st.columns(2)
+    st.caption(
+        "🗺️ Windy"
+    )
 
-with col1:
+    st.caption(
+        "🛰️ NOAA GOES-19"
+    )
 
     actualizar = st.button(
         "🔄 Actualizar datos",
-        type="primary",
         use_container_width=True,
     )
-
-with col2:
 
     enviar_resumen = st.button(
         "📲 Enviar resumen a Telegram",
@@ -1982,27 +1894,14 @@ with col2:
 
 
 # ============================================================
-# CARGA INICIAL / ACTUALIZACIÓN
+# ACTUALIZACIÓN
 # ============================================================
-
-if (
-    "resultados"
-    not in st.session_state
-):
-
-    st.session_state[
-        "resultados"
-    ] = []
-
-    st.session_state[
-        "ultima_actualizacion"
-    ] = None
-
 
 if actualizar:
 
     with st.spinner(
-        "Consultando Open-Meteo e INA..."
+        "Consultando meteorología, "
+        "suelo e hidrología..."
     ):
 
         estaciones = (
@@ -2011,44 +1910,27 @@ if actualizar:
 
         resultados = []
 
-        progress = st.progress(
-            0
-        )
-
-        total = len(NODOS)
-
-        for i, nodo in enumerate(
-            NODOS,
-            start=1,
-        ):
-
-            resultado = procesar_nodo(
-                nodo,
-                estaciones,
-                max_km_ina=max_km_ina,
-            )
+        for nodo in NODOS:
 
             resultados.append(
-                resultado
+                procesar_nodo(
+                    nodo,
+                    estaciones,
+                    max_km_ina,
+                )
             )
 
-            progress.progress(
-                i / total
-            )
-
-        progress.empty()
+        resultados = sorted(
+            resultados,
+            key=lambda x: x[
+                "score"
+            ],
+            reverse=True,
+        )
 
         st.session_state[
             "resultados"
         ] = resultados
-
-        st.session_state[
-            "estaciones"
-        ] = estaciones
-
-        st.session_state[
-            "ultima_actualizacion"
-        ] = ahora_local()
 
         guardar_historial(
             resultados
@@ -2064,731 +1946,517 @@ if actualizar:
 
             if enviados:
 
-                st.success(
-                    "Alertas Telegram enviadas: "
-                    + ", ".join(enviados)
+                st.toast(
+                    "Alertas enviadas: "
+                    + ", ".join(
+                        enviados
+                    )
                 )
 
+    st.success(
+        f"Datos actualizados: "
+        f"{len(resultados)} nodos procesados."
+    )
+
+
+# ============================================================
+# VARIABLES ACTUALES
+# ============================================================
 
 resultados = st.session_state[
     "resultados"
 ]
 
-estaciones = st.session_state.get(
-    "estaciones",
-    [],
+estaciones = (
+    obtener_estaciones_ina()
 )
 
 
 # ============================================================
-# TELEGRAM MANUAL
+# RESUMEN TELEGRAM
 # ============================================================
 
 if enviar_resumen:
 
-    if not resultados:
+    if resultados:
+
+        ok, msg = (
+            enviar_resumen_telegram(
+                resultados
+            )
+        )
+
+        if ok:
+            st.success(msg)
+
+        else:
+            st.error(msg)
+
+    else:
 
         st.warning(
             "Primero actualizá los datos."
         )
 
-    elif not telegram_configurado():
-
-        st.error(
-            "Telegram no está configurado "
-            "en Streamlit Secrets."
-        )
-
-    else:
-
-        with st.spinner(
-            "Enviando resumen..."
-        ):
-
-            ok = enviar_resumen_telegram(
-                resultados
-            )
-
-        if ok:
-
-            st.success(
-                "Resumen enviado correctamente."
-            )
-
-        else:
-
-            st.error(
-                "No se pudo enviar el resumen."
-            )
-
 
 # ============================================================
-# ESTADO GENERAL
+# PANEL PRINCIPAL
 # ============================================================
 
 if resultados:
 
-    scores = [
-        r["score"]
-        for r in resultados
-    ]
-
-    max_score = max(scores)
-
-    cantidad_alertas = sum(
-        r["nivel"] in [
-            "ALTO",
-            "MUY ALTO",
-        ]
-        for r in resultados
+    df = pd.DataFrame(
+        resultados
     )
 
-    cantidad_muy_alto = sum(
-        r["nivel"] == "MUY ALTO"
-        for r in resultados
+    alto = int(
+        (
+            df["nivel"]
+            == "ALTO"
+        ).sum()
     )
 
-    promedio = sum(scores) / len(
-        scores
+    muy_alto = int(
+        (
+            df["nivel"]
+            == "MUY ALTO"
+        ).sum()
     )
 
-    nivel_general = nivel_riesgo(
-        max_score
+    max_score = float(
+        df["score"].max()
     )
 
-    st.divider()
-
-    st.subheader(
-        "🚨 Estado actual del Litoral"
+    promedio = float(
+        df["score"].mean()
     )
 
-    m1, m2, m3, m4 = st.columns(4)
+    # --------------------------------------------------------
+    # MÉTRICAS
+    # --------------------------------------------------------
 
-    with m1:
+    c1, c2, c3, c4 = st.columns(4)
 
-        st.metric(
-            "Riesgo máximo",
-            f"{max_score:.1f}/100",
-        )
+    c1.metric(
+        "🔴 Muy alto",
+        muy_alto,
+    )
 
-    with m2:
+    c2.metric(
+        "🟠 Alto",
+        alto,
+    )
 
-        st.metric(
-            "Riesgo regional medio",
-            f"{promedio:.1f}/100",
-        )
+    c3.metric(
+        "📊 Riesgo máximo",
+        f"{max_score:.1f}/100",
+    )
 
-    with m3:
+    c4.metric(
+        "📈 Riesgo promedio",
+        f"{promedio:.1f}/100",
+    )
 
-        st.metric(
-            "Alertas ALTO+",
-            cantidad_alertas,
-        )
+    # --------------------------------------------------------
+    # ALERTA GENERAL
+    # --------------------------------------------------------
 
-    with m4:
-
-        st.metric(
-            "MUY ALTO",
-            cantidad_muy_alto,
-        )
-
-    if nivel_general == "MUY ALTO":
+    if muy_alto > 0:
 
         st.error(
-            "🔴 NIVEL REGIONAL MUY ALTO"
+            f"🔴 Hay {muy_alto} nodo(s) "
+            "en nivel MUY ALTO."
         )
 
-    elif nivel_general == "ALTO":
+    elif alto > 0:
 
         st.warning(
-            "🟠 NIVEL REGIONAL ALTO"
-        )
-
-    elif nivel_general == "MODERADO":
-
-        st.warning(
-            "🟡 NIVEL REGIONAL MODERADO"
+            f"🟠 Hay {alto} nodo(s) "
+            "en nivel ALTO."
         )
 
     else:
 
         st.success(
-            "🟢 NIVEL REGIONAL BAJO"
+            "No se detectan nodos en "
+            "nivel ALTO o MUY ALTO "
+            "según el índice experimental."
         )
 
-else:
-
-    st.info(
-        "Presioná «🔄 Actualizar datos» "
-        "para ejecutar el monitoreo."
-    )
-
-
-# ============================================================
-# TABLA PRINCIPAL
-# ============================================================
-
-if resultados:
-
-    st.divider()
+    # --------------------------------------------------------
+    # TABLA
+    # --------------------------------------------------------
 
     st.subheader(
-        "📊 Monitoreo por nodo"
-    )
-
-    tabla = []
-
-    for r in sorted(
-        resultados,
-        key=lambda x: x["score"],
-        reverse=True,
-    ):
-
-        tabla.append(
-            {
-                "Nivel": (
-                    f"{emoji_riesgo(r['nivel'])} "
-                    f"{r['nivel']}"
-                ),
-                "Localidad": r[
-                    "nombre"
-                ],
-                "Provincia": r[
-                    "provincia"
-                ],
-                "Riesgo": r[
-                    "score"
-                ],
-                "Lluvia 24h (mm)": round(
-                    r["lluvia_24h"],
-                    1,
-                ),
-                "Lluvia 72h (mm)": round(
-                    r["lluvia_72h"],
-                    1,
-                ),
-                "Humedad suelo": (
-                    round(
-                        r[
-                            "humedad_suelo"
-                        ],
-                        3,
-                    )
-                    if r[
-                        "humedad_suelo"
-                    ]
-                    is not None
-                    else None
-                ),
-                "Escorrentía 72h": round(
-                    r[
-                        "escorrentia_72h"
-                    ],
-                    1,
-                ),
-                "Hidrología": round(
-                    r[
-                        "hidro_score"
-                    ],
-                    1,
-                ),
-                "Estación INA": (
-                    r[
-                        "estacion_ina"
-                    ]
-                    or "Sin estación"
-                ),
-            }
-        )
-
-    df_tabla = pd.DataFrame(
-        tabla
+        "📋 Estado de los nodos"
     )
 
     st.dataframe(
-        df_tabla,
+        formatear_tabla(
+            resultados
+        ),
         use_container_width=True,
         hide_index=True,
     )
 
-
-# ============================================================
-# MAPA
-# ============================================================
-
-if resultados:
-
-    st.divider()
+    # --------------------------------------------------------
+    # MAPA
+    # --------------------------------------------------------
 
     st.subheader(
-        "🗺️ Mapa regional de riesgo"
-    )
-
-    mapa = crear_mapa(
-        resultados,
-        estaciones,
+        "🗺️ Mapa de riesgo"
     )
 
     st.plotly_chart(
-        mapa,
+        crear_mapa(
+            resultados,
+            estaciones,
+        ),
         use_container_width=True,
-        config={
-            "displayModeBar": True,
-            "scrollZoom": True,
-        },
     )
 
+    # --------------------------------------------------------
+    # WINDY
+    # --------------------------------------------------------
 
-# ============================================================
-# WINDY
-# ============================================================
-
-if resultados:
-
-    st.divider()
-
-    mostrar_windy(
-        resultados
+    st.subheader(
+        "🌬️ Windy — análisis meteorológico"
     )
 
+    opciones_windy = (
+        ["Litoral completo"]
+        + [
+            nodo["nombre"]
+            for nodo in NODOS
+        ]
+    )
 
-# ============================================================
-# GOES-19
-# ============================================================
+    seleccion_windy = st.selectbox(
+        "Zona de visualización",
+        opciones_windy,
+    )
 
-st.divider()
+    overlays = {
+        "🌧️ Precipitación": "rain",
+        "💨 Viento": "wind",
+        "💨 Ráfagas": "gust",
+        "🌡️ Temperatura": "temp",
+        "☁️ Nubes": "clouds",
+        "🔽 Presión": "pressure",
+    }
 
-mostrar_goes19()
+    overlay_label = st.selectbox(
+        "Variable Windy",
+        list(overlays.keys()),
+    )
 
+    if (
+        seleccion_windy
+        == "Litoral completo"
+    ):
 
-# ============================================================
-# DETALLE DE NODOS
-# ============================================================
+        wlat = -31.0
+        wlon = -59.0
+        wzoom = 6
 
-if resultados:
+    else:
 
-    st.divider()
+        nodo_windy = next(
+            nodo
+            for nodo in NODOS
+            if nodo["nombre"]
+            == seleccion_windy
+        )
+
+        wlat = nodo_windy[
+            "lat"
+        ]
+
+        wlon = nodo_windy[
+            "lon"
+        ]
+
+        wzoom = 8
+
+    components.iframe(
+        windy_embed_url(
+            wlat,
+            wlon,
+            wzoom,
+            overlays[
+                overlay_label
+            ],
+        ),
+        height=670,
+        scrolling=False,
+    )
+
+    # --------------------------------------------------------
+    # GOES-19
+    # --------------------------------------------------------
+
+    st.subheader(
+        "🛰️ GOES-19 — vigilancia satelital"
+    )
+
+    st.caption(
+        "Productos oficiales NOAA para "
+        "seguimiento de nubosidad y "
+        "actividad eléctrica en el "
+        "sector Sudamérica Sur."
+    )
+
+    g1, g2 = st.columns(2)
+
+    with g1:
+
+        st.markdown(
+            "### 🌎 GeoColor"
+        )
+
+        components.iframe(
+            GOES19_GEOCOLOR_URL,
+            height=650,
+            scrolling=True,
+        )
+
+    with g2:
+
+        st.markdown(
+            "### ⚡ GLM — actividad eléctrica"
+        )
+
+        components.iframe(
+            GOES19_GLM_URL,
+            height=650,
+            scrolling=True,
+        )
+
+    st.link_button(
+        "Abrir sector GOES-19 en NOAA",
+        GOES19_SECTOR_URL,
+    )
+
+    # --------------------------------------------------------
+    # DETALLE POR NODO
+    # --------------------------------------------------------
 
     st.subheader(
         "🔎 Detalle por nodo"
     )
 
-    for r in sorted(
-        resultados,
-        key=lambda x: x["score"],
-        reverse=True,
-    ):
-
-        titulo = (
-            f"{emoji_riesgo(r['nivel'])} "
-            f"{r['nombre']} — "
-            f"{r['nivel']} "
-            f"({r['score']:.1f}/100)"
-        )
+    for resultado in resultados:
 
         with st.expander(
-            titulo
+            (
+                f"{emoji_riesgo(resultado['nivel'])} "
+                f"{resultado['nombre']} — "
+                f"{resultado['score']:.1f}/100"
+            )
         ):
 
-            c1, c2, c3 = st.columns(
-                3
+            a, b, c = st.columns(3)
+
+            a.metric(
+                "Nivel",
+                resultado["nivel"],
             )
 
-            with c1:
+            b.metric(
+                "Lluvia 24h",
+                (
+                    "s/d"
+                    if resultado[
+                        "lluvia_24h"
+                    ]
+                    is None
+                    else (
+                        f"{resultado['lluvia_24h']:.1f} mm"
+                    )
+                ),
+            )
 
-                st.metric(
-                    "Lluvia 24h",
-                    (
-                        f"{r['lluvia_24h']:.1f} mm"
-                        if r[
-                            "lluvia_24h"
-                        ]
-                        is not None
-                        else "s/d"
-                    ),
-                )
-
-                st.metric(
-                    "Lluvia 72h",
-                    (
-                        f"{r['lluvia_72h']:.1f} mm"
-                        if r[
-                            "lluvia_72h"
-                        ]
-                        is not None
-                        else "s/d"
-                    ),
-                )
-
-            with c2:
-
-                st.metric(
-                    "Humedad de suelo",
-                    (
-                        f"{r['humedad_suelo']:.3f}"
-                        if r[
-                            "humedad_suelo"
-                        ]
-                        is not None
-                        else "s/d"
-                    ),
-                )
-
-                st.metric(
-                    "Escorrentía 72h",
-                    (
-                        f"{r['escorrentia_72h']:.1f}"
-                        if r[
-                            "escorrentia_72h"
-                        ]
-                        is not None
-                        else "s/d"
-                    ),
-                )
-
-            with c3:
-
-                st.metric(
-                    "Hidrología",
-                    f"{r['hidro_score']:.0f}/100",
-                )
-
-                st.metric(
-                    "Vulnerabilidad",
-                    f"{r['vulnerabilidad']}/100",
-                )
-
-            st.markdown(
-                "---"
+            c.metric(
+                "Lluvia 72h",
+                (
+                    "s/d"
+                    if resultado[
+                        "lluvia_72h"
+                    ]
+                    is None
+                    else (
+                        f"{resultado['lluvia_72h']:.1f} mm"
+                    )
+                ),
             )
 
             st.write(
-                f"**Estación INA asociada:** "
-                f"{r['estacion_ina'] or 'Sin estación cercana'}"
-            )
-
-            if r[
-                "distancia_ina_km"
-            ] is not None:
-
-                st.write(
-                    f"**Distancia a estación INA:** "
-                    f"{r['distancia_ina_km']:.1f} km"
-                )
-
-            if r[
-                "nivel_hidrologico_actual"
-            ] is not None:
-
-                st.write(
-                    f"**Nivel hidrológico actual:** "
-                    f"{r['nivel_hidrologico_actual']:.2f}"
-                )
-
-            if r[
-                "tendencia_hidro_24h"
-            ] is not None:
-
-                tendencia = r[
-                    "tendencia_hidro_24h"
-                ]
-
-                if tendencia > 0:
-
-                    texto = (
-                        f"📈 En ascenso "
-                        f"(+{tendencia:.2f})"
-                    )
-
-                elif tendencia < 0:
-
-                    texto = (
-                        f"📉 En descenso "
-                        f"({tendencia:.2f})"
-                    )
-
-                else:
-
-                    texto = (
-                        "➡️ Estable"
-                    )
-
-                st.write(
-                    f"**Tendencia 24h:** {texto}"
-                )
-
-            if r[
-                "nivel_alerta"
-            ] is not None:
-
-                st.write(
-                    f"**Nivel de alerta INA:** "
-                    f"{r['nivel_alerta']:.2f}"
-                )
-
-            if r[
-                "nivel_evacuacion"
-            ] is not None:
-
-                st.write(
-                    f"**Nivel de evacuación INA:** "
-                    f"{r['nivel_evacuacion']:.2f}"
-                )
-
-            st.caption(
-                "Los valores de vulnerabilidad "
-                "y algunos umbrales de riesgo "
-                "son experimentales y deberán "
-                "ser calibrados con datos históricos."
-            )
-
-
-# ============================================================
-# HISTORIAL
-# ============================================================
-
-if (
-    "historial"
-    in st.session_state
-    and st.session_state[
-        "historial"
-    ]
-):
-
-    st.divider()
-
-    st.subheader(
-        "🕒 Historial de monitoreo"
-    )
-
-    df_historial = pd.DataFrame(
-        st.session_state[
-            "historial"
-        ]
-    )
-
-    if not df_historial.empty:
-
-        st.dataframe(
-            df_historial.tail(100),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        csv = df_historial.to_csv(
-            index=False
-        ).encode("utf-8")
-
-        st.download_button(
-            label="📥 Descargar historial CSV",
-            data=csv,
-            file_name=(
-                "alerta_litoral_agro_historial.csv"
-            ),
-            mime="text/csv",
-        )
-
-
-# ============================================================
-# ESTACIONES INA
-# ============================================================
-
-if estaciones:
-
-    st.divider()
-
-    with st.expander(
-        "🌊 Estaciones hidrológicas INA detectadas"
-    ):
-
-        tabla_ina = []
-
-        for e in estaciones:
-
-            tabla_ina.append(
                 {
-                    "Código": e[
-                        "codigo"
+                    "Humedad suelo": resultado[
+                        "humedad_suelo"
                     ],
-                    "Estación": e[
-                        "nombre"
+                    "Escorrentía 72h": resultado[
+                        "escorrentia_72h"
                     ],
-                    "Provincia": e[
-                        "provincia"
+                    "Ráfaga máxima": resultado[
+                        "max_gust"
                     ],
-                    "Latitud": e[
-                        "lat"
+                    "Score hidrológico": resultado[
+                        "hidro_score"
                     ],
-                    "Longitud": e[
-                        "lon"
+                    "Nivel hidrológico observado": resultado[
+                        "nivel_hidro"
                     ],
-                    "Nivel alerta": e[
-                        "nivel_alerta"
+                    "Tendencia hidrológica 24h": resultado[
+                        "tendencia_hidro"
                     ],
-                    "Nivel evacuación": e[
-                        "nivel_evacuacion"
+                    "Estación INA cercana": resultado[
+                        "estacion_ina"
+                    ],
+                    "Distancia INA (km)": resultado[
+                        "distancia_ina_km"
+                    ],
+                    "Cobertura meteorológica (horas)": resultado[
+                        "cobertura_meteo"
+                    ],
+                    "Vulnerabilidad experimental": resultado[
+                        "vulnerabilidad"
                     ],
                 }
             )
 
+    # --------------------------------------------------------
+    # HISTORIAL
+    # --------------------------------------------------------
+
+    st.subheader(
+        "🕒 Historial de actualizaciones"
+    )
+
+    historial = st.session_state.get(
+        "historial",
+        pd.DataFrame(),
+    )
+
+    if not historial.empty:
+
         st.dataframe(
-            pd.DataFrame(
-                tabla_ina
+            historial.sort_values(
+                "actualizado",
+                ascending=False,
             ),
             use_container_width=True,
             hide_index=True,
         )
 
+        csv = historial.to_csv(
+            index=False
+        ).encode("utf-8")
 
-# ============================================================
-# METODOLOGÍA
-# ============================================================
+        st.download_button(
+            "⬇️ Descargar historial CSV",
+            csv,
+            "historial_alerta_litoral_agro.csv",
+            "text/csv",
+        )
 
-st.divider()
+    else:
 
-with st.expander(
-    "📚 Metodología y limitaciones"
-):
+        st.info(
+            "Todavía no hay historial "
+            "en esta sesión."
+        )
 
-    st.markdown(
-        """
-### Objetivo
+    # --------------------------------------------------------
+    # ESTACIONES INA
+    # --------------------------------------------------------
 
-Alerta Litoral Agro es un prototipo de
-sistema de alerta temprana orientado a
-identificar condiciones favorables al
-anegamiento agropecuario en el Litoral
-argentino.
+    st.subheader(
+        "🌊 Estaciones INA detectadas"
+    )
 
-### Variables meteorológicas
+    if estaciones.empty:
 
-Se utilizan datos de Open-Meteo con el
-modelo ECMWF para analizar:
+        st.warning(
+            "No se pudo consultar el "
+            "listado de estaciones INA "
+            "en este momento."
+        )
 
-- precipitación acumulada de 24 horas;
-- precipitación acumulada de 72 horas;
-- humedad del suelo;
-- escorrentía;
-- ráfagas de viento.
+    else:
 
-### Hidrología
+        columnas = [
+            columna
+            for columna in [
+                "siteCode",
+                "nombre",
+                "lat",
+                "lon",
+            ]
+            if columna
+            in estaciones.columns
+        ]
 
-Los datos hidrológicos se obtienen del
-Instituto Nacional del Agua (INA), cuando
-existe una estación disponible dentro del
-radio configurado.
+        st.dataframe(
+            estaciones[columnas],
+            use_container_width=True,
+            hide_index=True,
+        )
 
-Se analiza:
+    # --------------------------------------------------------
+    # METODOLOGÍA
+    # --------------------------------------------------------
 
-- nivel hidrológico;
-- tendencia de las últimas 24 horas;
-- niveles de alerta;
-- niveles de evacuación.
+    with st.expander(
+        "📚 Metodología y limitaciones"
+    ):
 
-### Índice de riesgo
+        st.markdown(
+            """
+### Índice experimental de riesgo de anegamiento
 
-El índice combina:
+El índice combina seis componentes con pesos relativos:
 
-- lluvia 24 h: 20%;
-- lluvia 72 h: 20%;
-- humedad del suelo: 15%;
-- escorrentía: 5%;
-- hidrología: 20%;
-- vulnerabilidad experimental: 10%.
+- **Lluvia acumulada 24 h:** 20 %
+- **Lluvia acumulada 72 h:** 20 %
+- **Humedad del suelo:** 15 %
+- **Escorrentía modelada:** 5 %
+- **Estado/tendencia hidrológica INA:** 20 %
+- **Vulnerabilidad territorial experimental:** 10 %
 
-Cuando alguna variable no está disponible,
-el sistema normaliza el cálculo utilizando
-solamente los componentes disponibles.
+El cálculo se normaliza cuando alguna fuente no está disponible.
 
-### Windy
+### Niveles
 
-Windy se incorpora como herramienta
-complementaria de visualización y análisis.
-
-Permite observar:
-
-- precipitación;
-- viento;
-- ráfagas;
-- temperatura;
-- nubosidad;
-- presión.
-
-Actualmente Windy **no modifica
-matemáticamente el índice de riesgo**.
-
-### GOES-19
-
-GOES-19 se incorpora como herramienta
-de observación satelital complementaria.
-
-Se incluyen:
-
-- GeoColor;
-- GLM.
-
-GeoColor permite observar la evolución
-de la nubosidad y de sistemas convectivos.
-
-GLM permite analizar la actividad de
-descargas eléctricas y su evolución.
-
-Actualmente los productos GOES-19
-**no ingresan matemáticamente al índice
-de riesgo**.
-
-### Vulnerabilidad
-
-La vulnerabilidad asignada a cada nodo
-es experimental y representa una primera
-aproximación para priorizar áreas.
-
-Debe ser calibrada posteriormente mediante:
-
-- antecedentes de inundación;
-- topografía;
-- uso del suelo;
-- drenaje;
-- cobertura vegetal;
-- infraestructura;
-- registros históricos.
+- 🟢 **BAJO:** 0–24
+- 🟡 **MODERADO:** 25–49
+- 🟠 **ALTO:** 50–74
+- 🔴 **MUY ALTO:** 75–100
 
 ### Limitaciones
 
-Este sistema es un prototipo académico/
-experimental.
+Los umbrales meteorológicos y la vulnerabilidad territorial son parámetros experimentales del prototipo.
 
-No reemplaza:
+Antes de utilizar el sistema como una alerta oficial deberían calibrarse con:
 
-- alertas oficiales;
-- Defensa Civil;
-- organismos provinciales;
-- Servicio Meteorológico Nacional;
-- Instituto Nacional del Agua;
-- autoridades locales.
+- eventos históricos de inundación y anegamiento;
+- observaciones hidrológicas;
+- datos de precipitación observada;
+- información de suelo;
+- validación estadística;
+- observaciones de campo.
 
-Los resultados deben interpretarse como
-apoyo para análisis y toma de decisiones,
-no como una orden automática de evacuación.
+Windy y GOES-19 funcionan como capas de análisis y vigilancia visual y **no modifican directamente el score**.
+
+El historial y el control anti-spam de Telegram son actualmente de sesión. Para una implementación institucional se recomienda incorporar persistencia mediante una base de datos y auditoría de eventos.
 """
-    )
+        )
 
+else:
 
-# ============================================================
-# FUENTES
-# ============================================================
-
-with st.expander(
-    "🔗 Fuentes utilizadas"
-):
-
-    st.markdown(
-        """
-- Open-Meteo / ECMWF
-- Instituto Nacional del Agua (INA)
-- Windy
-- NOAA / GOES-19
-"""
+    st.info(
+        "Presioná **🔄 Actualizar datos** "
+        "para ejecutar el análisis."
     )
 
 
@@ -2798,36 +2466,9 @@ with st.expander(
 
 st.divider()
 
-ultima = st.session_state.get(
-    "ultima_actualizacion"
-)
-
-if ultima:
-
-    ultima_texto = ultima.strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-
-else:
-
-    ultima_texto = "Sin actualización"
-
-
-telegram_estado = (
-    "Configurado"
-    if telegram_configurado()
-    else "No configurado"
-)
-
 st.caption(
-    f"Alerta Litoral Agro V{APP_VERSION} "
-    f"| Última actualización: "
-    f"{ultima_texto} "
-    f"| Telegram: {telegram_estado}"
-)
-
-st.caption(
-    "Prototipo experimental desarrollado "
-    "para análisis meteorológico e hidrológico "
-    "aplicado al riesgo agropecuario."
+    f"Alerta Litoral Agro V{APP_VERSION} · "
+    f"Actualización de interfaz: "
+    f"{ahora().strftime('%d/%m/%Y %H:%M')} · "
+    "Prototipo académico/experimental"
 )
