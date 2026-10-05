@@ -1,198 +1,685 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
-import os
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-# Configuración de la página web
-st.set_page_config(page_title="Prevención Litoral Agro", layout="wide")
+# ============================================================
+# ALERTA LITORAL AGRO — V2.0
+# Prototipo operativo de alerta temprana para riesgo de
+# anegamiento agropecuario en Santa Fe, Corrientes y Entre Ríos.
+#
+# Fuentes dinámicas:
+#   - Open-Meteo: precipitación reciente estimada + pronóstico
+#   - Open-Meteo: humedad volumétrica superficial 0–7 cm
+#   - OpenStreetMap / Esri: cartografía
+#
+# IMPORTANTE:
+# La humedad 0–7 cm es una variable modelada y se transforma en
+# un ÍNDICE DE HUMEDAD SUPERFICIAL. NO representa saturación
+# hidrológica real de todo el perfil del suelo.
+#
+# El semáforo es un modelo experimental para apoyo a decisiones.
+# No reemplaza alertas oficiales ni mediciones hidrológicas locales.
+# ============================================================
 
-st.title("🚨 Prevención Integral Litoral Agro")
-st.markdown("Sistema de alerta temprana hídrica (Lluvia + Saturación + Nivel de Ríos) para el Litoral.")
-
-# --- CONTADOR DE VISITAS ---
-# En castellano y tamaño reducido
-st.image("https://visitor-badge.laobi.icu/badge?page_id=federicoieraci.alerta-litoral&left_text=Visitas", width=90)
-st.divider()
-
-# --- CONFIGURACIÓN DE TELEGRAM ---
-TOKEN = "8835711157:AAFqiN_KCMrYYRImWP5dzc11DzM7GvWL-yY"
-CHAT_ID = "8813171047"
-
-# Las 24 ciudades con sus puertos oficiales asociados y cotas (en metros)
-NODOS_LITORAL = [
-    {'nombre': 'Goya', 'provincia': 'CR', 'lat': -29.14, 'lon': -59.26, 'id_rio': 'GOYA', 'alerta': 5.20, 'evacuacion': 5.70},
-    {'nombre': 'Mercedes', 'provincia': 'CR', 'lat': -29.18, 'lon': -58.07, 'id_rio': None, 'alerta': None, 'evacuacion': None},
-    {'nombre': 'Curuzú Cuatiá', 'provincia': 'CR', 'lat': -29.79, 'lon': -58.05, 'id_rio': None, 'alerta': None, 'evacuacion': None},
-    {'nombre': 'Paso de los Libres', 'provincia': 'CR', 'lat': -29.71, 'lon': -57.08, 'id_rio': 'PASO DE LOS LIBRES', 'alerta': 7.50, 'evacuacion': 8.50},
-    {'nombre': 'Santo Tomé', 'provincia': 'CR', 'lat': -28.55, 'lon': -56.04, 'id_rio': 'SANTO TOME', 'alerta': 11.50, 'evacuacion': 12.50},
-    {'nombre': 'Corrientes Capital', 'provincia': 'CR', 'lat': -27.46, 'lon': -58.83, 'id_rio': 'CORRIENTES', 'alerta': 6.50, 'evacuacion': 7.00},
-    {'nombre': 'Reconquista', 'provincia': 'SF', 'lat': -29.15, 'lon': -59.65, 'id_rio': 'RECONQUISTA', 'alerta': 5.10, 'evacuacion': 5.30},
-    {'nombre': 'San Javier', 'provincia': 'SF', 'lat': -30.58, 'lon': -59.93, 'id_rio': 'SAN JAVIER', 'alerta': 6.00, 'evacuacion': 6.50},
-    {'nombre': 'Vera', 'provincia': 'SF', 'lat': -29.46, 'lon': -60.21, 'id_rio': None, 'alerta': None, 'evacuacion': None},
-    {'nombre': 'Santa Fe Capital', 'provincia': 'SF', 'lat': -31.63, 'lon': -60.7, 'id_rio': 'SANTA FE', 'alerta': 5.30, 'evacuacion': 5.70},
-    {'nombre': 'Rosario', 'provincia': 'SF', 'lat': -32.95, 'lon': -60.66, 'id_rio': 'ROSARIO', 'alerta': 5.00, 'evacuacion': 5.30},
-    {'nombre': 'Tostado', 'provincia': 'SF', 'lat': -29.23, 'lon': -61.77, 'id_rio': None, 'alerta': None, 'evacuacion': None},
-    {'nombre': 'Concordia', 'provincia': 'ER', 'lat': -31.39, 'lon': -58.02, 'id_rio': 'CONCORDIA', 'alerta': 11.00, 'evacuacion': 12.50},
-    {'nombre': 'La Paz', 'provincia': 'ER', 'lat': -30.74, 'lon': -59.64, 'id_rio': 'LA PAZ', 'alerta': 5.80, 'evacuacion': 6.15},
-    {'nombre': 'Victoria', 'provincia': 'ER', 'lat': -32.62, 'lon': -60.15, 'id_rio': 'VICTORIA', 'alerta': 4.60, 'evacuacion': 4.90},
-    {'nombre': 'Gualeguay', 'provincia': 'ER', 'lat': -33.14, 'lon': -59.31, 'id_rio': 'PUERTO RUIZ', 'alerta': 2.50, 'evacuacion': 3.00},
-    {'nombre': 'Gualeguaychú', 'provincia': 'ER', 'lat': -33.01, 'lon': -58.51, 'id_rio': 'GUALEGUAYCHU', 'alerta': 2.90, 'evacuacion': 3.10},
-    {'nombre': 'Paraná', 'provincia': 'ER', 'lat': -31.73, 'lon': -60.52, 'id_rio': 'PARANA', 'alerta': 4.70, 'evacuacion': 5.00},
-    {'nombre': 'Clorinda', 'provincia': 'FM', 'lat': -25.28, 'lon': -57.71, 'id_rio': 'CLORINDA', 'alerta': 5.00, 'evacuacion': 6.00},
-    {'nombre': 'Formosa Capital', 'provincia': 'FM', 'lat': -26.18, 'lon': -58.17, 'id_rio': 'FORMOSA', 'alerta': 7.80, 'evacuacion': 8.30},
-    {'nombre': 'General San Martín', 'provincia': 'CH', 'lat': -26.53, 'lon': -59.34, 'id_rio': 'PUERTO BERMEJO', 'alerta': 4.50, 'evacuacion': 5.00},
-    {'nombre': 'Resistencia', 'provincia': 'CH', 'lat': -27.45, 'lon': -58.98, 'id_rio': 'BARRANQUERAS', 'alerta': 6.00, 'evacuacion': 6.50},
-    {'nombre': 'Posadas', 'provincia': 'MN', 'lat': -27.36, 'lon': -55.89, 'id_rio': 'POSADAS', 'alerta': 10.50, 'evacuacion': 11.50},
-    {'nombre': 'Eldorado', 'provincia': 'MN', 'lat': -26.4, 'lon': -54.63, 'id_rio': 'ELDORADO', 'alerta': 16.00, 'evacuacion': 17.00}
-]
-
-ACCIONES = {
-    "ROJO (Crítico)": "EVACUACIÓN INMINENTE: Mover hacienda a zonas altas. Elevar maquinaria y limpiar canales principales de urgencia.",
-    "NARANJA (Alerta Operativa)": "ALERTA OPERATIVA: Iniciar traslado preventivo de hacienda y verificar defensas.",
-    "AMARILLO (Precaución)": "ALERTA PREVENTIVA: Agrupar ganado para traslado, preparar reservas de forraje seco y desobstruir sumideros.",
-    "VERDE (Normal)": "MONITOREO NORMAL: Pastoreo sin restricciones. Mantener mantenimiento rutinario de drenajes."
-}
-
-# Base de datos de respaldo hidrométrico en tiempo real para los puertos del Litoral
-DATOS_RIOS_ENVIVO = {
-    'GOYA': 4.12,
-    'CORRIENTES': 4.35,
-    'RECONQUISTA': 3.98,
-    'SANTA FE': 3.85,
-    'ROSARIO': 3.20,
-    'PARANA': 3.65,
-    'CONCORDIA': 7.80,
-    'PASO DE LOS LIBRES': 5.40,
-    'SANTO TOME': 8.20,
-    'LA PAZ': 4.10,
-    'VICTORIA': 3.15,
-    'PUERTO RUIZ': 1.95,
-    'GUALEGUAYCHU': 1.80,
-    'FORMOSA': 5.60,
-    'BARRANQUERAS': 4.25,
-    'POSADAS': 8.90,
-    'SAN JAVIER': 4.30,
-    'CLORINDA': 3.80,
-    'PUERTO BERMEJO': 3.20,
-    'ELDORADO': 11.40
-}
-
-@st.cache_data(ttl=900)
-def obtener_altura_puerto(puerto_nombre):
-    """Obtiene la altura del puerto de la API o la base hidrométrica activa."""
-    if not puerto_nombre:
-        return None
-    
-    # 1. Intento por API de Telemetría Pública
-    try:
-        url = f"https://api.alerta-hidrica.gob.ar/puertos/{puerto_nombre}"
-        resp = requests.get(url, timeout=2)
-        if resp.status_code == 200:
-            val = resp.json().get("altura")
-            if val is not None:
-                return float(val)
-    except:
-        pass
-
-    # 2. Respaldo directo en vivo por catálogo hidrométrico
-    return DATOS_RIOS_ENVIVO.get(puerto_nombre.upper(), None)
-
-def consultar_estado_real(lat, lon, puerto_nombre, cota_alerta, cota_evac):
-    # 1. Consulta Metereológica (Open-Meteo)
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=precipitation_sum&hourly=soil_moisture_0_to_7cm&timezone=America%2FArgentina%2FBuenos_Aires&past_days=1"
-    
-    lluvia_hoy, lluvia_corta, lluvia_7d, saturacion = 0, 0, 0, 0
-    suelo_vulnerable = False
-    
-    try:
-        resp = requests.get(url, timeout=4).json()
-        daily = resp.get("daily", {}).get("precipitation_sum", [0]*8)
-        hourly_sm = resp.get("hourly", {}).get("soil_moisture_0_to_7cm", [0.25])
-        
-        lluvia_hoy = daily[1] if len(daily) > 1 else 0
-        lluvia_corta = sum(daily[1:4]) if len(daily) >= 4 else 0
-        lluvia_media = sum(daily[4:8]) if len(daily) >= 8 else 0
-        lluvia_7d = lluvia_corta + lluvia_media
-        
-        sm_actual = hourly_sm[0] if len(hourly_sm) > 0 else 0.25
-        saturacion = min(100.0, max(0.0, (sm_actual / 0.45) * 100.0))
-        suelo_vulnerable = saturacion >= 80.0
-    except:
-        pass
-
-    # 2. Consulta Altura Río
-    altura_rio = obtener_altura_puerto(puerto_nombre)
-    info_rio = " | Zona mediterránea sin puerto costero."
-    rio_critico, rio_alerta = False, False
-
-    if altura_rio is not None and cota_evac is not None:
-        info_rio = f" | 🌊 Río: {altura_rio:.2f} m (Evac: {cota_evac}m)"
-        if altura_rio >= cota_evac:
-            rio_critico = True
-        elif altura_rio >= cota_alerta:
-            rio_alerta = True
-
-    # 3. Lógica Unificada de Alertas
-    if (lluvia_corta >= 60.0 and suelo_vulnerable) or rio_critico:
-        return "ROJO (Crítico)", f"Saturación: {saturacion:.1f}%. Lluvia 7d: {lluvia_7d:.1f} mm.{info_rio}", "#dc3545"
-    elif (lluvia_7d >= 70.0 and suelo_vulnerable) or rio_alerta:
-        return "NARANJA (Alerta Operativa)", f"Saturación: {saturacion:.1f}%. Lluvia 7d: {lluvia_7d:.1f} mm.{info_rio}", "#fd7e14"
-    elif lluvia_7d >= 35.0 or lluvia_hoy > 5.0 or suelo_vulnerable:
-        return "AMARILLO (Precaución)", f"Saturación: {saturacion:.1f}%. Lluvia hoy: {lluvia_hoy:.1f} mm.{info_rio}", "#d99b00"
-    else:
-        return "VERDE (Normal)", f"Parámetros estables. Saturación: {saturacion:.1f}%.{info_rio}", "#28a745"
-
-def enviar_alerta_telegram(zona, estado, detalle):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    accion_recomendada = ACCIONES.get(estado, "Monitoreo preventivo de rutina.")
-    icono = "🔴" if "ROJO" in estado else ("🟡" if "AMARILLO" in estado else "🟢")
-    
-    texto = (
-        f"{icono} *AVISO HÍDRICO LITORAL* {icono}\n"
-        f"📍 Zona: {zona}\n"
-        f"🚦 Estado: {estado}\n"
-        f"📝 {detalle}\n\n"
-        f"💡 *Acción Recomendada:*\n{accion_recomendada}"
-    )
-    
-    payload = {"chat_id": CHAT_ID, "text": texto, "parse_mode": "Markdown"}
-    try:
-        response = requests.post(url, json=payload, timeout=3)
-        return response.status_code == 200
-    except:
-        return False
-
-# --- PANEL LATERAL DINÁMICO ---
-st.sidebar.header("🤖 Panel de Alertas Telegram")
-
-opciones_nodos = [f"{n['nombre']} ({n['provincia']})" for n in NODOS_LITORAL]
-zona_sel_str = st.sidebar.selectbox("Zona Crítica", opciones_nodos)
-
-nodo_seleccionado = next(n for n in NODOS_LITORAL if f"{n['nombre']} ({n['provincia']})" == zona_sel_str)
-
-estado_real, detalle_real, color_badge = consultar_estado_real(
-    nodo_seleccionado["lat"], 
-    nodo_seleccionado["lon"],
-    nodo_seleccionado.get("id_rio"),
-    nodo_seleccionado.get("alerta"),
-    nodo_seleccionado.get("evacuacion")
+st.set_page_config(
+    page_title="Alerta Litoral Agro",
+    page_icon="🌧️",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.sidebar.markdown(f"**Estado Real en Vivo:**")
-st.sidebar.markdown(f"<div style='background-color: {color_badge}; color: white; padding: 6px; border-radius: 5px; text-align: center; font-weight: bold;'>{estado_real}</div>", unsafe_allow_html=True)
-st.sidebar.caption(detalle_real)
+TZ_ARG = ZoneInfo("America/Argentina/Buenos_Aires")
+OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
-if st.sidebar.button("📲 Enviar Alerta de esta Zona a Telegram"):
-    exito = enviar_alerta_telegram(zona_sel_str, estado_real, detalle_real)
-    if exito:
-        st.sidebar.success("¡Alerta enviada con éxito a tu Telegram!")
-    else:
-        st.sidebar.error("Error al enviar el mensaje.")
+# ============================================================
+# NODOS
+# ============================================================
 
-# --- CARGAR EL MAPA INTERACTIVO ---
-if os.path.exists("mapa.html"):
-    with open("mapa.html", "r", encoding="utf-8") as f:
-        html_data = f.read()
-    components.html(html_data, height=750, scrolling=True)
+NODOS = [
+    {"nombre": "Goya", "provincia": "Corrientes", "lat": -29.14, "lon": -59.26,
+     "rio": "Río Paraná", "zona_alta": "Loma Batelito"},
+    {"nombre": "Mercedes", "provincia": "Corrientes", "lat": -29.18, "lon": -58.07,
+     "rio": "Sistema Iberá", "zona_alta": "Lomadas de Mercedes"},
+    {"nombre": "Curuzú Cuatiá", "provincia": "Corrientes", "lat": -29.79, "lon": -58.05,
+     "rio": "Arroyo Sarandí", "zona_alta": "Sierras de Curuzú"},
+    {"nombre": "Paso de los Libres", "provincia": "Corrientes", "lat": -29.71, "lon": -57.08,
+     "rio": "Río Uruguay", "zona_alta": "Zona alta de Paso de los Libres"},
+    {"nombre": "Santo Tomé", "provincia": "Corrientes", "lat": -28.55, "lon": -56.04,
+     "rio": "Río Uruguay", "zona_alta": "Loma Alta Santo Tomé"},
+    {"nombre": "Corrientes Capital", "provincia": "Corrientes", "lat": -27.46, "lon": -58.83,
+     "rio": "Río Paraná", "zona_alta": "Sectores altos de Corrientes"},
+
+    {"nombre": "Reconquista", "provincia": "Santa Fe", "lat": -29.15, "lon": -59.65,
+     "rio": "Río Paraná", "zona_alta": "Loma Alta Reconquista Oeste"},
+    {"nombre": "San Javier", "provincia": "Santa Fe", "lat": -30.58, "lon": -59.93,
+     "rio": "Río San Javier", "zona_alta": "Sectores altos de la zona"},
+    {"nombre": "Vera", "provincia": "Santa Fe", "lat": -29.46, "lon": -60.21,
+     "rio": "Cuenca Calchaquí", "zona_alta": "Cuchilla Fortín Olmos"},
+    {"nombre": "Santa Fe Capital", "provincia": "Santa Fe", "lat": -31.63, "lon": -60.70,
+     "rio": "Río Salado / Paraná", "zona_alta": "Sectores altos del Litoral Centro"},
+    {"nombre": "Rosario", "provincia": "Santa Fe", "lat": -32.95, "lon": -60.66,
+     "rio": "Río Paraná", "zona_alta": "Zonas altas del cordón industrial"},
+    {"nombre": "Tostado", "provincia": "Santa Fe", "lat": -29.23, "lon": -61.77,
+     "rio": "Río Salado Norte", "zona_alta": "Lomadas de Tostado"},
+
+    {"nombre": "Concordia", "provincia": "Entre Ríos", "lat": -31.39, "lon": -58.02,
+     "rio": "Río Uruguay", "zona_alta": "Lomas de Salto Grande"},
+    {"nombre": "La Paz", "provincia": "Entre Ríos", "lat": -30.74, "lon": -59.64,
+     "rio": "Río Paraná", "zona_alta": "Cuchilla Montiel"},
+    {"nombre": "Victoria", "provincia": "Entre Ríos", "lat": -32.62, "lon": -60.15,
+     "rio": "Delta del Paraná", "zona_alta": "Cuchilla Victoria"},
+    {"nombre": "Gualeguay", "provincia": "Entre Ríos", "lat": -33.14, "lon": -59.31,
+     "rio": "Río Gualeguay", "zona_alta": "Cuchilla de Gualeguay"},
+    {"nombre": "Gualeguaychú", "provincia": "Entre Ríos", "lat": -33.01, "lon": -58.51,
+     "rio": "Río Gualeguaychú", "zona_alta": "Lomas de Gualeguaychú"},
+    {"nombre": "Paraná", "provincia": "Entre Ríos", "lat": -31.73, "lon": -60.52,
+     "rio": "Río Paraná", "zona_alta": "Lomas de Paraná"},
+]
+
+# ============================================================
+# SEMÁFORO
+# ============================================================
+
+NIVELES = {
+    "ROJO": {"emoji": "🔴", "color": "#dc3545"},
+    "NARANJA": {"emoji": "🟠", "color": "#fd7e14"},
+    "AMARILLO": {"emoji": "🟡", "color": "#d99b00"},
+    "VERDE": {"emoji": "🟢", "color": "#28a745"},
+}
+
+ACCIONES = {
+    "ROJO": (
+        "Evaluar traslado preventivo de hacienda hacia zonas altas, "
+        "proteger maquinaria y revisar drenajes y accesos productivos."
+    ),
+    "NARANJA": (
+        "Preparar traslado preventivo de hacienda, revisar drenajes, "
+        "bajos y accesos, y anticipar tareas que puedan verse afectadas."
+    ),
+    "AMARILLO": (
+        "Monitorear sectores bajos, revisar drenajes y mantener seguimiento "
+        "de la evolución de las precipitaciones."
+    ),
+    "VERDE": (
+        "Monitoreo normal. No se detectan condiciones meteorológicas "
+        "relevantes para el modelo de anegamiento."
+    ),
+}
+
+
+def evaluar_estado(lluvia_reciente_72h, lluvia_pronostico_72h,
+                   lluvia_pronostico_7d, humedad_indice):
+    """
+    Modelo experimental.
+    La humedad es un índice operativo, no saturación hidrológica.
+    """
+
+    suelo_vulnerable = humedad_indice >= 80.0
+    suelo_muy_humedo = humedad_indice >= 90.0
+
+    # Riesgo de corto plazo: suelo vulnerable + lluvia reciente o prevista.
+    riesgo_corto = (
+        (lluvia_reciente_72h >= 50.0 and suelo_vulnerable)
+        or (lluvia_pronostico_72h >= 60.0 and suelo_vulnerable)
+    )
+
+    # Riesgo acumulado: combinación de condición antecedente + pronóstico.
+    riesgo_acumulado = (
+        lluvia_reciente_72h >= 70.0
+        and lluvia_pronostico_7d >= 70.0
+        and suelo_vulnerable
+    )
+
+    if riesgo_corto or riesgo_acumulado or (
+        suelo_muy_humedo and lluvia_pronostico_7d >= 90.0
+    ):
+        return "ROJO"
+
+    if (
+        (lluvia_reciente_72h >= 40.0 or lluvia_pronostico_72h >= 50.0)
+        and suelo_vulnerable
+    ):
+        return "NARANJA"
+
+    if (
+        lluvia_reciente_72h >= 25.0
+        or lluvia_pronostico_72h >= 35.0
+        or lluvia_pronostico_7d >= 60.0
+        or suelo_vulnerable
+    ):
+        return "AMARILLO"
+
+    return "VERDE"
+
+
+# ============================================================
+# OPEN-METEO
+# ============================================================
+
+@st.cache_data(ttl=900, show_spinner=False)
+def consultar_open_meteo():
+    latitudes = ",".join(str(n["lat"]) for n in NODOS)
+    longitudes = ",".join(str(n["lon"]) for n in NODOS)
+
+    params = {
+        "latitude": latitudes,
+        "longitude": longitudes,
+        "daily": "precipitation_sum",
+        "hourly": "soil_moisture_0_to_7cm",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "past_days": 3,
+        "forecast_days": 7,
+    }
+
+    response = requests.get(
+        OPEN_METEO_URL,
+        params=params,
+        timeout=30,
+        headers={"User-Agent": "Alerta-Litoral-Agro/2.0"},
+    )
+    response.raise_for_status()
+
+    data = response.json()
+    if isinstance(data, dict):
+        data = [data]
+
+    if len(data) != len(NODOS):
+        raise RuntimeError(
+            f"Open-Meteo devolvió {len(data)} ubicaciones y se esperaban {len(NODOS)}."
+        )
+
+    ahora = datetime.now(TZ_ARG)
+    hoy = ahora.date()
+    resultados = []
+
+    for nodo, item in zip(NODOS, data):
+        daily = item.get("daily", {})
+        hourly = item.get("hourly", {})
+
+        fechas = daily.get("time", [])
+        precipitaciones = daily.get("precipitation_sum", [])
+
+        # --------------------------------------------------------
+        # Precipitación reciente y pronosticada
+        # --------------------------------------------------------
+        lluvia_reciente_24h = 0.0
+        lluvia_reciente_72h = 0.0
+        lluvia_pronostico_24h = 0.0
+        lluvia_pronostico_72h = 0.0
+        lluvia_pronostico_7d = 0.0
+
+        if fechas and precipitaciones:
+            pares = []
+            for fecha, lluvia in zip(fechas, precipitaciones):
+                try:
+                    fecha_dt = datetime.fromisoformat(fecha).date()
+                    pares.append((fecha_dt, float(lluvia or 0)))
+                except Exception:
+                    continue
+
+            recientes = [lluvia for fecha, lluvia in pares if fecha < hoy]
+            futuros = [lluvia for fecha, lluvia in pares if fecha >= hoy]
+
+            # Los acumulados diarios recientes son una aproximación
+            # meteorológica de condición antecedente.
+            lluvia_reciente_24h = recientes[-1] if recientes else 0.0
+            lluvia_reciente_72h = sum(recientes[-3:])
+
+            lluvia_pronostico_24h = futuros[0] if futuros else 0.0
+            lluvia_pronostico_72h = sum(futuros[:3])
+            lluvia_pronostico_7d = sum(futuros[:7])
+
+        # --------------------------------------------------------
+        # Humedad superficial actual 0–7 cm
+        # --------------------------------------------------------
+        horas = hourly.get("time", [])
+        humedad = hourly.get("soil_moisture_0_to_7cm", [])
+
+        humedad_actual = None
+
+        if horas and humedad:
+            candidatos = []
+
+            for h, valor in zip(horas, humedad):
+                try:
+                    dt = datetime.fromisoformat(h)
+                    dt = dt.replace(tzinfo=TZ_ARG)
+                    diferencia = abs((dt - ahora).total_seconds())
+
+                    if valor is not None:
+                        candidatos.append((diferencia, float(valor)))
+                except Exception:
+                    continue
+
+            if candidatos:
+                candidatos.sort(key=lambda x: x[0])
+                humedad_actual = candidatos[0][1]
+
+        # Índice operativo: referencia 0.45 m3/m3.
+        # NO es saturación hidrológica.
+        if humedad_actual is None:
+            humedad_indice = None
+        else:
+            humedad_indice = max(
+                0.0,
+                min(100.0, (humedad_actual / 0.45) * 100.0),
+            )
+
+        if humedad_indice is None:
+            estado = "AMARILLO"
+        else:
+            estado = evaluar_estado(
+                lluvia_reciente_72h,
+                lluvia_pronostico_72h,
+                lluvia_pronostico_7d,
+                humedad_indice,
+            )
+
+        resultados.append(
+            {
+                **nodo,
+                "lluvia_reciente_24h": lluvia_reciente_24h,
+                "lluvia_reciente_72h": lluvia_reciente_72h,
+                "lluvia_pronostico_24h": lluvia_pronostico_24h,
+                "lluvia_pronostico_72h": lluvia_pronostico_72h,
+                "lluvia_pronostico_7d": lluvia_pronostico_7d,
+                "humedad_volumetrica": humedad_actual,
+                "humedad_indice": humedad_indice,
+                "estado": estado,
+            }
+        )
+
+    return resultados
+
+
+# ============================================================
+# INTERFAZ
+# ============================================================
+
+ahora = datetime.now(TZ_ARG)
+
+st.title("🌧️ Alerta Litoral Agro")
+st.subheader(
+    "Prototipo operativo de alerta temprana para riesgo de anegamiento agropecuario"
+)
+
+st.info(
+    "📍 Área principal: Santa Fe, Corrientes y Entre Ríos  •  "
+    "Modelo experimental de apoyo a la toma de decisiones"
+)
+
+with st.sidebar:
+    st.header("⚙️ Control")
+
+    if st.button("🔄 Actualizar datos ahora", use_container_width=True):
+        consultar_open_meteo.clear()
+        st.rerun()
+
+    st.markdown("---")
+    st.markdown("### 📡 Fuentes dinámicas")
+    st.markdown(
+        "- 🌧️ **Open-Meteo** — precipitación y humedad del suelo\n"
+        "- 🗺️ **OpenStreetMap / Esri** — cartografía\n"
+        "- 🛰️ **Windy / CIRA** — monitoreo complementario\n"
+    )
+
+    st.markdown("---")
+    st.markdown("### ⚠️ Alcance")
+    st.caption(
+        "La aplicación es un prototipo académico funcional. "
+        "No reemplaza alertas oficiales, mediciones de campo ni "
+        "información hidrológica de organismos competentes."
+    )
+
+# ============================================================
+# CARGA DE DATOS
+# ============================================================
+
+try:
+    datos = consultar_open_meteo()
+    sistema_ok = True
+    error_datos = None
+except Exception as exc:
+    datos = []
+    sistema_ok = False
+    error_datos = str(exc)
+
+# ============================================================
+# ESTADO DEL SISTEMA
+# ============================================================
+
+if sistema_ok:
+    st.success(
+        f"🟢 **SISTEMA OPERATIVO** — datos meteorológicos disponibles. "
+        f"Consulta: {ahora.strftime('%d/%m/%Y %H:%M')} ART"
+    )
 else:
-    st.error("⚠️ Error crítico: No se encuentra el archivo 'mapa.html' en el repositorio de GitHub. Subilo al lado de app.py.")
+    st.error(
+        "🔴 **DATOS NO ACTUALIZADOS** — no fue posible consultar Open-Meteo. "
+        "No se debe interpretar el semáforo como información vigente."
+    )
+    st.code(error_datos)
+
+if not sistema_ok:
+    st.stop()
+
+df = pd.DataFrame(datos)
+
+st.caption(
+    f"Última consulta realizada: **{ahora.strftime('%d/%m/%Y %H:%M')} ART** · "
+    "La hora de consulta no implica que todas las variables tengan esa misma "
+    "hora de observación."
+)
+
+# ============================================================
+# RESUMEN
+# ============================================================
+
+conteo = df["estado"].value_counts().to_dict()
+
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("🔴 Rojo", conteo.get("ROJO", 0))
+c2.metric("🟠 Naranja", conteo.get("NARANJA", 0))
+c3.metric("🟡 Amarillo", conteo.get("AMARILLO", 0))
+c4.metric("🟢 Verde", conteo.get("VERDE", 0))
+
+st.markdown("---")
+
+# ============================================================
+# MAPA
+# ============================================================
+
+st.markdown("## 🗺️ Mapa operativo del Litoral")
+
+m = folium.Map(
+    location=[-30.5, -59.5],
+    zoom_start=6,
+    tiles="OpenStreetMap",
+    control_scale=True,
+)
+
+folium.TileLayer(
+    "CartoDB positron",
+    name="Cartografía clara",
+    control=True,
+).add_to(m)
+
+folium.TileLayer(
+    "Esri WorldImagery",
+    name="🛰️ Satelital",
+    attr="Esri",
+    control=True,
+).add_to(m)
+
+for row in datos:
+    nivel = NIVELES[row["estado"]]
+
+    humedad_texto = (
+        f"{row['humedad_indice']:.1f}%"
+        if row["humedad_indice"] is not None
+        else "Sin dato"
+    )
+
+    humedad_vol = (
+        f"{row['humedad_volumetrica']:.3f} m³/m³"
+        if row["humedad_volumetrica"] is not None
+        else "Sin dato"
+    )
+
+    popup_html = f"""
+    <div style="width:320px;font-family:Arial,sans-serif">
+        <h3 style="margin-bottom:5px">
+            {nivel["emoji"]} {row["nombre"]}
+        </h3>
+
+        <b>Provincia:</b> {row["provincia"]}<br>
+        <b>Estado del modelo:</b> {nivel["emoji"]} {row["estado"]}<br>
+
+        <hr>
+
+        🌧️ <b>Reciente 24 h:</b> {row["lluvia_reciente_24h"]:.1f} mm<br>
+        🌧️ <b>Reciente 72 h:</b> {row["lluvia_reciente_72h"]:.1f} mm<br>
+        🔮 <b>Pronóstico 24 h:</b> {row["lluvia_pronostico_24h"]:.1f} mm<br>
+        🔮 <b>Pronóstico 72 h:</b> {row["lluvia_pronostico_72h"]:.1f} mm<br>
+        🔮 <b>Pronóstico 7 días:</b> {row["lluvia_pronostico_7d"]:.1f} mm<br>
+
+        <hr>
+
+        💧 <b>Índice de humedad superficial:</b> {humedad_texto}<br>
+        <small>Humedad modelada 0–7 cm: {humedad_vol}</small>
+
+        <hr>
+
+        🌊 <b>Referencia hídrica:</b> {row["rio"]}<br>
+        ⛰️ <b>Zona alta de referencia:</b> {row["zona_alta"]}<br>
+
+        <hr>
+
+        <b>Acción sugerida:</b><br>
+        {ACCIONES[row["estado"]]}
+
+        <hr>
+        <small>
+        ⚠️ El semáforo es un modelo experimental y no representa
+        una alerta oficial ni una medición directa de inundación.
+        </small>
+    </div>
+    """
+
+    folium.CircleMarker(
+        location=[row["lat"], row["lon"]],
+        radius=10,
+        color=nivel["color"],
+        fill=True,
+        fill_color=nivel["color"],
+        fill_opacity=0.80,
+        weight=3,
+        popup=folium.Popup(popup_html, max_width=370),
+        tooltip=(
+            f'{nivel["emoji"]} {row["nombre"]} — {row["estado"]} '
+            f'| Humedad: {humedad_texto}'
+        ),
+    ).add_to(m)
+
+folium.LayerControl(collapsed=False).add_to(m)
+
+st_folium(
+    m,
+    width=None,
+    height=700,
+    returned_objects=[],
+)
+
+# ============================================================
+# TABLA OPERATIVA
+# ============================================================
+
+st.markdown("## 📊 Estado por nodo")
+
+tabla = df[
+    [
+        "nombre",
+        "provincia",
+        "estado",
+        "lluvia_reciente_24h",
+        "lluvia_reciente_72h",
+        "lluvia_pronostico_24h",
+        "lluvia_pronostico_72h",
+        "lluvia_pronostico_7d",
+        "humedad_indice",
+    ]
+].copy()
+
+tabla.columns = [
+    "Localidad",
+    "Provincia",
+    "Semáforo",
+    "Reciente 24 h (mm)",
+    "Reciente 72 h (mm)",
+    "Pronóstico 24 h (mm)",
+    "Pronóstico 72 h (mm)",
+    "Pronóstico 7 días (mm)",
+    "Índice humedad 0–7 cm (%)",
+]
+
+tabla["Semáforo"] = tabla["Semáforo"].map(
+    lambda x: f'{NIVELES[x]["emoji"]} {x}'
+)
+
+for columna in tabla.columns[3:]:
+    tabla[columna] = tabla[columna].round(1)
+
+st.dataframe(
+    tabla,
+    use_container_width=True,
+    hide_index=True,
+)
+
+# ============================================================
+# ACCIONES OPERATIVAS
+# ============================================================
+
+st.markdown("---")
+st.markdown("## 🎯 Acciones orientativas según el nivel")
+
+acciones_df = pd.DataFrame(
+    [
+        ["🔴 ROJO", "Acción inmediata",
+         "Evaluar traslado preventivo de hacienda, proteger maquinaria y revisar drenajes."],
+        ["🟠 NARANJA", "Preparación",
+         "Preparar hacienda, revisar bajos, drenajes y accesos productivos."],
+        ["🟡 AMARILLO", "Vigilancia",
+         "Monitorear sectores bajos y evolución de lluvia y humedad."],
+        ["🟢 VERDE", "Monitoreo normal",
+         "Sin condiciones relevantes detectadas por el modelo."],
+    ],
+    columns=["Nivel", "Interpretación", "Acción sugerida"],
+)
+
+st.dataframe(
+    acciones_df,
+    use_container_width=True,
+    hide_index=True,
+)
+
+# ============================================================
+# MONITOREO COMPLEMENTARIO
+# ============================================================
+
+st.markdown("---")
+st.markdown("## 🛰️ Monitoreo meteorológico complementario")
+
+r1, r2 = st.columns(2)
+
+with r1:
+    st.markdown("### 🌀 Radar y modelos")
+    st.markdown(
+        "Consulta complementaria de precipitación, radar, viento y modelos."
+    )
+
+    st.components.v1.iframe(
+        "https://embed.windy.com/embed2.html"
+        "?lat=-30.5&lon=-59.5"
+        "&detailLat=-30.5&detailLon=-59.5"
+        "&width=700&height=460&zoom=6"
+        "&level=surface&overlay=rain"
+        "&product=ecmwf"
+        "&menu=&message=true&marker="
+        "&calendar=now&pressure=true&type=map"
+        "&location=coordinates&detail="
+        "&metricWind=km%2Fh&metricTemp=%C2%B0C"
+        "&radarRange=-1",
+        height=500,
+        scrolling=False,
+    )
+
+with r2:
+    st.markdown("### ⚡ GOES-19 / GLM")
+    st.markdown(
+        "Visor externo para seguimiento de nubosidad y actividad eléctrica."
+    )
+
+    st.link_button(
+        "⚡ Abrir visor CIRA GOES-19 / GLM",
+        "https://slider.cira.colostate.edu/",
+        use_container_width=True,
+    )
+
+# ============================================================
+# METODOLOGÍA
+# ============================================================
+
+st.markdown("---")
+st.markdown("## 🧭 ¿Cómo funciona el semáforo?")
+
+st.markdown(
+    """
+El sistema combina tres componentes:
+
+**1. Condición antecedente**
+- Precipitación reciente estimada por Open-Meteo.
+- Acumulado de las últimas 72 horas disponibles.
+
+**2. Condición actual del suelo**
+- Humedad volumétrica modelada en los primeros 0–7 cm.
+- Se transforma en un **índice de humedad superficial** para el modelo.
+
+**3. Lluvia futura**
+- Pronóstico de 24 horas.
+- Pronóstico de 72 horas.
+- Acumulado pronosticado de 7 días.
+
+### Interpretación
+
+| Nivel | Lógica general |
+|---|---|
+| 🔴 **ROJO** | Condición antecedente o futura importante + suelo vulnerable |
+| 🟠 **NARANJA** | Lluvia relevante + suelo vulnerable |
+| 🟡 **AMARILLO** | Lluvia moderada o humedad elevada |
+| 🟢 **VERDE** | Sin condiciones relevantes según el modelo |
+
+**Los umbrales son experimentales.** Deben calibrarse y validarse con
+eventos históricos, estaciones de observación y/o información hidrológica
+antes de utilizarse para decisiones oficiales de emergencia.
+"""
+)
+
+# ============================================================
+# LIMITACIONES Y PRÓXIMA EVOLUCIÓN
+# ============================================================
+
+st.markdown("---")
+st.markdown("## 🔬 Limitaciones actuales y evolución prevista")
+
+st.markdown(
+    """
+### Limitaciones actuales
+
+- La precipitación reciente utilizada por el modelo es una estimación
+  meteorológica de Open-Meteo y no una red propia de pluviómetros.
+- La humedad del suelo es modelada y corresponde a una capa superficial
+  de 0–7 cm; no equivale a la saturación de todo el perfil.
+- El sistema todavía no incorpora niveles hidrométricos en tiempo real.
+- Los umbrales del semáforo son experimentales y requieren validación histórica.
+- El sistema no reemplaza alertas oficiales.
+
+### Próximas mejoras
+
+1. Incorporar niveles de ríos y tendencia hidrométrica.
+2. Incorporar estaciones/pluviómetros observados.
+3. Validar los umbrales con eventos históricos de anegamiento.
+4. Incorporar un índice de vulnerabilidad por tipo de suelo y uso agropecuario.
+5. Generar historial de alertas para evaluar el desempeño del modelo.
+"""
+)
+
+st.markdown("---")
+st.caption(
+    "Alerta Litoral Agro v2.0 — prototipo académico funcional. "
+    "Sistema experimental de apoyo a la toma de decisiones frente al "
+    "riesgo de anegamiento agropecuario."
+)
