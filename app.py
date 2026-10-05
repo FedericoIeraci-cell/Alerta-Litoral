@@ -1,5 +1,5 @@
 # ============================================================
-# ALERTA LITORAL AGRO — V3.1
+# ALERTA LITORAL AGRO — V3.2
 # ============================================================
 #
 # Sistema experimental de alerta temprana para riesgo de
@@ -10,16 +10,18 @@
 #   Corrientes
 #   Entre Ríos
 #
-# V3.1
+# V3.2
 #
 # CAMBIOS PRINCIPALES:
 #   - Eliminada dependencia de INA/WFS.
-#   - Sin API key hidrológica.
-#   - ECMWF / Open-Meteo como fuente principal.
-#   - Fallback meteorológico Open-Meteo.
-#   - Índice integrado 0–100.
+#   - Eliminada dependencia de CARTO.
+#   - OpenStreetMap como mapa base.
+#   - Open-Meteo como fuente meteorológica.
+#   - Fallback meteorológico.
+#   - Índice integrado correctamente normalizado 0–100.
+#   - Redistribución matemática de pesos.
 #   - Control de calidad.
-#   - Vulnerabilidad territorial.
+#   - Vulnerabilidad territorial experimental.
 #   - Historial de sesión.
 #   - Exportación CSV.
 #   - Telegram opcional.
@@ -29,7 +31,6 @@
 #   No reemplaza alertas oficiales.
 # ============================================================
 
-import math
 import requests
 import pandas as pd
 import streamlit as st
@@ -45,7 +46,7 @@ from streamlit_folium import st_folium
 # ============================================================
 
 st.set_page_config(
-    page_title="Alerta Litoral Agro V3.1",
+    page_title="Alerta Litoral Agro V3.2",
     page_icon="🌧️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -55,12 +56,10 @@ TZ_ARG = ZoneInfo(
     "America/Argentina/Buenos_Aires"
 )
 
-# Endpoint principal
 OPEN_METEO_ECMWF = (
     "https://api.open-meteo.com/v1/ecmwf"
 )
 
-# Endpoint de respaldo
 OPEN_METEO_GENERAL = (
     "https://api.open-meteo.com/v1/forecast"
 )
@@ -251,16 +250,6 @@ NODOS = [
 # ============================================================
 # VULNERABILIDAD TERRITORIAL
 # ============================================================
-#
-# Parámetro EXPERIMENTAL.
-#
-# No es una clasificación oficial.
-# No reemplaza un modelo GIS.
-#
-# Escala:
-#   0   = menor vulnerabilidad relativa
-#   100 = mayor vulnerabilidad relativa
-# ============================================================
 
 VULNERABILIDAD_BASE = {
 
@@ -359,24 +348,36 @@ ACCIONES = {
 # ============================================================
 
 def ahora():
-    return datetime.now(TZ_ARG)
+
+    return datetime.now(
+        TZ_ARG
+    )
 
 
-def safe_float(valor, default=None):
+def safe_float(
+    valor,
+    default=None
+):
 
     try:
 
         if valor is None:
             return default
 
-        if isinstance(valor, str):
+        if isinstance(
+            valor,
+            str
+        ):
 
             valor = valor.strip()
 
             if not valor:
                 return default
 
-            valor = valor.replace(",", ".")
+            valor = valor.replace(
+                ",",
+                "."
+            )
 
         return float(valor)
 
@@ -385,20 +386,31 @@ def safe_float(valor, default=None):
         return default
 
 
-def interpolar_score(valor, puntos):
+def interpolar_score(
+    valor,
+    puntos
+):
 
     if valor is None:
         return 0.0
 
-    puntos = sorted(puntos)
+    puntos = sorted(
+        puntos
+    )
 
     if valor <= puntos[0][0]:
-        return float(puntos[0][1])
+        return float(
+            puntos[0][1]
+        )
 
     if valor >= puntos[-1][0]:
-        return float(puntos[-1][1])
+        return float(
+            puntos[-1][1]
+        )
 
-    for i in range(len(puntos) - 1):
+    for i in range(
+        len(puntos) - 1
+    ):
 
         x1, y1 = puntos[i]
         x2, y2 = puntos[i + 1]
@@ -414,13 +426,17 @@ def interpolar_score(valor, puntos):
             )
 
             return float(
-                y1 + fraccion * (y2 - y1)
+                y1
+                + fraccion
+                * (y2 - y1)
             )
 
     return 0.0
 
 
-def nivel_desde_riesgo(riesgo):
+def nivel_desde_riesgo(
+    riesgo
+):
 
     if riesgo >= 75:
         return "ROJO"
@@ -435,7 +451,7 @@ def nivel_desde_riesgo(riesgo):
 
 
 # ============================================================
-# OPEN-METEO — CONSULTA PRINCIPAL
+# OPEN-METEO
 # ============================================================
 
 @st.cache_data(
@@ -454,6 +470,10 @@ def consultar_open_meteo():
         for n in NODOS
     )
 
+    # --------------------------------------------------------
+    # INTENTO ECMWF
+    # --------------------------------------------------------
+
     variables = ",".join([
         "precipitation",
         "soil_moisture_0_to_7cm",
@@ -465,29 +485,32 @@ def consultar_open_meteo():
 
     params = {
 
-        "latitude": latitudes,
+        "latitude":
+            latitudes,
 
-        "longitude": longitudes,
+        "longitude":
+            longitudes,
 
-        "hourly": variables,
+        "hourly":
+            variables,
 
-        "past_days": 3,
+        "past_days":
+            3,
 
-        "forecast_days": 7,
+        "forecast_days":
+            7,
 
         "timezone":
             "America/Argentina/Buenos_Aires",
 
-        "wind_speed_unit": "kmh",
+        "wind_speed_unit":
+            "kmh",
 
-        "precipitation_unit": "mm",
+        "precipitation_unit":
+            "mm",
     }
 
     errores = []
-
-    # ========================================================
-    # INTENTO 1 — ECMWF
-    # ========================================================
 
     try:
 
@@ -501,16 +524,23 @@ def consultar_open_meteo():
 
             data = response.json()
 
-            if isinstance(data, dict):
+            if isinstance(
+                data,
+                dict
+            ):
+
                 data = [data]
 
             if len(data) == len(NODOS):
 
                 return {
                     "datos": data,
-                    "fuente": "ECMWF IFS / Open-Meteo",
-                    "modo": "completo",
-                    "error": None,
+                    "fuente":
+                        "ECMWF IFS / Open-Meteo",
+                    "modo":
+                        "completo",
+                    "error":
+                        None,
                 }
 
         errores.append(
@@ -524,21 +554,9 @@ def consultar_open_meteo():
             f"ECMWF: {exc}"
         )
 
-    # ========================================================
-    # INTENTO 2 — OPEN-METEO GENERAL
-    #
-    # Variables compatibles con el endpoint general.
-    #
-    # Se utilizan capas de humedad diferentes:
-    #
-    #   0-1 cm
-    #   1-3 cm
-    #   3-9 cm
-    #   9-27 cm
-    #   27-81 cm
-    #
-    # para construir un indicador de humedad.
-    # ========================================================
+    # --------------------------------------------------------
+    # FALLBACK GENERAL
+    # --------------------------------------------------------
 
     variables_fallback = ",".join([
         "precipitation",
@@ -552,22 +570,29 @@ def consultar_open_meteo():
 
     params_fallback = {
 
-        "latitude": latitudes,
+        "latitude":
+            latitudes,
 
-        "longitude": longitudes,
+        "longitude":
+            longitudes,
 
-        "hourly": variables_fallback,
+        "hourly":
+            variables_fallback,
 
-        "past_days": 3,
+        "past_days":
+            3,
 
-        "forecast_days": 7,
+        "forecast_days":
+            7,
 
         "timezone":
             "America/Argentina/Buenos_Aires",
 
-        "wind_speed_unit": "kmh",
+        "wind_speed_unit":
+            "kmh",
 
-        "precipitation_unit": "mm",
+        "precipitation_unit":
+            "mm",
     }
 
     try:
@@ -582,16 +607,23 @@ def consultar_open_meteo():
 
             data = response.json()
 
-            if isinstance(data, dict):
+            if isinstance(
+                data,
+                dict
+            ):
+
                 data = [data]
 
             if len(data) == len(NODOS):
 
                 return {
                     "datos": data,
-                    "fuente": "Open-Meteo Weather API",
-                    "modo": "respaldo",
-                    "error": None,
+                    "fuente":
+                        "Open-Meteo Weather API",
+                    "modo":
+                        "respaldo",
+                    "error":
+                        None,
                 }
 
         errores.append(
@@ -605,10 +637,6 @@ def consultar_open_meteo():
             f"Open-Meteo general: {exc}"
         )
 
-    # ========================================================
-    # SI FALLAN AMBOS
-    # ========================================================
-
     raise RuntimeError(
         "No fue posible obtener datos meteorológicos.\n\n"
         + "\n".join(errores)
@@ -616,10 +644,12 @@ def consultar_open_meteo():
 
 
 # ============================================================
-# PARSEO DE TIEMPOS
+# TIEMPOS
 # ============================================================
 
-def obtener_datetime(texto):
+def obtener_datetime(
+    texto
+):
 
     try:
 
@@ -640,7 +670,10 @@ def obtener_datetime(texto):
         return None
 
 
-def serie_horaria(api_node, variable):
+def serie_horaria(
+    api_node,
+    variable
+):
 
     hourly = api_node.get(
         "hourly",
@@ -672,10 +705,16 @@ def serie_horaria(api_node, variable):
             valor
         )
 
-        if dt is not None and valor is not None:
+        if (
+            dt is not None
+            and valor is not None
+        ):
 
             resultado.append(
-                (dt, valor)
+                (
+                    dt,
+                    valor
+                )
             )
 
     return resultado
@@ -706,7 +745,9 @@ def suma_pasadas(
 
     inicio = (
         ahora_local
-        - timedelta(hours=horas)
+        - timedelta(
+            hours=horas
+        )
     )
 
     return sumar_periodo(
@@ -726,7 +767,9 @@ def suma_futuras(
 
     fin = (
         ahora_local
-        + timedelta(hours=horas)
+        + timedelta(
+            hours=horas
+        )
     )
 
     return sumar_periodo(
@@ -736,7 +779,9 @@ def suma_futuras(
     )
 
 
-def ultimo_valor(serie):
+def ultimo_valor(
+    serie
+):
 
     if not serie:
         return None
@@ -747,7 +792,9 @@ def ultimo_valor(serie):
     )[-1][1]
 
 
-def maximo_serie(serie):
+def maximo_serie(
+    serie
+):
 
     if not serie:
         return None
@@ -759,7 +806,7 @@ def maximo_serie(serie):
 
 
 # ============================================================
-# HUMEDAD DEL MODELO PRINCIPAL
+# HUMEDAD ECMWF
 # ============================================================
 
 def calcular_humedad_principal(
@@ -787,67 +834,45 @@ def calcular_humedad_principal(
         )
     )
 
-    if (
-        h1 is None
-        and h2 is None
-        and h3 is None
-    ):
+    disponibles = [
+        (h1, 0.45),
+        (h2, 0.35),
+        (h3, 0.20),
+    ]
 
-        return None, None, None, None
+    disponibles = [
+        item
+        for item in disponibles
+        if item[0] is not None
+    ]
 
-    valores = []
+    if not disponibles:
 
-    pesos = []
-
-    if h1 is not None:
-
-        valores.append(
-            h1
+        return (
+            None,
+            None,
+            None,
+            None
         )
 
-        pesos.append(
-            0.45
-        )
-
-    if h2 is not None:
-
-        valores.append(
-            h2
-        )
-
-        pesos.append(
-            0.35
-        )
-
-    if h3 is not None:
-
-        valores.append(
-            h3
-        )
-
-        pesos.append(
-            0.20
-        )
+    suma_pesos = sum(
+        peso
+        for _, peso
+        in disponibles
+    )
 
     perfil = sum(
-        v * p
-        for v, p in zip(
-            valores,
-            pesos
-        )
-    ) / sum(pesos)
-
-    # Conversión a porcentaje aproximado.
-    #
-    # Es un índice normalizado, NO una medición
-    # directa de saturación hidrológica.
+        valor * peso
+        for valor, peso
+        in disponibles
+    ) / suma_pesos
 
     h1_pct = (
         min(
             100,
             max(
                 0,
-                (h1 / 0.45) * 100
+                h1 / 0.45 * 100
             )
         )
         if h1 is not None
@@ -859,7 +884,7 @@ def calcular_humedad_principal(
             100,
             max(
                 0,
-                (h2 / 0.45) * 100
+                h2 / 0.45 * 100
             )
         )
         if h2 is not None
@@ -871,39 +896,22 @@ def calcular_humedad_principal(
             100,
             max(
                 0,
-                (h3 / 0.40) * 100
+                h3 / 0.40 * 100
             )
         )
         if h3 is not None
         else None
     )
 
-    perfil_pct = (
-        min(
-            100,
-            max(
-                0,
-                (
-                    (
-                        h1_pct * 0.45
-                        if h1_pct is not None
-                        else 0
-                    )
-                    +
-                    (
-                        h2_pct * 0.35
-                        if h2_pct is not None
-                        else 0
-                    )
-                    +
-                    (
-                        h3_pct * 0.20
-                        if h3_pct is not None
-                        else 0
-                    )
-                )
-                / sum(pesos)
+    perfil_pct = min(
+        100,
+        max(
+            0,
+            (
+                perfil
+                / 0.45
             )
+            * 100
         )
     )
 
@@ -911,12 +919,12 @@ def calcular_humedad_principal(
         h1_pct,
         h2_pct,
         h3_pct,
-        perfil_pct,
+        perfil_pct
     )
 
 
 # ============================================================
-# HUMEDAD DEL FALLBACK
+# HUMEDAD FALLBACK
 # ============================================================
 
 def calcular_humedad_fallback(
@@ -970,44 +978,41 @@ def calcular_humedad_fallback(
             )
 
     if not valores:
-
         return None
 
-    humedad_media = sum(
-        valor * peso
-        for valor, peso in zip(
-            valores,
-            pesos
+    humedad_media = (
+        sum(
+            valor * peso
+            for valor, peso
+            in zip(
+                valores,
+                pesos
+            )
         )
-    ) / sum(pesos)
-
-    # Índice normalizado.
-    #
-    # Se utiliza 0.45 como referencia operacional.
-    # NO significa saturación física universal.
+        / sum(pesos)
+    )
 
     return min(
         100,
         max(
             0,
-            (
-                humedad_media
-                / 0.45
-            ) * 100
+            humedad_media
+            / 0.45
+            * 100
         )
     )
 
 
 # ============================================================
-# COMPONENTES DEL RIESGO
+# SCORES
 # ============================================================
 
 def score_lluvia_antecedente(
-    lluvia_72
+    lluvia
 ):
 
     return interpolar_score(
-        lluvia_72,
+        lluvia,
         [
             (0, 0),
             (10, 3),
@@ -1015,16 +1020,16 @@ def score_lluvia_antecedente(
             (50, 15),
             (100, 22),
             (150, 25),
-        ],
+        ]
     )
 
 
 def score_lluvia_pronostico(
-    lluvia_72
+    lluvia
 ):
 
     return interpolar_score(
-        lluvia_72,
+        lluvia,
         [
             (0, 0),
             (10, 3),
@@ -1032,7 +1037,7 @@ def score_lluvia_pronostico(
             (50, 15),
             (100, 22),
             (150, 25),
-        ],
+        ]
     )
 
 
@@ -1050,7 +1055,7 @@ def score_humedad(
             (80, 16),
             (90, 19),
             (100, 20),
-        ],
+        ]
     )
 
 
@@ -1066,7 +1071,7 @@ def score_runoff(
             (10, 4),
             (25, 7),
             (50, 10),
-        ],
+        ]
     )
 
 
@@ -1084,7 +1089,7 @@ def score_vulnerabilidad(
 
 
 # ============================================================
-# EVALUACIÓN DEL NODO
+# EVALUACIÓN
 # ============================================================
 
 def evaluar_nodo(
@@ -1092,10 +1097,6 @@ def evaluar_nodo(
     api_node,
     modo
 ):
-
-    # --------------------------------------------------------
-    # PRECIPITACIÓN
-    # --------------------------------------------------------
 
     precip = serie_horaria(
         api_node,
@@ -1148,8 +1149,10 @@ def evaluar_nodo(
 
     else:
 
-        humedad_perfil = calcular_humedad_fallback(
-            api_node
+        humedad_perfil = (
+            calcular_humedad_fallback(
+                api_node
+            )
         )
 
     # --------------------------------------------------------
@@ -1175,6 +1178,15 @@ def evaluar_nodo(
         72
     )
 
+    # Utilizamos el máximo de antecedente
+    # y pronóstico para evitar sumar dos períodos
+    # que pueden representar el mismo fenómeno.
+
+    runoff_representativo = max(
+        runoff_72,
+        runoff_futuro_72
+    )
+
     # --------------------------------------------------------
     # VIENTO
     # --------------------------------------------------------
@@ -1192,138 +1204,125 @@ def evaluar_nodo(
     # COMPONENTES
     # --------------------------------------------------------
 
-    s_lluvia_antecedente = (
-        score_lluvia_antecedente(
-            lluvia_72
-        )
-    )
-
-    s_lluvia_pronostico = (
-        score_lluvia_pronostico(
-            lluvia_futura_72
-        )
-    )
-
-    s_humedad = score_humedad(
-        humedad_perfil
-    )
-
-    # Runoff solamente si está disponible.
-    #
-    # Si no está disponible, NO se inventa.
-    # El peso se redistribuye proporcionalmente
-    # entre los componentes disponibles.
-
-    s_runoff = score_runoff(
-        runoff_72
-        + runoff_futuro_72
-    )
-
-    vulnerabilidad = (
-        VULNERABILIDAD_BASE.get(
-            node["nombre"],
-            50
-        )
-    )
-
-    s_vulnerabilidad = (
-        score_vulnerabilidad(
-            vulnerabilidad
-        )
-    )
-
-    # --------------------------------------------------------
-    # ÍNDICE BASE
-    # --------------------------------------------------------
-
     componentes = {
+
         "lluvia_antecedente":
-            s_lluvia_antecedente,
+            score_lluvia_antecedente(
+                lluvia_72
+            ),
 
         "lluvia_pronostico":
-            s_lluvia_pronostico,
+            score_lluvia_pronostico(
+                lluvia_futura_72
+            ),
 
         "humedad":
-            s_humedad,
+            score_humedad(
+                humedad_perfil
+            ),
 
         "vulnerabilidad":
-            s_vulnerabilidad,
+            score_vulnerabilidad(
+                VULNERABILIDAD_BASE.get(
+                    node["nombre"],
+                    50
+                )
+            ),
     }
 
-    pesos = {
-        "lluvia_antecedente": 25,
-        "lluvia_pronostico": 25,
-        "humedad": 20,
-        "vulnerabilidad": 10,
+    pesos_base = {
+
+        "lluvia_antecedente":
+            25,
+
+        "lluvia_pronostico":
+            25,
+
+        "humedad":
+            20,
+
+        "vulnerabilidad":
+            10,
+    }
+
+    # --------------------------------------------------------
+    # RUNOFF
+    # --------------------------------------------------------
+
+    if runoff_disponible:
+
+        componentes["runoff"] = (
+            score_runoff(
+                runoff_representativo
+            )
+        )
+
+        pesos_base["runoff"] = 10
+
+    # --------------------------------------------------------
+    # REDISTRIBUCIÓN
+    #
+    # Las puntuaciones están expresadas sobre
+    # su peso original.
+    #
+    # Si falta runoff, se escala cada componente
+    # disponible para conservar el rango final 0–100.
+    # --------------------------------------------------------
+
+    maximos_componentes = {
+
+        "lluvia_antecedente":
+            25,
+
+        "lluvia_pronostico":
+            25,
+
+        "humedad":
+            20,
+
+        "vulnerabilidad":
+            10,
     }
 
     if runoff_disponible:
 
-        componentes[
-            "runoff"
-        ] = s_runoff
-
-        pesos[
+        maximos_componentes[
             "runoff"
         ] = 10
 
-    # --------------------------------------------------------
-    # REDISTRIBUCIÓN DE PESOS
-    #
-    # Si runoff no está disponible, sus 10 puntos
-    # se redistribuyen entre los componentes meteorológicos
-    # disponibles, evitando penalizar artificialmente el nodo.
-    # --------------------------------------------------------
-
-    peso_total = sum(
-        pesos.values()
+    suma_maximos = sum(
+        maximos_componentes[
+            clave
+        ]
+        for clave in componentes
     )
 
-    if peso_total < 100:
-
-        faltante = (
-            100
-            - peso_total
-        )
-
-        claves_redistribucion = [
-            "lluvia_antecedente",
-            "lluvia_pronostico",
-            "humedad",
+    suma_scores = sum(
+        componentes[
+            clave
         ]
+        for clave in componentes
+    )
 
-        suma_base = sum(
-            pesos[k]
-            for k in claves_redistribucion
+    if suma_maximos > 0:
+
+        riesgo = (
+            suma_scores
+            / suma_maximos
+            * 100
         )
 
-        for clave in claves_redistribucion:
+    else:
 
-            pesos[clave] += (
-                faltante
-                * pesos[clave]
-                / suma_base
+        riesgo = 0
+
+    riesgo = round(
+        min(
+            100,
+            max(
+                0,
+                riesgo
             )
-
-    # --------------------------------------------------------
-    # CÁLCULO FINAL
-    # --------------------------------------------------------
-
-    riesgo = 0.0
-
-    for clave in componentes:
-
-        riesgo += (
-            componentes[clave]
-            / pesos[clave]
-            * pesos[clave]
-        )
-
-    riesgo = min(
-        100,
-        max(
-            0,
-            round(riesgo)
         )
     )
 
@@ -1337,13 +1336,16 @@ def evaluar_nodo(
 
     calidad = 0
 
-    # Precipitación
+    # Precipitación: 30
     if len(precip) >= 24:
+
         calidad += 30
+
     elif precip:
+
         calidad += 20
 
-    # Humedad
+    # Humedad: 30
     if modo == "completo":
 
         humedad_variables = 0
@@ -1361,7 +1363,7 @@ def evaluar_nodo(
 
                 humedad_variables += 1
 
-        calidad += (
+        calidad += round(
             humedad_variables
             / 3
             * 30
@@ -1386,39 +1388,45 @@ def evaluar_nodo(
 
                 humedad_variables += 1
 
-        calidad += (
+        calidad += round(
             humedad_variables
             / 5
             * 30
         )
 
-    # Viento
+    # Viento: 10
     if wind:
+
         calidad += 10
 
-    # Runoff
+    # Runoff: 20
     if runoff_disponible:
+
         calidad += 20
 
-    calidad = round(
-        min(
-            100,
-            calidad
-        )
+    calidad = min(
+        100,
+        round(calidad)
     )
 
     if calidad >= 85:
+
         categoria_calidad = "Alta"
 
     elif calidad >= 65:
+
         categoria_calidad = "Media"
 
     else:
+
         categoria_calidad = "Baja"
 
-    # --------------------------------------------------------
-    # RESULTADO
-    # --------------------------------------------------------
+    vulnerabilidad = (
+        VULNERABILIDAD_BASE.get(
+            node["nombre"],
+            50
+        )
+    )
 
     return {
 
@@ -1527,31 +1535,42 @@ def evaluar_nodo(
 
         "score_lluvia_antecedente":
             round(
-                s_lluvia_antecedente,
+                componentes[
+                    "lluvia_antecedente"
+                ],
                 1
             ),
 
         "score_lluvia_pronostico":
             round(
-                s_lluvia_pronostico,
+                componentes[
+                    "lluvia_pronostico"
+                ],
                 1
             ),
 
         "score_humedad":
             round(
-                s_humedad,
+                componentes[
+                    "humedad"
+                ],
                 1
             ),
 
         "score_runoff":
             round(
-                s_runoff,
+                componentes.get(
+                    "runoff",
+                    0
+                ),
                 1
             ),
 
         "score_vulnerabilidad":
             round(
-                s_vulnerabilidad,
+                componentes[
+                    "vulnerabilidad"
+                ],
                 1
             ),
 
@@ -1656,7 +1675,7 @@ def construir_mensaje_telegram(
 
     lineas = [
 
-        "🌧️ ALERTA LITORAL AGRO V3.1",
+        "🌧️ ALERTA LITORAL AGRO V3.2",
 
         "",
 
@@ -1722,11 +1741,15 @@ def actualizar_historial(
     resultados
 ):
 
-    if "historial" not in st.session_state:
+    if (
+        "historial"
+        not in st.session_state
+    ):
 
         st.session_state.historial = []
 
     if not resultados:
+
         return
 
     maximo = max(
@@ -1800,10 +1823,37 @@ def crear_mapa(
 
         zoom_start=6,
 
-        tiles="CartoDB positron",
+        tiles="OpenStreetMap",
 
         control_scale=True,
+
+        prefer_canvas=True,
     )
+
+    # --------------------------------------------------------
+    # CAPAS DE REFERENCIA
+    # --------------------------------------------------------
+
+    grupos = {}
+
+    for provincia in [
+        "Corrientes",
+        "Santa Fe",
+        "Entre Ríos",
+    ]:
+
+        grupos[provincia] = folium.FeatureGroup(
+            name=provincia,
+            show=True
+        )
+
+        grupos[provincia].add_to(
+            mapa
+        )
+
+    # --------------------------------------------------------
+    # NODOS
+    # --------------------------------------------------------
 
     for r in resultados:
 
@@ -1814,7 +1864,6 @@ def crear_mapa(
         ]
 
         popup = f"""
-
         <div style="width:300px">
 
         <h4>
@@ -1870,7 +1919,7 @@ def crear_mapa(
         </div>
         """
 
-        folium.CircleMarker(
+        marker = folium.CircleMarker(
 
             location=[
                 r["lat"],
@@ -1897,9 +1946,19 @@ def crear_mapa(
                 f"{r['nombre']} — "
                 f"{r['riesgo']}/100"
             ),
-        ).add_to(
-            mapa
         )
+
+        marker.add_to(
+            grupos[
+                r["provincia"]
+            ]
+        )
+
+    folium.LayerControl(
+        collapsed=False
+    ).add_to(
+        mapa
+    )
 
     return mapa
 
@@ -2015,7 +2074,7 @@ st.markdown(
 
 st.markdown(
     '<div class="titulo">'
-    '🌧️ Alerta Litoral Agro V3.1'
+    '🌧️ Alerta Litoral Agro V3.2'
     '</div>',
     unsafe_allow_html=True
 )
@@ -2047,7 +2106,7 @@ with st.sidebar:
     )
 
     st.write(
-        "Fuente meteorológica principal:"
+        "Fuente meteorológica:"
     )
 
     st.write(
@@ -2055,8 +2114,8 @@ with st.sidebar:
     )
 
     st.write(
-        "La aplicación posee un mecanismo "
-        "de respaldo meteorológico."
+        "La aplicación posee "
+        "un mecanismo de respaldo."
     )
 
     st.divider()
@@ -2085,7 +2144,8 @@ with st.sidebar:
     )
 
     st.write(
-        "🗺️ Vulnerabilidad: screening experimental"
+        "🗺️ Vulnerabilidad: "
+        "screening experimental"
     )
 
     st.divider()
@@ -2106,7 +2166,7 @@ with st.sidebar:
 
 
 # ============================================================
-# DATOS METEOROLÓGICOS
+# DATOS
 # ============================================================
 
 try:
@@ -2131,9 +2191,9 @@ except Exception as exc:
     )
 
     st.info(
-        "La aplicación detuvo el cálculo para evitar "
-        "mostrar un índice sin datos meteorológicos "
-        "válidos."
+        "La aplicación detuvo el cálculo "
+        "para evitar mostrar un índice "
+        "sin datos válidos."
     )
 
     st.stop()
@@ -2202,23 +2262,22 @@ actualizar_historial(
 
 
 # ============================================================
-# AVISO DE FUENTE
+# FUENTE
 # ============================================================
 
 if modo_meteorologico == "completo":
 
     st.success(
-        "🟢 Datos meteorológicos obtenidos "
-        "mediante ECMWF IFS / Open-Meteo."
+        "🟢 Datos obtenidos mediante "
+        "ECMWF IFS / Open-Meteo."
     )
 
 else:
 
     st.warning(
-        "🟡 Se está utilizando el modo meteorológico "
+        "🟡 Se utiliza el modo meteorológico "
         "de respaldo de Open-Meteo. "
-        "La componente de runoff no está disponible "
-        "en este modo."
+        "Runoff no disponible en este modo."
     )
 
 
@@ -2330,6 +2389,7 @@ st.markdown(
     </h3>
 
     <p>
+
     Provincia:
     {maximo['provincia']}<br>
 
@@ -2342,6 +2402,7 @@ st.markdown(
     Calidad de datos:
     {maximo['calidad_datos']}/100
     ({maximo['categoria_calidad']})
+
     </p>
 
     </div>
@@ -2358,16 +2419,41 @@ st.header(
     "🗺️ Mapa integrado de riesgo"
 )
 
+st.caption(
+    "Mapa base OpenStreetMap. "
+    "Los marcadores representan nodos "
+    "de monitoreo meteorológico."
+)
+
 mapa = crear_mapa(
     resultados
 )
 
-st_folium(
-    mapa,
-    width=None,
-    height=650,
-    returned_objects=[]
-)
+try:
+
+    st_folium(
+        mapa,
+        width=None,
+        height=650,
+        returned_objects=[]
+    )
+
+except Exception as exc:
+
+    st.warning(
+        "El mapa interactivo no pudo "
+        "cargarse en el navegador."
+    )
+
+    st.caption(
+        f"Detalle técnico: {exc}"
+    )
+
+    st.info(
+        "Los datos meteorológicos y "
+        "el índice continúan disponibles "
+        "en la tabla inferior."
+    )
 
 
 # ============================================================
@@ -2529,7 +2615,9 @@ for r in sorted(
             "#### 🚜 Acciones orientativas"
         )
 
-        for accion in ACCIONES[nivel]:
+        for accion in ACCIONES[
+            nivel
+        ]:
 
             st.write(
                 "• " + accion
@@ -2545,8 +2633,8 @@ st.header(
 )
 
 st.write(
-    "El envío es manual para evitar spam "
-    "automático durante cada actualización."
+    "El envío es manual para evitar "
+    "spam automático durante cada actualización."
 )
 
 token, chat_id = obtener_telegram()
@@ -2558,8 +2646,10 @@ if token and chat_id:
         use_container_width=True
     ):
 
-        mensaje = construir_mensaje_telegram(
-            resultados
+        mensaje = (
+            construir_mensaje_telegram(
+                resultados
+            )
         )
 
         ok, detalle = enviar_telegram(
@@ -2583,13 +2673,6 @@ else:
     st.info(
         "Telegram está desactivado porque "
         "no existen credenciales configuradas."
-    )
-
-    st.code(
-        """
-TELEGRAM_BOT_TOKEN = "TU_TOKEN"
-TELEGRAM_CHAT_ID = "TU_CHAT_ID"
-        """.strip()
     )
 
 
@@ -2623,7 +2706,9 @@ if historial:
         .to_csv(
             index=False
         )
-        .encode("utf-8")
+        .encode(
+            "utf-8"
+        )
     )
 
     st.download_button(
@@ -2719,9 +2804,9 @@ El sistema combina:
 | Vulnerabilidad territorial | 10 |
 | **Total** | **100** |
 
-Cuando runoff no está disponible, sus puntos son
-redistribuidos proporcionalmente entre las variables
-meteorológicas principales.
+Cuando runoff no está disponible, el índice se
+normaliza sobre los componentes disponibles para
+mantener una escala comparable de 0–100.
 
 ### Semáforo
 
@@ -2795,7 +2880,9 @@ Open-Meteo.
 
 **Meteorología de respaldo:** Open-Meteo Weather API.
 
-**Hidrología:** no integrada en V3.1.
+**Mapa base:** OpenStreetMap.
+
+**Hidrología:** no integrada en V3.2.
 
 La eliminación de la fuente hidrológica externa es
 intencional para evitar que una falla de autenticación
@@ -2819,7 +2906,7 @@ st.markdown(
 
 2. El índice 0–100 no es una probabilidad.
 
-3. Los datos meteorológicos son producto de modelos
+3. Los datos meteorológicos son productos de modelos
    numéricos y pueden diferir de mediciones locales.
 
 4. La humedad del suelo es modelada.
@@ -2827,12 +2914,15 @@ st.markdown(
 5. La vulnerabilidad territorial actual es un
    parámetro de screening y no una capa GIS oficial.
 
-6. V3.1 no incorpora niveles de ríos ni estaciones
+6. V3.2 no incorpora niveles de ríos ni estaciones
    hidrométricas.
 
 7. Telegram es únicamente un canal de distribución.
 
-8. El sistema no reemplaza información ni alertas
+8. El mapa es una herramienta de visualización y no
+   constituye una capa oficial de riesgo.
+
+9. El sistema no reemplaza información ni alertas
    emitidas por organismos oficiales.
 """
 )
@@ -2851,17 +2941,18 @@ st.success(
 )
 
 st.write(
-    f"Fuente utilizada: **{fuente_meteorologica}**"
+    f"Fuente utilizada: "
+    f"**{fuente_meteorologica}**"
 )
 
 st.write(
-    f"Nodos procesados: **{len(resultados)} / "
-    f"{len(NODOS)}**"
+    f"Nodos procesados: "
+    f"**{len(resultados)} / {len(NODOS)}**"
 )
 
 st.write(
-    f"Calidad promedio: **"
-    f"{calidad_promedio}/100**"
+    f"Calidad promedio: "
+    f"**{calidad_promedio}/100**"
 )
 
 
@@ -2872,7 +2963,7 @@ st.write(
 st.divider()
 
 st.caption(
-    "Alerta Litoral Agro V3.1 · "
+    "Alerta Litoral Agro V3.2 · "
     "Prototipo experimental de alerta temprana "
     "para riesgo de anegamiento agropecuario."
 )
