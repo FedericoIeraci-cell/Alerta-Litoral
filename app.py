@@ -15,7 +15,7 @@
 #
 # NO UTILIZA DATOS DE VIALIDAD.
 #
-# Versión: V3.6.2
+# Versión: V3.6.3
 # ============================================================
 
 import hashlib
@@ -46,7 +46,7 @@ st.set_page_config(
 )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V3.6.2"
+VERSION = "V3.6.3"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -324,6 +324,241 @@ def descripcion_wmo(codigo):
 
 
 # ============================================================
+# ICONOS DEL PRONÓSTICO
+# ============================================================
+
+def icono_wmo(codigo):
+    """
+    Devuelve un icono visual según el código meteorológico WMO.
+    Se utiliza solamente para presentación.
+    """
+
+    try:
+        codigo = int(codigo)
+    except Exception:
+        return "🌤️"
+
+    if codigo == 0:
+        return "☀️"
+
+    if codigo in [1]:
+        return "🌤️"
+
+    if codigo in [2]:
+        return "⛅"
+
+    if codigo in [3]:
+        return "☁️"
+
+    if codigo in [45, 48]:
+        return "🌫️"
+
+    if codigo in [51, 53, 55]:
+        return "🌦️"
+
+    if codigo in [61, 63, 65]:
+        return "🌧️"
+
+    if codigo in [66, 67]:
+        return "🌧️"
+
+    if codigo in [71, 73, 75, 77, 85, 86]:
+        return "🌨️"
+
+    if codigo in [80, 81, 82]:
+        return "🌦️"
+
+    if codigo in [95]:
+        return "⛈️"
+
+    if codigo in [96, 99]:
+        return "⛈️"
+
+    return "🌤️"
+
+
+def clase_tarjeta_pronostico(codigo):
+    """
+    Clase visual para las tarjetas.
+    No interviene en el cálculo del riesgo.
+    """
+
+    try:
+        codigo = int(codigo)
+    except Exception:
+        return "forecast-normal"
+
+    if codigo in [95, 96, 99]:
+        return "forecast-storm"
+
+    if codigo in [61, 63, 65, 80, 81, 82]:
+        return "forecast-rain"
+
+    if codigo in [51, 53, 55]:
+        return "forecast-drizzle"
+
+    if codigo in [0, 1]:
+        return "forecast-clear"
+
+    if codigo in [2, 3]:
+        return "forecast-cloud"
+
+    return "forecast-normal"
+
+
+# ============================================================
+# ESTILOS VISUALES
+# ============================================================
+
+st.markdown(
+    """
+<style>
+
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+    margin-bottom: 20px;
+}
+
+.forecast-card {
+    border: 1px solid rgba(120,120,120,0.22);
+    border-radius: 16px;
+    padding: 17px;
+    min-height: 285px;
+    background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.98),
+        rgba(245,247,250,0.98)
+    );
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    transition: transform 0.18s ease,
+                box-shadow 0.18s ease,
+                border-color 0.18s ease;
+}
+
+.forecast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 9px 24px rgba(0,0,0,0.13);
+    border-color: rgba(70,100,150,0.40);
+}
+
+.forecast-card.forecast-storm {
+    background: linear-gradient(
+        145deg,
+        rgba(235,238,248,1),
+        rgba(248,248,250,1)
+    );
+}
+
+.forecast-card.forecast-rain {
+    background: linear-gradient(
+        145deg,
+        rgba(232,242,250,1),
+        rgba(247,250,252,1)
+    );
+}
+
+.forecast-card.forecast-drizzle {
+    background: linear-gradient(
+        145deg,
+        rgba(238,245,248,1),
+        rgba(250,251,252,1)
+    );
+}
+
+.forecast-card.forecast-clear {
+    background: linear-gradient(
+        145deg,
+        rgba(255,249,224,1),
+        rgba(255,255,250,1)
+    );
+}
+
+.forecast-card.forecast-cloud {
+    background: linear-gradient(
+        145deg,
+        rgba(240,242,245,1),
+        rgba(250,250,251,1)
+    );
+}
+
+.forecast-date {
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+}
+
+.forecast-icon {
+    font-size: 3.2rem;
+    line-height: 1;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.forecast-condition {
+    font-size: 1.05rem;
+    font-weight: 700;
+    min-height: 42px;
+}
+
+.forecast-temp {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin: 10px 0 12px 0;
+}
+
+.forecast-max {
+    font-size: 1.65rem;
+    font-weight: 800;
+}
+
+.forecast-min {
+    font-size: 1.1rem;
+    opacity: 0.62;
+}
+
+.forecast-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0;
+    border-top: 1px solid rgba(120,120,120,0.14);
+    font-size: 0.86rem;
+}
+
+.forecast-label {
+    opacity: 0.70;
+}
+
+.forecast-value {
+    font-weight: 700;
+    text-align: right;
+}
+
+@media (max-width: 1100px) {
+    .forecast-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .forecast-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+
+# ============================================================
 # OPEN-METEO / ECMWF
 # ============================================================
 
@@ -409,7 +644,7 @@ def obtener_datos_ecmwf():
     }
 
     headers = {
-        "User-Agent": "Alerta-Litoral-Agro/3.6.2",
+        "User-Agent": "Alerta-Litoral-Agro/3.6.3",
     }
 
     try:
@@ -768,17 +1003,6 @@ def procesar_nodo(nodo, datos):
         if np.isfinite(x)
     ]
 
-    # IMPORTANTE:
-    # Open-Meteo entrega humedad de suelo como contenido
-    # volumétrico de agua en m³/m³.
-    #
-    # El sistema mantiene ese valor internamente para que
-    # el índice continúe utilizando los umbrales 0.15–0.45.
-    #
-    # La conversión a porcentaje se realiza únicamente
-    # en la interfaz:
-    #
-    # 0.341 m³/m³ = 34.1 %
     humedad_suelo_promedio = (
         float(np.mean(humedad_validas))
         if humedad_validas
@@ -1277,13 +1501,6 @@ def procesar_nodo(nodo, datos):
             else np.nan
         ),
 
-        # ====================================================
-        # HUMEDAD DE SUELO
-        #
-        # SE GUARDA INTERNAMENTE EN m³/m³.
-        # LA INTERFAZ LA MUESTRA COMO %.
-        # ====================================================
-
         "humedad_0_7": (
             round(humedad_capas[0], 3)
             if np.isfinite(humedad_capas[0])
@@ -1752,8 +1969,6 @@ def generar_mensaje_alerta(row):
         else "Sin dato"
     )
 
-    # La humedad se convierte de m³/m³ a %
-    # únicamente para presentación.
     humedad_suelo_pct = (
         row["humedad_suelo_promedio"] * 100
         if pd.notna(
@@ -1910,7 +2125,7 @@ def procesar_alertas_telegram(df):
 
 
 # ============================================================
-# MAPA PLOTLY
+# MAPA PLOTLY — HOVER MEJORADO
 # ============================================================
 
 def crear_mapa(df):
@@ -1922,38 +2137,174 @@ def crear_mapa(df):
         "MUY ALTO": "red",
     }
 
-    hover_data = {
-        "provincia": True,
-        "indice": True,
-        "nivel": True,
-        "temperatura": True,
-        "humedad_relativa": True,
-        "viento": True,
-        "rafaga": True,
-        "direccion_viento_texto": True,
-        "humedad_suelo_promedio": True,
-        "lluvia_24": True,
-        "lluvia_72": True,
-        "lluvia_7d": True,
-        "lluvia_futura_24": True,
-        "lluvia_futura_72": True,
-        "runoff_72": True,
-        "cape": True,
-        "prob_lluvia": True,
-        "tendencia": True,
-        "lat": False,
-        "lon": False,
-    }
+    mapa = df.copy()
+
+    # --------------------------------------------------------
+    # Datos exclusivamente destinados al tooltip.
+    # La humedad se convierte aquí a porcentaje.
+    # El cálculo interno continúa usando m³/m³.
+    # --------------------------------------------------------
+
+    mapa["humedad_suelo_pct"] = (
+        mapa["humedad_suelo_promedio"] * 100
+    )
+
+    mapa["riesgo_hover"] = mapa[
+        "indice"
+    ].map(
+        lambda x:
+            f"{x:.1f}/100"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["temperatura_hover"] = mapa[
+        "temperatura"
+    ].map(
+        lambda x:
+            f"{x:.1f} °C"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["hr_hover"] = mapa[
+        "humedad_relativa"
+    ].map(
+        lambda x:
+            f"{x:.0f}%"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["humedad_suelo_hover"] = mapa[
+        "humedad_suelo_pct"
+    ].map(
+        lambda x:
+            f"{x:.1f}%"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["viento_hover"] = mapa.apply(
+        lambda r:
+            (
+                f'{r["viento"]:.1f} km/h '
+                f'({r["direccion_viento_texto"]})'
+            )
+            if pd.notna(r["viento"])
+            else "Sin dato",
+        axis=1,
+    )
+
+    mapa["rafaga_hover"] = mapa[
+        "rafaga"
+    ].map(
+        lambda x:
+            f"{x:.1f} km/h"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["lluvia24_hover"] = mapa[
+        "lluvia_24"
+    ].map(
+        lambda x:
+            f"{x:.1f} mm"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["lluvia72_hover"] = mapa[
+        "lluvia_72"
+    ].map(
+        lambda x:
+            f"{x:.1f} mm"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["lluvia7d_hover"] = mapa[
+        "lluvia_7d"
+    ].map(
+        lambda x:
+            f"{x:.1f} mm"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["pronostico72_hover"] = mapa[
+        "lluvia_futura_72"
+    ].map(
+        lambda x:
+            f"{x:.1f} mm"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["runoff72_hover"] = mapa[
+        "runoff_72"
+    ].map(
+        lambda x:
+            f"{x:.2f} mm"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["cape_hover"] = mapa[
+        "cape"
+    ].map(
+        lambda x:
+            f"{x:.0f} J/kg"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["prob_hover"] = mapa[
+        "prob_lluvia"
+    ].map(
+        lambda x:
+            f"{x:.0f}%"
+            if pd.notna(x)
+            else "Sin dato"
+    )
+
+    mapa["tendencia_hover"] = mapa[
+        "tendencia"
+    ].fillna("Sin dato")
+
+    mapa["accion_hover"] = mapa[
+        "accion"
+    ].fillna("Sin dato")
+
+    customdata = np.column_stack(
+        [
+            mapa["provincia"].astype(str),
+            mapa["nivel"].astype(str),
+            mapa["riesgo_hover"].astype(str),
+            mapa["temperatura_hover"].astype(str),
+            mapa["hr_hover"].astype(str),
+            mapa["humedad_suelo_hover"].astype(str),
+            mapa["viento_hover"].astype(str),
+            mapa["rafaga_hover"].astype(str),
+            mapa["lluvia24_hover"].astype(str),
+            mapa["lluvia72_hover"].astype(str),
+            mapa["lluvia7d_hover"].astype(str),
+            mapa["pronostico72_hover"].astype(str),
+            mapa["runoff72_hover"].astype(str),
+            mapa["cape_hover"].astype(str),
+            mapa["prob_hover"].astype(str),
+            mapa["tendencia_hover"].astype(str),
+        ]
+    )
 
     fig = px.scatter_map(
-        df,
+        mapa,
         lat="lat",
         lon="lon",
         color="nivel",
         size="indice",
         size_max=24,
         hover_name="localidad",
-        hover_data=hover_data,
         color_discrete_map=colores,
         center={
             "lat": MAP_CENTER_LAT,
@@ -1961,6 +2312,71 @@ def crear_mapa(df):
         },
         zoom=MAP_ZOOM,
         height=680,
+    )
+
+    # --------------------------------------------------------
+    # Tooltip profesional
+    # --------------------------------------------------------
+
+    fig.update_traces(
+        customdata=customdata,
+        hovertemplate=(
+            "<b style='font-size:16px'>%{hovertext}</b>"
+            "<br>"
+            "<span style='font-size:12px'>"
+            "%{customdata[0]}"
+            "</span>"
+            "<br><br>"
+
+            "<b>%{customdata[1]}</b>"
+            " · Índice: <b>%{customdata[2]}</b>"
+            "<br><br>"
+
+            "🌡️ Temperatura: %{customdata[3]}"
+            "<br>"
+            "💧 Humedad relativa: %{customdata[4]}"
+            "<br>"
+            "🌱 Humedad suelo: <b>%{customdata[5]}</b>"
+            "<br>"
+            "💨 Viento: %{customdata[6]}"
+            "<br>"
+            "💨 Ráfaga: %{customdata[7]}"
+            "<br><br>"
+
+            "🌧️ Lluvia 24 h: %{customdata[8]}"
+            "<br>"
+            "🌧️ Lluvia 72 h: %{customdata[9]}"
+            "<br>"
+            "🌧️ Lluvia 7 días: %{customdata[10]}"
+            "<br>"
+            "🔮 Pronóstico 72 h: %{customdata[11]}"
+            "<br><br>"
+
+            "💦 Runoff 72 h: %{customdata[12]}"
+            "<br>"
+            "⛈️ CAPE: %{customdata[13]}"
+            "<br>"
+            "☔ Prob. precipitación: %{customdata[14]}"
+            "<br>"
+            "📈 Tendencia: <b>%{customdata[15]}</b>"
+            "<extra></extra>"
+        ),
+        hoverlabel={
+            "bgcolor": "rgba(20,25,35,0.96)",
+            "bordercolor": "rgba(255,255,255,0.25)",
+            "font": {
+                "color": "white",
+                "size": 13,
+            },
+            "align": "left",
+        },
+        marker={
+            "opacity": 0.92,
+            "line": {
+                "width": 1.5,
+                "color": "rgba(255,255,255,0.85)",
+            },
+        },
     )
 
     fig.update_layout(
@@ -2184,7 +2600,13 @@ def extraer_pronostico_diario(
             ),
     })
 
-    tabla["Tiempo"] = tabla[
+    # Guardamos el código numérico original
+    # para construir los iconos posteriormente.
+    tabla["Codigo WMO"] = tabla[
+        "Tiempo"
+    ]
+
+    tabla["Descripcion"] = tabla[
         "Tiempo"
     ].apply(
         lambda x:
@@ -2225,6 +2647,189 @@ def extraer_pronostico_diario(
         .dropna(subset=["Fecha"])
         .head(15)
         .reset_index(drop=True)
+    )
+
+
+def construir_tarjetas_pronostico(
+    pronostico,
+    localidad,
+):
+    """
+    Genera las tarjetas visuales del pronóstico extendido.
+    Los datos son exactamente los mismos utilizados por
+    la tabla/CSV; solamente cambia la presentación.
+    """
+
+    if pronostico.empty:
+        return
+
+    tarjetas = []
+
+    nombres_dias = {
+        0: "Lunes",
+        1: "Martes",
+        2: "Miércoles",
+        3: "Jueves",
+        4: "Viernes",
+        5: "Sábado",
+        6: "Domingo",
+    }
+
+    for _, row in pronostico.iterrows():
+
+        fecha = row["Fecha"]
+
+        codigo = row["Codigo WMO"]
+
+        icono = icono_wmo(codigo)
+
+        clase = clase_tarjeta_pronostico(
+            codigo
+        )
+
+        dia_semana = nombres_dias.get(
+            fecha.weekday(),
+            "",
+        )
+
+        fecha_texto = (
+            f"{dia_semana} "
+            f"{fecha.strftime('%d/%m')}"
+        )
+
+        descripcion = html.escape(
+            str(row["Descripcion"])
+        )
+
+        tmin = (
+            f'{row["Temp. mínima"]:.1f} °C'
+            if pd.notna(row["Temp. mínima"])
+            else "—"
+        )
+
+        tmax = (
+            f'{row["Temp. máxima"]:.1f} °C'
+            if pd.notna(row["Temp. máxima"])
+            else "—"
+        )
+
+        precip = (
+            f'{row["Precipitación"]:.1f} mm'
+            if pd.notna(row["Precipitación"])
+            else "—"
+        )
+
+        prob = (
+            f'{row["Prob. precipitación"]:.0f}%'
+            if pd.notna(row["Prob. precipitación"])
+            else "—"
+        )
+
+        viento = (
+            f'{row["Viento máximo"]:.1f} km/h'
+            if pd.notna(row["Viento máximo"])
+            else "—"
+        )
+
+        rafaga = (
+            f'{row["Ráfaga máxima"]:.1f} km/h'
+            if pd.notna(row["Ráfaga máxima"])
+            else "—"
+        )
+
+        horas_prec = (
+            f'{row["Horas con precipitación"]:.1f} h'
+            if pd.notna(row["Horas con precipitación"])
+            else "—"
+        )
+
+        tarjetas.append(
+            f"""
+            <div class="forecast-card {clase}">
+                <div class="forecast-date">
+                    {fecha_texto}
+                </div>
+
+                <div class="forecast-icon">
+                    {icono}
+                </div>
+
+                <div class="forecast-condition">
+                    {descripcion}
+                </div>
+
+                <div class="forecast-temp">
+                    <div class="forecast-max">
+                        {tmax}
+                    </div>
+
+                    <div class="forecast-min">
+                        ↓ {tmin}
+                    </div>
+                </div>
+
+                <div class="forecast-row">
+                    <span class="forecast-label">
+                        🌧️ Precipitación
+                    </span>
+                    <span class="forecast-value">
+                        {precip}
+                    </span>
+                </div>
+
+                <div class="forecast-row">
+                    <span class="forecast-label">
+                        ☔ Probabilidad
+                    </span>
+                    <span class="forecast-value">
+                        {prob}
+                    </span>
+                </div>
+
+                <div class="forecast-row">
+                    <span class="forecast-label">
+                        💨 Viento máx.
+                    </span>
+                    <span class="forecast-value">
+                        {viento}
+                    </span>
+                </div>
+
+                <div class="forecast-row">
+                    <span class="forecast-label">
+                        💨 Ráfaga
+                    </span>
+                    <span class="forecast-value">
+                        {rafaga}
+                    </span>
+                </div>
+
+                <div class="forecast-row">
+                    <span class="forecast-label">
+                        ⏱️ Horas con precip.
+                    </span>
+                    <span class="forecast-value">
+                        {horas_prec}
+                    </span>
+                </div>
+            </div>
+            """
+        )
+
+    html_tarjetas = (
+        '<div class="forecast-grid">'
+        + "".join(tarjetas)
+        + "</div>"
+    )
+
+    st.markdown(
+        html_tarjetas,
+        unsafe_allow_html=True,
+    )
+
+    st.caption(
+        f"Pronóstico diario ECMWF IFS HRES · "
+        f"{localidad} · Hasta 15 días."
     )
 
 
@@ -2405,6 +3010,11 @@ with st.sidebar:
 
         st.session_state.pop(
             "df_alerta",
+            None,
+        )
+
+        st.session_state.pop(
+            "raw_ecmwf",
             None,
         )
 
@@ -2702,8 +3312,9 @@ st.header(
 )
 
 st.caption(
-    "El encuadre inicial está fijado sobre Santa Fe, "
-    "Corrientes y Entre Ríos."
+    "Pasá el cursor sobre cada nodo para consultar "
+    "una ficha resumida con sus principales variables "
+    "meteorológicas e hidrológicas."
 )
 
 fig_mapa = crear_mapa(
@@ -2868,9 +3479,69 @@ else:
         .copy()
     )
 
-    pronostico_mostrar[
+    # --------------------------------------------------------
+    # NUEVA PRESENTACIÓN VISUAL
+    # --------------------------------------------------------
+
+    construir_tarjetas_pronostico(
+        pronostico_mostrar,
+        localidad_seleccionada,
+    )
+
+    # --------------------------------------------------------
+    # CSV COMPLETO
+    # --------------------------------------------------------
+
+    csv_pronostico = (
+        pronostico_mostrar
+        .copy()
+        .drop(
+            columns=["Codigo WMO"],
+            errors="ignore",
+        )
+        .round({
+            "Temp. mínima": 1,
+            "Temp. máxima": 1,
+            "Sensación mínima": 1,
+            "Sensación máxima": 1,
+            "Precipitación": 1,
+            "Lluvia": 1,
+            "Chaparrones": 1,
+            "Prob. precipitación": 0,
+            "Horas con precipitación": 1,
+            "Viento máximo": 1,
+            "Ráfaga máxima": 1,
+            "CAPE máximo": 0,
+            "Radiación solar": 1,
+            "Horas de sol": 1,
+            "ET₀": 2,
+        })
+        .to_csv(index=False)
+        .encode("utf-8")
+    )
+
+    st.download_button(
+        "⬇️ Descargar pronóstico extendido CSV",
+        csv_pronostico,
+        file_name=(
+            "pronostico_15_dias_"
+            f"{localidad_seleccionada.lower().replace(' ', '_')}.csv"
+        ),
+        mime="text/csv",
+    )
+
+    # --------------------------------------------------------
+    # GRÁFICOS DE APOYO
+    # --------------------------------------------------------
+
+    grafico_pronostico = (
+        pronostico_mostrar
+        .copy()
+    )
+
+    grafico_pronostico[
         "Fecha"
-    ] = pronostico_mostrar[
+    ] = grafico_pronostico[
         "Fecha"
     ].dt.strftime("%d/%m")
 
@@ -2879,7 +3550,7 @@ else:
     with c1:
 
         fig_lp_prec = px.bar(
-            pronostico_mostrar,
+            grafico_pronostico,
             x="Fecha",
             y="Precipitación",
             title=(
@@ -2899,7 +3570,7 @@ else:
 
     with c2:
 
-        temp_largo = pronostico_mostrar.melt(
+        temp_largo = grafico_pronostico.melt(
             id_vars=["Fecha"],
             value_vars=[
                 "Temp. mínima",
@@ -2929,51 +3600,6 @@ else:
             fig_lp_temp,
             use_container_width=True,
         )
-
-    tabla_lp = (
-        pronostico_mostrar
-        .copy()
-    )
-
-    tabla_lp = tabla_lp.round({
-        "Temp. mínima": 1,
-        "Temp. máxima": 1,
-        "Sensación mínima": 1,
-        "Sensación máxima": 1,
-        "Precipitación": 1,
-        "Lluvia": 1,
-        "Chaparrones": 1,
-        "Prob. precipitación": 0,
-        "Horas con precipitación": 1,
-        "Viento máximo": 1,
-        "Ráfaga máxima": 1,
-        "CAPE máximo": 0,
-        "Radiación solar": 1,
-        "Horas de sol": 1,
-        "ET₀": 2,
-    })
-
-    st.dataframe(
-        tabla_lp,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    csv_lp = (
-        tabla_lp
-        .to_csv(index=False)
-        .encode("utf-8")
-    )
-
-    st.download_button(
-        "⬇️ Descargar pronóstico extendido CSV",
-        csv_lp,
-        file_name=(
-            "pronostico_15_dias_"
-            f"{localidad_seleccionada.lower().replace(' ', '_')}.csv"
-        ),
-        mime="text/csv",
-    )
 
 
 # ============================================================
@@ -3009,10 +3635,6 @@ tabla = df_validos[
     ]
 ].copy()
 
-# ------------------------------------------------------------
-# Conversión SOLO PARA PRESENTACIÓN.
-# Internamente humedad_suelo_promedio continúa siendo m³/m³.
-# ------------------------------------------------------------
 tabla[
     "humedad_suelo_promedio"
 ] = (
@@ -3808,7 +4430,12 @@ dentro de la fórmula actual.
 ### Pronóstico extendido
 
 La aplicación muestra hasta **15 días** de pronóstico diario del ECMWF IFS HRES 9 km.
-Este horizonte es útil para planificación y tendencia general, pero la incertidumbre
+
+La presentación principal se realiza mediante **tarjetas meteorológicas visuales**
+con iconografía WMO, temperatura, precipitación, probabilidad, viento, ráfagas
+y horas con precipitación.
+
+El horizonte es útil para planificación y tendencia general, pero la incertidumbre
 aumenta con el plazo y no debe interpretarse con la misma precisión que el corto plazo.
 
 ### Limitaciones
