@@ -1,9 +1,0 @@
-﻿registro,jurisdiccion,tipo,autoridad,url,estado,uso
-Estado de rutas,Nacional,caminos/cortes,Vialidad Nacional,https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas,Fuente oficial conectable,Contrastar rutas nacionales y derivar cortes publicados
-Mapa de Recursos,Santa Fe,salud/refugios,Gobierno de Santa Fe,https://www.santafe.gob.ar/maparecursos/,Fuente oficial conectable,Ubicar efectores y recursos públicos georreferenciados
-WFS IGN/SISA,Nacional,salud,IGN · SISA,https://wms.ign.gob.ar/geoserver/ows,Fuente oficial conectable; stock no publicado,"Catálogo geográfico de hospitales, CAPS y centros de salud"
-Mapas hidrológicos IDESF,Santa Fe,drenaje/riesgo,IDESF · Gobierno de Santa Fe,https://www.santafe.gov.ar/idesf/,Fuente oficial conectable,"Capas de cursos, canales, riesgo y apoyo a caminos rurales"
-Centros de salud Entre Ríos,Entre Ríos,salud,Ministerio de Salud de Entre Ríos,https://datos.entrerios.gov.ar/dataset/centros-de-salud,Fuente oficial; atención operativa a confirmar,"Nombres, teléfonos y domicilios para completar georreferenciación local"
-Hospitales Entre Ríos,Entre Ríos,salud,Ministerio de Salud de Entre Ríos,https://datos.entrerios.gov.ar/dataset/listado-de-hospitales-de-entre-rios,Fuente oficial; atención operativa a confirmar,Red hospitalaria y contactos para derivación
-Centros de evacuación Vera 2025,"Vera, Santa Fe",refugio,Municipio/Provincia de Santa Fe,https://www.santafe.gob.ar/noticias/noticia/283139/,Antecedente histórico; habilitación actual sin confirmar,"Cuatro centros usados el 27/05/2025: Hospital Regional, CAPS San Martín de Porres, Club Huracán y Gimnasia Fútbol Club"
-Operativo norte Santa Fe 2024,Vera · Reconquista · Malabrigo,caminos/drenaje/refugios,Gobierno de Santa Fe,https://www.santafe.gob.ar/noticias/noticia/279557/,Antecedente operativo; vigencia actual sin confirmar,"Documenta bases, caminos rurales, canales y alcantarillas relevados durante la emergencia"

@@ -1,4 +1,0 @@
-evento_id,fecha_evento,emision,indice,nivel,fuente_pronostico,metodo,limitacion
-2025-05-27-vera-run-2025-05-24,2025-05-27,2025-05-24T03:00:00-03:00,25.2,VERDE,https://previous-runs-api.open-meteo.com/,Reprocesamiento de corrida ECMWF IFS HRES con 7 días antecedentes y 72 h futuras,No es independiente de las otras corridas del mismo evento.
-2025-05-27-vera-run-2025-05-25,2025-05-27,2025-05-25T03:00:00-03:00,27.2,VERDE,https://previous-runs-api.open-meteo.com/,Reprocesamiento de corrida ECMWF IFS HRES con 7 días antecedentes y 72 h futuras,No es independiente de las otras corridas del mismo evento.
-2025-05-27-vera-run-2025-05-26,2025-05-27,2025-05-26T03:00:00-03:00,44.3,AMARILLO,https://previous-runs-api.open-meteo.com/,Reprocesamiento de corrida ECMWF IFS HRES con 7 días antecedentes y 72 h futuras,No es independiente de las otras corridas del mismo evento.
