@@ -1,0 +1,43 @@
+﻿localidad,provincia,lat,lon,id_georef,fuente_coordenadas,url_fuente,fecha_revision
+Reconquista,Santa Fe,-29.144,-59.643,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Avellaneda,Santa Fe,-29.117,-59.658,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Vera,Santa Fe,-29.46,-60.213,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Tostado,Santa Fe,-29.233,-61.769,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Rafaela,Santa Fe,-31.25,-61.486,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Santa Fe,Santa Fe,-31.633,-60.7,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Esperanza,Santa Fe,-31.448,-60.932,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Rosario,Santa Fe,-32.946,-60.639,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Venado Tuerto,Santa Fe,-33.745,-61.968,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Corrientes,Corrientes,-27.469,-58.83,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Goya,Corrientes,-29.14,-59.263,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Mercedes,Corrientes,-29.182,-58.075,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Curuzú Cuatiá,Corrientes,-29.791,-58.054,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Paso de los Libres,Corrientes,-29.713,-57.088,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Santo Tomé,Corrientes,-28.549,-56.04,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Paraná,Entre Ríos,-31.741,-60.511,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+La Paz,Entre Ríos,-30.744,-59.645,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Concordia,Entre Ríos,-31.393,-58.02,,Configuración previa V4.3.1; contrastada con límites IGN,,2026-10-10
+Resistencia,Chaco,-27.451075711,-58.986483529,22140060,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+General José de San Martín,Chaco,-26.53630236,-59.341321005,22084020,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Presidencia Roque Sáenz Peña,Chaco,-26.790971775,-60.441248325,22021010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Charata,Chaco,-27.217922303,-61.187347968,22028010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Villa Ángela,Chaco,-27.576877556,-60.711125666,22098030,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Nueva Pompeya,Chaco,-24.933074618,-61.483145173,22063080,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Formosa,Formosa,-26.185008983,-58.174896483,34014020,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Clorinda,Formosa,-25.286080881,-57.7224082,34049010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Pirané,Formosa,-25.732649819,-59.109808063,34056040,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+El Colorado,Formosa,-26.309061021,-59.372308046,34056020,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Las Lomitas,Formosa,-24.708135606,-60.591376883,34035100,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Ingeniero Guillermo N. Juárez,Formosa,-23.90373915,-61.842429269,34028010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Posadas,Misiones,-27.36642598,-55.893980275,54028030,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Oberá,Misiones,-27.486790956,-55.120056983,54091080,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Eldorado,Misiones,-26.408876964,-54.60705304,54042020,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Puerto Iguazú,Misiones,-25.597210098,-54.577223001,54063030,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+San Vicente,Misiones,-26.993297387,-54.486618972,54056030,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+El Soberbio,Misiones,-27.297511036,-54.197545618,54056010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Gualeguaychú,Entre Ríos,-33.007797697,-58.510770086,30056070,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Gualeguay,Entre Ríos,-33.15043008,-59.310575586,30049040,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Victoria,Entre Ríos,-32.621605823,-60.157953952,30105060,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Villaguay,Entre Ríos,-31.867637571,-59.026885213,30113080,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Federal,Entre Ríos,-30.956214281,-58.779587505,30035030,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10
+Chajarí,Entre Ríos,-30.754724203,-57.981789368,30028010,GeoRef v2 · localidades INDEC,https://apis.datos.gob.ar/georef/api/v2.0/localidades.json,2026-10-10

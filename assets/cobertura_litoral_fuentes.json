@@ -1,0 +1,1155 @@
+{
+  "version_esquema": 1,
+  "region": "Litoral argentino: seis provincias",
+  "provincias": [
+    "Santa Fe",
+    "Corrientes",
+    "Entre Ríos",
+    "Chaco",
+    "Formosa",
+    "Misiones"
+  ],
+  "fecha_descarga_utc": "2026-10-10T04:16:06.513898+00:00",
+  "fuente_definicion_regional": "https://www.santafe.gob.ar/ms/gobiernoenaccion/proyecto/region-litoral/",
+  "limites": {
+    "archivo": "litoral_provincias.geojson",
+    "url_original": "https://apis.datos.gob.ar/georef/api/v2.0/provincias.geojson",
+    "fuente_declarada_por_georef": "IGN",
+    "crs": "EPSG:4326 (longitud, latitud)",
+    "sha256_descarga_original": "b086852064c26813d9f607c82c91b4e74e18ea83fd21993ddedd473cf8495af5",
+    "bytes_descarga_original": 614706,
+    "sha256_archivo_litoral": "49457ebe42e756d27c39bd10463ed26f67303f54dade787a5b75bd7baf50d71a",
+    "bytes_archivo_litoral": 52041,
+    "operacion": "Selección de seis features por nombre oficial. Coordenadas y propiedades preservadas mediante extracción JSON exacta; solo cambia la serialización.",
+    "simplificacion_aplicada": false,
+    "tolerancia_simplificacion": 0,
+    "reparacion_geometrica_aplicada": false,
+    "fecha_actualizacion_original": "No informada en el FeatureCollection descargado",
+    "documentacion": [
+      "https://www.argentina.gob.ar/georef/descarga-de-la-base-completa",
+      "https://www.argentina.gob.ar/georef/georef-servicio-de-normalizacion-de-direcciones-y-unidades-territoriales-de-argentina-5"
+    ],
+    "validaciones": [
+      "Exactamente seis provincias, sin provincias vecinas",
+      "Polygon/MultiPolygon únicamente",
+      "Todos los anillos cerrados",
+      "Coordenadas numéricas finitas WGS84",
+      "Interiores y componentes idénticos a la descarga original"
+    ],
+    "detalle_geometrias": [
+      {
+        "provincia": "Santa Fe",
+        "id_georef": "82",
+        "tipo": "Polygon",
+        "componentes": 1,
+        "anillos_interiores": 0,
+        "vertices": 150,
+        "bbox": [
+          -62.883909,
+          -34.38655,
+          -58.880822,
+          -27.998001
+        ]
+      },
+      {
+        "provincia": "Corrientes",
+        "id_georef": "18",
+        "tipo": "MultiPolygon",
+        "componentes": 65,
+        "anillos_interiores": 5,
+        "vertices": 631,
+        "bbox": [
+          -59.712013,
+          -30.730192,
+          -55.620237,
+          -27.253966
+        ]
+      },
+      {
+        "provincia": "Entre Ríos",
+        "id_georef": "30",
+        "tipo": "Polygon",
+        "componentes": 1,
+        "anillos_interiores": 6,
+        "vertices": 241,
+        "bbox": [
+          -60.776184,
+          -34.038397,
+          -57.797397,
+          -30.159018
+        ]
+      },
+      {
+        "provincia": "Chaco",
+        "id_georef": "22",
+        "tipo": "Polygon",
+        "componentes": 1,
+        "anillos_interiores": 0,
+        "vertices": 289,
+        "bbox": [
+          -63.422412,
+          -28.066825,
+          -58.379175,
+          -24.078676
+        ]
+      },
+      {
+        "provincia": "Formosa",
+        "id_georef": "34",
+        "tipo": "Polygon",
+        "componentes": 1,
+        "anillos_interiores": 0,
+        "vertices": 478,
+        "bbox": [
+          -62.342256,
+          -26.879842,
+          -57.560602,
+          -22.460941
+        ]
+      },
+      {
+        "provincia": "Misiones",
+        "id_georef": "54",
+        "tipo": "MultiPolygon",
+        "componentes": 3,
+        "anillos_interiores": 0,
+        "vertices": 313,
+        "bbox": [
+          -56.055421,
+          -28.162795,
+          -53.637383,
+          -25.494315
+        ]
+      }
+    ]
+  },
+  "localidades": {
+    "url_original": "https://apis.datos.gob.ar/georef/api/v2.0/localidades.json",
+    "fuente_declarada_por_georef": "INDEC",
+    "sha256_descarga_original": "1513bfeacbcffe535faa552a23e0af39935c97fc2a5dd7767a4a92621f105a74",
+    "bytes_descarga_original": 1448637,
+    "registros_descarga_completa": 4028,
+    "registros_seleccionados": 24,
+    "fecha_actualizacion_original": "No informada en el JSON descargado",
+    "precision": "Valores decimales originales de los centroides GeoRef; sin redondeo",
+    "validacion_espacial": "24/24 centroides dentro del Polygon/MultiPolygon de su provincia, usando cruce de rayos y exclusión de anillos interiores.",
+    "criterio_seleccion": "Selección inicial por extensión norte/sur/este/oeste y referencias ribereñas e interiores; los contextos son criterio de diseño de la red, no son observaciones hidrológicas."
+  },
+  "nodos_agregados": [
+    {
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "lat": -27.451075711,
+      "lon": -58.986483529,
+      "id_georef": "22140060",
+      "nombre_original_georef": "Resistencia",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22140",
+        "nombre": "San Fernando"
+      },
+      "contexto_seleccion": "Este provincial; entorno del Paraná y Gran Resistencia",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22140060",
+        "nombre": "Resistencia",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22140",
+          "nombre": "San Fernando"
+        },
+        "gobierno_local": {
+          "id": "220413",
+          "nombre": "Resistencia"
+        },
+        "localidad_censal": {
+          "id": "22140060",
+          "nombre": "Resistencia"
+        },
+        "categoria": "Componente de localidad compuesta",
+        "centroide": {
+          "lon": -58.986483529,
+          "lat": -27.451075711
+        }
+      }
+    },
+    {
+      "localidad": "General José de San Martín",
+      "provincia": "Chaco",
+      "lat": -26.53630236,
+      "lon": -59.341321005,
+      "id_georef": "22084020",
+      "nombre_original_georef": "General José de San Martín",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22084",
+        "nombre": "Libertador General San Martín"
+      },
+      "contexto_seleccion": "Noreste provincial; interior de la cuenca del Bermejo",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22084020",
+        "nombre": "General José de San Martín",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22084",
+          "nombre": "Libertador General San Martín"
+        },
+        "gobierno_local": {
+          "id": "220259",
+          "nombre": "General San Martín"
+        },
+        "localidad_censal": {
+          "id": "22084020",
+          "nombre": "General José de San Martín"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -59.341321005,
+          "lat": -26.53630236
+        }
+      }
+    },
+    {
+      "localidad": "Presidencia Roque Sáenz Peña",
+      "provincia": "Chaco",
+      "lat": -26.790971775,
+      "lon": -60.441248325,
+      "id_georef": "22021010",
+      "nombre_original_georef": "Presidencia Roque Sáenz Peña",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22021",
+        "nombre": "Comandante Fernández"
+      },
+      "contexto_seleccion": "Centro provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22021010",
+        "nombre": "Presidencia Roque Sáenz Peña",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22021",
+          "nombre": "Comandante Fernández"
+        },
+        "gobierno_local": {
+          "id": "220077",
+          "nombre": "Presidencia Roque Sáenz Peña"
+        },
+        "localidad_censal": {
+          "id": "22021010",
+          "nombre": "Presidencia Roque Sáenz Peña"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -60.441248325,
+          "lat": -26.790971775
+        }
+      }
+    },
+    {
+      "localidad": "Charata",
+      "provincia": "Chaco",
+      "lat": -27.217922303,
+      "lon": -61.187347968,
+      "id_georef": "22028010",
+      "nombre_original_georef": "Charata",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22028",
+        "nombre": "Chacabuco"
+      },
+      "contexto_seleccion": "Sudoeste provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22028010",
+        "nombre": "Charata",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22028",
+          "nombre": "Chacabuco"
+        },
+        "gobierno_local": {
+          "id": "220084",
+          "nombre": "Charata"
+        },
+        "localidad_censal": {
+          "id": "22028010",
+          "nombre": "Charata"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -61.187347968,
+          "lat": -27.217922303
+        }
+      }
+    },
+    {
+      "localidad": "Villa Ángela",
+      "provincia": "Chaco",
+      "lat": -27.576877556,
+      "lon": -60.711125666,
+      "id_georef": "22098030",
+      "nombre_original_georef": "Villa Angela",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22098",
+        "nombre": "Mayor Luis J. Fontana"
+      },
+      "contexto_seleccion": "Sur provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22098030",
+        "nombre": "Villa Angela",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22098",
+          "nombre": "Mayor Luis J. Fontana"
+        },
+        "gobierno_local": {
+          "id": "220322",
+          "nombre": "Villa Ángela"
+        },
+        "localidad_censal": {
+          "id": "22098030",
+          "nombre": "Villa Ángela"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -60.711125666,
+          "lat": -27.576877556
+        }
+      }
+    },
+    {
+      "localidad": "Nueva Pompeya",
+      "provincia": "Chaco",
+      "lat": -24.933074618,
+      "lon": -61.483145173,
+      "id_georef": "22063080",
+      "nombre_original_georef": "Nueva Pompeya",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "22063",
+        "nombre": "General Güemes"
+      },
+      "contexto_seleccion": "Noroeste provincial; referencia del Impenetrable",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "22063080",
+        "nombre": "Nueva Pompeya",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "22",
+          "nombre": "Chaco"
+        },
+        "departamento": {
+          "id": "22063",
+          "nombre": "General Güemes"
+        },
+        "gobierno_local": {
+          "id": "220196",
+          "nombre": "Misión Nueva Pompeya"
+        },
+        "localidad_censal": {
+          "id": "22063080",
+          "nombre": "Nueva Pompeya"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -61.483145173,
+          "lat": -24.933074618
+        }
+      }
+    },
+    {
+      "localidad": "Formosa",
+      "provincia": "Formosa",
+      "lat": -26.185008983,
+      "lon": -58.174896483,
+      "id_georef": "34014020",
+      "nombre_original_georef": "Formosa",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34014",
+        "nombre": "Formosa"
+      },
+      "contexto_seleccion": "Este provincial; entorno del río Paraguay",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34014020",
+        "nombre": "Formosa",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34014",
+          "nombre": "Formosa"
+        },
+        "gobierno_local": {
+          "id": "340028",
+          "nombre": "Formosa"
+        },
+        "localidad_censal": {
+          "id": "34014020",
+          "nombre": "Formosa"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -58.174896483,
+          "lat": -26.185008983
+        }
+      }
+    },
+    {
+      "localidad": "Clorinda",
+      "provincia": "Formosa",
+      "lat": -25.286080881,
+      "lon": -57.7224082,
+      "id_georef": "34049010",
+      "nombre_original_georef": "Clorinda",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34049",
+        "nombre": "Pilcomayo"
+      },
+      "contexto_seleccion": "Noreste provincial; entorno de los ríos Pilcomayo y Paraguay",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34049010",
+        "nombre": "Clorinda",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34049",
+          "nombre": "Pilcomayo"
+        },
+        "gobierno_local": {
+          "id": "340189",
+          "nombre": "Clorinda"
+        },
+        "localidad_censal": {
+          "id": "34049010",
+          "nombre": "Clorinda"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -57.7224082,
+          "lat": -25.286080881
+        }
+      }
+    },
+    {
+      "localidad": "Pirané",
+      "provincia": "Formosa",
+      "lat": -25.732649819,
+      "lon": -59.109808063,
+      "id_georef": "34056040",
+      "nombre_original_georef": "Pirané",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34056",
+        "nombre": "Pirané"
+      },
+      "contexto_seleccion": "Sudeste provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34056040",
+        "nombre": "Pirané",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34056",
+          "nombre": "Pirané"
+        },
+        "gobierno_local": {
+          "id": "340245",
+          "nombre": "Pirané"
+        },
+        "localidad_censal": {
+          "id": "34056040",
+          "nombre": "Pirané"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -59.109808063,
+          "lat": -25.732649819
+        }
+      }
+    },
+    {
+      "localidad": "El Colorado",
+      "provincia": "Formosa",
+      "lat": -26.309061021,
+      "lon": -59.372308046,
+      "id_georef": "34056020",
+      "nombre_original_georef": "El Colorado",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34056",
+        "nombre": "Pirané"
+      },
+      "contexto_seleccion": "Sur provincial; entorno del río Bermejo",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34056020",
+        "nombre": "El Colorado",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34056",
+          "nombre": "Pirané"
+        },
+        "gobierno_local": {
+          "id": "340224",
+          "nombre": "El Colorado"
+        },
+        "localidad_censal": {
+          "id": "34056020",
+          "nombre": "El Colorado"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -59.372308046,
+          "lat": -26.309061021
+        }
+      }
+    },
+    {
+      "localidad": "Las Lomitas",
+      "provincia": "Formosa",
+      "lat": -24.708135606,
+      "lon": -60.591376883,
+      "id_georef": "34035100",
+      "nombre_original_georef": "Las Lomitas",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34035",
+        "nombre": "Patiño"
+      },
+      "contexto_seleccion": "Centro oeste provincial; entorno del Bañado La Estrella",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34035100",
+        "nombre": "Las Lomitas",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34035",
+          "nombre": "Patiño"
+        },
+        "gobierno_local": {
+          "id": "340133",
+          "nombre": "Las Lomitas"
+        },
+        "localidad_censal": {
+          "id": "34035100",
+          "nombre": "Las Lomitas"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -60.591376883,
+          "lat": -24.708135606
+        }
+      }
+    },
+    {
+      "localidad": "Ingeniero Guillermo N. Juárez",
+      "provincia": "Formosa",
+      "lat": -23.90373915,
+      "lon": -61.842429269,
+      "id_georef": "34028010",
+      "nombre_original_georef": "Ingeniero Guillermo N. Juárez",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "34028",
+        "nombre": "Matacos"
+      },
+      "contexto_seleccion": "Oeste provincial; interior del Chaco seco",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "34028010",
+        "nombre": "Ingeniero Guillermo N. Juárez",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "34",
+          "nombre": "Formosa"
+        },
+        "departamento": {
+          "id": "34028",
+          "nombre": "Matacos"
+        },
+        "gobierno_local": {
+          "id": "340077",
+          "nombre": "Ingeniero Guillermo Nicasio Juárez"
+        },
+        "localidad_censal": {
+          "id": "34028010",
+          "nombre": "Ingeniero Guillermo Nicasio Juárez"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -61.842429269,
+          "lat": -23.90373915
+        }
+      }
+    },
+    {
+      "localidad": "Posadas",
+      "provincia": "Misiones",
+      "lat": -27.36642598,
+      "lon": -55.893980275,
+      "id_georef": "54028030",
+      "nombre_original_georef": "Posadas",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54028",
+        "nombre": "Capital"
+      },
+      "contexto_seleccion": "Sur provincial; entorno del río Paraná",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54028030",
+        "nombre": "Posadas",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54028",
+          "nombre": "Capital"
+        },
+        "gobierno_local": {
+          "id": "540119",
+          "nombre": "Posadas"
+        },
+        "localidad_censal": {
+          "id": "54028030",
+          "nombre": "Posadas"
+        },
+        "categoria": "Componente de localidad compuesta",
+        "centroide": {
+          "lon": -55.893980275,
+          "lat": -27.36642598
+        }
+      }
+    },
+    {
+      "localidad": "Oberá",
+      "provincia": "Misiones",
+      "lat": -27.486790956,
+      "lon": -55.120056983,
+      "id_georef": "54091080",
+      "nombre_original_georef": "Oberá",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54091",
+        "nombre": "Oberá"
+      },
+      "contexto_seleccion": "Centro sur provincial; interior productivo",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54091080",
+        "nombre": "Oberá",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54091",
+          "nombre": "Oberá"
+        },
+        "gobierno_local": {
+          "id": "540399",
+          "nombre": "Oberá"
+        },
+        "localidad_censal": {
+          "id": "54091080",
+          "nombre": "Oberá"
+        },
+        "categoria": "Componente de localidad compuesta",
+        "centroide": {
+          "lon": -55.120056983,
+          "lat": -27.486790956
+        }
+      }
+    },
+    {
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "lat": -26.408876964,
+      "lon": -54.60705304,
+      "id_georef": "54042020",
+      "nombre_original_georef": "Eldorado",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54042",
+        "nombre": "Eldorado"
+      },
+      "contexto_seleccion": "Noroeste provincial; entorno del río Paraná",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54042020",
+        "nombre": "Eldorado",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54042",
+          "nombre": "Eldorado"
+        },
+        "gobierno_local": {
+          "id": "540154",
+          "nombre": "Eldorado"
+        },
+        "localidad_censal": {
+          "id": "54042020",
+          "nombre": "Eldorado"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -54.60705304,
+          "lat": -26.408876964
+        }
+      }
+    },
+    {
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "lat": -25.597210098,
+      "lon": -54.577223001,
+      "id_georef": "54063030",
+      "nombre_original_georef": "Puerto Iguazú",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54063",
+        "nombre": "Iguazú"
+      },
+      "contexto_seleccion": "Extremo norte provincial; entorno de los ríos Iguazú y Paraná",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54063030",
+        "nombre": "Puerto Iguazú",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54063",
+          "nombre": "Iguazú"
+        },
+        "gobierno_local": {
+          "id": "540217",
+          "nombre": "Puerto Iguazú"
+        },
+        "localidad_censal": {
+          "id": "54063030",
+          "nombre": "Puerto Iguazú"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -54.577223001,
+          "lat": -25.597210098
+        }
+      }
+    },
+    {
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "lat": -26.993297387,
+      "lon": -54.486618972,
+      "id_georef": "54056030",
+      "nombre_original_georef": "San Vicente",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54056",
+        "nombre": "Guaraní"
+      },
+      "contexto_seleccion": "Centro este provincial; interior productivo",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54056030",
+        "nombre": "San Vicente",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54056",
+          "nombre": "Guaraní"
+        },
+        "gobierno_local": {
+          "id": "540203",
+          "nombre": "San Vicente"
+        },
+        "localidad_censal": {
+          "id": "54056030",
+          "nombre": "San Vicente"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -54.486618972,
+          "lat": -26.993297387
+        }
+      }
+    },
+    {
+      "localidad": "El Soberbio",
+      "provincia": "Misiones",
+      "lat": -27.297511036,
+      "lon": -54.197545618,
+      "id_georef": "54056010",
+      "nombre_original_georef": "El Soberbio",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "54056",
+        "nombre": "Guaraní"
+      },
+      "contexto_seleccion": "Este provincial; entorno del río Uruguay",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "54056010",
+        "nombre": "El Soberbio",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "54",
+          "nombre": "Misiones"
+        },
+        "departamento": {
+          "id": "54056",
+          "nombre": "Guaraní"
+        },
+        "gobierno_local": {
+          "id": "540196",
+          "nombre": "El Soberbio"
+        },
+        "localidad_censal": {
+          "id": "54056010",
+          "nombre": "El Soberbio"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -54.197545618,
+          "lat": -27.297511036
+        }
+      }
+    },
+    {
+      "localidad": "Gualeguaychú",
+      "provincia": "Entre Ríos",
+      "lat": -33.007797697,
+      "lon": -58.510770086,
+      "id_georef": "30056070",
+      "nombre_original_georef": "Gualeguaychú",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30056",
+        "nombre": "Gualeguaychú"
+      },
+      "contexto_seleccion": "Sudeste provincial; entorno del río Gualeguaychú",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30056070",
+        "nombre": "Gualeguaychú",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30056",
+          "nombre": "Gualeguaychú"
+        },
+        "gobierno_local": {
+          "id": "300189",
+          "nombre": "Gualeguaychú"
+        },
+        "localidad_censal": {
+          "id": "30056070",
+          "nombre": "Gualeguaychú"
+        },
+        "categoria": "Componente de localidad compuesta",
+        "centroide": {
+          "lon": -58.510770086,
+          "lat": -33.007797697
+        }
+      }
+    },
+    {
+      "localidad": "Gualeguay",
+      "provincia": "Entre Ríos",
+      "lat": -33.15043008,
+      "lon": -59.310575586,
+      "id_georef": "30049040",
+      "nombre_original_georef": "Gualeguay",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30049",
+        "nombre": "Gualeguay"
+      },
+      "contexto_seleccion": "Sur provincial; entorno del río Gualeguay",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30049040",
+        "nombre": "Gualeguay",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30049",
+          "nombre": "Gualeguay"
+        },
+        "gobierno_local": {
+          "id": "300175",
+          "nombre": "Gualeguay"
+        },
+        "localidad_censal": {
+          "id": "30049040",
+          "nombre": "Gualeguay"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -59.310575586,
+          "lat": -33.15043008
+        }
+      }
+    },
+    {
+      "localidad": "Victoria",
+      "provincia": "Entre Ríos",
+      "lat": -32.621605823,
+      "lon": -60.157953952,
+      "id_georef": "30105060",
+      "nombre_original_georef": "Victoria",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30105",
+        "nombre": "Victoria"
+      },
+      "contexto_seleccion": "Sudoeste provincial; entorno del delta del Paraná",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30105060",
+        "nombre": "Victoria",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30105",
+          "nombre": "Victoria"
+        },
+        "gobierno_local": {
+          "id": "300469",
+          "nombre": "Victoria"
+        },
+        "localidad_censal": {
+          "id": "30105060",
+          "nombre": "Victoria"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -60.157953952,
+          "lat": -32.621605823
+        }
+      }
+    },
+    {
+      "localidad": "Villaguay",
+      "provincia": "Entre Ríos",
+      "lat": -31.867637571,
+      "lon": -59.026885213,
+      "id_georef": "30113080",
+      "nombre_original_georef": "Villaguay",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30113",
+        "nombre": "Villaguay"
+      },
+      "contexto_seleccion": "Centro provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30113080",
+        "nombre": "Villaguay",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30113",
+          "nombre": "Villaguay"
+        },
+        "gobierno_local": {
+          "id": "300490",
+          "nombre": "Villaguay"
+        },
+        "localidad_censal": {
+          "id": "30113080",
+          "nombre": "Villaguay"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -59.026885213,
+          "lat": -31.867637571
+        }
+      }
+    },
+    {
+      "localidad": "Federal",
+      "provincia": "Entre Ríos",
+      "lat": -30.956214281,
+      "lon": -58.779587505,
+      "id_georef": "30035030",
+      "nombre_original_georef": "Federal",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30035",
+        "nombre": "Federal"
+      },
+      "contexto_seleccion": "Norte provincial; interior agropecuario",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30035030",
+        "nombre": "Federal",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30035",
+          "nombre": "Federal"
+        },
+        "gobierno_local": {
+          "id": "300147",
+          "nombre": "Federal"
+        },
+        "localidad_censal": {
+          "id": "30035030",
+          "nombre": "Federal"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -58.779587505,
+          "lat": -30.956214281
+        }
+      }
+    },
+    {
+      "localidad": "Chajarí",
+      "provincia": "Entre Ríos",
+      "lat": -30.754724203,
+      "lon": -57.981789368,
+      "id_georef": "30028010",
+      "nombre_original_georef": "Chajarí",
+      "fuente_coordenadas": "INDEC",
+      "departamento": {
+        "id": "30028",
+        "nombre": "Federación"
+      },
+      "contexto_seleccion": "Noreste provincial; entorno del río Uruguay",
+      "punto_en_provincia": true,
+      "tipo_coordenada": "Centroide de localidad; no es una estación meteorológica ni un establecimiento rural",
+      "registro_georef_original": {
+        "id": "30028010",
+        "nombre": "Chajarí",
+        "fuente": "INDEC",
+        "provincia": {
+          "id": "30",
+          "nombre": "Entre Ríos"
+        },
+        "departamento": {
+          "id": "30028",
+          "nombre": "Federación"
+        },
+        "gobierno_local": {
+          "id": "300105",
+          "nombre": "Chajarí"
+        },
+        "localidad_censal": {
+          "id": "30028010",
+          "nombre": "Chajarí"
+        },
+        "categoria": "Localidad simple",
+        "centroide": {
+          "lon": -57.981789368,
+          "lat": -30.754724203
+        }
+      }
+    }
+  ],
+  "limitaciones": [
+    "La red inicial de nodos es un muestreo territorial; no representa todos los establecimientos, caminos o refugios.",
+    "Los centroides sirven para consultar una celda de un modelo meteorológico. No representan estaciones instrumentales.",
+    "Los límites administrativos no son límites de cuencas ni una máscara de inundación.",
+    "Los datos GeoRef/IGN son cartografía de referencia de la API; no reemplazan mensura o determinación legal de límites.",
+    "Incorporar una provincia y consultar pronósticos no valida por sí solo el índice de anegamiento para sus condiciones locales."
+  ]
+}
