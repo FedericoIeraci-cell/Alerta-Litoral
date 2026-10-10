@@ -1,0 +1,38 @@
+[
+  {
+    "evento_id": "2024-03-20-gualeguaychu-santafe",
+    "grupo_evento": "2024-03-20-gualeguaychu-santafe",
+    "localidad_calculo": "Gualeguaychú",
+    "fecha_evento": "2024-03-20",
+    "inicializacion_utc": "2024-03-19T00:00:00+00:00",
+    "emision": "2024-03-19T03:00:00-03:00",
+    "indice": "",
+    "tipo_emision": "corte_reconstruido",
+    "disponibilidad_confirmada": "no",
+    "estado": "descargado_incompleto_sin_escorrentia",
+    "fuente_pronostico": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-33.01&longitude=-58.517&models=ecmwf_ifs&hourly=precipitation%2Crunoff%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm&timezone=America%2FArgentina%2FBuenos_Aires&precipitation_unit=mm&cell_selection=land&run=2024-03-19T00%3A00&forecast_days=5",
+    "fuente_antecedentes": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-33.01&longitude=-58.517&models=ecmwf_ifs&hourly=precipitation%2Crunoff%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm&timezone=America%2FArgentina%2FBuenos_Aires&precipitation_unit=mm&cell_selection=land&start_date=2024-03-12&end_date=2024-03-19",
+    "nota": "Cobertura insuficiente de runoff: se necesitan 72 horas válidas.",
+    "fecha_descarga": "2026-10-10",
+    "sha256_corrida": "761e5e3d484eaa4c0eeedd5847c32271670ef6ba9f36448d41a43db1a67efcaa",
+    "sha256_antecedentes": "9126e612efb93aac7fa804a39fff2b7978b0aada36d3d2536943e13d62ba873f"
+  },
+  {
+    "evento_id": "control_negativo_01",
+    "grupo_evento": "control_negativo_01",
+    "localidad_calculo": "Corrientes",
+    "fecha_evento": "2026-10-08",
+    "inicializacion_utc": "2026-10-07T00:00:00+00:00",
+    "emision": "2026-10-07T03:00:00-03:00",
+    "indice": "",
+    "tipo_emision": "corte_reconstruido",
+    "disponibilidad_confirmada": "no",
+    "estado": "descargado_incompleto_sin_escorrentia",
+    "fuente_pronostico": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-27.469&longitude=-58.83&models=ecmwf_ifs&hourly=precipitation%2Crunoff%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm&timezone=America%2FArgentina%2FBuenos_Aires&precipitation_unit=mm&cell_selection=land&run=2026-10-07T00%3A00&forecast_days=5",
+    "fuente_antecedentes": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-27.469&longitude=-58.83&models=ecmwf_ifs&hourly=precipitation%2Crunoff%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm&timezone=America%2FArgentina%2FBuenos_Aires&precipitation_unit=mm&cell_selection=land&start_date=2026-09-30&end_date=2026-10-07",
+    "nota": "Cobertura insuficiente de runoff: se necesitan 72 horas válidas.",
+    "fecha_descarga": "2026-10-10",
+    "sha256_corrida": "75c0e764292f1d7cba118a0268ad3e8b833be92f7db4f066830122fb44a3a14c",
+    "sha256_antecedentes": "27ba548bdb371d28766c6a22d6ce2f45da65d2c27b3549ccabd126783a92642c"
+  }
+]
