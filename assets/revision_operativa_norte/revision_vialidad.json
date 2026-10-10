@@ -1,0 +1,1567 @@
+{
+  "consulta": "2026-10-10T01:44:31.935091-03:00",
+  "fuente": "https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas",
+  "alcance": "Rutas nacionales; ausencia de tramo no acredita transitabilidad.",
+  "fuente_datos": "https://docs.google.com/spreadsheets/d/17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk/gviz/tq?tqx=out%3Acsv&sheet=tablavisible",
+  "archivo": "vialidad_nacional_fuente_20261010.csv",
+  "sha256": "1055c28bdd46275148848e04a399a5642d66f595f174af978234183f433beb63",
+  "error": "",
+  "registros_litoral": [
+    {
+      "provincia": "Chaco",
+      "ruta": "11",
+      "tramo": "Lte. Con Sta. Fe - Resistencia",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "11",
+      "tramo": "Resistencia - Lte. Con Formosa",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "16",
+      "tramo": "Pte. Gral. M. Belgrano - Emp. RN 11",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "16",
+      "tramo": "Emp. RN 11 - Emp. RN 95",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Tareas de mantenimiento. Circular con precaución por presencia de personal y equipos en cercanias de la localidad de Saenz Peña",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "16",
+      "tramo": "Emp. RN 95 - Pampa del Infierno",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "16",
+      "tramo": "Pampa del Infierno - Lte. Sgo. Del Estero",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "16",
+      "tramo": "Lte. Sgo. Del Estero - Lte. Con Salta",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "89",
+      "tramo": "Avia Terai - Gral. Pinedo",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Circular con precaución",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "89",
+      "tramo": "Gral. Pinedo -Lte. Sgo. Del Estero",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Circular con extrema precaución",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "95",
+      "tramo": "Lte. Con Sta. Fe - Emp. RN 16",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "95",
+      "tramo": "Emp. RN 16 - Emp. RP 9",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "95",
+      "tramo": "Emp. RP 9 - Emp. RP 3",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Chaco",
+      "ruta": "95",
+      "tramo": "Emp. RP 3 - Lte. Con Formosa",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 12:30",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Lte. Entre Ríos - Esquina",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Esquina - Goya",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Goya - Cuatro Bocas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Cuatro Bocas - Saladas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Saladas - Corrientes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Corrientes - Itatí",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Itatí - Ituzaingó",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "12",
+      "tramo": "Ituzaingo - Lte. Con Misiones",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Lte. Entre Ríos - Cuatro Bocas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Cuatro Bocas - Bompland",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Bompland - Paso de los Libres",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Paso de los Libres - Yapeyú",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Yapeyú - Santo Tomé",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Santo Tomé - Gdor. Virasoro",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "14",
+      "tramo": "Gdor. Virasoro - Lte. Con Misiones",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "117",
+      "tramo": "Acc. a Paso de los Libres - Acc. Aeropuerto",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "117",
+      "tramo": "Acc. Aeropuerto - Puente Internacional T. Neves",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "118",
+      "tramo": "Saladas - Santa Rosa",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "118",
+      "tramo": "Santa Rosa - San Miguel",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "118",
+      "tramo": "San Miguel - Emp. RN 12",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "119",
+      "tramo": "Emp. RN 14 y 127 - Km 70",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "119",
+      "tramo": "Km. 70 - Mercedes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "120",
+      "tramo": "Emp. RN 14 - Puente (Río Aguapey)",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "120",
+      "tramo": "Puente (Río Aguapey) - Embalse Yaciretá",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "121",
+      "tramo": "Acc. a Santo Tomé - Pte Internacional con Brasil",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "122",
+      "tramo": "Acc. a Yapeyú - Centro Yapeyú",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "123",
+      "tramo": "Desmochado - Emp. RN 12",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "123",
+      "tramo": "Emp. RN 12 - Mercedes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "123",
+      "tramo": "Mercedes - Emp. RN 14",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Corrientes",
+      "ruta": "127",
+      "tramo": "Lte. Con Entre Ríos - Emp. RN 14 y 119",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "28/9/2026 07:50",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Complejo Zarate Brazo Largo - Ceibas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Autovía concesionada Autovías del Mercosur S.A.U. (AUMESA). Contacto: 0 800 555 0126. Web: aumesa.com.ar",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Ceibas - Gualeguay",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Gualeguay - Galarza",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Galarza - Emp. RP 39",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Actualmente se ejecutan obras de mantenimiento en el marco de la obra Malla 513C. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Emp. RP 39 - Nogoyá",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Actualmente se ejecutan obras de mantenimiento en el marco de la obra Malla 513C. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Nogoyá - Emp. RN 131",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Actualmente se ejecutan obras de mantenimiento en el marco de la obra Malla 513C. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Emp. RN 131 - Paraná",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Paraná - Cerrito",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución ante la presencia de personal y equipos en la banquina.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Cerrito - Emp. RN 127",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Emp.RN 127 - Hernandarias",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "Hernandarias - La Paz",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "12",
+      "tramo": "La Paz - Lte. Corrientes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "14",
+      "tramo": "Ceibas - Lte. Corrientes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Autovía concesionada Autovías del Mercosur S.A.U. (AUMESA). Contacto: 0800 555 0126. Web: aumesa.com.ar",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "18",
+      "tramo": "Paraná - Villaguay",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Se solicita transitar con precaución por desvíos de obra en los accesos a Seguí y Viale, la intersección con RP 32, el kilómetro 89,3, la intersección con la RP6 (km135,5), el cruce por Paso de la Laguna (km137,3) y en el Km 143,3. Circular con precaución y atender a las indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "18",
+      "tramo": "Villaguay - San Salvador",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Circular con precaución desde el arroyo Sandoval (km 181) hasta el ingreso a San Salvador (km 206) por calzada deteriorada y en reparación. Se recomienda una velocidad MÁXIMA DE 60 KM/H. Ante la presencia de equipos y personal en la calzada y banquinas, respetar la cartelería y las indicaciones de los banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "18",
+      "tramo": "San Salvador - Emp. RN 14",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Se realiza DESVÍO TOTAL en ambas manos de la autovía de la Ruta Nacional N° 18 entre el km 197 y el km 217, debiendo redireccionarse el tránsito a través de la ciudad de San Salvador (travesía urbana). \nSe recomienda una velocidad MÁXIMA DE 60 KM/H. Actualmente personal de conservación realiza tareas decorte de limpieza en el alto nivel de la intersección con la RN14.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "127",
+      "tramo": "Emp. RN 12 - Emp. RP 6",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución por posible presencia de personal y equipos en la calzada. Atender indicaciones de banderilleros.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "127",
+      "tramo": "Emp. RP 6 - Federal",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución ante la presencia de personal y equipos en la banquina.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "127",
+      "tramo": "Federal - Miñones",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de bacheo a la altura de Conquistadores. Circular con precaución en zonas urbanas. Atender a las velocidades máximas permitidas.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "127",
+      "tramo": "Miñones - La Hierra",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Circular con precaución en el tramo Miñones - La Hierra debido a deterioro de losas de hormigón en la calzada",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "127",
+      "tramo": "La Hierra - Lte. Corrientes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Transitable. Circular con precaución en las zonas urbanas. Atender a las velocidades máximas permitidas.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "130",
+      "tramo": "Emp. RN 14 - Villaguay",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución ante la posible presencia de personal y equipos en la banquina.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "131",
+      "tramo": "Emp. RP 11 - Emp. RN 12",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Personal del 17° Distrito realiza tareas de mantenimiento. Circular con precaución ante la posible presencia de personal y equipos en banquina.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "135",
+      "tramo": "Emp. RN 14 - Pte. Internac. Gervasio Artigas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Puente Internacional Gervasio Artigas: tránsito normal",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "136",
+      "tramo": "Emp. RP 20 - Pte. Internacional General San Martín",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Puente Internacional General San Martín: tránsito normal.",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "174",
+      "tramo": "Victoria - Rosario",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Autovía concesionada Conexión Alto Delta S.A. Contacto: 3444 505 338 | www.conexionaltodelta.com",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Entre Ríos",
+      "ruta": "A015",
+      "tramo": "Emp. RN 14 - Acc. a Salto Grande",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Puente Internacional Salto Grande: tránsito normal",
+      "actualizado": "30/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "11",
+      "tramo": "Lucio Mansilla - Pte. San. Ignacio de Loyola",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Formosa - Las Lomitas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Las Lomitas - J. G. Bazan",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Juan Bazan - P. del Mortero",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Pozo del Mortero - Laguna Yema",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Laguna Yema - Los Chiriguanos",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Los Chiriguanos - Ing. Juarez",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Ing. Juarez - Km 25,5",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "81",
+      "tramo": "Km. 25,5 - Lte. Con Salta",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "Clorinda - El Cogoik",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "El Cogoik - Villa Gral. Güemes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "Villa Gral. Güemes - Fortin Leyes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "Fortin Leyes - San Martin 2",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "San Martin 2 - C. Zalazar",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "C. Zalazar - El Remanso",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "El Remanso -Guadalcazar",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "86",
+      "tramo": "El Solitario - M. San Martin",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "95",
+      "tramo": "Fortín Lavalle - km 29,9",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "95",
+      "tramo": "Km. 29,9 - Emp. RN 81",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "95",
+      "tramo": "Emp. RN 81 - Villa. Gral Güemes",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Formosa",
+      "ruta": "11-AO11",
+      "tramo": "Acc. a Pto. Pilcomayo",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "6/10/2026 09:40",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Lte. Con Corrientes - Acc. Aer. Posadas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Acc. Aer. Posadas - Emp. RN 105",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Emp. RN 105 - Santa Ana",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Santa Ana - Eldorado",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Eldorado - Emp. RN 101",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Emp. RN 101 - Acc. a Puerto Iguazu",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Acc. a Puerto Iguazu - Puente Inter. Tancredo Neves",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "12",
+      "tramo": "Puente Inter. \"Tancredo Neves\" Puerto Iguazu (Arg)",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Lte. Con Corrientes - San José",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "San José - Oberá",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Oberá - Campo Grande",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Campo Grande - San Vicente",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "San Vicente - Gramado",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Gramado - Piñalito",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Piñalito - Emp. RP 17",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "14",
+      "tramo": "Emp. RP 17 - Bernardo De Irigoyen",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "Bdo. De Irigoyen - San Antonio",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "San Antonio - Piñalito Norte",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "Piñalito Norte - Emp. RP 19",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "Empalme RP 19 - Lte. Parque Nacional Iguazu",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "Lte. Parque Nacional Iguazu - Acc. Aer. Iguazu",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "101",
+      "tramo": "Acc. Aer. Iguazu - Empalme RN 12",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "105",
+      "tramo": "Posadas - San José",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Misiones",
+      "ruta": "S/N",
+      "tramo": "Pte. Internacional Posadas - Encarnación (Par)",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "22/9/2026 09:00",
+      "vigencia": "Reconfirmar · reporte antiguo/sin fecha"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "7",
+      "tramo": "Lte. Con Bs.As. - Lte. Con Cordoba",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución en el alteo por la laguna La Picasa, paso a velocidad reducida (80km/h vehículos livianos - 60 km/h pesados y colectivos). Tareas de bacheo y repavimentación entre La Picasa y Rufino (paso alternado de a una mano por vez en zonas de trabajos) - Transito con precaución en paso por alcantarilla en Km 414 entre Aarón Castellanos y Rufino",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "8",
+      "tramo": "Lte. Con Santafe - Lte. Con Cordoba",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "9",
+      "tramo": "Lte. Con Bs. As. - Gral. Lagos",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "9",
+      "tramo": "Gral. Lagos - Rosario",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "9",
+      "tramo": "Rosario - Carcaraña",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "9",
+      "tramo": "Carcaraña - Lte. Con Cordoba",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "ATENCION: Acceso a Cañada de Gómez cerrado por obras de la municipalidad en el acceso.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "11",
+      "tramo": "Rosario - San Lorenzo",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "11",
+      "tramo": "San Lorenzo - Arocena",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "11",
+      "tramo": "Arocena - Santa Fe",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "ATENCION: Puente Carretero habilitado para todo tipo de vehículos incluidos colectivos de doble piso - camiones limitados a la configuración de un solo eje trasero - PROHIBIDO el cruce de: camiones con balancín (doble eje trasero), semirremolques, camiones con acoplado, bateas, y toda configuración que supere un solo eje trasero - ATENCION entre Santo Tomé y Santa Fe desvíos y restricciones por obra construcción nuevo puente. Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "11",
+      "tramo": "Santa Fe - Lte. Con Chaco",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general. Precaución en la circulación por deficiente estado de la calzada en diversos sectore entre Santa Fe, Recreo, San Justo, Gobernador Crespo, Vera, Malabrigo, Reconquista, Villa Ocampo, Límite con Chaco. En el tramo Candioti (Km 490 ) - Reconquista (Km 786) la velocidad máxima recomendada por las tareas de reparación de la ruta es de 80 KM/H en los tramos no urbanizados.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "19",
+      "tramo": "Santo Tomé - San francisco",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "33",
+      "tramo": "Lte. Con Bs.As. - Rufino",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "33",
+      "tramo": "Rufino - Zavalla",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general - Trabajos de bacheo y mantenimiento general. ATENCION: Venado Tuerto (KM 636) Interseccion con RP N°7 (acceso Aeródromo), desvío por construccion de rotonda sobre RN 33.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "33",
+      "tramo": "Zavalla - Rosario",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "34",
+      "tramo": "Rosario - Emp. RN A-012",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "34",
+      "tramo": "Emp. RN A-012 - Emp. RN Nº 19",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "34",
+      "tramo": "Emp. RN N° 19 - Lte. Con Sgo. Del Estero",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "PRECAUCION: Desvíos entre empalme RP 13 (Ataliva) y Sunchales (RP 280S) - Velocidad de precaución para el tramo en obras 60 Km/. Se solicita a los usuario respetar las indicaciones de velocidades máximas, banderilleros y sentidos de paso señalados en los desvíos.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "95",
+      "tramo": "Ceres - Tostado",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "95",
+      "tramo": "Tostado - Villa Minetti",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "95",
+      "tramo": "Villa Minetti - Lte. Con Chaco",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "98",
+      "tramo": "Vera - Tostado",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "98",
+      "tramo": "Tostado - Lte. Sgo del Estero",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "168",
+      "tramo": "Santa Fe - Parana",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución corte de pasto en banquinas y zona de camino - bacheo de transitabilidad - mantenimiento general",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "173",
+      "tramo": "Emp. RN 11 - Puerto Aragon",
+      "estado": "HABILITADA",
+      "calzada": "CALZADA NATURAL",
+      "observaciones": "ALERTA: (INTRANSITABLE DÍAS DE LLUVIA E INMEDIATOS POSTERIORES)",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "174",
+      "tramo": "Rosario - Victoria",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "175",
+      "tramo": "Emp. RN 11 - Puerto San Martin",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "178",
+      "tramo": "Lte. Con Bs. As. - Emp. RN 33",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "178",
+      "tramo": "Emp.RN 33 - Acc. a Villa Eloisa",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "178",
+      "tramo": "Acc. a Villa Eloisa - Las Rosas",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento - TRABAJOS DE BACHEO: Tareas sobre calzada con reparaciones entre Villa Eloísa y RN 9 y entre RN 9 y Las Rosas. Reducciones de carril durante las intevenciones, con paso alternado. Circulación con precaución por calzada en reparación en el tramo Acceso Villa Eloísa - RN 1V09. Entre Villa Eloísa (Km 146) y Las Rosas (Km 205) la velocidad máxima recomendada por tareas de reparación de la ruta es de 80 KM/H en los tramos no urbanizados.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "1v09",
+      "tramo": "Rosario - Roldan",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución trabajos de mantenimiento general - posibles reducciones de carril puntuales por tareas en calzada",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "1v09",
+      "tramo": "Roldan - Emp. RN 178",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución trabajos de mantenimiento general - posibles reducciones de carril puntuales por tareas en calzada",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "1v09",
+      "tramo": "Emp. RN 178 - Lte. Con Córdoba",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Precaución trabajos de mantenimiento general - posibles reducciones de carril puntuales por tareas en calzada",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A007",
+      "tramo": "Emp. RN 11 - Calle Juan De Garay",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A007",
+      "tramo": "Emp. RN 11 - Emp RN 1V11",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A008",
+      "tramo": "Emp. RN 9 - Acc. Sur a Puerto",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A008",
+      "tramo": "Rio Parana - Emp. RN 9",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A009",
+      "tramo": "Puerto Reconquista - Emp. RN 11",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Trabajos de mantenimiento",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A012",
+      "tramo": "Alto Nivel RN 9(S) - Emp.RN 9",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Se realizan trabajos de reparación de calzada en el intercambiador de la RN AO12 y la Autopista Rosario–Buenos Aires. Durante las tareas se efectuarán cortes progresivos en distintos sectores, de acuerdo con el avance de la obra. Los puestos estarán señalizados con banderilleros de la empresa y cartelería indicativa. Se recomienda prever demoras en la circulación y respetar las indicaciones del personal vial que trabaja en el lugar.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    },
+    {
+      "provincia": "Santa Fe",
+      "ruta": "A012",
+      "tramo": "Emp. RN 9 (O) - San Lorenzo",
+      "estado": "HABILITADA",
+      "calzada": "PAVIMENTO",
+      "observaciones": "Corte total en la intersección con RN 34 por mantenimiento vial entre Ricardone y Roldán. Desvíos: -Vecinos del barrio al norte de A012, acceso por el camino alternativo paralelo a la A012 (sólo vehículos livianos). -Vecinos del barrio al sur de A012, ingreso y egreso por la banquina habilitada sobre la A012 (solo vehículos livianos). Para el tránsito pesado, solo podrá acceder al Parque Industrial de Roldán por A012 y RN1 V 09. Se prohíbe la circulación de camiones en la A012 entre RN1 V 09 y RN 34 (excepto los que se dirigen al Parque Industrial de Roldán). El tránsito liviano podrá circular desde la RN1V 09 hasta el final del Parque Industrial de Roldán.",
+      "actualizado": "9/10/2026 09:00",
+      "vigencia": "Reciente · ≤ 24 h"
+    }
+  ],
+  "conteos_provincia": {
+    "Chaco": 13,
+    "Corrientes": 30,
+    "Entre Ríos": 27,
+    "Formosa": 21,
+    "Misiones": 24,
+    "Santa Fe": 39
+  },
+  "fechas_publicadas": [
+    "22/9/2026 09:00",
+    "28/9/2026 07:50",
+    "30/9/2026 09:00",
+    "6/10/2026 09:40",
+    "9/10/2026 09:00",
+    "9/10/2026 12:30"
+  ]
+}

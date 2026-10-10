@@ -1,0 +1,42 @@
+{
+  "version_dossier": "4.4.1",
+  "fecha_consulta": "2026-10-10",
+  "id_evento": "2026-08-01-resistencia-sin-anegamientos",
+  "provincia": "Chaco",
+  "localidad": "Resistencia",
+  "latitud": -27.451075711,
+  "longitud": -58.986483529,
+  "fecha_parte": "2026-08-01",
+  "impacto_anegamiento_observado": 0,
+  "tipo_control": "Ausencia de anegamiento documentada por autoridad hídrica después del temporal, al momento del parte",
+  "fuente": {
+    "organismo": "Administración Provincial del Agua (APA) del Chaco",
+    "publicador": "Gobierno de la Provincia del Chaco",
+    "titulo": "Tras el temporal, APA confirmó que no se registraron anegamientos y que el escurrimiento funcionó con normalidad",
+    "url": "https://chaco.gob.ar/noticia-tras-el-temporal-apa-confirmo-que-no-se-registraron-anegamientos-y-que-el-escurrimiento-funciono-con-normalidad-2026-08-01-14-03",
+    "ref_web": "turn156view0",
+    "fecha_publicacion_visible": "2026-08-01",
+    "hora_publicacion_confirmada": null,
+    "zona_horaria_publicacion": null,
+    "hora_en_slug_url_no_confirmada": "14:03",
+    "cita_breve": "No tenemos datos de lugares anegados. El trabajo de escurrimiento fue normal",
+    "ubicacion_evidencia": "Cuerpo de la noticia, declaración de Jorge Pilar; líneas 70 y 74 de la extracción web"
+  },
+  "observaciones": {
+    "lluvia_acumulada_publicada_mm": 26.8,
+    "periodo_lluvia": "Hasta el momento del parte; comienzo del acumulado y estación no especificados",
+    "alcance_espacial": "Resistencia y localidades del Área Metropolitana del Gran Resistencia; no toda la provincia ni todas las parcelas rurales",
+    "alcance_temporal": "Ausencia informada al momento del parte posterior al temporal; no prueba ausencia durante el resto del día",
+    "otros_impactos": "Se describieron daños por viento: techos en Resistencia y Margarita Belén y caída de un muro",
+    "pronostico_posterior_en_la_fuente": "Todavía se indicaba probabilidad de tormentas aisladas para la tarde de ese sábado",
+    "limitacion_tipo_peligro": "Control negativo solo para anegamiento; no ausencia de todo daño o de todo peligro"
+  },
+  "reconstruccion_modelo": {
+    "modelo_propuesto": "ECMWF IFS HRES",
+    "inicializacion_propuesta_utc": "2026-07-31T00:00:00Z",
+    "estado": "Pendiente de descarga y cálculo; la consulta de fuentes no verifica disponibilidad de esa corrida",
+    "indice_historico": null,
+    "hora_emision_operativa_confirmada": null,
+    "nota": "La inicialización fija propuesta precede al día del parte. No se equipara la hora del slug de la noticia con la emisión de un pronóstico. El acumulado observado de 26.8 mm no se tratará como lluvia diaria o de 72 horas sin período confirmado."
+  }
+}

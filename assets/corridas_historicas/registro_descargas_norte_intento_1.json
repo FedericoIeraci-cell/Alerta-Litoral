@@ -1,0 +1,140 @@
+[
+  {
+    "evento_id": "2025-05-27-pirane",
+    "grupo_evento": "2025-05-07-pirane",
+    "provincia": "Formosa",
+    "localidad_calculo": "Pirané",
+    "latitude_solicitada": -25.732649819,
+    "longitude_solicitada": -59.109808063,
+    "fecha_evento": "2025-05-27",
+    "inicializacion_utc": "2025-05-26T00:00:00+00:00",
+    "emision": "2025-05-26T03:00:00-03:00",
+    "tipo_emision": "corte_reconstruido",
+    "disponibilidad_confirmada": "no",
+    "indice": "",
+    "fuente_pronostico": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-25.732649819&longitude=-59.109808063&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&run=2025-05-26T00%3A00&forecast_days=5",
+    "fuente_antecedentes": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-25.732649819&longitude=-59.109808063&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&start_date=2025-05-19&end_date=2025-05-26",
+    "fecha_descarga": "2026-10-10",
+    "descargas": {
+      "corrida": {
+        "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-25.732649819&longitude=-59.109808063&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&run=2025-05-26T00%3A00&forecast_days=5",
+        "params": {
+          "latitude": -25.732649819,
+          "longitude": -59.109808063,
+          "hourly": "temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,pressure_msl,surface_pressure,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,vapour_pressure_deficit,evapotranspiration,et0_fao_evapotranspiration,precipitation,rain,showers,precipitation_probability,runoff,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,soil_temperature_28_to_100cm,soil_temperature_100_to_255cm,soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm,soil_moisture_100_to_255cm,weather_code",
+          "models": "ecmwf_ifs",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "land",
+          "run": "2025-05-26T00:00",
+          "forecast_days": 5
+        },
+        "endpoint": "https://single-runs-api.open-meteo.com/v1/forecast",
+        "fecha_descarga_utc": "2026-10-10T04:35:49.839220+00:00",
+        "http_status": 400,
+        "content_type": "application/json; charset=utf-8",
+        "url_resuelta": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-25.732649819&longitude=-59.109808063&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&run=2025-05-26T00%3A00&forecast_days=5",
+        "sha256": "77860cf2cecee59a739f2c93a4e9ea10633a885502b1fb428f9a9f9f857d93c7",
+        "bytes": 120,
+        "archivo": "assets/corridas_historicas/norte_2025-05-27-pirane_corrida_intento_1.json",
+        "estado": "error",
+        "error": "The requested model run is not available. Model: ecmwf_ifs025_ensemble, run: 2025-05-26T00:00Z"
+      },
+      "antecedentes": {
+        "url": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-25.732649819&longitude=-59.109808063&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&start_date=2025-05-19&end_date=2025-05-26",
+        "params": {
+          "latitude": -25.732649819,
+          "longitude": -59.109808063,
+          "hourly": "temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,pressure_msl,surface_pressure,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,vapour_pressure_deficit,evapotranspiration,et0_fao_evapotranspiration,precipitation,rain,showers,precipitation_probability,runoff,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,soil_temperature_28_to_100cm,soil_temperature_100_to_255cm,soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm,soil_moisture_100_to_255cm,weather_code",
+          "models": "ecmwf_ifs",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "land",
+          "start_date": "2025-05-19",
+          "end_date": "2025-05-26"
+        },
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "fecha_descarga_utc": "2026-10-10T04:35:49.839784+00:00",
+        "estado": "error",
+        "error": "HTTPSConnectionPool(host='historical-forecast-api.open-meteo.com', port=443): Read timed out. (read timeout=5)"
+      }
+    },
+    "nota_disponibilidad": "Corte supuesto +6 h; antecedentes retrospectivos. No certifica disponibilidad original ni es validación operativa.",
+    "sha256_corrida": "77860cf2cecee59a739f2c93a4e9ea10633a885502b1fb428f9a9f9f857d93c7",
+    "estado": "error_descarga",
+    "nota": "corrida: The requested model run is not available. Model: ecmwf_ifs025_ensemble, run: 2025-05-26T00:00Z; antecedentes: HTTPSConnectionPool(host='historical-forecast-api.open-meteo.com', port=443): Read timed out. (read timeout=5)",
+    "nota_independencia": "Intento previo del 27 de mayo descartado como caso independiente: parte de continuidad del episodio iniciado el 7 de mayo."
+  },
+  {
+    "evento_id": "2024-05-02-posadas",
+    "grupo_evento": "2024-05-02-posadas",
+    "provincia": "Misiones",
+    "localidad_calculo": "Posadas",
+    "latitude_solicitada": -27.36642598,
+    "longitude_solicitada": -55.893980275,
+    "fecha_evento": "2024-05-02",
+    "inicializacion_utc": "2024-05-01T00:00:00+00:00",
+    "emision": "2024-05-01T03:00:00-03:00",
+    "tipo_emision": "corte_reconstruido",
+    "disponibilidad_confirmada": "no",
+    "indice": "",
+    "fuente_pronostico": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-27.36642598&longitude=-55.893980275&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&run=2024-05-01T00%3A00&forecast_days=5",
+    "fuente_antecedentes": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-27.36642598&longitude=-55.893980275&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&start_date=2024-04-24&end_date=2024-05-01",
+    "fecha_descarga": "2026-10-10",
+    "descargas": {
+      "corrida": {
+        "url": "https://single-runs-api.open-meteo.com/v1/forecast?latitude=-27.36642598&longitude=-55.893980275&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&run=2024-05-01T00%3A00&forecast_days=5",
+        "params": {
+          "latitude": -27.36642598,
+          "longitude": -55.893980275,
+          "hourly": "temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,pressure_msl,surface_pressure,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,vapour_pressure_deficit,evapotranspiration,et0_fao_evapotranspiration,precipitation,rain,showers,precipitation_probability,runoff,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,soil_temperature_28_to_100cm,soil_temperature_100_to_255cm,soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm,soil_moisture_100_to_255cm,weather_code",
+          "models": "ecmwf_ifs",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "land",
+          "run": "2024-05-01T00:00",
+          "forecast_days": 5
+        },
+        "endpoint": "https://single-runs-api.open-meteo.com/v1/forecast",
+        "fecha_descarga_utc": "2026-10-10T04:35:55.237097+00:00",
+        "estado": "error",
+        "error": "HTTPSConnectionPool(host='single-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=5)"
+      },
+      "antecedentes": {
+        "url": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-27.36642598&longitude=-55.893980275&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&start_date=2024-04-24&end_date=2024-05-01",
+        "params": {
+          "latitude": -27.36642598,
+          "longitude": -55.893980275,
+          "hourly": "temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,pressure_msl,surface_pressure,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape,vapour_pressure_deficit,evapotranspiration,et0_fao_evapotranspiration,precipitation,rain,showers,precipitation_probability,runoff,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,soil_temperature_28_to_100cm,soil_temperature_100_to_255cm,soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm,soil_moisture_100_to_255cm,weather_code",
+          "models": "ecmwf_ifs",
+          "timezone": "America/Argentina/Buenos_Aires",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "land",
+          "start_date": "2024-04-24",
+          "end_date": "2024-05-01"
+        },
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "fecha_descarga_utc": "2026-10-10T04:35:55.238312+00:00",
+        "http_status": 200,
+        "content_type": "application/json; charset=utf-8",
+        "url_resuelta": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-27.36642598&longitude=-55.893980275&hourly=temperature_2m%2Capparent_temperature%2Cdew_point_2m%2Crelative_humidity_2m%2Cpressure_msl%2Csurface_pressure%2Ccloud_cover%2Ccloud_cover_low%2Ccloud_cover_mid%2Ccloud_cover_high%2Cwind_speed_10m%2Cwind_gusts_10m%2Cwind_direction_10m%2Ccape%2Cvapour_pressure_deficit%2Cevapotranspiration%2Cet0_fao_evapotranspiration%2Cprecipitation%2Crain%2Cshowers%2Cprecipitation_probability%2Crunoff%2Csoil_temperature_0_to_7cm%2Csoil_temperature_7_to_28cm%2Csoil_temperature_28_to_100cm%2Csoil_temperature_100_to_255cm%2Csoil_moisture_0_to_7cm%2Csoil_moisture_7_to_28cm%2Csoil_moisture_28_to_100cm%2Csoil_moisture_100_to_255cm%2Cweather_code&models=ecmwf_ifs&timezone=America%2FArgentina%2FBuenos_Aires&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&cell_selection=land&start_date=2024-04-24&end_date=2024-05-01",
+        "sha256": "855dc07e574aef10fee05baece6bf331d43e7bcff893666ba0246c67ea3fb7b0",
+        "bytes": 33097,
+        "archivo": "assets/corridas_historicas/norte_2024-05-02-posadas_antecedentes_intento_1.json",
+        "estado": "descargado"
+      }
+    },
+    "nota_disponibilidad": "Corte supuesto +6 h; antecedentes retrospectivos. No certifica disponibilidad original ni es validación operativa.",
+    "sha256_antecedentes": "855dc07e574aef10fee05baece6bf331d43e7bcff893666ba0246c67ea3fb7b0",
+    "estado": "error_descarga",
+    "nota": "corrida: HTTPSConnectionPool(host='single-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=5)"
+  }
+]
