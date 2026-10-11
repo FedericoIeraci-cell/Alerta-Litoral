@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-11T01:19:39.775967+00:00",
-  "checked_at_art": "2026-10-10T22:19:39.775967-03:00",
+  "checked_at": "2026-10-11T02:19:25.874602+00:00",
+  "checked_at_art": "2026-10-10T23:19:25.874602-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
   "nodes_valid": 42,
-  "nodes_red": 5,
+  "nodes_red": 6,
   "nodes_invalid": 0,
-  "nodes_yellow": 9,
+  "nodes_yellow": 8,
   "nodes_green": 28,
   "configured_nodes": 42,
   "result": {
     "configurado": true,
     "enviadas": 0,
-    "fallidas": 0,
-    "pendientes": 5,
-    "omitidas": 5,
+    "fallidas": 2,
+    "pendientes": 6,
+    "omitidas": 4,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
@@ -24,9 +24,42 @@
     "pausado_sesion": false,
     "registro_error": false
   },
-  "history": [],
-  "health": "ok",
-  "ok": true,
-  "errors": [],
+  "history": [
+    {
+      "id": "26b2d7fc536e",
+      "creado": "2026-10-11T02:19:25.874992+00:00",
+      "intento": "2026-10-11T02:19:25.874992+00:00",
+      "localidad": "Clorinda",
+      "provincia": "Formosa",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 44.0,
+      "indice": 59.2,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "ce39b5562b4b",
+      "creado": "2026-10-11T02:19:25.874992+00:00",
+      "intento": "2026-10-11T02:19:25.874992+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 48.9,
+      "indice": 57.2,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    }
+  ],
+  "health": "envio_rechazado",
+  "ok": false,
+  "errors": [
+    "Telegram rechazó uno o más avisos."
+  ],
   "dry_run": false
 }
