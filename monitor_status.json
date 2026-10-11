@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-11T15:18:57.500064+00:00",
-  "checked_at_art": "2026-10-11T12:18:57.500064-03:00",
+  "checked_at": "2026-10-11T16:19:55.637841+00:00",
+  "checked_at_art": "2026-10-11T13:19:55.637841-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -58,16 +58,16 @@
     {
       "id": "d2ad89a0d2c4",
       "creado": "2026-10-11T09:20:32.421824+00:00",
-      "intento": "2026-10-11T15:18:57.500546+00:00",
+      "intento": "2026-10-11T16:19:55.638295+00:00",
       "localidad": "Eldorado",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 48.4,
-      "indice": 60.1,
+      "indice": 59.7,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 7,
+      "intentos": 8,
       "detalle": "Not Found"
     },
     {
@@ -88,16 +88,16 @@
     {
       "id": "ec256a9a241b",
       "creado": "2026-10-11T03:21:19.800728+00:00",
-      "intento": "2026-10-11T15:18:57.500546+00:00",
+      "intento": "2026-10-11T16:19:55.638295+00:00",
       "localidad": "Oberá",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 73.3,
-      "indice": 61.2,
+      "indice": 61.1,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 13,
+      "intentos": 14,
       "detalle": "Not Found"
     },
     {
@@ -118,16 +118,16 @@
     {
       "id": "ce39b5562b4b",
       "creado": "2026-10-11T02:19:25.874992+00:00",
-      "intento": "2026-10-11T15:18:57.500546+00:00",
+      "intento": "2026-10-11T16:19:55.638295+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 48.9,
-      "indice": 67.6,
+      "indice": 65.3,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 14,
+      "intentos": 15,
       "detalle": "Not Found"
     }
   ],
