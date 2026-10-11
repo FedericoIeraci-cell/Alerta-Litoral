@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-11T00:17:42.753767+00:00",
+  "checked_at_art": "2026-10-10T21:17:42.753767-03:00",
+  "frequency_minutes": 60,
+  "scope": "ECMWF / índice meteorológico",
+  "nodes_total": 42,
+  "nodes_valid": 42,
+  "nodes_red": 5,
+  "nodes_invalid": 0,
+  "nodes_yellow": 9,
+  "nodes_green": 28,
+  "configured_nodes": 42,
+  "result": {
+    "configurado": true,
+    "enviadas": 0,
+    "fallidas": 0,
+    "pendientes": 5,
+    "omitidas": 0,
+    "inicializadas": 42,
+    "sin_datos": 0,
+    "atrasadas": 0,
+    "inciertas": 0,
+    "pausado_sesion": false,
+    "registro_error": false
+  },
+  "history": [],
+  "health": "ok",
+  "ok": true,
+  "errors": [],
+  "dry_run": false
+}
