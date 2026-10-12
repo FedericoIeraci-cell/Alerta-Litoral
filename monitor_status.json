@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-12T00:32:36.487540+00:00",
-  "checked_at_art": "2026-10-11T21:32:36.487540-03:00",
+  "checked_at": "2026-10-12T01:23:20.417691+00:00",
+  "checked_at_art": "2026-10-11T22:23:20.417691-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -28,31 +28,31 @@
     {
       "id": "b0dd061612b2",
       "creado": "2026-10-12T00:32:36.487991+00:00",
-      "intento": "2026-10-12T00:32:36.487991+00:00",
+      "intento": "2026-10-12T01:23:20.418126+00:00",
       "localidad": "Eldorado",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
-      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 52.1,
       "indice": 56.7,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 1,
+      "intentos": 2,
       "detalle": "Not Found"
     },
     {
       "id": "eada9a29e92c",
       "creado": "2026-10-11T23:19:03.133011+00:00",
-      "intento": "2026-10-12T00:32:36.487991+00:00",
+      "intento": "2026-10-12T01:23:20.418126+00:00",
       "localidad": "Posadas",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 54.6,
-      "indice": 58.4,
+      "indice": 60.5,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 2,
+      "intentos": 3,
       "detalle": "Not Found"
     },
     {
@@ -118,16 +118,16 @@
     {
       "id": "ec256a9a241b",
       "creado": "2026-10-11T03:21:19.800728+00:00",
-      "intento": "2026-10-12T00:32:36.487991+00:00",
+      "intento": "2026-10-12T01:23:20.418126+00:00",
       "localidad": "Oberá",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 73.3,
-      "indice": 58.8,
+      "indice": 59.9,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 22,
+      "intentos": 23,
       "detalle": "Not Found"
     },
     {
@@ -148,7 +148,7 @@
     {
       "id": "ce39b5562b4b",
       "creado": "2026-10-11T02:19:25.874992+00:00",
-      "intento": "2026-10-12T00:32:36.487991+00:00",
+      "intento": "2026-10-12T01:23:20.418126+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
@@ -157,7 +157,7 @@
       "indice": 59.8,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 23,
+      "intentos": 24,
       "detalle": "Not Found"
     }
   ],
