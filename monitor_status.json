@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-12T19:20:07.646220+00:00",
-  "checked_at_art": "2026-10-12T16:20:07.646220-03:00",
+  "checked_at": "2026-10-12T20:04:00.090401+00:00",
+  "checked_at_art": "2026-10-12T17:04:00.090401-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -25,6 +25,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "9625e63c5104",
+      "creado": "2026-10-12T20:04:00.090896+00:00",
+      "intento": "2026-10-12T20:04:00.090896+00:00",
+      "localidad": "Oberá",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 52.7,
+      "indice": 57.7,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
     {
       "id": "5bee2bc50434",
       "creado": "2026-10-12T11:23:00.264656+00:00",
@@ -73,31 +88,31 @@
     {
       "id": "b0dd061612b2",
       "creado": "2026-10-12T00:32:36.487991+00:00",
-      "intento": "2026-10-12T19:20:07.646561+00:00",
+      "intento": "2026-10-12T20:04:00.090896+00:00",
       "localidad": "Eldorado",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 52.1,
-      "indice": 62.5,
+      "indice": 63.5,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 20,
+      "intentos": 21,
       "detalle": "Not Found"
     },
     {
       "id": "eada9a29e92c",
       "creado": "2026-10-11T23:19:03.133011+00:00",
-      "intento": "2026-10-12T19:20:07.646561+00:00",
+      "intento": "2026-10-12T20:04:00.090896+00:00",
       "localidad": "Posadas",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 54.6,
-      "indice": 62.3,
+      "indice": 64.4,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 21,
+      "intentos": 22,
       "detalle": "Not Found"
     },
     {
@@ -193,16 +208,16 @@
     {
       "id": "ce39b5562b4b",
       "creado": "2026-10-11T02:19:25.874992+00:00",
-      "intento": "2026-10-12T19:20:07.646561+00:00",
+      "intento": "2026-10-12T20:04:00.090896+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ALERTA NUEVA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 48.9,
-      "indice": 76.7,
+      "indice": 77.0,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 42,
+      "intentos": 43,
       "detalle": "Not Found"
     }
   ],
