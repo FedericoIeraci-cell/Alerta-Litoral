@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-12T21:19:53.105893+00:00",
-  "checked_at_art": "2026-10-12T18:19:53.105893-03:00",
+  "checked_at": "2026-10-12T22:20:34.856272+00:00",
+  "checked_at_art": "2026-10-12T19:20:34.856272-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -14,9 +14,9 @@
   "result": {
     "configurado": true,
     "enviadas": 0,
-    "fallidas": 0,
+    "fallidas": 1,
     "pendientes": 4,
-    "omitidas": 4,
+    "omitidas": 3,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
@@ -24,9 +24,27 @@
     "pausado_sesion": false,
     "registro_error": false
   },
-  "history": [],
-  "health": "ok",
-  "ok": true,
-  "errors": [],
+  "history": [
+    {
+      "id": "622499756114",
+      "creado": "2026-10-12T22:20:34.856671+00:00",
+      "intento": "2026-10-12T22:20:34.856671+00:00",
+      "localidad": "Santo Tomé",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 41.8,
+      "indice": 62.5,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    }
+  ],
+  "health": "envio_rechazado",
+  "ok": false,
+  "errors": [
+    "Telegram rechazó uno o más avisos."
+  ],
   "dry_run": false
 }
