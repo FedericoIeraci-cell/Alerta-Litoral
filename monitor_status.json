@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-13T18:27:38.845694+00:00",
-  "checked_at_art": "2026-10-13T15:27:38.845694-03:00",
+  "checked_at": "2026-10-13T19:32:31.970351+00:00",
+  "checked_at_art": "2026-10-13T16:32:31.970351-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -28,16 +28,16 @@
     {
       "id": "242a9c67748e",
       "creado": "2026-10-13T02:21:45.324669+00:00",
-      "intento": "2026-10-13T18:27:38.846197+00:00",
+      "intento": "2026-10-13T19:32:31.970695+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 77.0,
-      "indice": 66.4,
+      "indice": 66.3,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 17,
+      "intentos": 18,
       "detalle": "Not Found"
     },
     {
