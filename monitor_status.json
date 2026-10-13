@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-13T16:23:54.560023+00:00",
-  "checked_at_art": "2026-10-13T13:23:54.560023-03:00",
+  "checked_at": "2026-10-13T17:21:31.423330+00:00",
+  "checked_at_art": "2026-10-13T14:21:31.423330-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -28,7 +28,7 @@
     {
       "id": "242a9c67748e",
       "creado": "2026-10-13T02:21:45.324669+00:00",
-      "intento": "2026-10-13T16:23:54.560467+00:00",
+      "intento": "2026-10-13T17:21:31.423650+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
@@ -37,7 +37,7 @@
       "indice": 66.4,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 15,
+      "intentos": 16,
       "detalle": "Not Found"
     },
     {
