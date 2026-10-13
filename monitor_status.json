@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-12T23:20:48.305399+00:00",
-  "checked_at_art": "2026-10-12T20:20:48.305399-03:00",
+  "checked_at": "2026-10-13T00:34:05.580146+00:00",
+  "checked_at_art": "2026-10-12T21:34:05.580146-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -28,7 +28,7 @@
     {
       "id": "622499756114",
       "creado": "2026-10-12T22:20:34.856671+00:00",
-      "intento": "2026-10-12T23:20:48.305773+00:00",
+      "intento": "2026-10-13T00:34:05.580613+00:00",
       "localidad": "Santo Tomé",
       "provincia": "Corrientes",
       "tipo": "ALERTA NUEVA",
@@ -37,7 +37,7 @@
       "indice": 62.5,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 2,
+      "intentos": 3,
       "detalle": "Not Found"
     }
   ],
