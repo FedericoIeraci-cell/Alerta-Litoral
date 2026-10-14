@@ -7738,11 +7738,11 @@ def render_app():
 
         **Condición meteorológica:** {row["descripcion_tiempo"]}
 
-        **Tendencia hidrológica:** {row["tendencia"]}
+        **Tendencia de escorrentía local modelada:** {row["tendencia"]}
 
-        **Dirección hidrológica:** {row["direccion_hidrologica"]}
+        **Cambio de escorrentía local modelada:** {row["direccion_hidrologica"]}
 
-        **Velocidad hidrológica:** {row["velocidad_hidrologica"]}
+        **Intensidad del cambio de escorrentía modelada:** {row["velocidad_hidrologica"]}
         """
         )
 
@@ -8398,7 +8398,7 @@ def render_app():
         De esta forma, "24 h", "72 h" y "7 días" no dependen de la posición arbitraria
         dentro del array de respuesta.
 
-        ### Tendencia hidrológica
+        ### Tendencia de escorrentía local modelada
 
         Se compara el runoff medio de las últimas 12 horas con el período comprendido
         entre 12 y 36 horas antes.
@@ -8484,7 +8484,7 @@ def render_app():
         # ============================================================
 
         st.header(
-            "🟢 Estado del sistema"
+            "Estado y cobertura del sistema"
         )
 
         st.write(
