@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T04:33:54.971340+00:00",
-  "checked_at_art": "2026-10-14T01:33:54.971340-03:00",
+  "checked_at": "2026-10-14T05:31:37.420467+00:00",
+  "checked_at_art": "2026-10-14T02:31:37.420467-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
