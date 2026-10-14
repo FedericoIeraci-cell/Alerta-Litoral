@@ -30,8 +30,10 @@ import requests
 ART = ZoneInfo("America/Argentina/Buenos_Aires")
 DB_REMOTE_PATH = "telegram_alerts.sqlite3"
 STATUS_REMOTE_PATH = "monitor_status.json"
+RED_REMOTE_PATH = "red_integrada.json"
 MAX_DB_BYTES = 20_000_000
 MAX_STATUS_BYTES = 500_000
+MAX_RED_BYTES = 500_000
 MONITOR_SCOPE = "Meteorología + hidrología + represas"
 LEGACY_SCOPE = "ECMWF / índice meteorológico"
 HISTORY_FIELDS = (
@@ -345,6 +347,21 @@ class GitHubStateStore:
             raise StateStoreError("El informe del monitor supera el tamaño permitido.")
         self._write_file(STATUS_REMOTE_PATH, payload, "ALA: actualizar estado del monitor")
 
+    def save_red_integrada(self, value: dict[str, Any]) -> None:
+        """Publica datos públicos separados del registro durable de avisos."""
+        try:
+            from red_integrada import validar_red_integrada
+            document = validar_red_integrada(value)
+            payload = json.dumps(document, ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8") + b"\n"
+        except (ImportError, ValueError, TypeError, OverflowError):
+            raise StateStoreError("El resumen de la red integrada no tiene un contrato público válido.") from None
+        if len(payload) > MAX_RED_BYTES:
+            raise StateStoreError("El resumen de la red integrada supera el tamaño permitido.")
+        # Este SHA se obtiene por separado: ni la base de avisos ni el informe
+        # anterior autorizan reemplazar un archivo de red que no se haya leído.
+        self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
+        self._write_file(RED_REMOTE_PATH, payload, "ALA: actualizar datos de la red Litoral-Zárate-Campana")
+
 
 def load_app(path: str | Path):
     path = Path(path).resolve()
@@ -467,6 +484,61 @@ def _coverage_errors(coverage: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _preparar_red_integrada(frame, panorama, status, app) -> dict[str, Any] | None:
+    """La consulta regional adicional nunca cambia candidatos ni envíos ALA."""
+    try:
+        from red_integrada import consultar_zc_red, construir_red_integrada, validar_red_integrada
+        referencia = datetime.now(timezone.utc)
+        zc = consultar_zc_red(referencia=referencia)
+        document = construir_red_integrada(
+            frame, panorama or {}, zc=zc, monitor=status,
+            referencia=referencia, version_ala=str(getattr(app, "VERSION", "")),
+        )
+        return validar_red_integrada(document, referencia=referencia)
+    except Exception:
+        # No se propagan HTTP, credenciales ni errores del productor al canal.
+        status["red_integrada_error"] = "No se pudo preparar un resumen verificable de la red integrada."
+        return None
+
+
+def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
+    document = _preparar_red_integrada(frame, panorama, status, app)
+    if document is None:
+        return
+    # La copia devuelta permite revisar o exportar el resultado; no se inserta
+    # dentro de monitor_status.json ni del SQLite de alertas.
+    status["red_integrada"] = document
+    try:
+        store.save_red_integrada(document)
+        status["red_integrada_publicada"] = True
+    except Exception:
+        status["red_integrada_publicada"] = False
+        status["red_integrada_error"] = "No se pudo confirmar la publicación del resumen de la red integrada."
+
+
+def _exportar_red_local(value: Any, destination: str | Path) -> None:
+    """Exportación optativa local, sin escrituras en GitHub ni Telegram."""
+    temporary = None
+    try:
+        from red_integrada import validar_red_integrada
+        document = validar_red_integrada(value)
+        payload = json.dumps(document, ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8") + b"\n"
+        if len(payload) > MAX_RED_BYTES:
+            raise ValueError()
+        destination = Path(destination).resolve()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=destination.parent, prefix=".red-integrada-", delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(payload)
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, destination)
+    except (ImportError, ValueError, TypeError, OverflowError, OSError):
+        raise MonitorError("No se pudo exportar localmente un resumen válido de la red integrada.") from None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def run_monitor(
     app_path: str | Path = "app.py", *, store=None, dry_run: bool = False,
     state_dir: str | Path | None = None, app_loader=None,
@@ -491,7 +563,9 @@ def run_monitor(
     try:
         # La misma evaluación automática abastece al panel y al monitor. No se
         # usan las capas privadas que una persona haya cargado en el navegador.
-        frame = automatic_risk()
+        panorama_getter = getattr(app, "obtener_panorama_hidrologico", None)
+        panorama = panorama_getter() if callable(panorama_getter) else None
+        frame = automatic_risk(panorama=panorama) if callable(panorama_getter) else automatic_risk()
     except Exception:
         raise MonitorError("No se pudo completar la evaluación automática de meteorología, hidrología y represas.") from None
     total = len(frame)
@@ -526,6 +600,9 @@ def run_monitor(
     if dry_run:
         if valid == 0:
             raise MonitorError("La prueba no recibió ningún nodo con fuentes vigentes para interpretar el semáforo.")
+        document = _preparar_red_integrada(frame, panorama, status, app)
+        if document is not None:
+            status["red_integrada"] = document
         return status
     if valid == 0:
         status["health"] = "sin_datos"
@@ -535,6 +612,7 @@ def run_monitor(
         # de datos válidos. El historial crea la base vacía, sin inicializar nodos.
         store.save_db(database)
         store.save_status(status)
+        _publicar_red_integrada(frame, panorama, status, app, store)
         raise MonitorError("Ninguna localidad tuvo un semáforo interpretable; no se enviaron avisos y el workflow falló.")
     try:
         result = app.procesar_alertas_telegram(frame, guardar_registro=lambda: store.save_db(database))
@@ -566,6 +644,7 @@ def run_monitor(
     # También confirma inicializaciones y cambios que no produjeron mensajes.
     store.save_db(database)
     store.save_status(status)
+    _publicar_red_integrada(frame, panorama, status, app, store)
     if status["health"] in {"error_registro", "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida"}:
         raise MonitorError("El monitor registró un problema de envío o persistencia; revisá el historial y el workflow.")
     return status
@@ -575,9 +654,12 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Evalúa las alertas ALA sin abrir la página.")
     parser.add_argument("--app", default="app.py", help="Ruta del archivo principal de Alerta Litoral Agro.")
     parser.add_argument("--dry-run", action="store_true", help="Consulta datos sin enviar ni modificar el registro remoto.")
+    parser.add_argument("--export-red", help="Guarda el resumen de la red integrada en este archivo local.")
     args = parser.parse_args(argv)
     try:
         status = run_monitor(args.app, dry_run=args.dry_run)
+        if args.export_red:
+            _exportar_red_local(status.get("red_integrada"), args.export_red)
         # Resumen deliberadamente pequeño: no imprime mensajes, secretos ni respuestas HTTP.
         print(json.dumps({
             "checked_at_art": status["checked_at_art"],
@@ -585,6 +667,8 @@ def main(argv=None) -> int:
             "nodes_valid": status["nodes_valid"], "nodes_red": status["nodes_red"],
             "scope": status["scope"], "coverage": status["coverage"],
             "result": status["result"], "dry_run": status["dry_run"],
+            "red_integrada_publicada": status.get("red_integrada_publicada", False),
+            "red_integrada_error": status.get("red_integrada_error"),
         }, ensure_ascii=False, allow_nan=False))
         return 0
     except MonitorError as error:
@@ -597,3 +681,4 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
