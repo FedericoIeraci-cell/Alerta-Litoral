@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T20:30:40.562853+00:00",
-  "checked_at_art": "2026-10-14T17:30:40.562853-03:00",
+  "checked_at": "2026-10-14T21:31:16.373588+00:00",
+  "checked_at_art": "2026-10-14T18:31:16.373588-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "4504a0727673",
+      "creado": "2026-10-14T21:31:16.373836+00:00",
+      "intento": "2026-10-14T21:31:16.373836+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 54.8,
+      "indice": 55.4,
+      "estado": "enviado",
+      "message_id": 50,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "b88f8a4fba12",
       "creado": "2026-10-14T20:30:40.563196+00:00",
