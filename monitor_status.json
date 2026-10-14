@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T03:31:01.346672+00:00",
-  "checked_at_art": "2026-10-14T00:31:01.346672-03:00",
+  "checked_at": "2026-10-14T04:33:54.971340+00:00",
+  "checked_at_art": "2026-10-14T01:33:54.971340-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -16,13 +16,13 @@
     "enviadas": 0,
     "fallidas": 0,
     "pendientes": 3,
-    "omitidas": 2,
+    "omitidas": 3,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
-    "inciertas": 0,
+    "inciertas": 1,
     "pausado_sesion": false,
-    "registro_error": true
+    "registro_error": false
   },
   "history": [
     {
@@ -56,10 +56,10 @@
       "detalle": "Not Found"
     }
   ],
-  "health": "error_registro",
+  "health": "envio_sin_confirmacion",
   "ok": false,
   "errors": [
-    "No se pudo confirmar el registro durable de alertas."
+    "Hay un envío sin confirmación de Telegram; revisá el canal."
   ],
   "dry_run": false
 }
