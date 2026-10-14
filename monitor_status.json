@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T17:18:20.472195+00:00",
-  "checked_at_art": "2026-10-14T14:18:20.472195-03:00",
+  "checked_at": "2026-10-14T17:28:11.940399+00:00",
+  "checked_at_art": "2026-10-14T14:28:11.940399-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -48,9 +48,9 @@
   },
   "history": [
     {
-      "id": "a5c323583f80",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "e82a2439af04",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Reconquista",
       "provincia": "Santa Fe",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -60,12 +60,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "4a01da9bebe6",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "7cc42b73efea",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Corrientes",
       "provincia": "Corrientes",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -75,12 +75,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "7cf745ea5cba",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "43556ad8995f",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Goya",
       "provincia": "Corrientes",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -90,12 +90,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "421a51a557f2",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "f20361d678aa",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Paso de los Libres",
       "provincia": "Corrientes",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -105,12 +105,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "efadfc74ec80",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "2af93d337273",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Resistencia",
       "provincia": "Chaco",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -120,12 +120,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "88d56ef30f2b",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "dabe74c4ec1b",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -135,12 +135,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "94715ce498b9",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "3cb0c2c07cfb",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Ituzaingó",
       "provincia": "Corrientes",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -150,12 +150,12 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     },
     {
-      "id": "4ac74b509ea7",
-      "creado": "2026-10-14T17:18:20.472666+00:00",
-      "intento": "2026-10-14T17:18:20.472666+00:00",
+      "id": "112b4c0c2fbb",
+      "creado": "2026-10-14T17:28:11.940821+00:00",
+      "intento": "2026-10-14T17:28:11.940821+00:00",
       "localidad": "Barranqueras",
       "provincia": "Chaco",
       "tipo": "ALERTA HIDROLÓGICA INICIAL",
@@ -165,7 +165,7 @@
       "estado": "rechazado",
       "message_id": null,
       "intentos": 1,
-      "detalle": "Bad Request: chat not found"
+      "detalle": "Forbidden: the bot can't send messages to the bot"
     }
   ],
   "health": "envio_rechazado",
