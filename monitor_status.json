@@ -1,30 +1,172 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T16:35:06.110045+00:00",
-  "checked_at_art": "2026-10-14T13:35:06.110045-03:00",
+  "checked_at": "2026-10-14T17:09:34.486590+00:00",
+  "checked_at_art": "2026-10-14T14:09:34.486590-03:00",
   "frequency_minutes": 60,
-  "scope": "ECMWF / índice meteorológico",
-  "nodes_total": 42,
-  "nodes_valid": 42,
-  "nodes_red": 1,
-  "nodes_invalid": 0,
-  "nodes_yellow": 7,
-  "nodes_green": 34,
-  "configured_nodes": 42,
+  "scope": "Meteorología + hidrología + represas",
+  "nodes_total": 48,
+  "nodes_valid": 45,
+  "nodes_red": 9,
+  "nodes_invalid": 3,
+  "nodes_yellow": 18,
+  "nodes_green": 18,
+  "configured_nodes": 48,
+  "coverage": {
+    "meteorologia": {
+      "vigentes": 48,
+      "aplicables": 48
+    },
+    "hidrologia_observada": {
+      "vigentes": 22,
+      "aplicables": 29
+    },
+    "hidrologia_prevista": {
+      "vigentes": 17,
+      "aplicables": 29
+    },
+    "represas": {
+      "vigentes": 18,
+      "aplicables": 20
+    },
+    "avisos_smn": {
+      "vigentes": 48,
+      "aplicables": 48
+    }
+  },
   "result": {
     "configurado": true,
     "enviadas": 0,
-    "fallidas": 0,
-    "pendientes": 1,
-    "omitidas": 1,
-    "inicializadas": 0,
-    "sin_datos": 0,
+    "fallidas": 8,
+    "pendientes": 9,
+    "omitidas": 0,
+    "inicializadas": 6,
+    "sin_datos": 3,
     "atrasadas": 0,
-    "inciertas": 1,
+    "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "0272e1bc4a00",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Reconquista",
+      "provincia": "Santa Fe",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de VERDE a ROJO en la localidad.",
+      "indice_anterior": 27.0,
+      "indice": 26.9,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "4a0810004130",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Corrientes",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de VERDE a ROJO en la localidad.",
+      "indice_anterior": 24.0,
+      "indice": 24.0,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "2a720efb5015",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Goya",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de VERDE a ROJO en la localidad.",
+      "indice_anterior": 20.8,
+      "indice": 20.7,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "457d817f997a",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Paso de los Libres",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de VERDE a ROJO en la localidad.",
+      "indice_anterior": 27.9,
+      "indice": 27.9,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "0fd8b02029b4",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de VERDE a ROJO en la localidad.",
+      "indice_anterior": 25.4,
+      "indice": 25.3,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "20e8f72c330b",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Empeoramiento fluvial vigente; el aviso anterior quedó sin confirmación. Este es un evento distinto.",
+      "indice_anterior": 61.6,
+      "indice": 60.1,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "9b37aa49d0b9",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA HIDROLÓGICA INICIAL",
+      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
+      "indice_anterior": 55.5,
+      "indice": 55.5,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
+    {
+      "id": "c0448bbaab0f",
+      "creado": "2026-10-14T17:09:34.487119+00:00",
+      "intento": "2026-10-14T17:09:34.487119+00:00",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "tipo": "ALERTA HIDROLÓGICA INICIAL",
+      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
+      "indice_anterior": 25.3,
+      "indice": 25.3,
+      "estado": "rechazado",
+      "message_id": null,
+      "intentos": 1,
+      "detalle": "Not Found"
+    },
     {
       "id": "242a9c67748e",
       "creado": "2026-10-13T02:21:45.324669+00:00",
@@ -56,10 +198,13 @@
       "detalle": "Not Found"
     }
   ],
-  "health": "envio_sin_confirmacion",
+  "health": "envio_rechazado",
   "ok": false,
   "errors": [
-    "Hay un envío sin confirmación de Telegram; revisá el canal."
+    "Telegram rechazó uno o más avisos.",
+    "22/29 puntos aplicables con observaciones fluviales vigentes.",
+    "17/29 puntos aplicables con pronóstico fluvial vigente.",
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false
 }
