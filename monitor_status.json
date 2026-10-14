@@ -1,31 +1,43 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T01:34:02.293963+00:00",
-  "checked_at_art": "2026-10-13T22:34:02.293963-03:00",
+  "checked_at": "2026-10-14T02:29:56.269974+00:00",
+  "checked_at_art": "2026-10-13T23:29:56.269974-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
-  "nodes_valid": 0,
-  "nodes_red": 0,
-  "nodes_invalid": 42,
-  "nodes_yellow": 0,
-  "nodes_green": 0,
+  "nodes_valid": 42,
+  "nodes_red": 3,
+  "nodes_invalid": 0,
+  "nodes_yellow": 5,
+  "nodes_green": 34,
   "configured_nodes": 42,
-  "result": {},
+  "result": {
+    "configurado": true,
+    "enviadas": 0,
+    "fallidas": 1,
+    "pendientes": 3,
+    "omitidas": 2,
+    "inicializadas": 0,
+    "sin_datos": 0,
+    "atrasadas": 0,
+    "inciertas": 0,
+    "pausado_sesion": false,
+    "registro_error": false
+  },
   "history": [
     {
       "id": "242a9c67748e",
       "creado": "2026-10-13T02:21:45.324669+00:00",
-      "intento": "2026-10-14T00:39:54.321004+00:00",
+      "intento": "2026-10-14T02:29:56.270407+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 77.0,
-      "indice": 60.3,
+      "indice": 61.6,
       "estado": "rechazado",
       "message_id": null,
-      "intentos": 23,
+      "intentos": 24,
       "detalle": "Not Found"
     },
     {
@@ -44,10 +56,10 @@
       "detalle": "Not Found"
     }
   ],
-  "health": "sin_datos",
+  "health": "envio_rechazado",
   "ok": false,
   "errors": [
-    "No se recibieron nodos con datos meteorológicos válidos."
+    "Telegram rechazó uno o más avisos."
   ],
   "dry_run": false
 }
