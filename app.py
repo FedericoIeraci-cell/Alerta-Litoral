@@ -92,7 +92,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.6.0"
+VERSION = "V4.6.1"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -7055,10 +7055,16 @@ def render_app():
     # SMN — DATOS EN DIRECTO
     # ============================================================
 
-    tab_agro, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
-        "🌧️ Alerta Litoral Agro", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
+    tab_agro, tab_red, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
+        "🌧️ Alerta Litoral Agro", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
         "🌱 Suelo y ríos", "🌊 El Niño / La Niña", "🗺️ Territorio y rutas", "📘 Caso histórico y ficha",
     ])
+    with tab_red:
+        try:
+            from red_integrada import mostrar_red_integrada
+            mostrar_red_integrada(st, repository="FedericoIeraci-cell/Alerta-Litoral", app_actual="ala")
+        except Exception:
+            st.warning("No se pudo cargar la información compartida en esta consulta. Los paneles regionales siguen disponibles; no se confirma el estado de la red.")
     with tab_radar:
         mostrar_radar_smn()
     with tab_smn:
