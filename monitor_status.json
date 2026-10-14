@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T02:29:56.269974+00:00",
-  "checked_at_art": "2026-10-13T23:29:56.269974-03:00",
+  "checked_at": "2026-10-14T03:31:01.346672+00:00",
+  "checked_at_art": "2026-10-14T00:31:01.346672-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
@@ -14,7 +14,7 @@
   "result": {
     "configurado": true,
     "enviadas": 0,
-    "fallidas": 1,
+    "fallidas": 0,
     "pendientes": 3,
     "omitidas": 2,
     "inicializadas": 0,
@@ -22,22 +22,22 @@
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
-    "registro_error": false
+    "registro_error": true
   },
   "history": [
     {
       "id": "242a9c67748e",
       "creado": "2026-10-13T02:21:45.324669+00:00",
-      "intento": "2026-10-14T02:29:56.270407+00:00",
+      "intento": "2026-10-14T03:31:01.346974+00:00",
       "localidad": "Puerto Iguazú",
       "provincia": "Misiones",
       "tipo": "ACTUALIZACIÓN DE ALERTA",
       "motivo": "Reintento de un aviso rechazado por Telegram; la evaluación actual sigue en ROJO.",
       "indice_anterior": 77.0,
       "indice": 61.6,
-      "estado": "rechazado",
+      "estado": "reservado",
       "message_id": null,
-      "intentos": 24,
+      "intentos": 25,
       "detalle": "Not Found"
     },
     {
@@ -56,10 +56,10 @@
       "detalle": "Not Found"
     }
   ],
-  "health": "envio_rechazado",
+  "health": "error_registro",
   "ok": false,
   "errors": [
-    "Telegram rechazó uno o más avisos."
+    "No se pudo confirmar el registro durable de alertas."
   ],
   "dry_run": false
 }
