@@ -27,7 +27,7 @@ concurrency:
 jobs:
   vigilar:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - name: Descargar el codigo de la rama principal
         uses: actions/checkout@v7

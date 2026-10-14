@@ -32,6 +32,8 @@ DB_REMOTE_PATH = "telegram_alerts.sqlite3"
 STATUS_REMOTE_PATH = "monitor_status.json"
 MAX_DB_BYTES = 20_000_000
 MAX_STATUS_BYTES = 500_000
+MONITOR_SCOPE = "Meteorología + hidrología + represas"
+LEGACY_SCOPE = "ECMWF / índice meteorológico"
 HISTORY_FIELDS = (
     "id", "creado", "intento", "localidad", "provincia", "tipo", "motivo",
     "indice_anterior", "indice", "estado", "message_id", "intentos", "detalle",
@@ -122,7 +124,9 @@ def _validate_status(value: Any) -> dict[str, Any]:
             raise ValueError()
         if not isinstance(value["frequency_minutes"], int) or not 5 <= value["frequency_minutes"] <= 1440:
             raise ValueError()
-        if value["scope"] != "ECMWF / índice meteorológico":
+        # Los informes anteriores siguen siendo restaurables. Cambiar el
+        # alcance no debe borrar el registro ni inicializar otra deduplicación.
+        if value["scope"] not in {LEGACY_SCOPE, MONITOR_SCOPE}:
             raise ValueError()
         if any(not isinstance(value[key], int) or value[key] < 0 for key in ("nodes_total", "nodes_valid", "nodes_red")):
             raise ValueError()
@@ -403,6 +407,66 @@ def _frequency_minutes() -> int:
         raise MonitorError("La frecuencia del monitor debe estar entre 5 y 1440 minutos.") from None
 
 
+def _flag(value: Any) -> bool:
+    """Solo un booleano afirmativo cuenta como dato vigente; NaN no es True."""
+    return _json_value(value) is True
+
+
+def _coverage_summary(frame) -> dict[str, Any]:
+    """Cobertura de las fuentes, separada de la cantidad de colores válidos.
+
+    Un río puede elevar un nodo sin meteorología completa. En sentido inverso,
+    un índice meteorológico completo no demuestra vigilancia fluvial. Los
+    denominadores hidrológicos incluyen solamente los puntos vinculados a río.
+    """
+    records = frame.to_dict(orient="records")
+    total = len(records)
+    applicable = [row for row in records if _flag(row.get("hidrologia_aplica"))]
+    meteorology = sum(_flag(row.get("cobertura_meteorologica")) for row in records)
+    observed = sum(_flag(row.get("hidrologia_vigente")) for row in applicable)
+    forecast = sum(_flag(row.get("hidrologia_pronostico_vigente")) for row in applicable)
+    # Algunas localidades no tienen una represa asociada. Si el módulo no
+    # declara esa asociación, se informa el denominador desconocido, no cero.
+    dam_applicability_known = "represa_aplica" in frame.columns
+    dam_nodes = [row for row in records if _flag(row.get("represa_aplica"))]
+    dams = sum(_flag(row.get("represa_vigente")) for row in
+               (dam_nodes if dam_applicability_known else records))
+    summary = {
+        "meteorologia": {"vigentes": meteorology, "aplicables": total},
+        "hidrologia_observada": {"vigentes": observed, "aplicables": len(applicable)},
+        "hidrologia_prevista": {"vigentes": forecast, "aplicables": len(applicable)},
+        "represas": {"vigentes": dams,
+                     "aplicables": len(dam_nodes) if dam_applicability_known else None},
+    }
+    # La vigencia del canal CAP se comprueba por nodo; ausencia de avisos
+    # vigentes puede ser un resultado válido de una consulta completa.
+    if "smn_vigente" in frame.columns:
+        summary["avisos_smn"] = {
+            "vigentes": sum(_flag(row.get("smn_vigente")) for row in records),
+            "aplicables": total,
+        }
+    return summary
+
+
+def _coverage_errors(coverage: dict[str, Any]) -> list[str]:
+    labels = {
+        "meteorologia": "meteorología completa",
+        "hidrologia_observada": "observaciones fluviales vigentes",
+        "hidrologia_prevista": "pronóstico fluvial vigente",
+        "represas": "información vigente de represas",
+        "avisos_smn": "cobertura vigente del canal de avisos SMN",
+    }
+    errors = []
+    for source, label in labels.items():
+        item = coverage.get(source)
+        if item is None:
+            continue
+        applicable = item["aplicables"]
+        if applicable is not None and item["vigentes"] < applicable:
+            errors.append(f"{item['vigentes']}/{applicable} puntos aplicables con {label}.")
+    return errors
+
+
 def run_monitor(
     app_path: str | Path = "app.py", *, store=None, dry_run: bool = False,
     state_dir: str | Path | None = None, app_loader=None,
@@ -421,22 +485,29 @@ def run_monitor(
         token, chat = app.obtener_secrets_telegram()
         if not token or not chat:
             raise MonitorError("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID en los secretos del repositorio.")
+    automatic_risk = getattr(app, "obtener_riesgo_automatico", None)
+    if not callable(automatic_risk):
+        raise MonitorError("Falta la integración automática de fuentes; actualizá app.py junto con monitor.py e hidrologia.py.")
     try:
-        frame = app.integrar_semaforo(app.obtener_todos_los_nodos())
+        # La misma evaluación automática abastece al panel y al monitor. No se
+        # usan las capas privadas que una persona haya cargado en el navegador.
+        frame = automatic_risk()
     except Exception:
-        raise MonitorError("No se pudo completar la consulta y evaluación meteorológica.") from None
+        raise MonitorError("No se pudo completar la evaluación automática de meteorología, hidrología y represas.") from None
     total = len(frame)
     levels = frame["nivel"].astype(str).str.upper() if "nivel" in frame else None
     if levels is None:
         raise MonitorError("La evaluación no devolvió niveles de alerta válidos.")
     valid = int(levels.isin(["VERDE", "AMARILLO", "ROJO"]).sum())
+    coverage = _coverage_summary(frame)
+    source_errors = _coverage_errors(coverage)
     checked = datetime.now(timezone.utc)
     status = {
         "schema_version": 1,
         "checked_at": checked.isoformat(),
         "checked_at_art": checked.astimezone(ART).isoformat(),
         "frequency_minutes": _frequency_minutes(),
-        "scope": "ECMWF / índice meteorológico",
+        "scope": MONITOR_SCOPE,
         "nodes_total": total,
         "nodes_valid": valid,
         "nodes_red": int(levels.eq("ROJO").sum()),
@@ -444,26 +515,27 @@ def run_monitor(
         "nodes_yellow": int(levels.eq("AMARILLO").sum()),
         "nodes_green": int(levels.eq("VERDE").sum()),
         "configured_nodes": len(app.NODOS),
+        "coverage": coverage,
         "result": {},
         "history": [],
         "health": "dry_run" if dry_run else "ok",
         "ok": False,
-        "errors": [],
+        "errors": source_errors,
         "dry_run": bool(dry_run),
     }
     if dry_run:
         if valid == 0:
-            raise MonitorError("La prueba no recibió ningún nodo con datos meteorológicos válidos.")
+            raise MonitorError("La prueba no recibió ningún nodo con fuentes vigentes para interpretar el semáforo.")
         return status
     if valid == 0:
         status["health"] = "sin_datos"
-        status["errors"] = ["No se recibieron nodos con datos meteorológicos válidos."]
+        status["errors"] = ["No se recibieron nodos con fuentes vigentes para interpretar el semáforo."] + source_errors
         status["history"] = _history(app)
         # El informe y la base deben existir juntos, incluso antes de disponer
         # de datos válidos. El historial crea la base vacía, sin inicializar nodos.
         store.save_db(database)
         store.save_status(status)
-        raise MonitorError("Ninguna localidad tuvo datos válidos; no se enviaron avisos y el workflow falló.")
+        raise MonitorError("Ninguna localidad tuvo un semáforo interpretable; no se enviaron avisos y el workflow falló.")
     try:
         result = app.procesar_alertas_telegram(frame, guardar_registro=lambda: store.save_db(database))
     except StateStoreError:
@@ -477,19 +549,19 @@ def run_monitor(
     status["history"] = _history(app)
     if result.get("registro_error"):
         status["health"] = "error_registro"
-        status["errors"] = ["No se pudo confirmar el registro durable de alertas."]
+        status["errors"] = ["No se pudo confirmar el registro durable de alertas."] + source_errors
     elif result.get("inciertas"):
         status["health"] = "envio_sin_confirmacion"
-        status["errors"] = ["Hay un envío sin confirmación de Telegram; revisá el canal."]
+        status["errors"] = ["Hay un envío sin confirmación de Telegram; revisá el canal."] + source_errors
     elif result.get("fallidas"):
         status["health"] = "envio_rechazado"
-        status["errors"] = ["Telegram rechazó uno o más avisos."]
+        status["errors"] = ["Telegram rechazó uno o más avisos."] + source_errors
     elif result.get("pausado_sesion") or not result.get("configurado"):
         status["health"] = "configuracion_invalida"
-        status["errors"] = ["La configuración no permitió evaluar los envíos automáticos."]
-    elif valid < total:
+        status["errors"] = ["La configuración no permitió evaluar los envíos automáticos."] + source_errors
+    elif valid < total or source_errors:
         status["health"] = "datos_parciales"
-        status["errors"] = ["Una parte de las localidades no tuvo datos válidos."]
+        status["errors"] = source_errors + (["Una parte de las localidades no tuvo un semáforo interpretable."] if valid < total else [])
     status["ok"] = status["health"] == "ok"
     # También confirma inicializaciones y cambios que no produjeron mensajes.
     store.save_db(database)
@@ -511,6 +583,7 @@ def main(argv=None) -> int:
             "checked_at_art": status["checked_at_art"],
             "health": status["health"], "nodes_total": status["nodes_total"],
             "nodes_valid": status["nodes_valid"], "nodes_red": status["nodes_red"],
+            "scope": status["scope"], "coverage": status["coverage"],
             "result": status["result"], "dry_run": status["dry_run"],
         }, ensure_ascii=False, allow_nan=False))
         return 0

@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.5.0
+# Versión: V4.6.0
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -51,6 +51,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import requests
+from hidrologia import obtener_panorama, evaluar_localidad
 
 ALA_MONITOR_HEADLESS = os.environ.get('ALA_MONITOR_HEADLESS') == '1'
 
@@ -91,7 +92,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.5.0"
+VERSION = "V4.6.0"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -893,6 +894,13 @@ NODOS = [
     {'localidad': 'Villaguay', 'provincia': 'Entre Ríos', 'lat': -31.867637571, 'lon': -59.026885213},
     {'localidad': 'Federal', 'provincia': 'Entre Ríos', 'lat': -30.956214281, 'lon': -58.779587505},
     {'localidad': 'Chajarí', 'provincia': 'Entre Ríos', 'lat': -30.754724203, 'lon': -57.981789368},
+    # Coordenadas de las estaciones del catálogo público INA (altura de escala).
+    {'localidad': 'Ituzaingó', 'provincia': 'Corrientes', 'lat': -27.5833333333333, 'lon': -56.7},
+    {'localidad': 'Barranqueras', 'provincia': 'Chaco', 'lat': -27.4833333333333, 'lon': -58.9333333333333},
+    {'localidad': 'Andresito', 'provincia': 'Misiones', 'lat': -25.5833333333333, 'lon': -53.9833333333333},
+    {'localidad': 'Colón', 'provincia': 'Entre Ríos', 'lat': -32.2333333333333, 'lon': -58.1166666666667},
+    {'localidad': 'Concepción del Uruguay', 'provincia': 'Entre Ríos', 'lat': -32.4833333333333, 'lon': -58.2333333333333},
+    {'localidad': 'San Javier (Misiones)', 'provincia': 'Misiones', 'lat': -27.8833333333333, 'lon': -55.1333333333333},
 ]
 
 
@@ -1208,18 +1216,33 @@ def obtener_datos_ecmwf():
     def consultar_lote(lote):
         solicitud={**params,'latitude':','.join(f'{n["lat"]:.6f}' for n in lote),
                    'longitude':','.join(f'{n["lon"]:.6f}' for n in lote)}
-        try:
-            response=requests.get(API_URL,params=solicitud,headers=headers,timeout=(5,45))
-            response.raise_for_status()
-            payload=response.json()
-            if isinstance(payload,dict) and payload.get('error'):
-                return [payload.copy() for _ in lote]
-            filas=payload if isinstance(payload,list) else [payload]
-            if len(filas)!=len(lote):
-                return [{'error':'Cantidad de coordenadas distinta de la solicitada'} for _ in lote]
-            return filas
-        except Exception:
-            return [{'error':'No se pudo completar la consulta meteorológica del lote'} for _ in lote]
+        for intento in range(2):
+            try:
+                response=requests.get(API_URL,params=solicitud,headers=headers,timeout=(20,45))
+                response.raise_for_status()
+                payload=response.json()
+                if isinstance(payload,dict) and payload.get('error'):
+                    return [payload.copy() for _ in lote]
+                filas=payload if isinstance(payload,list) else [payload]
+                if len(filas)!=len(lote) or not all(isinstance(fila,dict) for fila in filas):
+                    return [{'error':'Cantidad o formato de coordenadas distinto de lo solicitado'} for _ in lote]
+                return filas
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+                if intento == 0:
+                    continue
+                motivo = ('La fuente meteorológica agotó el tiempo de respuesta tras dos intentos'
+                          if isinstance(exc, requests.exceptions.Timeout)
+                          else 'No se pudo conectar con la fuente meteorológica tras dos intentos')
+                return [{'error':motivo} for _ in lote]
+            except requests.exceptions.HTTPError as exc:
+                estado=getattr(getattr(exc,'response',None),'status_code',None)
+                motivo=(f'La fuente meteorológica rechazó la consulta (HTTP {estado})'
+                        if isinstance(estado,int) else 'La fuente meteorológica rechazó la consulta')
+                return [{'error':motivo} for _ in lote]
+            except (ValueError, TypeError):
+                return [{'error':'La fuente meteorológica devolvió una respuesta no válida'} for _ in lote]
+            except Exception:
+                return [{'error':'No se pudo completar la consulta meteorológica del lote'} for _ in lote]
     lotes=[NODOS[i:i+8] for i in range(0,len(NODOS),8)]
     with ThreadPoolExecutor(max_workers=3) as pool:
         return [fila for lote in pool.map(consultar_lote,lotes) for fila in lote]
@@ -2489,6 +2512,8 @@ def _guardar_nodo_telegram(conexion, destino, nodo, estado):
 
 def _fecha_calculo_telegram(row):
     # "actualizado" es hora de cálculo de la app, no emisión del modelo.
+    if row.get('fecha_evaluacion_integrada'):
+        return _fecha_registro_telegram(row['fecha_evaluacion_integrada'])
     try:
         return datetime.strptime(str(row.get('actualizado', '')), '%d/%m/%Y %H:%M').replace(tzinfo=TZ).astimezone(timezone.utc)
     except (TypeError, ValueError):
@@ -2588,87 +2613,57 @@ def enviar_telegram(mensaje):
     return enviar_telegram_detallado(mensaje)['ok']
 
 
+def _texto_telegram_seguro(valor, limite=300):
+    """Presupuesto de caracteres HTML sin cortar entidades ni etiquetas."""
+    partes=[]
+    usados=0
+    for caracter in str(valor or ''):
+        escapado=html.escape(caracter)
+        if usados+len(escapado)>limite-1:
+            partes.append('…')
+            break
+        partes.append(escapado)
+        usados+=len(escapado)
+    return ''.join(partes)
+
+
 def generar_mensaje_alerta(row):
+    def numero(campo, sufijo=''):
+        valor=_numero_telegram(row.get(campo))
+        return f'{valor:.1f}{sufijo}' if valor is not None else 'Sin dato'
+    def seguro(campo, limite=300):
+        return _texto_telegram_seguro(row.get(campo,'Sin dato'),limite)
+    plan=recomendaciones_para_alerta(row)
+    lineas=[
+        f"{emoji_nivel(row.get('nivel'))} <b>ALERTA LITORAL AGRO</b>",
+        f"<b>Localidad:</b> {seguro('localidad',110)} · {seguro('provincia',60)}",
+        f"<b>Semáforo integrado:</b> {seguro('nivel',30)}",
+        f"<b>Acción:</b> {_texto_telegram_seguro(plan['fase'],120)}",
+        '',
+        f"<b>Río observado:</b> {seguro('nivel_hidrologico_observado',50)}",
+        f"<b>Río previsto:</b> {seguro('nivel_hidrologico_previsto',50)}",
+        f"<b>Estación:</b> {seguro('hidrologia_estacion',110)}",
+        f"<b>Altura:</b> {numero('hidrologia_altura_m',' m')} · alerta {numero('hidrologia_alerta_m',' m')} · evacuación {numero('hidrologia_evacuacion_m',' m')}",
+        f"<b>Fecha del río:</b> {seguro('hidrologia_fecha',80)}",
+        f"<b>Plazo oficial:</b> {seguro('hidrologia_ventana',150)}",
+        f"<b>Evidencia fluvial:</b> {seguro('hidrologia_motivo',500)}",
+        '',
+        f"<b>Índice meteorológico:</b> {numero('indice','/100')}",
+        f"<b>Lluvia antecedente:</b> 72 h {numero('lluvia_72',' mm')} · 7 días {numero('lluvia_7d',' mm')}",
+        f"<b>Lluvia prevista:</b> 24 h {numero('lluvia_futura_24',' mm')} · 72 h {numero('lluvia_futura_72',' mm')} · 7 días {numero('lluvia_futura_7d',' mm')}",
+        f"<b>Escorrentía local modelada:</b> {seguro('tendencia',65)}",
+        f"<b>Motivos:</b> {seguro('motivos_semaforo',450)}",
+        '',
+        '<b>Qué hacer ahora:</b>',
+    ]
+    lineas.extend('• '+_texto_telegram_seguro(paso,250) for paso in plan['ahora'][:3])
+    lineas.extend([
+        f"<b>Fuentes:</b> {_texto_telegram_seguro(' | '.join(str(row.get(c,'')) for c in ('hidrologia_fuentes','smn_fuentes') if row.get(c)),350)}",
+        f"<b>Evaluación:</b> {seguro('fecha_evaluacion_integrada',75)}",
+        '⚠️ Apoyo experimental. Preparar/coordinar evacuación no es una orden de la autoridad. Seguí el aviso local.',
+    ])
+    return '\n'.join(lineas)
 
-    emoji = emoji_nivel(
-        row["nivel"]
-    )
-
-    prob = row.get(
-        "prob_lluvia",
-        np.nan,
-    )
-
-    prob_texto = (
-        f"{prob:.0f}%"
-        if pd.notna(prob)
-        else "Sin dato"
-    )
-
-    # La humedad se convierte de m³/m³ a %
-    # únicamente para presentación.
-    humedad_suelo_pct = (
-        row["humedad_suelo_promedio"] * 100
-        if pd.notna(
-            row["humedad_suelo_promedio"]
-        )
-        else np.nan
-    )
-
-    humedad_suelo_texto = (
-        f"{humedad_suelo_pct:.1f}%"
-        if np.isfinite(humedad_suelo_pct)
-        else "Sin dato"
-    )
-
-    return f"""
-{emoji} <b>ALERTA LITORAL AGRO</b>
-
-<b>Semáforo:</b> {row["nivel"]}
-<b>Cobertura territorial:</b> {row.get("cobertura_territorial", 1)}/4
-<b>Evidencia:</b> {html.escape(str(row.get("motivos_semaforo", "Índice meteorológico")))}
-<b>Localidad:</b> {html.escape(str(row["localidad"]))}
-<b>Provincia:</b> {html.escape(str(row["provincia"]))}
-
-<b>Índice de riesgo:</b> {row["indice"]:.1f}/100
-
-<b>Condiciones actuales:</b>
-Temperatura: {row["temperatura"]:.1f} °C
-Humedad relativa: {row["humedad_relativa"]:.0f}%
-Viento: {row["viento"]:.1f} km/h ({row["direccion_viento_texto"]})
-Ráfaga: {row["rafaga"]:.1f} km/h
-CAPE: {row["cape"]:.0f} J/kg
-
-<b>Humedad del suelo media:</b>
-{humedad_suelo_texto}
-
-<b>Precipitación antecedente:</b>
-24 h: {row["lluvia_24"]:.1f} mm
-72 h: {row["lluvia_72"]:.1f} mm
-7 días: {row["lluvia_7d"]:.1f} mm
-
-<b>Pronóstico:</b>
-24 h: {row["lluvia_futura_24"]:.1f} mm
-72 h: {row["lluvia_futura_72"]:.1f} mm
-7 días: {row["lluvia_futura_7d"]:.1f} mm
-
-<b>Runoff antecedente 72 h:</b>
-{row["runoff_72"]:.2f} mm
-
-<b>Probabilidad máxima de precipitación en 72 h:</b>
-{prob_texto}
-
-<b>Tendencia hidrológica:</b>
-{row["tendencia"]}
-
-<b>Acción recomendada:</b>
-{acciones_telegram_html(row)}
-
-<i>Cálculo meteorológico: {row["actualizado"]} ART (no es la hora de emisión del modelo)</i>
-
-⚠️ Sistema experimental.
-No reemplaza avisos oficiales.
-""".strip()
 
 
 def clave_alerta(row):
@@ -2676,8 +2671,35 @@ def clave_alerta(row):
     campos = ('indice', 'humedad_suelo_promedio', 'lluvia_24', 'lluvia_72', 'lluvia_7d',
               'lluvia_futura_24', 'lluvia_futura_72', 'lluvia_futura_7d', 'runoff_72')
     contenido = {'provincia': str(row.get('provincia', '')), 'localidad': str(row.get('localidad', '')),
-                 'nivel': str(row.get('nivel', '')), **{c: _numero_telegram(row.get(c)) for c in campos}}
+                 'nivel': str(row.get('nivel', '')), 'hidrologia':_referencia_hidrologica_telegram(row),
+                 **{c: _numero_telegram(row.get(c)) for c in campos}}
     return hashlib.sha256(json.dumps(contenido, sort_keys=True, allow_nan=False).encode('utf-8')).hexdigest()
+
+
+def _referencia_hidrologica_telegram(row):
+    rango = _numero_telegram(row.get('hidrologia_rango'))
+    return {'rango':rango, 'observado':str(row.get('nivel_hidrologico_observado','SIN_DATOS')),
+            'previsto':str(row.get('nivel_hidrologico_previsto','SIN_DATOS')),
+            'firma':str(row.get('hidrologia_firma','')), 'ventana':str(row.get('hidrologia_ventana','')),
+            'smn_rango':_numero_telegram(row.get('smn_rango')),'smn_firma':str(row.get('smn_firma',''))}
+
+
+def _escalada_hidrologica_telegram(actual, referencia):
+    """Una fecha nueva por sí sola no es un evento nuevo de inundación."""
+    referencia = referencia or {}
+    if actual.get('smn_rango') == 2 and (referencia.get('smn_rango') != 2 or
+            (actual.get('smn_firma') and actual.get('smn_firma') != referencia.get('smn_firma'))):
+        return True
+    rango = actual.get('rango')
+    previo = referencia.get('rango')
+    if rango is None or rango < 2:
+        return False
+    if previo is None or rango > previo:
+        return True
+    if 'EVACUA' in actual.get('observado','') and 'EVACUA' not in referencia.get('observado',''):
+        return True
+    # El cruce observado se comunica incluso si se había anticipado la crecida.
+    return False
 
 
 def _mensaje_evento_telegram(row, evento):
@@ -2686,7 +2708,7 @@ def _mensaje_evento_telegram(row, evento):
     cabecera = (
         f"<b>{html.escape(evento['tipo'])}</b>\n"
         f"<b>ID del evento:</b> {evento['id']}\n"
-        f"<b>Motivo del envío:</b> {html.escape(evento['motivo'])}\n"
+        f"<b>Motivo del envío:</b> {_texto_telegram_seguro(evento['motivo'],450)}\n"
         f"<b>Índice de referencia anterior:</b> {anterior_texto}\n"
         f"<b>Evaluación que generó el evento:</b> {ahora().strftime('%d/%m/%Y %H:%M')} ART\n\n"
     )
@@ -2721,6 +2743,7 @@ def procesar_alertas_telegram(df, guardar_registro=None):
             nodo = json.dumps([str(row['provincia']), str(row['localidad'])], ensure_ascii=False)
             indice = _numero_telegram(row.get('indice'))
             firma = clave_alerta(row)
+            hidro_actual = _referencia_hidrologica_telegram(row)
             fecha_iso = fecha_calculo.isoformat()
             evento = None
             conexion.execute('BEGIN IMMEDIATE')
@@ -2728,12 +2751,22 @@ def procesar_alertas_telegram(df, guardar_registro=None):
             if previo is None:
                 estado = {'nivel': nivel, 'indice': indice, 'fecha_calculo': fecha_iso,
                           'firma': firma, 'referencia_indice': indice, 'referencia_fecha': momento.isoformat(),
-                          'episodio': 1 if nivel == 'ROJO' else 0, 'pendiente_id': None, 'descenso_desde': None}
-                _guardar_nodo_telegram(conexion, destino, nodo, estado)
-                conexion.commit()
+                          'episodio': 1 if nivel == 'ROJO' else 0, 'pendiente_id': None, 'descenso_desde': None,
+                          'referencia_hidrologica':hidro_actual}
                 resultado['inicializadas'] += 1
-                continue
-            estado = json.loads(previo['estado'])
+                if nivel == 'ROJO' and (hidro_actual.get('rango') == 2 or hidro_actual.get('smn_rango') == 2):
+                    # Situación crítica vigente, identificada como primera evaluación.
+                    # Su reserva evita repetirla en el próximo control.
+                    estado['nivel'] = 'SIN DATOS'
+                    estado['episodio'] = 0
+                    estado['referencia_hidrologica'] = None
+                    estado['hidrologia_inicial'] = 'fluvial' if hidro_actual.get('rango') == 2 else 'smn'
+                else:
+                    _guardar_nodo_telegram(conexion, destino, nodo, estado)
+                    conexion.commit()
+                    continue
+            else:
+                estado = json.loads(previo['estado'])
             fecha_previa = _fecha_registro_telegram(estado.get('fecha_calculo'))
             if fecha_previa is not None and fecha_calculo < fecha_previa:
                 conexion.commit()
@@ -2741,6 +2774,16 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                 continue
             anterior_nivel = estado.get('nivel')
             if nivel != 'ROJO':
+                hid_previo = estado.get('referencia_hidrologica') or {}
+                if hid_previo.get('smn_rango') == 2 and not row.get('smn_vigente'):
+                    resultado['sin_datos'] += 1
+                    conexion.commit()
+                    continue
+                if hid_previo.get('rango') == 2 and row.get('hidrologia_aplica') and (
+                        not row.get('hidrologia_vigente') or not row.get('hidrologia_pronostico_vigente')):
+                    resultado['sin_datos'] += 1
+                    conexion.commit()
+                    continue
                 # Un gris nunca cierra un episodio. Una bajada válida debe durar 15 min.
                 if anterior_nivel == 'ROJO':
                     descenso = _fecha_registro_telegram(estado.get('descenso_desde'))
@@ -2748,9 +2791,11 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                         estado['descenso_desde'] = fecha_iso
                     elif fecha_calculo - descenso >= timedelta(minutes=15):
                         estado.update(nivel=nivel, pendiente_id=None, descenso_desde=None,
-                                      referencia_indice=indice, referencia_fecha=momento.isoformat())
+                                      referencia_indice=indice, referencia_fecha=momento.isoformat(),
+                                      referencia_hidrologica=hidro_actual)
                 else:
-                    estado.update(nivel=nivel, referencia_indice=indice, referencia_fecha=momento.isoformat())
+                    estado.update(nivel=nivel, referencia_indice=indice, referencia_fecha=momento.isoformat(),
+                                  referencia_hidrologica=hidro_actual)
                 estado.update(indice=indice, fecha_calculo=fecha_iso, firma=firma)
                 _guardar_nodo_telegram(conexion, destino, nodo, estado)
                 conexion.commit()
@@ -2774,9 +2819,12 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                                    and cambio_pendiente is not None
                                    and (cambio_pendiente >= 20 or (abs(cambio_pendiente) >= 10
                                         and intento_previo and momento - intento_previo >= timedelta(hours=3))))
+                    cambio_hidro = _escalada_hidrologica_telegram(hidro_actual, estado.get('pendiente_hidrologica'))
+                    nuevo_cambio = bool(nuevo_cambio or (reservado and reservado['estado'] in ('reservado','incierto') and cambio_hidro))
                     if nuevo_cambio:
                         evento = {'tipo': 'ACTUALIZACIÓN DE ALERTA',
-                                  'motivo': f'Nuevo cambio del índice de {cambio_pendiente:+.1f} puntos; el aviso anterior quedó sin confirmación. Este es un evento distinto.',
+                                  'motivo': ('Empeoramiento fluvial vigente; el aviso anterior quedó sin confirmación. Este es un evento distinto.' if cambio_hidro else
+                                      f'Nuevo cambio del índice de {cambio_pendiente:+.1f} puntos; el aviso anterior quedó sin confirmación. Este es un evento distinto.'),
                                   'indice_anterior': indice_pendiente, 'indice': indice}
                     else:
                         resultado['omitidas'] += 1
@@ -2790,6 +2838,10 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                 estado['episodio'] = int(estado.get('episodio', 0)) + 1
                 evento = {'tipo': 'ALERTA NUEVA', 'motivo': f'Paso de {anterior_nivel} a ROJO en la localidad.',
                           'indice_anterior': estado.get('indice'), 'indice': indice}
+                inicial = estado.pop('hidrologia_inicial', False)
+                if inicial:
+                    evento.update(tipo='ALERTA HIDROLÓGICA INICIAL' if inicial == 'fluvial' else 'ALERTA OFICIAL SMN INICIAL',
+                                  motivo='La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.')
             else:
                 referencia = _numero_telegram(estado.get('referencia_indice'))
                 referencia_fecha = _fecha_registro_telegram(estado.get('referencia_fecha'))
@@ -2801,7 +2853,11 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                 cambio = diferencia is not None and abs(diferencia) >= 10
                 intervalo = referencia_fecha is not None and momento - referencia_fecha >= timedelta(hours=3)
                 aumento_rapido = diferencia is not None and diferencia >= 20
-                if cambio and (intervalo or aumento_rapido):
+                if _escalada_hidrologica_telegram(hidro_actual, estado.get('referencia_hidrologica')):
+                    evento = {'tipo':'ACTUALIZACIÓN DEL RIESGO',
+                              'motivo':'Empeoró la condición fluvial observada/prevista o hay un nuevo aviso extremo SMN. Revisá la acción y el documento oficial de esta localidad.',
+                              'indice_anterior':referencia,'indice':indice}
+                elif cambio and (intervalo or aumento_rapido):
                     direccion = 'subió' if diferencia > 0 else 'bajó'
                     evento = {'tipo': 'ACTUALIZACIÓN DE ALERTA',
                               'motivo': f'Permanece ROJO; el índice {direccion} {abs(diferencia):.1f} puntos respecto de la referencia registrada.'
@@ -2825,6 +2881,7 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                      evento['indice_anterior'], evento['mensaje'], 'reservado'),
                 )
             estado['pendiente_id'] = evento['id']
+            estado['pendiente_hidrologica'] = hidro_actual
             _guardar_nodo_telegram(conexion, destino, nodo, estado)
             # La reserva queda persistida ANTES de llamar a Telegram, incluso si se interrumpe el proceso.
             conexion.commit()
@@ -2846,7 +2903,8 @@ def procesar_alertas_telegram(df, guardar_registro=None):
                 estado_actual = json.loads(ultimo['estado'])
                 if estado_actual.get('pendiente_id') == evento['id']:
                     estado_actual.update(pendiente_id=None, referencia_indice=evento['indice'],
-                                         referencia_fecha=momento.isoformat())
+                                         referencia_fecha=momento.isoformat(),
+                                         referencia_hidrologica=estado_actual.get('pendiente_hidrologica',hidro_actual))
                     _guardar_nodo_telegram(conexion, destino, nodo, estado_actual)
             conexion.commit()
             if guardar_registro is not None:
@@ -3239,7 +3297,7 @@ def obtener_estado_monitor_publico():
 def estado_telegram_ui():
     st.subheader('📲 Alertas por Telegram · monitor automático')
     st.caption('El monitor programado genera los avisos aunque nadie abra la página. Abrir o actualizar este panel no envía alertas automáticas. Las pruebas manuales se identifican como pruebas.')
-    st.caption('ALERTA NUEVA: paso a ROJO tras un nivel no rojo conocido. ACTUALIZACIÓN: cambio de al menos 10 puntos desde la referencia con tres horas entre avisos; un aumento de 20 puntos se informa sin esperar. Estas reglas controlan los mensajes; no cambian los umbrales del semáforo.')
+    st.caption('ALERTA NUEVA: paso a ROJO tras un nivel no rojo conocido. Un riesgo fluvial crítico vigente en la primera evaluación se identifica como alerta hidrológica inicial. La escalada fluvial y el cruce observado de evacuación generan actualizaciones aunque el índice meteorológico no cambie. Una fecha nueva por sí sola no repite el aviso.')
     estado = obtener_estado_monitor_publico()
     if estado.get('error'):
         if estado['error'] == 'sin_repositorio':
@@ -3264,10 +3322,15 @@ def estado_telegram_ui():
         a, b, c = st.columns(3)
         a.metric('Avisos del último control', resultado.get('enviadas', 0))
         b.metric('Nodos ROJO en el último control', estado.get('nodes_red', resultado.get('pendientes', 0)))
-        c.metric('Nodos con datos completos', f"{estado.get('nodes_valid', 0)}/{estado.get('nodes_total', len(NODOS))}")
-        st.caption('Alcance automático: índice meteorológico ECMWF con umbrales de referencia 35/55. Las capas y los umbrales particulares de una sesión no modifican el canal público.')
+        c.metric('Nodos con semáforo interpretable', f"{estado.get('nodes_valid', 0)}/{estado.get('nodes_total', len(NODOS))}")
+        st.caption(f"Alcance informado por el monitor: {estado.get('scope','No informado')}. La cobertura de meteorología, ríos y represas se verifica por separado; los datos privados de una sesión no modifican el canal público.")
+        cobertura_monitor = estado.get('coverage')
+        if isinstance(cobertura_monitor,dict):
+            st.dataframe(pd.DataFrame([{'Fuente':k, **v} for k,v in cobertura_monitor.items() if isinstance(v,dict)]),hide_index=True,use_container_width=True)
+        else:
+            st.warning('El informe pertenece al monitor anterior. Actualizá monitor.py y hidrologia.py para vigilar crecidas automáticamente.')
         if resultado.get('inicializadas'):
-            st.info('Se estableció una referencia inicial. Los rojos que ya estaban presentes no se publican como alertas nuevas.')
+            st.info('Se estableció una referencia inicial. Los rojos meteorológicos presentes no se anuncian como eventos nuevos; un riesgo fluvial crítico vigente sí puede generar una alerta hidrológica inicial identificada.')
         if resultado.get('registro_error'):
             st.error('El monitor no pudo completar su registro persistente; revisá Actions.')
         if resultado.get('fallidas'):
@@ -3596,7 +3659,7 @@ def descargar_cap_smn(url):
     if _url_cap_oficial(url) != url:
         return None, "Enlace CAP no admitido."
     try:
-        r = requests.get(url, headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"}, timeout=(5, 20))
+        r = requests.get(url, headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"}, timeout=(15, 20))
         r.raise_for_status()
         return parsear_cap_smn(r.content, url), ""
     except (requests.exceptions.RequestException, ET.ParseError, ValueError, TypeError):
@@ -3607,7 +3670,8 @@ def descargar_cap_smn(url):
 def obtener_cap_litoral():
     consultado = datetime.now(timezone.utc)
     try:
-        response = requests.get(SMN_CAP_FEED, headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"}, timeout=(5, 25))
+        response = requests.get(SMN_CAP_FEED, headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2",
+            "Accept":"application/rss+xml,application/xml;q=0.9,*/*;q=0.1"}, timeout=(15, 30))
         response.raise_for_status()
         root = _xml_seguro(response.content)
         channel = root.find("channel")
@@ -5614,6 +5678,20 @@ def recomendaciones_para_alerta(row):
         {'organismo':'SINAGIR','url':'https://www.argentina.gob.ar/sinagir/riesgos-frecuentes/inundacion/prevencion'},
         {'organismo':'SINAGIR','url':'https://www.argentina.gob.ar/sinagir/riesgos-frecuentes/lluvias-intensas/que-hacer'},
     ]
+    if row.get('hidrologia_rango') == 2:
+        plan['fase'] = 'Preparar y coordinar evacuación'
+        accion = str(row.get('hidrologia_accion') or 'Prepará una posible evacuación de zonas bajas y coordiná con Defensa Civil.')
+        plan['resumen'] = accion
+        plan['ahora'] = [accion,
+            'Consultá el aviso de la autoridad local: el cruce de un umbral hidrométrico no constituye una orden municipal de evacuación.',
+            'Confirmá destino, recorrido y asistencia antes de trasladar personas o hacienda; no cruces agua ni corrientes.']
+        plan['contexto'] = str(row.get('hidrologia_motivo', 'Riesgo fluvial elevado según las fuentes vigentes.'))
+    elif row.get('hidrologia_rango') == 1:
+        plan['fase'] = 'Prealerta por crecida · preparar recursos'
+        plan['ahora'].insert(0, str(row.get('hidrologia_accion') or 'Revisá el pronóstico del río y prepará recursos y rutas seguras para una posible evacuación.'))
+        plan['ahora'] = plan['ahora'][:3]
+    elif row.get('hidrologia_aplica') and not row.get('hidrologia_pronostico_vigente'):
+        plan['contexto'] = (plan['contexto'] + ' Pronóstico fluvial sin evaluar; el índice meteorológico no acredita ausencia de riesgo de crecida.').strip()
     return plan
 
 
@@ -5672,8 +5750,9 @@ def localidad_prioritaria(df):
         return None
     prioridad={'ROJO':3,'AMARILLO':2,'VERDE':1,'SIN DATOS':0}
     orden=df.assign(_prioridad=df.nivel.map(prioridad).fillna(0),
+                    _fluvial=pd.to_numeric(df.get('hidrologia_rango', pd.Series(0,index=df.index)),errors='coerce').fillna(-1),
                     _indice=pd.to_numeric(df.indice,errors='coerce').fillna(-1))
-    return orden.sort_values(['_prioridad','_indice','localidad'],ascending=[False,False,True]).iloc[0]['localidad']
+    return orden.sort_values(['_prioridad','_fluvial','_indice','localidad'],ascending=[False,False,False,True]).iloc[0]['localidad']
 
 
 def umbrales_semaforo():
@@ -5776,19 +5855,189 @@ def componentes_localidad(nodo):
     return agua, suelo, baja, rio
 
 
-def integrar_semaforo(df):
+@st.cache_data(ttl=900, show_spinner=False)
+def obtener_panorama_hidrologico():
+    """Mismas fuentes públicas en el tablero y en el proceso horario."""
+    panorama = obtener_panorama()
+    panorama['smn'] = obtener_cap_litoral()
+    return panorama
+
+
+def obtener_riesgo_automatico(panorama=None):
+    return integrar_semaforo(obtener_todos_los_nodos(), panorama=panorama)
+
+
+def evaluar_smn_local(localidad, panorama, referencia):
+    resultado = panorama.get('smn', {})
+    fecha = resultado.get('fecha_feed')
+    vigente = bool(fecha and dato_vigente(fecha,24,referencia) and not resultado.get('error')
+                   and not resultado.get('fallos') and not resultado.get('truncado'))
+    avisos=[]
+    if vigente:
+        for fila in resultado.get('filas',[]):
+            if localidad not in fila.get('nodos',[]) or fila.get('status') != 'Actual' or fila.get('tipo_mensaje') == 'Cancel':
+                continue
+            if not fila.get('emision') or fila['emision'] > referencia + timedelta(minutes=5):
+                continue
+            estado=estado_vigencia_cap(fila,referencia.astimezone(timezone.utc))
+            desde=fila.get('desde') or fila.get('emision')
+            fenomeno=normalizar_nombre(fila.get('fenomeno',''))
+            if estado not in ('Vigente','Previsto') or not desde or desde > referencia + timedelta(hours=72):
+                continue
+            if not any(palabra in fenomeno for palabra in ('LLUVIA','TORMENTA','PRECIPIT')):
+                continue
+            avisos.append(fila)
+    rango=max((2 if f.get('severidad_cap')=='Extreme' else 1 for f in avisos),default=None)
+    return {'smn_vigente':vigente, 'smn_rango':rango,
+            'smn_firma':hashlib.sha256('|'.join(sorted(str(f.get('id','')) for f in avisos)).encode()).hexdigest() if avisos else '',
+            'smn_alertas':' | '.join(f"{f.get('fenomeno')} · {f.get('severidad_cap')} · {_hora_smn(f.get('desde') or f.get('emision'))} hasta {_hora_smn(f.get('hasta'))}" for f in avisos),
+            'smn_fuentes':' | '.join(sorted({f.get('url','') for f in avisos}))}
+
+
+def mostrar_vigilancia_inundaciones(df, panorama):
+    st.subheader('🌊 Vigilancia integrada de crecidas e inundaciones')
+    st.write('Meteorología local + niveles y pronósticos oficiales de los ríos + situación aguas arriba y represas. Cada aviso conserva la estación, la fecha de la fuente y el plazo publicado.')
+    fluviales = df[df.hidrologia_aplica.fillna(False).astype(bool)]
+    a,b,c,d = st.columns(4)
+    a.metric('Meteorología vigente', f"{int(df.cobertura_meteorologica.fillna(False).sum())}/{len(df)}")
+    b.metric('Río observado vigente', f"{int(fluviales.hidrologia_vigente.fillna(False).sum())}/{len(fluviales)}")
+    c.metric('Pronóstico fluvial vigente', f"{int(fluviales.hidrologia_pronostico_vigente.fillna(False).sum())}/{len(fluviales)}")
+    d.metric('Preparar / coordinar evacuación', int(pd.to_numeric(fluviales.hidrologia_rango,errors='coerce').eq(2).sum()))
+    criticos = fluviales[pd.to_numeric(fluviales.hidrologia_rango,errors='coerce').eq(2)]
+    if not criticos.empty:
+        st.error('Riesgo fluvial elevado observado o previsto: ' + ', '.join(criticos.localidad.tolist()) + '. Revisá la fecha y el plazo de cada localidad; coordiná con la autoridad antes de un traslado.')
+    faltantes = fluviales[~(fluviales.hidrologia_vigente.fillna(False) & fluviales.hidrologia_pronostico_vigente.fillna(False))]
+    if not faltantes.empty:
+        st.warning(f'Cobertura fluvial parcial en {len(faltantes)} localidades. Un dato ausente o antiguo no equivale a riesgo bajo; puede mantenerse una alerta por otra evidencia vigente.')
+    campos = ['localidad','nivel','hidrologia_estacion','nivel_hidrologico_observado','hidrologia_altura_m',
+              'hidrologia_alerta_m','hidrologia_evacuacion_m','nivel_hidrologico_previsto',
+              'hidrologia_ventana','hidrologia_fecha','hidrologia_cobertura','hidrologia_fuentes']
+    tabla=fluviales[[x for x in campos if x in fluviales]].rename(columns={
+        'localidad':'Localidad','nivel':'Alerta integrada','hidrologia_estacion':'Estación de referencia',
+        'nivel_hidrologico_observado':'Río observado','hidrologia_altura_m':'Altura (m)',
+        'hidrologia_alerta_m':'Umbral alerta (m)','hidrologia_evacuacion_m':'Umbral evacuación (m)',
+        'nivel_hidrologico_previsto':'Río previsto','hidrologia_ventana':'Plazo oficial',
+        'hidrologia_fecha':'Fecha observada','hidrologia_cobertura':'Cobertura fluvial',
+        'hidrologia_fuentes':'Fuentes'})
+    st.dataframe(tabla,hide_index=True,use_container_width=True)
+    st.download_button('Descargar evaluación integrada de inundaciones',df.to_csv(index=False).encode('utf-8-sig'),
+        'evaluacion_inundaciones_litoral.csv','text/csv',key='hidro_integrada_exportar')
+    with st.expander('Fuentes, boletines y conexión de las cuencas'):
+        fuentes=list(panorama.get('fuentes',[]))
+        smn=panorama.get('smn',{})
+        smn_fecha=smn.get('fecha_feed')
+        fuentes.append({'nombre':'SMN · avisos CAP', 'url':SMN_CAP_FEED,
+                        'fecha_documento':_hora_smn(smn_fecha),
+                        'consultado':_hora_smn(smn.get('consultado')),
+                        'estado':'VIGENTE' if bool(df.smn_vigente.fillna(False).all()) else 'COBERTURA SIN CONFIRMAR',
+                        'error':smn.get('error') or f"Documentos fallidos: {smn.get('fallos',0)}"})
+        if fuentes:
+            st.dataframe(pd.DataFrame(fuentes),hide_index=True,use_container_width=True)
+        represas=panorama.get('represas',{})
+        if represas:
+            st.write('Informes de represas: caudal de entrada/salida y vigencia del boletín.')
+            st.dataframe(pd.DataFrame(list(represas.values())),hide_index=True,use_container_width=True)
+        for aviso in panorama.get('avisos',[]):
+            st.warning(str(aviso))
+        smn=panorama.get('smn',{})
+        if smn.get('error') or smn.get('fallos') or smn.get('truncado') or not smn.get('fecha_feed') or not dato_vigente(smn.get('fecha_feed'),24):
+            st.warning('La cobertura automática de avisos SMN no está confirmada. Consultá la pestaña Datos oficiales SMN y la fuente oficial.')
+        st.markdown('| Sistema | Conexión hidrológica que se vigila |\n|---|---|\n'
+                    '| Paraná | Alto Paraná e Iguazú → Yacyretá → Corrientes/Barranqueras → Goya/Reconquista/La Paz → Paraná/Santa Fe/Rosario → Delta y Río de la Plata |\n'
+                    '| Uruguay | Cuenca alta y tramo medio → Salto Grande → Concordia/Colón/Concepción del Uruguay → desembocadura y Río de la Plata |\n'
+                    '| Paraguay | Cuenca alta y media → Formosa/Pilcomayo → confluencia con el Paraná |')
+        st.caption('Las conexiones identifican dónde vigilar aportes aguas arriba. El tiempo de llegada y la altura local se toman de pronósticos oficiales; no se calculan mediante una velocidad fija ni repartiendo el caudal de una represa.')
+    st.caption('Corto plazo: observaciones y cruces de umbral previstos. Mediano plazo: puntos y ventanas oficiales de hasta 15 días cuando estén publicados. El pronóstico estacional de El Niño/SMN aporta contexto; no fija una fecha de inundación ni una orden de evacuación.')
+    avisos = df[df.smn_alertas.fillna('').ne('')]
+    if not avisos.empty:
+        st.write('**Avisos oficiales SMN que intersectan los puntos de monitoreo**')
+        st.dataframe(avisos[['localidad','smn_alertas','smn_fuentes']].rename(columns={
+            'localidad':'Localidad','smn_alertas':'Aviso y vigencia','smn_fuentes':'Documento oficial'}),
+            hide_index=True,use_container_width=True)
+
+
+def mostrar_pronostico_fluvial_local(row, panorama):
+    nombre=normalizar_nombre(row.get('hidrologia_estacion',''))
+    estacion=next((s for s in panorama.get('estaciones',{}).values()
+                   if normalizar_nombre(s.get('nombre',''))==nombre),None)
+    if not estacion:
+        if row.get('hidrologia_aplica'):
+            st.info('No hay una curva de esta estación con fecha y unidad verificadas. El aviso conserva las evidencias disponibles en la tabla regional.')
+        return
+    st.subheader('Nivel del río y previsión oficial de esta estación')
+    obs=pd.DataFrame(estacion.get('observaciones',[]))
+    previsto=pd.DataFrame(estacion.get('pronostico_numerico',[]))
+    fig=go.Figure()
+    if not obs.empty and {'fecha','valor'}<=set(obs):
+        obs['fecha_ART']=pd.to_datetime(obs.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
+        fig.add_trace(go.Scatter(x=obs.fecha_ART,y=obs.valor,mode='lines+markers',name='Observado'))
+    if not previsto.empty and {'fecha','valor'}<=set(previsto):
+        previsto['fecha_ART']=pd.to_datetime(previsto.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
+        superior=pd.to_numeric(previsto.get('superior',pd.Series(np.nan,index=previsto.index)),errors='coerce')
+        inferior=pd.to_numeric(previsto.get('inferior',pd.Series(np.nan,index=previsto.index)),errors='coerce')
+        central=pd.to_numeric(previsto.valor,errors='coerce')
+        fig.add_trace(go.Scatter(x=previsto.fecha_ART,y=central,mode='markers',name='Previsto · puntos oficiales',
+            marker={'size':10,'color':'#b45309'},error_y={'type':'data','symmetric':False,
+            'array':(superior-central).clip(lower=0),'arrayminus':(central-inferior).clip(lower=0),'visible':True}))
+        st.caption('Se muestran los puntos y bandas publicados. No se interpola una fecha de cruce entre puntos; una previsión textual adicional conserva su propia ventana.')
+    for campo,color,nombre_umbral in [('hidrologia_alerta_m','#d97706','Alerta'),('hidrologia_evacuacion_m','#dc2626','Evacuación')]:
+        limite=_numero_telegram(row.get(campo))
+        if limite is not None:
+            fig.add_hline(y=limite,line_dash='dash',line_color=color,annotation_text=nombre_umbral)
+    if not obs.empty or not previsto.empty:
+        fig.update_layout(height=370,xaxis_title='Fecha ART',yaxis_title='Metros sobre la escala de esta estación',margin={'t':20,'b':35,'l':30,'r':20})
+        st.plotly_chart(fig,use_container_width=True,key='hidro_curva_local')
+    if row.get('hidrologia_pronostico_texto'):
+        st.write('**Previsión publicada:** '+str(row['hidrologia_pronostico_texto']))
+    if not previsto.empty:
+        st.dataframe(previsto,hide_index=True,use_container_width=True)
+    st.caption('Una altura de escala no es una cota del terreno ni la profundidad del agua en un barrio. La inundabilidad y los destinos de evacuación requieren validación local.')
+
+
+def integrar_semaforo(df, panorama=None):
+    panorama = obtener_panorama_hidrologico() if panorama is None else panorama
+    referencia_integrada = ahora()
     filas = []
     for _, r in df.iterrows():
         row = r.to_dict()
         nodo = next((n for n in NODOS if n['localidad'] == row['localidad']), row)
-        fusion = fusion_territorial(row, *componentes_localidad(nodo))
-        row['nivel_meteorologico'] = nivel_desde_indice(float(row.get('indice', np.nan)))
+        # La estación manual de una sesión no sustituye la vigilancia automática.
+        agua, suelo, baja, _rio_manual = componentes_localidad(nodo)
+        fusion = fusion_territorial(row, agua, suelo, baja)
+        try:
+            met_fecha = datetime.strptime(str(row.get('actualizado','')), '%d/%m/%Y %H:%M')
+            row['cobertura_meteorologica'] = bool(row.get('cobertura_meteorologica',True) and
+                np.isfinite(float(row.get('indice',np.nan))) and dato_vigente(met_fecha,12))
+        except (ValueError,TypeError):
+            row['cobertura_meteorologica'] = False
+        row['nivel_meteorologico'] = nivel_desde_indice(float(row.get('indice', np.nan))) if row['cobertura_meteorologica'] else 'SIN DATOS'
         row['nivel'] = fusion['semaforo']
+        hidro = evaluar_localidad(row['localidad'], panorama, referencia=referencia_integrada)
+        row.update(hidro)
+        smn = evaluar_smn_local(row['localidad'],panorama,referencia_integrada)
+        row.update(smn)
+        rango = hidro.get('hidrologia_rango')
+        prioridad = {'VERDE': 0, 'AMARILLO': 1, 'ROJO': 2, 'SIN DATOS': -1}
+        if rango in (1, 2):
+            row['nivel'] = ['VERDE', 'AMARILLO', 'ROJO'][max(prioridad.get(row['nivel'], -1), rango)]
+        elif row['nivel'] == 'VERDE' and hidro.get('hidrologia_aplica') and (
+                not hidro.get('hidrologia_vigente') or not hidro.get('hidrologia_pronostico_vigente')):
+            row['nivel'] = 'SIN DATOS'
+        if smn['smn_rango'] in (1,2):
+            row['nivel'] = ['VERDE','AMARILLO','ROJO'][max(prioridad.get(row['nivel'],-1),smn['smn_rango'])]
+        motivos = list(fusion['motivos'])
+        if hidro.get('hidrologia_motivo'):
+            motivos.append(hidro['hidrologia_motivo'])
+        if smn.get('smn_alertas'):
+            motivos.append('Aviso oficial SMN que incluye este nodo: '+smn['smn_alertas'])
+        if hidro.get('hidrologia_aplica') and not hidro.get('hidrologia_pronostico_vigente'):
+            motivos.append('Pronóstico fluvial local sin evaluar: no se acredita ausencia de riesgo futuro')
+        row['cobertura_territorial'] = fusion['cobertura']
+        row['motivos_semaforo'] = ' | '.join(motivos)
+        row['fecha_evaluacion_integrada'] = referencia_integrada.isoformat()
         plan=recomendaciones_para_alerta(row)
         row['accion'] = plan['resumen']
         row['accion_prioritaria'] = plan['ahora'][0]
-        row['cobertura_territorial'] = fusion['cobertura']
-        row['motivos_semaforo'] = ' | '.join(fusion['motivos'])
         filas.append(row)
     return pd.DataFrame(filas)
 
@@ -6833,6 +7082,7 @@ def render_app():
         if actualizar:
 
             obtener_datos_ecmwf.clear()
+            obtener_panorama_hidrologico.clear()
             for consulta_ficha in (consultar_ina, estaciones_ina_publicas, catalogo_inta,
                                    imagen_inta_publica, obtener_roni, consultar_vialidad,
                                    consultar_relieve, consultar_salud_ign, recorrido_orientativo, consultar_trimestral, buscar_escenas, descargar_registro):
@@ -6870,7 +7120,8 @@ def render_app():
 
     **Suelo e hidrología**
     - INTA SEPA: suelo, excedentes y NDVI
-    - INA: alturas, caudal y umbrales
+    - INA: alturas, caudales, umbrales y pronósticos automáticos
+    - Yacyretá / Salto Grande: informes oficiales y aportes aguas arriba
     - NOAA CPC: ENOS (RONI)
 
     **Territorio**
@@ -6905,6 +7156,7 @@ def render_app():
         if (
             actualizar
             or "df_alerta" not in st.session_state
+            or edad_fuente(st.session_state.get('meteorologia_consultada'), ahora()) >= .25
         ):
 
             with st.spinner(
@@ -6960,6 +7212,7 @@ def render_app():
                 st.session_state[
                     "df_alerta"
                 ] = df_alerta
+                st.session_state['meteorologia_consultada'] = ahora().isoformat()
 
                 st.session_state[
                     "raw_ecmwf"
@@ -6986,8 +7239,10 @@ def render_app():
             ]
 
 
-        df_alerta = integrar_semaforo(df_alerta)
+        panorama_hidro = obtener_panorama_hidrologico()
+        df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
+        mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
         st.subheader('Tu localidad · alerta y acciones recomendadas')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
@@ -6998,6 +7253,7 @@ def render_app():
                 index=localidades.index(destacada) if destacada in localidades else 0,key='localidad_detalle')
             row_acciones=df_alerta[df_alerta.localidad.eq(localidad_seleccionada)].iloc[0]
             mostrar_recomendaciones_alerta(row_acciones,key='plan_acciones_principal')
+            mostrar_pronostico_fluvial_local(row_acciones,panorama_hidro)
         else:
             localidad_seleccionada=None
         st.subheader(f'Cobertura regional · {len(NODOS)} puntos en seis provincias')
@@ -7088,7 +7344,7 @@ def render_app():
             st.success("🟢 Los nodos con datos están en VERDE según las fuentes disponibles.")
         else:
             st.warning('⚪ No hay índices meteorológicos completos para interpretar el riesgo de esta consulta.')
-        st.caption("El color integra meteorología y las capas vigentes cargadas de suelo, agua, relieve y río. El índice 0–100 conserva su formulación meteorológica. Una cobertura parcial no certifica ausencia de riesgo.")
+        st.caption("El color integra automáticamente meteorología y riesgo fluvial observado/previsto. Las capas de suelo, agua y relieve de esta sesión son complementarias. El índice 0–100 sigue siendo meteorológico; la cobertura fluvial se informa por separado.")
         st.dataframe(df_alerta[["localidad", "nivel", "cobertura_territorial", "motivos_semaforo", "accion"]],
                      hide_index=True, use_container_width=True,
                      column_config={'accion':st.column_config.TextColumn('Acción recomendada',width='large')})

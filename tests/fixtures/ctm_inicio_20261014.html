@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Salto Grande">
+    <meta name="keywords" content="Salto, represa, rio, uruguay, argentina" />
+    <meta name="author" content="Pleka">
+	
+	<title>Salto Grande | Inicio</title>
+    
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="shortcut icon" type="image/png" href="favicon.png">
+	<link rel="stylesheet" type="text/css" href="css/fonts.css">
+    <link rel="stylesheet" type="text/css" href="css/style_home.css">
+    <link rel="stylesheet" type="text/css" href="css/flexslider.css">
+ 	<link rel="stylesheet" type="text/css" href="css/cabezal_home.css"> 
+    
+    <link rel="stylesheet" href="css/styles_menu_mobile.css">
+	
+	<!--[if IE 9]>
+		<link rel="stylesheet" type="text/css" href="css/style_home_ie9.css">
+        <link rel="stylesheet" type="text/css" href="css/cabezal_home_ie9.css">
+        <link rel="stylesheet" type="text/css" href="css/flexslider_ie9.css">
+	<![endif]-->
+     
+    <link rel="stylesheet" type="text/css" href="css/aviso.css" /> <!-- estilos necesarios para el aviso -->
+    <style type="text/css">
+		html{
+			background:url('images/fondo/h8.jpg') no-repeat top center fixed;
+			min-height:100%;
+			background-size:cover;
+		}
+		
+		div.mfp-bg {
+			opacity: 0.55;
+		}
+		
+		a.mfp-close, a.mfp-close:active, a.mfp-close:focus {
+			color: #fff;
+			top: 35px;
+			left: 770px;
+			position: relative;
+		}
+	
+		#seis_container {
+			overflow: hidden;
+			position:relative;
+			height:125px;
+		}
+		
+		tr.slide {
+			width: 230px;
+			/*padding: 45px 0 114px 0;*/
+			overflow: hidden;
+			/*line-height: 60px;*/
+			
+		}
+	</style>
+    
+	<link rel="stylesheet" href="css/magnific-popup.css">
+	
+	
+    <!-- swf object -->
+    <script src="js/swfobject_modified.js" type="cf8f1e3ec926f4fc48b57873-text/javascript"></script>
+    
+    <!-- jQuery 1.7.2 -->
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    
+    <!-- Basic jQuery Slider -->
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript" src="js/jquery.flexslider-min.js"></script>
+	
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript" src="js/jquery.cookie.js"></script>
+    
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript" src="js/jquery.magnific-popup.min.js"></script>
+	
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript" src="js/jquery.cycle.js"></script>
+	
+    <!-- HTML5 shiv es necesario para la visualizacion correcta de los elementos HTML5 en IE<9 -->
+	<!--[if lt IE 9]>
+		<script src="js/html5.js"></script>
+	<![endif]-->
+    
+  
+    
+    <!-- Selectivizr emula elementos CSS 3 en IE 6-8 -->
+	<!--[if (gte IE 6)&(lte IE 8)]>
+		<script src="js/selectivizr.js"></script>
+	<![endif]-->
+	
+        
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+		var version = getVersion();
+		var flashvars = {};
+		var attributes = {};
+		var params = {
+			wmode: "transparent"
+		}
+		
+		function getVersion()
+		{
+			var rv = -1;
+			if (navigator.appName == 'Microsoft Internet Explorer')
+			{
+				var ua = navigator.userAgent;
+				var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+				var reTrident = new RegExp("Trident/([0-9]{1,}[\.0-9]{0,})");
+				if (reTrident.exec(ua) != null)
+				{
+					rv = parseFloat(RegExp.$1);
+					rv += 4; /*Trident 4.0 = IE 8, Trident 5.0 = IE 9*/
+				}
+				else if (re.exec(ua) != null)
+					rv = parseFloat(RegExp.$1);
+			}
+			return rv;
+		}				
+
+		$(window).load(function()
+        {			
+    		$('.flexslider').flexslider();        
+			
+            //si el navegador es viejo, baja el aviso
+			if (version > -1 && version < 9)
+			{
+				$('#divAviso').css('display','block');
+				$('#divAviso').animate({top:'+=250'}, 5000);
+			}
+   			
+			//boton cerrar aviso
+			$('#btCerrarAviso').click(function()
+			{
+				$('#divAviso').fadeOut('fast', function () {
+                	$(this).remove();
+            	});
+			});						
+			
+			//sube carpincho
+			if ($.cookie('carpinchos') != 'no') {
+				$('#divCarpincho').animate({
+				  bottom: '+=250'
+				}, 2000, function() {
+				    swfobject.embedSWF("swfs/carpincho.swf", "flash", "1035", "250", "9.0.0","swfs/expressInstall.swf", flashvars, params, attributes);
+	  			});
+
+	  			$.cookie('carpinchos', 'no')		
+			} 
+
+        });
+        		
+		function cierraCarpincho(){
+			$('#divCarpincho').animate({
+			  bottom: '-=250'
+			}, 2000, function() {
+			    $(this).css('visibility','hidden');
+  			});
+			
+		}
+    </script>
+
+</head>
+<body>
+
+<div class="container" style="height:980px;">
+
+<a href='index.php'><div class="logomobile"></div></a>
+
+  	<div id="menu" class="menu">
+    <div class="logo"><a href="index.php"><img src="images/cabezal/logo.png" alt="Inicio"></a></div>
+	
+    <div class="botones">
+      <ul id="nav">
+                        <li><a href="#">Institucional</a>
+                 <div class="subs">
+                      <div class="wrp2" >
+                          <ul >
+                              <li>
+                                  <ul>
+                                                                            <li ><a href="perfil.php"><img src="images/cabezal/flecha.png">Perfil</a></li>
+                                                                                    <li class="ocultar_bt"><a href="historia.php"><img src="images/cabezal/flecha.png">Historia</a></li>
+                                                                                    <li class="ocultar_bt"><a href="organizacion.php"><img src="images/cabezal/flecha.png">Organización</a></li>
+                                                                                    <li ><a href="delegacion_uruguay.php"><img src="images/cabezal/flecha.png">Delegación<br> &emsp;del Uruguay</a></li>
+                                                                                    <li ><a href="delegacion_argentina.php"><img src="images/cabezal/flecha.png">Delegación<br> &emsp;Argentina</a></li>
+                                                                                    <li ><a href="memoria_anual.php"><img src="images/cabezal/flecha.png">Memoria Anual</a></li>
+                                                                                    <li class="ocultar_bt"><a href="centrodocumentacion.php"><img src="images/cabezal/flecha.png">Centro de<br>&emsp; Documentación</a></li>
+                                                                                    <li ><a href="tribunal_arbitral.php"><img src="images/cabezal/flecha.png">Tribunal Arbitral<br>&emsp; Internacional</a></li>
+                                                                            </ul>
+                              </li>
+                          </ul>
+                          <p class="sep" ></p>
+                          <ul>
+                              <li>
+                                  <ul>
+                                      <li style="padding-left:25px; padding-top:8px; width:172px"><img src="imgs/estructura/27.jpg"></li>
+                                      
+                                      <li style="font-size:0.85em; padding-left:25px; padding-top:11px; color:#cae3ff;">Institucional</li>
+                                      <li style="font-size:0.8em; color:#69adf8; line-height:16px; padding-left:25px; padding-top:5px; width:170px">La Comisión Técnica Mixta de Salto Grande es un organismo binacional creado por la República Argentina y la República Oriental del Uruguay para aprovechar los rápidos del río Uruguay en la zona de Salto Grande.</li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+               </li>
+                        <li><a href="#">Complejo<br />Hidroeléctrico</a>
+                 <div class="subs">
+                      <div class="wrp2" >
+                          <ul >
+                              <li>
+                                  <ul>
+                                                                            <li ><a href="caracteristicas.php"><img src="images/cabezal/flecha.png">Características</a></li>
+                                                                                    <li ><a href="ficha_tecnica.php"><img src="images/cabezal/flecha.png">Ficha Técnica</a></li>
+                                                                                    <li ><a href="instalaciones.php"><img src="images/cabezal/flecha.png">Instalaciones</a></li>
+                                                                                    <li ><a href="funcionamiento.php"><img src="images/cabezal/flecha.png">Funcionamiento</a></li>
+                                                                                    <li ><a href="rio_uruguay.php"><img src="images/cabezal/flecha.png">Río Uruguay</a></li>
+                                                                            </ul>
+                              </li>
+                          </ul>
+                          <p class="sep" ></p>
+                          <ul>
+                              <li>
+                                  <ul>
+                                      <li style="padding-left:25px; padding-top:8px; width:172px"><img src="imgs/estructura/28.jpg"></li>
+                                      
+                                      <li style="font-size:0.85em; padding-left:25px; padding-top:11px; color:#cae3ff;">Complejo<br />Hidroeléctrico</li>
+                                      <li style="font-size:0.8em; color:#69adf8; line-height:16px; padding-left:25px; padding-top:5px; width:170px">Se encuentra ubicado en el curso medio del río Uruguay, aprovechando para la generación hidroeléctrica un desnivel natural llamado Salto Grande, aguas arriba de las ciudades de Concordia (Argentina) y Salto (Uruguay).</li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+               </li>
+                        <li><a href="#">Energía</a>
+                 <div class="subs">
+                      <div class="wrp2" >
+                          <ul >
+                              <li>
+                                  <ul>
+                                                                            <li ><a href="generacion.php"><img src="images/cabezal/flecha.png">Generación</a></li>
+                                                                                    <li ><a href="transmision.php"><img src="images/cabezal/flecha.png">Transmisión</a></li>
+                                                                                    <li ><a href="mercado.php"><img src="images/cabezal/flecha.png">Mercado</a></li>
+                                                                            </ul>
+                              </li>
+                          </ul>
+                          <p class="sep" ></p>
+                          <ul>
+                              <li>
+                                  <ul>
+                                      <li style="padding-left:25px; padding-top:8px; width:172px"><img src="imgs/estructura/41.jpg"></li>
+                                      
+                                      <li style="font-size:0.85em; padding-left:25px; padding-top:11px; color:#cae3ff;">Energía</li>
+                                      <li style="font-size:0.8em; color:#69adf8; line-height:16px; padding-left:25px; padding-top:5px; width:170px">La energía eléctrica generada por la Central tiene por destino los sistemas interconectados de ambos países, abasteciendo, en valores aproximados, el 50% de la energía del sistema uruguayo y el 7% del sistema argentino, ofreciendo una de las tarifas más bajas de ambos mercados eléctricos.</li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+               </li>
+                        <li><a href="#">Propósitos</a>
+                 <div class="subs">
+                      <div class="wrp2" style="margin-left:-267px;">
+                          <ul style="float:right; padding-right:0px; padding-left:10px;">
+                              <li>
+                                  <ul>
+                                                                            <li ><a href="gestion_calidad.php"><img src="images/cabezal/flecha.png">Gestión de Calidad</a></li>
+                                                                                    <li ><a href="gestion_ambiental.php"><img src="images/cabezal/flecha.png">Gestión Ambiental</a></li>
+                                                                                    <li ><a href="responsabilidad_social.php"><img src="images/cabezal/flecha.png">Responsabilidad<br>&emsp; Social</a></li>
+                                                                                    <li ><a href="region.php"><img src="images/cabezal/flecha.png">La Región</a></li>
+                                                                                    <li ><a href="actividades.php"><img src="images/cabezal/flecha.png">Otras Actividades</a></li>
+                                                                            </ul>
+                              </li>
+                          </ul>
+                          <p class="sep" style="left:220px"></p>
+                          <ul>
+                              <li>
+                                  <ul>
+                                      <li style="padding-left:25px; padding-top:8px; width:172px"><img src="imgs/estructura/45.jpg"></li>
+                                      
+                                      <li style="font-size:0.85em; padding-left:25px; padding-top:11px; color:#cae3ff;">Propósitos</li>
+                                      <li style="font-size:0.8em; color:#69adf8; line-height:16px; padding-left:25px; padding-top:5px; width:170px">Como lo define el Convenio de 1946 por el cual se crea la Comisión Técnica Mixta de Salto Grande, trabajamos con el propósito de obtener el mayor beneficio de las disposiciones naturales que ofrece el río Uruguay, realizándolo con recursos técnicos actualizados, recursos humanos calificados y en un marco de calidad, cuidando el ambiente y con responsabilidad social.</li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+               </li>
+                        <li><a href="#">Relaciones <br> Públicas</a>
+                 <div class="subs">
+                      <div class="wrp2" style="margin-left:-267px;">
+                          <ul style="float:right; padding-right:0px; padding-left:10px;">
+                              <li>
+                                  <ul>
+                                                                            <li ><a href="visitas.php"><img src="images/cabezal/flecha.png">Visitas</a></li>
+                                                                                    <li ><a href="museo.php"><img src="images/cabezal/flecha.png">Museo</a></li>
+                                                                                    <li ><a href="videos_educativos.php"><img src="images/cabezal/flecha.png">Videos Educativos</a></li>
+                                                                                    <li ><a target="_blank" href="https://infantil.saltogrande.org"><img src="images/cabezal/flecha.png">Portal Infantil</a></li>
+                                                                            </ul>
+                              </li>
+                          </ul>
+                          <p class="sep" style="left:220px"></p>
+                          <ul>
+                              <li>
+                                  <ul>
+                                      <li style="padding-left:25px; padding-top:8px; width:172px"><img src="imgs/estructura/50.jpg"></li>
+                                      
+                                      <li style="font-size:0.85em; padding-left:25px; padding-top:11px; color:#cae3ff;">Relaciones <br> Públicas</li>
+                                      <li style="font-size:0.8em; color:#69adf8; line-height:16px; padding-left:25px; padding-top:5px; width:170px">Relaciones Públicas es el Área que se encarga de gestionar los vínculos con los públicos estratégicos. Su objetivo principal es mantener informados tanto a los organismos gubernamentales y empresariales como así también a los diversos sectores de la sociedad civil.<li style="font-size:0.85em; padding-left:10px; padding-top:11px; color:#cae3ff;"><a href="relaciones_publicas.php">leer más</a></li></li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+               </li>
+                  <li id="contactobt"><a href="contacto.php"><img src="images/cabezal/contacto_65.png" alt="Contacto"></a></li>
+    </ul><!-- ul nav-->
+   </div><!-- div botones-->
+      
+          
+  <div class="frase">
+  </div>      
+  <div class="audio" align="left"><a href="index.php"><img id="ico_home" src="images/cabezal/ico_home.png" align="absmiddle" /></a></div>
+      
+</div>
+
+
+
+<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+
+$(window).load(function()
+{
+	//-------------------------------------------------------IDIOMAS
+	//muestro/oculto div idioma actual
+	var idioma = "es";
+	var idiomas = ["es","pt","en"];
+	$.each(idiomas, function(clave, valor)
+	{
+		if (valor==idioma)
+		{
+			$("#div_"+valor).show();
+		}
+		else
+		{
+			$("#div_"+valor).hide();
+		}
+	});
+	
+	//-------------------------------------------------------MENU
+	//manejo el click en el menu
+	$("#nav > li > a").click(function ()
+	{ 
+    	if ($(this).parent().hasClass('selected'))
+		{
+            $("#nav .selected div div").slideUp(100); 
+            $("#nav .selected").removeClass("selected");
+        }
+		else
+		{
+            $("#nav .selected div div").slideUp(100); 
+            $("#nav .selected").removeClass("selected");
+
+            if ($(this).next(".subs").length)
+			{
+                $(this).parent().addClass("selected"); 
+                $(this).next(".subs").children().slideDown(200);
+            }
+        }
+    });
+	
+	//manejo el click en cualquier parte de la ventana
+	$(document).click(function(event)
+	{
+		var elemento = $("#nav > li > a");
+		//si el click es en el menu no hago nada
+		if (elemento.is(event.target))
+		{
+      		return false;
+		}
+		//si es en otra parte
+  		else
+		{
+			//y el menu esta deplegado
+			if ($("#nav > li > a").parent().hasClass('selected'))
+			{
+				//lo cierro
+				$("#nav .selected div div").slideUp(100); 
+				$("#nav .selected").removeClass("selected");
+			}
+		}
+	});
+	
+	//-------------------------------------------------------OCULTACION
+	//inicialmente, si el ancho es menor o igual a 320
+	if (window.outerWidth<=320)
+	{
+		//oculto elementos con clase "ocultar_bt"
+		$(".ocultar_bt").hide();
+    }
+	//si el ancho es mayor a 320
+    else
+    {
+		//hago visibles los elemento con clase "ocultar_bt"
+	    $(".ocultar_bt").show();
+	}
+	var previousOrientation = window.orientation;
+	//si hay un cambio de orientacion, nuevamente controlo el ancho
+	var checkOrientation = function(){
+		if(window.orientation !== previousOrientation){
+			previousOrientation = window.orientation;
+			if (window.outerWidth<=320)
+			{
+				$(".ocultar_bt").hide();
+            }
+		    else
+		    {
+			   $(".ocultar_bt").show();
+			}
+		}
+	};
+	window.addEventListener("resize", checkOrientation, false);
+	window.addEventListener("orientationchange", checkOrientation, false);
+	setInterval(checkOrientation, 2000);
+	//-------------------------------------------------------
+});
+</script>    
+    <div id="wrapper_mobile">
+	<a href="index.php"><img src="images/logo_mobile2.png" style="margin-bottom: 10px"/></a>
+	<ul class="menu_mobile">
+		<li class="item1"><a href="#">Institucional</a>
+	<ul>
+		<li class="subitem1"><a href="perfil.php">Perfil</a></li>
+		<li class="subitem2"><a href="tribunal_arbitral.php">Tribunal Arbitral Internacional</a></li>
+		<li class="subitem3"><a href="delegacion_uruguay.php">Delegación del Uruguay </a></li>
+        <li class="subitem4"><a href="delegacion_argentina.php">Delegación Argentina </a></li>
+	</ul>
+		</li>
+<li class="item2"><a href="#">Complejo Hidroeléctrico </a>
+	<ul>
+		<li class="subitem1"><a href="caracteristicas.php">Caracaterísticas</a></li>
+		<li class="subitem2"><a href="ficha_tecnica.php">Ficha Técnica</a></li>
+		<li class="subitem3"><a href="instalaciones.php">Instalaciones </a></li>
+        <li class="subitem4"><a href="funcionamiento.php">Funcionamiento</a></li>
+		<li class="subitem5"><a href="rio_uruguay.php">Río Uruguay </a></li>
+	 </ul>
+		</li>
+<li class="item3"><a href="#">Energía </a>
+<ul>
+		<li class="subitem1"><a href="generacion.php">Generación </a></li>
+		<li class="subitem2"><a href="transmision.php">Transmisión </a></li>
+		<li class="subitem3"><a href="mercado.php">Mercado </a></li>
+	  </ul>
+		</li>
+<li class="item4"><a href="#">Propósitos </a>
+<ul>
+				<li class="subitem1"><a href="gestion_calidad.php">Gestión de Calidad </a></li>
+		<li class="subitem2"><a href="gestion_ambiental.php">Gestión Ambiental</a></li>
+		<li class="subitem3"><a href="responsabilidad_social.php">responsabilidad Social </a></li>
+        <li class="subitem4"><a href="actividades.php">Otras Actividades </a></li>
+	  </ul>
+		</li>
+<li class="item5"><a href="#">Relaciones Públicas </a>
+<ul>
+				<li class="subitem1"><a href="visitas.php">Visitas </a></li>
+		<li class="subitem2"><a href="museo.php">Museo </a></li>
+	  </ul>
+		</li>
+        
+        <li class="item4"><a href="#">contacto </a>
+<ul>
+				<li class="subitem1"><a href="contacto.php">Formulario de Contacto </a></li>
+	  </ul>
+		</li>
+        
+  </ul>
+
+</div>
+<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+	$(function() {
+	
+	    var menu_ul = $('.menu_mobile > li > ul'),
+	           menu_a  = $('.menu_mobile > li > a');
+	    
+	    menu_ul.hide();
+	
+	    menu_a.click(function(e) {
+	        e.preventDefault();
+	        if(!$(this).hasClass('active')) {
+	            menu_a.removeClass('active');
+	            menu_ul.filter(':visible').slideUp('normal');
+	            $(this).addClass('active').next().stop(true,true).slideDown('normal');
+	        } else {
+	            $(this).removeClass('active');
+	            $(this).next().stop(true,true).slideUp('normal');
+	        }
+	    });
+	
+	});
+</script>
+
+    <div class="audio">
+		
+    	<font color="#105c9b">
+        <a class="idioma" href="index.php?lang=es"><b>ES</b></a> | <a class="idioma" href="index.php?lang=pt">PT</a> | <a class="idioma" href="index.php?lang=en">EN</a>&nbsp;&nbsp;&nbsp;
+        </font>
+		
+  </div>
+  
+<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+	
+	$(function() {
+		var check_cookie = $.cookie('bsw');
+		if (check_cookie == undefined) {
+			$.cookie('bsw', 'yes', {expires: 1});
+			/*
+			$.magnificPopup.open({
+				items: {
+					src: '#popup-comunicado' 
+				},
+				type: 'inline',
+				preload: false,
+				closeBtnInside: true,
+				closeOnBgClick: true
+			});
+			*/
+		}
+		
+		$('#comunicado').click(function(){
+			window.open('https://www.saltogrande.org/docs/hidrologia/Comunicado.pdf?1791994762', '_blank');
+		});
+		
+	});
+	
+</script>
+
+	<div id="popup-comunicado" class="white-popup-block mfp-hide" style="margin: 0 auto; max-width: 800px;">
+		<a href="#" class="mfp-close">X</a>
+		<div id="comunicado" style="background-color: #ffffff; padding: 10px; cursor: pointer; text-align:center;">
+				<!--
+				<p style="margin:0;">
+					<img src="images/logo_comunicado.jpg" style="float:left;" />
+					<span style="float:left; color: #000; font-weight: bold; margin-left: 5px; margin-top: 19px; text-align: center; font-size: 15px;">COMUNICADO OFICIAL<br />
+					Diciembre  2015</span>
+					<img src="images/logo_comunicado2.jpg" style="float:right;" />
+				</p>
+				
+				<div style="clear:both;"></div>
+				-->
+				<br />
+				<p><strong>INFORMACIÓN IMPORTANTE</strong></p>
+				<p>NIVELES DEL RÍO EN DATOS HIDROLÓGICOS / COMUNICADO DIARIO Y EN APP SALTO GRANDE</p>
+				<br />
+
+
+		</div>
+	</div>
+	
+    <div class="main grid-wrap">
+      <!-- <section class="grid col-three-quarters mq2-col-two-thirds mq3-col-full"> -->
+      <section class="grid col-three-quarters">
+        <article class="post">
+                <!---------------  Slider -------------->                
+                    <div class="flexslider" style="width: 640px; margin-bottom: 10px;">
+                        <ul class="slides">
+                        	                            
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/210.jpg">                        
+							                                <p class="flex-caption">Trabajos de control de calidad de aceites</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/209.jpg">                        
+							                                <p class="flex-caption">Amanecer en la Central Hidroeléctrica</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/211.jpg">                        
+							                                <p class="flex-caption">Producción de flora nativa para reforestación</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/213.jpg">                        
+							                                <p class="flex-caption">Mantenimiento Capital de la Central</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/214.jpg">                        
+							                                <p class="flex-caption">Monitoreo desde el Centro de Operación Unificado</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/212.jpg">                        
+							                                <p class="flex-caption">Vertedero de la Central abierto</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/216.jpg">                        
+							                                <p class="flex-caption">Almacenes de Salto Grande</p>
+                            							
+														
+                            </li>
+                                                        
+                            <li>
+							
+														
+														
+														
+														
+																													
+                        	<img src="imgs/ggaleria/217.jpg">                        
+							                                <p class="flex-caption">Renovación de compuertas auxiliares - RSG</p>
+                            							
+														
+                            </li>
+                                                </ul>                    
+            	</div>                                 
+                <!--------------- FIN Slider ------------>
+				
+                <!-- VIDEO -->
+                <div class="entry" style="padding-top:20px">
+                    <div align="left">
+                        <div class="caja-video">
+                            <video controls poster="images/placas/placa_video.jpg">
+                              <source src="videos/institucional_2018.mp4" type="video/mp4" />
+                                <br><br><b>Su navegador no soporta el elemento <code>video</code></b>
+                            </video>
+                        </div>
+                    </div>
+                </div>
+		</article>
+	  </section>
+      
+		<aside class="grid col-one-quarter mq2-col-one-third mq3-col-full blog-sidebar">
+        			
+			<div id="dos" class="lateral" style="height:20px">
+               <a href="rsg.php"><h2><img src="images/lateral/evento.png">&nbsp;Renovación Salto Grande</h2></a>
+			</div>
+			
+            <div id="tres" class="lateral" style="height:20px">
+               <a href="recursos_humanos.php"><h2><img src="images/lateral/lat_01.png" alt="Recursos Humanos">&nbsp;Recursos Humanos</h2></a>
+			</div>
+            
+            <div id="cuatro" class="lateral" style="height:20px">
+               <a href="proveedores_home.php"><h2><img src="images/lateral/lat_02.png" alt="Proveedores">&nbsp;Proveedores</h2></a>
+			</div>
+			
+				
+				
+            
+             
+            
+            
+            <div id="cinco" class="lateral">
+                <a href="actualidad.php"><h2><img src="images/lateral/lat_06.png" alt="Salto Grande">&nbsp;&nbsp;Actualidad&nbsp;<img src="images/lateral/boton_mas_24.png" alt="mas" style="margin-top: -2px;" align="right"/></h2></a>
+                <div id="seis_container">
+				<table class="info_periodica">
+                	<tbody id="slider">
+                    							<tr class="slide">
+							<td>
+                            	<a href="actualidad.php">
+                                    <ul>
+                                        <li style="max-width:200px; white-space:pre; white-space:pre-wrap; white-space:pre-line; white-space:-pre-wrap; white-space:-o-pre-wrap; white-space:-moz-pre-wrap; white-space:-hp-pre-wrap; word-wrap:break-word;">
+                                            05/10/2026 - Con tendencia ascendente, el r&iacute;o Uruguay se ubicar&aacute; por encima de los 11 y 11,30 metros en Concordia y Salto respectivamente.                                        </li>
+                                    </ul>
+                                </a>
+                            </td>
+							</tr>
+                    							<tr class="slide">
+							<td>
+                            	<a href="actualidad.php">
+                                    <ul>
+                                        <li style="max-width:200px; white-space:pre; white-space:pre-wrap; white-space:pre-line; white-space:-pre-wrap; white-space:-o-pre-wrap; white-space:-moz-pre-wrap; white-space:-hp-pre-wrap; word-wrap:break-word;">
+                                            14/09/2026 - Presentaci&oacute;n de avances en gesti&oacute;n del riesgo en el Congreso Argentino de Presas y Aprovechamientos Multiprop&oacute;sito.                                        </li>
+                                    </ul>
+                                </a>
+                            </td>
+							</tr>
+                    							<tr class="slide">
+							<td>
+                            	<a href="actualidad.php">
+                                    <ul>
+                                        <li style="max-width:200px; white-space:pre; white-space:pre-wrap; white-space:pre-line; white-space:-pre-wrap; white-space:-o-pre-wrap; white-space:-moz-pre-wrap; white-space:-hp-pre-wrap; word-wrap:break-word;">
+                                            04/09/2026 - Salto Grande recibi&oacute; a la Comitiva de la CIER                                        </li>
+                                    </ul>
+                                </a>
+                            </td>
+							</tr>
+                                        </tbody>
+                </table>
+				</div>
+			</div>
+				
+								<div id="seis" class="lateral">            	
+						<a href="datos_hidrologicos.php"><h2><img src="images/lateral/lat_07.png" />&nbsp;&nbsp;Datos Hidrológicos</h2></a>
+						<table class="info_periodica">
+							<tr>
+								<td><ul><li><a target="_blank" href="docs/hidrologia/Comunicado.pdf?1791994762">Comunicado Diario</a></li></ul></td>
+								<td style="text-align:right;"></td>
+							</tr>
+							<tr>
+								<td><ul><li><a target="_blank" href="docs/hidrologia/Precipitaciones.pdf?1791994762">Reporte de Precipitaciones</a></li></ul></td>
+								<td style="text-align:right"></td>
+							</tr>
+							<tr>
+								<td><ul><li><a target="_blank" href="docs/hidrologia/CaudalesNiveles.pdf?1791994762">Reporte de Caudales y Niveles</a></li></ul></td>
+								<td style="text-align:right"></td>
+							</tr>
+							<tr>
+								<td><ul><li><a target="_blank" href="docs/hidrologia/PronosticosP.pdf?1791994762">Pronóstico de Precipitaciones</a></li></ul></td>
+								<td style="text-align:right"></td>
+							</tr>
+							<tr>
+								<td><ul><li><a href="mapa_estacion.php">Datos de Telemetría</a></li></ul></td>
+								<td style="text-align:right"></td>
+							</tr>
+						</table>
+					</div>
+					
+					<div id="siete" class="lateral" style="height:20px">
+					   <a href="pade_sas.php"><h2><img src="images/lateral/lat_siren.png" alt="PADE SAS">&nbsp;&nbsp;PADE - Sistema de Aviso Sonoro</h2></a>
+					</div>
+					
+					<div id="siete" class="lateral" style="height:20px">
+					   <a href="datos_operativos.php"><h2><img src="images/lateral/lat_08b.png" alt="Datos Operativos">&nbsp;&nbsp;Datos Operativos</h2></a>
+					</div>
+					
+					<div id="ocho" class="ocultar_bt lateral" style="height:20px">
+						<a href="centrodocumentacion.php"><h2><img src="images/lateral/lat_05.png" alt="Centro de Documentación">&nbsp;Centro de Documentación</h2></a>
+					</div>
+					<!--
+					<div id="ocho" class="lateral" style="height:20px">
+						<a href="peaje.php"><h2><img src="images/lateral/lat_2_5.png" alt="Tarifas Peaje">&nbsp;Tarifas de Peaje</h2></a>
+					</div>
+				-->
+					<div id="ocho" class="lateral" style="height:20px">
+					   <a href="app.php"><h2><img src="images/lateral/lat_09.png">&nbsp;&nbsp;Aplicación Móvil Institucional</h2></a>
+					</div>
+					
+								
+				<!--	
+					
+			-->
+			<!--
+			<div id="siete" class="lateral">            	
+                <h2><img src="images/lateral/lat_07.png">&nbsp;&nbsp;Información Periódica&nbsp;</h2>
+				<a href="datos_hidrologicos.php">
+				<ul>
+					<li style="max-width:200px; white-space:pre; white-space:pre-wrap; white-space:pre-line; white-space:-pre-wrap; white-space:-o-pre-wrap; white-space:-moz-pre-wrap; white-space:-hp-pre-wrap; word-wrap:break-word;">
+						DATOS HIDROLÓGICOS 14/10/2026                    </li>
+                </ul>
+				</a>
+			</div>
+			-->
+			
+			<!--
+          <div id="ocho" class="lateral">
+                <h2><img src="images/lateral/lat_08.png" alt="Clima">&nbsp;&nbsp;Clima </h2>
+                <table class="info_periodica">
+                	<tr>
+                    	<td></td>
+                    	<td><ul><li style="font-size:11px"><font color="#CCCCCC">&emsp;14 de octubre de 2026</font></li></ul></td>
+                    </tr>
+                    <tr>
+                        <td><ul><li>Salto Grande</li></ul></td>
+                        <td style="text-align:right;">&deg;&nbsp;<img src="" align="right"/></td>
+                    </tr>
+                    <tr>
+                        <td><ul><li>Buenos Aires</li></ul></td>
+                        <td style="text-align:right">&deg;&nbsp;<img src="" align="right"/></td>
+                    </tr>
+                    <tr>
+                        <td><ul><li>Montevideo</li></ul></td>
+                        <td style="text-align:right">&deg;&nbsp;<img src="" align="right"/></td>
+                    </tr>
+                </table>
+            </div>
+			-->
+			  <div style="clear:both"></div>
+	  </aside>
+	  <div style="clear:both"></div>
+  </div>  
+</div>
+
+
+<!-- FIN MAIN -->
+    
+    
+    <!-- DIRECCIONES -->
+
+    <div class="direcciones" align="center">
+    <table width="1000px" border="0">
+          <tr>
+            <td align="center">
+            <table width="1000px" border="0" cellspacing="0" cellpadding="0" align="center">
+              <tr>
+                <td width="33%" align="right"><p style="font-size:12px; text-align:left; margin-top:0; color:#000"><b>Complejo Hidroeléctrico de Salto Grande</b><br>Teléfonos: +54345 4216612 (R.A.)<br>+598 47327777 (R.O.U.)</p>
+                </td>
+                
+                <td width="34%" align="left"><p style="font-size:12px; text-align:left; margin-top:0; color:#000"><b>Buenos Aires (R.A.)</b><br>Leandro N. Alem 449 - Capital Federal (1003) Argentina<br>Teléfono: +5411 55543400</p>
+                </td>
+                
+                <td width="33%" align="center"><p style="font-size:12px; text-align:left; margin-top:0; color:#000"><b>Montevideo (R.O.U.)</b><br> Convención 1343, piso 10 - Montevideo (11100) Uruguay<br>Teléfono: +598 29020085</p>
+                </td>
+            </tr>
+          </table>
+          </td>
+          </tr>
+        </table>        
+	</div>
+
+   	<!-- PIE -->
+	<div class="pie" align="center">
+    <table width="1000px" border="0" cellspacing="0" cellpadding="0" align="center" height="40">
+          <tr>
+            <td width="33%" align="left"><a href="index.php" style="color:#333333; font-size:10px">© 2013 Comisión Técnica Mixta de Salto Grande</a></td>
+            <td width="33%" align="center" style="font-size:10px"></td>
+            <td width="34%" align="right"><a href="http://www.pleka.com" target="_blank"><img src="images/pleka.png" title="Pleka"></a></td>
+        </tr>
+    </table>   
+</div>
+
+<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55468310-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+    
+    <!-- CARPINCHO -->
+    <div class="carpincho" id="divCarpincho" align="center">
+	    <div id="flash" align="center">
+        </div>
+    </div>
+    
+	<!-- AVISO -->
+    <div id="divAviso">
+    	<div id="btCerrarAviso" style="position: absolute;cursor: pointer;right: 50px;margin-top:10px">Cerrar aviso</div>
+    	<div class="avisotxt">
+        	<div class="texto">
+      			<div class="avisos-img"></div>
+        	    <p><strong>Usted est&aacute; usando un navegador obsoleto.</strong></p>
+        	    <p>Para navegar mejor por este sitio, por favor, actualice su navegador.</p>
+            </div>
+            <div>
+            	<a href='http://www.mozilla-europe.org/es/firefox/' target='_blank' class='icon_firefox'></a>
+                <a href='http://www.microsoft.com/downloads/details.aspx?FamilyID=341c2ad5-8c3d-4347-8c03-08cdecd8852b&DisplayLang=es' target='_blank' class='icon_ie'></a>
+                <a href='http://www.apple.com/es/safari/download/' target='_blank' class='icon_safari'></a>
+                <a href='http://www.google.com/chrome?hl=es' target='_blank' class='icon_chrome'></a>
+            </div>
+        </div>
+    </div>
+    
+	<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+	
+	$(function() {
+		$('#slider').cycle({ 
+			fx:      'custom', 
+		    sync: 1, 
+		    cssBefore: {  
+		        top:  -200, 
+		        left: 0, 
+		        display: 'block' ,
+		        opacity: 0
+		    }, 
+		    animIn:  { 
+		        top: 0,
+		        opacity: 1 
+		    }, 
+		    animOut: {  
+		        top: 200,
+		        opacity: 0
+		    }, 
+		    delay: 5000,
+			timeout: 5000
+		});		
+	});
+	
+	</script>
+
+<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="cf8f1e3ec926f4fc48b57873-|49" defer></script></body>
+<script type="cf8f1e3ec926f4fc48b57873-text/javascript">
+	//oculto casa (debe ir luego de cargar el cabezal)
+	$('#ico_home').css('display','none');
+</script>
+</html>
