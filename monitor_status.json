@@ -1,17 +1,29 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-14T08:36:40.127401+00:00",
-  "checked_at_art": "2026-10-14T05:36:40.127401-03:00",
+  "checked_at": "2026-10-14T09:34:03.541642+00:00",
+  "checked_at_art": "2026-10-14T06:34:03.541642-03:00",
   "frequency_minutes": 60,
   "scope": "ECMWF / índice meteorológico",
   "nodes_total": 42,
-  "nodes_valid": 0,
-  "nodes_red": 0,
-  "nodes_invalid": 42,
-  "nodes_yellow": 0,
-  "nodes_green": 0,
+  "nodes_valid": 42,
+  "nodes_red": 2,
+  "nodes_invalid": 0,
+  "nodes_yellow": 6,
+  "nodes_green": 34,
   "configured_nodes": 42,
-  "result": {},
+  "result": {
+    "configurado": true,
+    "enviadas": 0,
+    "fallidas": 0,
+    "pendientes": 2,
+    "omitidas": 2,
+    "inicializadas": 0,
+    "sin_datos": 0,
+    "atrasadas": 0,
+    "inciertas": 1,
+    "pausado_sesion": false,
+    "registro_error": false
+  },
   "history": [
     {
       "id": "242a9c67748e",
@@ -44,10 +56,10 @@
       "detalle": "Not Found"
     }
   ],
-  "health": "sin_datos",
+  "health": "envio_sin_confirmacion",
   "ok": false,
   "errors": [
-    "No se recibieron nodos con datos meteorológicos válidos."
+    "Hay un envío sin confirmación de Telegram; revisá el canal."
   ],
   "dry_run": false
 }
