@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T02:31:39.849106+00:00",
-  "checked_at_art": "2026-10-14T23:31:39.849106-03:00",
+  "checked_at": "2026-10-15T03:31:33.069939+00:00",
+  "checked_at_art": "2026-10-15T00:31:33.069939-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 45,
-  "nodes_red": 7,
+  "nodes_red": 8,
   "nodes_invalid": 3,
-  "nodes_yellow": 19,
+  "nodes_yellow": 18,
   "nodes_green": 19,
   "configured_nodes": 48,
   "coverage": {
@@ -21,7 +21,7 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 17,
+      "vigentes": 16,
       "aplicables": 29
     },
     "represas": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 7,
+    "pendientes": 8,
     "omitidas": 7,
     "inicializadas": 0,
     "sin_datos": 3,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "0f6bdf5dd12e",
+      "creado": "2026-10-15T03:31:33.070403+00:00",
+      "intento": "2026-10-15T03:31:33.070403+00:00",
+      "localidad": "Reconquista",
+      "provincia": "Santa Fe",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 24.1,
+      "indice": 24.0,
+      "estado": "enviado",
+      "message_id": 51,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "4504a0727673",
       "creado": "2026-10-14T21:31:16.373836+00:00",
@@ -202,7 +217,7 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "17/29 puntos aplicables con pronóstico fluvial vigente.",
+    "16/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
