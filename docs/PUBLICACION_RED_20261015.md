@@ -23,4 +23,15 @@ Además, el estado se guardaba antes de intentar publicar y no volvía a persist
 
 `tests/test_monitor_red_integrada.py` comprueba persistencia del resultado, fallo explícito, conservación del resultado de Telegram y ausencia de lecturas de secretos/SQLite/envíos en el modo de publicación. La suite existente conserva las pruebas de reserva durable previa al envío y deduplicación. Las llamadas de Telegram de las pruebas son simuladas.
 
-Los lectores vigentes de ambos repositorios aceptaron el documento real de la reproducción: 58 puntos, contrato versión 1 e informe vigente. La publicación real y sus ejecuciones de validación se verifican en GitHub después de integrar esta corrección.
+Los lectores vigentes de ambos repositorios aceptaron el documento real de la reproducción: 58 puntos, contrato versión 1 e informe vigente. La publicación real quedó verificada después de integrar la corrección.
+
+
+## Verificación en producción
+
+- [PR #3](https://github.com/FedericoIeraci-cell/Alerta-Litoral/pull/3) integrado en `main`, commit `02c5b3c00256cb76bf42b004050e10f0888bd581`.
+- 177 pruebas aprobadas localmente y en GitHub; [validación y publicación](https://github.com/FedericoIeraci-cell/Alerta-Litoral/actions/runs/38785217443) finalizadas con éxito.
+- El trabajo `publicar-red` ejecutó `--publish-red-only`, sin credenciales de Telegram: `red_integrada_publicada: true`, `red_integrada_error: null`, `result: {}`.
+- Generación: `2026-10-15T18:24:54.875432+00:00` (**15:24:54 ART**). Relectura confirmada: `18:25:02.262736+00:00`. Tamaño: **378.470 bytes**. SHA: `9ecaa3629aa2948d73cc45727bfb592ebefac6d2`.
+- La URL pública devolvió ese informe nuevo. El modo de recuperación lo identifica como prueba sin envíos; la ejecución horaria normal conserva su programación y reemplaza el informe con su evaluación habitual.
+- Durante la investigación, una ejecución anterior a la corrección también logró publicar a las 14:31, al disminuir el tamaño del documento. Esa recuperación transitoria no eliminaba la causa del fallo ni la falta de detección, ahora cubiertas por las regresiones.
+
