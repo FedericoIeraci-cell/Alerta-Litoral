@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T07:41:57.141565+00:00",
-  "checked_at_art": "2026-10-15T04:41:57.141565-03:00",
+  "checked_at": "2026-10-15T08:35:32.384479+00:00",
+  "checked_at_art": "2026-10-15T05:35:32.384479-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 45,
-  "nodes_red": 8,
+  "nodes_red": 9,
   "nodes_invalid": 3,
-  "nodes_yellow": 18,
+  "nodes_yellow": 17,
   "nodes_green": 19,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 8,
+    "pendientes": 9,
     "omitidas": 8,
     "inicializadas": 0,
     "sin_datos": 3,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "ef4f93aacf95",
+      "creado": "2026-10-15T08:35:32.384959+00:00",
+      "intento": "2026-10-15T08:35:32.384959+00:00",
+      "localidad": "Santo Tomé",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
+      "indice_anterior": 49.3,
+      "indice": 75.0,
+      "estado": "enviado",
+      "message_id": 52,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "0f6bdf5dd12e",
       "creado": "2026-10-15T03:31:33.070403+00:00",
