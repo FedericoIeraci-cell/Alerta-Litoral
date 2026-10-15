@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<body>
+  <main role="main">
+    <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte diario - Cuenca del Plata - INA - SLHi</title>
+  <meta name="description"
+    content="Es un organismo científico tecnológico descentralizado que tiene por objetivo satisfacer los requerimientos de estudio,    investigación, desarrollo y prestación de servicios especializados en el campo del aprovechamiento y preservación del agua.    Depende de la Secretaría de Infraestructura y Política Hídrica de la Nación,    del [Ministerio de Obras Públicas](https://www.argentina.gob.ar/obras-publicas) de la República Argentina.">
+  <meta name="keywords"
+    content="instituto nacional del agua, INA, ina, subsecretaria de recursos hidricos, laboratorio de hidraulica, direccion de servicios hidrologicos, centro de tecnologia del uso del agua, centro regional litoral, crl, centro de la region semiarida, cirsa,    centro de economia legislacion y administracion del agua, cela, subgerencia laboratorio de calidad de aguas, subgerencia hidrologia aplicada, delta parana, inundaciones urbanas, productos de emergencia, analisis de agua, alerta hidrologico, monitoreo rio parana,   cuenca del plata, investigaciones en riego y drenaje, calidad de aguas, canal de panama, hidraulica, ingenieria hidraulica, hidrologia superficial,    hidrologia subterranea, programa de investigaciones en hidroquimica, red hidrometeorologica, area pedemontana gran mendoza,   calidad de aguas e impacto ambiental">
+  <meta name="author" content="Instituto Nacional del Agua">
+  <link rel="shortcut icon" href="https://www.ina.gov.ar/img/favicon.ico">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="theme-color" content="#0072b8">
+  <meta name="msapplication-navbutton-color" content="#0072b8">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#0072b8">
+  <meta property="og:url" content="https://www.argentina.gob.ar/ina/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Instituto Nacional del Agua (INA) - Subgerencia Laboratorio de Hidrología">
+  <meta property="og:description"
+    content="Es un organismo científico tecnológico descentralizado que tiene por objetivo satisfacer los requerimientos de estudio,    investigación, desarrollo y prestación de servicios especializados en el campo del aprovechamiento y preservación del agua.    Depende de la Secretaría de Infraestructura y Política Hídrica de la Nación,    del [Ministerio de Obras Públicas](https://www.argentina.gob.ar/obras-publicas) de la República Argentina.">
+  <meta property="og:image" content="https://www.ina.gob.ar/img/Logo_ina_chico.png">
+  <meta property="og:locale" content="es_AR">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Instituto Nacional del Agua (INA) - Subgerencia Laboratorio de Hidrología">
+  <meta name="twitter:description"
+    content="Es un organismo científico tecnológico descentralizado que tiene por objetivo satisfacer los requerimientos de estudio,    investigación, desarrollo y prestación de servicios especializados en el campo del aprovechamiento y preservación del agua.    Depende de la Secretaría de Infraestructura y Política Hídrica de la Nación,    del [Ministerio de Obras Públicas](https://www.argentina.gob.ar/obras-publicas) de la República Argentina.">
+  <meta name="twitter:image" content="https://www.ina.gob.ar/img/Logo_ina_chico.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles/poncho/css/icono-arg.css">
+  <link rel="stylesheet" href="styles/poncho/css/poncho.min.css">
+  <link rel="stylesheet" href="styles/ina.css">
+  <link rel="stylesheet" href="my_styles/reporte.css" type="text/css" media="all">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .print-header {
+      display: none;
+    }
+
+    .modal.fade.show {
+      opacity: 1 !important;
+      display: block !important;
+    }
+
+    .modal-dialog.modal-sm {
+      max-width: 300px;
+    }
+
+    div.as-link {
+      color: #0d6efd;
+      /* Bootstrap link blue */
+      text-decoration: none;
+      cursor: pointer;
+      display: inline;
+      /* inline so it behaves like a link */
+    }
+
+    div.as-link:hover {
+      text-decoration: underline;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      /* background-color: #121212; /* Dark sides */
+    }
+
+
+    #report_container {
+      /* width: 794px; */
+      background-color: #ffffff;
+      /* main content background */
+      /* min-height: 100vh; */
+      /* padding: 2rem; */
+      /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); */
+      box-sizing: border-box;
+    }
+
+    .accordion {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .accordion-header {
+      background: #f0f0f0;
+      cursor: pointer;
+      padding: 10px 15px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .accordion-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .accordion.open .accordion-content {
+      display: block;
+    }
+
+    a.hidden {
+      display: none;
+    }
+
+    @media (min-width: 1200px) {
+      #report_container {
+        width: 1170px;
+      }
+    }
+
+    @media print {
+
+      .print-header {
+        position: absolute;
+        top: -5mm;
+        left: 0;
+        display: block;
+        width: 100%;
+        height: 40mm;
+        text-align: center;
+        z-index: 999;
+      }
+
+      .print-header img {
+        width: 714px;
+      }
+
+      body {
+        margin-top: 45mm;
+        /* Add space so content doesn't overlap header */
+      }
+
+      html,
+      body {
+        background-color: #ffffff;
+      }
+
+      /* #report_container {
+        width: 714px; 
+        padding: 0rem;
+      } */
+
+      .fa-exclamation-triangle::before {
+        color: inherit !important;
+      }
+
+      .accordion .accordion-content {
+        display: block;
+      }
+
+      #report_container div.paragraph {
+        width: 714px;
+        font-size: 13px;
+      }
+
+      #report_container #lista-notas {
+        font-size: 12px;
+      }
+
+      #report_container table.tabla-hidro {
+        page-break-inside: avoid;
+        width: 674px;
+        font-size: 13px;
+      }
+
+      #report_container table.tabla-hidro th:nth-child(1),
+      #report_container table.tabla-hidro td:nth-child(1),
+      #report_container table.tabla-hidro th:nth-child(6),
+      #report_container table.tabla-hidro td:nth-child(6) {
+        overflow-wrap: break-word;
+        font-size: inherit;
+      }
+
+      #report_container table.leyenda-tabla-hidro td {
+        font-size: 14px;
+      }
+
+      .accordion-header {
+        display: none;
+      }
+
+      #report_container img.plot {
+        width: 642px;
+      }
+
+      div.pdf_download {
+        display: none;
+      }
+
+      #mapa-condicion {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        page-break-before: auto;
+        break-before: auto;
+        width: 330px;
+        height: 330px;
+      }
+
+      #report_container .ol-legend img {
+        max-width: 125px;
+      }
+
+      /* --G-- */
+      #cabecera {
+        display: none;
+      }
+
+      .pane-encabezados {
+        display: none;
+      }
+
+      .visible-lg,
+      .visible-md,
+      .visible-sm,
+      .visible-xs {
+        display: none !important;
+      }
+
+      /* --G-- */
+    }
+
+    #landscape-warning {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding-top: 40vh;
+      font-size: 1.5rem;
+      max-width: 100vw;
+    }
+
+    @media screen and (orientation: portrait) {
+      #landscape-warning.enabled {
+        display: block;
+      }
+
+      /* #report_container { display: none; } */
+    }
+
+    /* --G-- */
+    .visible-lg,
+    .visible-md,
+    .visible-sm,
+    .visible-xs {
+      display: none !important;
+    }
+
+    @media (max-width: 767px) {
+      .visible-xs {
+        display: block !important;
+      }
+
+      .hidden-xs {
+        display: none !important;
+      }
+
+    }
+
+    /* --G-- */
+  </style>
+</head>
+
+<body>
+
+  <body
+    class="html not-front not-logged-in no-sidebars page-node page-node- page-node-224008 node-type-area og-context og-context-node og-context-node-224008 i18n-es form-single-submit-processed">
+
+    <header id="cabecera">
+      <nav class="navbar navbar-top navbar-default border-bottom-amarillo" style="padding:0px" role="navigation">
+        <div class="container">
+          <a class="navbar-brand" href="https://www.argentina.gob.ar/ina/" id="navbar-brand"
+            aria-label="Argentina.gob.ar Presidencia de la Nación"><img
+              src="https://www.argentina.gob.ar/profiles/argentinagobar/themes/argentinagobar/argentinagobar_theme/logo_argentina-azul.svg"
+              alt="Argentina.gob.ar" height="50" width="254" /></a>
+          <div class="d-flex" style="align-items: center">
+            <form class="main-form" role="search" action="https://www.argentina.gob.ar/buscar" method="post"
+              id="apachesolr-search-custom-page-search-form" accept-charset="UTF-8">
+              <div class="input-group">
+                <label class="sr-only" for="edit-keys">Buscar en el sitio</label><input
+                  style="margin-bottom:15px;border-top-left-radius: 10px; border-bottom-left-radius: 10px; border: 1px solid #333"
+                  placeholder="Buscar trámites, servicios o áreas" id="edit-keys"
+                  class="input-search form-control form-text" aria-label="Buscar trámites, servicios o áreas"
+                  type="text" name="keys" value="" size="20" maxlength="255">
+                <span class="input-group-btn">
+                  <button class="btn bg-white btn-search-reset btn-primary text-primary"
+                    style="margin-left:0px;margin-top: 5px" aria-labelledby="edit-keys" aria-label="Buscar"
+                    type="submit" id="edit-submit--2" name="op"><i class="fa fa-lg fa-search"></i><span
+                      class="sr-only">Buscar en el sitio</span></button>
+                </span>
+              </div>
+            </form>
+            <div id="cd-login" style="margin-bottom:12px;">
+              <a href="https://mi.argentina.gob.ar/" id="btn-mi-argentina"
+                class="btn hidden-xs p-l-1  btn-login bg-miarg-azul" aria-label="Ingresar a Mi Argentina">
+                <i class=" fa-3x fa icono-arg-mi-argentina-extended text-white p-t-0 fa-solid fa-display"><span
+                    class="sr-only">Mi Argentina</span></i></a>
+              <a class="btn btn-mi-argentina btn-login visible-xs bg-miarg-azul" href="https://mi.argentina.gob.ar"
+                title="Ingresar a Mi Argentina">
+                <i class="icono-arg-mi-argentina text-white"></i><span class="sr-only">Ir a Mi Argentina</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div id="landscape-warning" class="">Por favor rote su dispositivo</div>
+    <div class="print-header">
+      <img src="img/membrete-2026.png" alt="Instituto Nacional del Agua" /> 
+    </div>
+    <main role="main">
+      <div class="panel-pane pane-encabezados">
+        <div class="pane-content">
+          <div class="jumbotron">
+            <div class="jumbotron_bar">
+              <div class="container">
+                <div class="row">
+                  <div class="col-md-12">
+                    <ol class="breadcrumb device-breadcrumb" role="list" aria-label="Migas de pan">
+                      <li class="device-breadcrumb__hidden-item"><a href="https://argentina.gob.ar">Inicio</a></li>
+                      <li class="breadcrumb-item"><a href="https://argentina.gob.ar/economia">Ministerio de Economía</a>
+                      </li>
+                      <li class="breadcrumb-item"><a href="https://argentina.gob.ar/obras-publicas">Obras Públicas</a>
+                      </li>
+                      <li class="breadcrumb-item"><a href="https://argentina.gob.ar/ina">Instituto Nacional del Agua
+                          (INA)</a></li>
+                      <li class="breadcrumb-item"><a href="https://www.ina.gob.ar/alerta">Alerta Hidrol&oacute;gico Cuenca del Plata</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Reporte diario
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="background-color: #242C4F; padding: 1%" class="bg-arg-azul container-fluid p-y-2">
+              <div class="container">
+                <div class="row">
+                  <div class="col-xs-12  col-sm-12 col-md-2">
+                    <img alt="Subgerencia Laboratorio de Hidráulica" src="img/Logo-INA-argentina-web.png"
+                      class="img-responsive iso m-t-1">
+                  </div>
+                  <div style="color: white" class="col-md-9 col-xs-12 col-sm-12 p-x-2">
+                    <h1>Alerta Hidrol&oacute;gico Cuenca del Plata</h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Inicio Reporte diario  -->
+      <div id="report_container">
+
+
+  <main role="main">
+    <div>
+  <div class="container-reporte">
+    <h2>Reporte hidrometeorológico diario de la Cuenca del Plata</h2>
+    <div>Fecha de actualización: <b>14/10/2026</b></div>
+    <div class="pdf_download"><a href="https://alerta.ina.gob.ar/a5/diario/pdf/reporte_diario_2026-10-14.pdf" target="_blank">Versión PDF</a></div>
+    <h3>Situación meteorológica</h3>
+    <div class="mapas-flex-grid">
+      <div class="mapas-flex-item">Precipitación acumulada semanal</div>
+      <div class="mapas-flex-item">Pronóstico a 7 días</div>
+      <div class="mapas-flex-item"><img class="mapa" src="https://alerta.ina.gob.ar/ina/13-SYNOP/mapas_semanales_/2026/10/pp_semanal_20261007_surf.png"></div>
+      <div class="mapas-flex-item"><div style="text-align:center;"><img class="mapa" src="https://alerta.ina.gob.ar/ina/34-GFS/mapas/suma/gfs.2026101400.2026101412.suma.mask.png" style="cursor: default;"></div></div>
+    </div>
+    <div class="paragraph" style="text-align: justify;"><span id="docs-internal-guid-d50be4d8-7fff-89e6-5e1f-d95759cd4fa2"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Las previsiones numéricas de precipitación para los próximos siete días indican el </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">probable desarrollo de eventos precipitantes</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, concentrados principalmente sobre el sector </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">noreste </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">de la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Cuenca del Plata</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, mayoritariamente con acumulados </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">moderados</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. En particular, sobre la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">cuenca alta del río Paraná</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se prevén precipitaciones </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">moderadas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. Por su parte, sobre la</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> cuenca del río Iguazú</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se esperan precipitaciones</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> moderadas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. En cuanto a la</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> cuenca del río Paraguay</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, se pronostican lluvias</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> leves </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">sobre la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">cuenca alta</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> (en el sector del Pantanal). En tanto, sobre el </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">tramo medio </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">se prevén precipitaciones </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">leves con núcleos moderados</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, cuyos mayores montos&nbsp; estarían asociados a los aportes provenientes por margen izquierda (en particular, en la cuenca del río Miran). Por otro lado, sobre </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">la cuenca propia de Yacyretá</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, la&nbsp; </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">cuenca alta y baja del río Uruguay</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, y la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">cuenca baja del río Salado Bonaerense</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se proyectan precipitaciones </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">leves</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. Finalmente, en el resto de la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Cuenca del Plata </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">se espera la persistencia de condiciones de precipitación </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">poco significativas o deficitarias</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. </span></span></div><div class="paragraph"><span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"><br></span></span></div>
+    <h3>Situación hidrológica</h3>
+    <div id="mapa-row" style="display: flex;">
+      <div id="mapa-condicion">
+        <div class="ol-legend">
+          <img src="https://alerta.ina.gob.ar/geoserver/wms?REQUEST=GetLegendGraphic&amp;VERSION=1.0.0&amp;FORMAT=image/png&amp;WIDTH=15&amp;HEIGHT=15&amp;LAYER=public2:tramos_condicion_params" alt="Leyenda">
+        </div>
+      </div>
+      
+      <div class="text-box">
+        <div>Condición hídrica de los principales cursos de la Cuenca del Plata en territorio Argentino en base a la última observación de nivel o caudal en estaciones de referencia. Se calcula la frecuencia de superación (%) en el periodo 1991-2020 y se clasifica en 5 categorías. Adicionalmente se indica superación de niveles de alerta y evacuación.</div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="table-hover tabla-hidro" id="tabla-alturas">
+        <thead>
+          <tr><th>Estación</th>
+          <th>Río</th>
+          <th>Nivel (m)</th>
+          <th>Alerta</th>
+          <th>Evacuación</th>
+          <th>Perspectiva</th>
+          <th></th>
+        </tr></thead>
+          <tbody><tr data-id="9" data-series_id="9" data-x="-54.56666667" data-y="-25.58333333" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Puerto Iguazú" data-id="9" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=9">Puerto Iguazú</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+32,20 m" data-bs-toggle="tooltip" data-bs-placement="top">32,20 </a> <a href="#" title="diferencia con el registro anterior: 3.55 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>25,00</td>
+              <td>28,00</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+          <tr data-id="19" data-series_id="19" data-x="-58.8388696" data-y="-27.46364349" data-status_color="#cfe2f3" data-status_text="aguas medias altas" data-percentil="25" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Corrientes" data-id="19" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=19">Corrientes</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #cfe2f3 !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+5,50 m" data-bs-toggle="tooltip" data-bs-placement="top">5,50 </a> <a href="#" title="diferencia con el registro anterior: 0.18 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>6,50</td>
+              <td>7,00</td>
+              <td>aguas medias altas/altas</td>
+              <td><i><b>Atención</b></i></td>
+          </tr>
+          <tr data-id="20" data-series_id="20" data-x="-58.93333333" data-y="-27.48333333" data-status_color="#cfe2f3" data-status_text="aguas medias altas" data-percentil="25" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Barranqueras" data-id="20" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=20">Barranqueras</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #cfe2f3 !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+5,40 m" data-bs-toggle="tooltip" data-bs-placement="top">5,40 </a> <a href="#" title="diferencia con el registro anterior: 0.13 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>6,00</td>
+              <td>6,50</td>
+              <td>aguas medias altas/altas</td>
+              <td><i style="letter-spacing: -0.2px;"><span style="font-weight: 600;">Atención</span></i></td>
+          </tr>
+          <tr data-id="23" data-series_id="23" data-x="-59.27303952" data-y="-29.14376844" data-status_color="#cfe2f3" data-status_text="aguas medias altas" data-percentil="25" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Goya" data-id="23" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=23">Goya</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #cfe2f3 !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+4,78 m" data-bs-toggle="tooltip" data-bs-placement="top">4,78 </a> <a href="#" title="diferencia con el registro anterior: 0.1 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,20</td>
+              <td>5,70</td>
+              <td><span style="letter-spacing: -0.2px;">aguas medias altas/altas</span></td>
+              <td><i style="letter-spacing: -0.2px;"><span style="font-weight: 600;">Atención</span></i></td>
+          </tr>
+          <tr data-id="24" data-series_id="24" data-x="-59.58115833" data-y="-29.23756092" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="50" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Reconquista" data-id="24" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=24">Reconquista</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+4,35 m" data-bs-toggle="tooltip" data-bs-placement="top">4,35 </a> <a href="#" title="diferencia con el registro anterior: 0.1 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,10</td>
+              <td>5,30</td>
+              <td><span style="letter-spacing: -0.2px;">aguas medias altas/altas</span></td>
+              <td><i style="letter-spacing: -0.2px;"><span style="font-weight: 600;">Atención</span></i></td>
+          </tr>
+          <tr data-id="26" data-series_id="26" data-x="-59.6381167" data-y="-30.73419972" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="50" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="La Paz" data-id="26" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=26">La Paz</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+4,82 m" data-bs-toggle="tooltip" data-bs-placement="top">4,82 </a> <a href="#" title="diferencia con el registro anterior: 0.07 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,80</td>
+              <td>6,15</td>
+              <td><span style="letter-spacing: -0.2px;">aguas medias altas/altas</span></td>
+              <td><i style="letter-spacing: -0.2px;"><span style="font-weight: 600;">Atención</span></i></td>
+          </tr>
+          <tr data-id="29" data-series_id="29" data-x="-60.52256978" data-y="-31.71823786" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="50" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Paraná" data-id="29" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=29">Paraná</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,49 m" data-bs-toggle="tooltip" data-bs-placement="top">3,49 </a> <a href="#" title="diferencia con el registro anterior: 0.04 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>4,70</td>
+              <td>5,00</td>
+              <td>aguas medias</td>
+              <td></td>
+          </tr>
+          <tr data-id="30" data-series_id="30" data-x="-60.70023192" data-y="-31.65147722" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="50" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Santa Fe" data-id="30" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=30">Santa Fe</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,57 m" data-bs-toggle="tooltip" data-bs-placement="top">3,57 </a> <a href="#" title="diferencia con el registro anterior: 0.02 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,30</td>
+              <td>5,70</td>
+              <td>aguas medias</td>
+              <td></td>
+          </tr>
+          <tr data-id="32" data-series_id="32" data-x="-60.21958494" data-y="-32.65584564" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="75" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Victoria" data-id="32" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=32">Victoria</div></td>
+              <td>Paraná/Delta</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,69 m" data-bs-toggle="tooltip" data-bs-placement="top">3,69 </a> <a href="#" title="diferencia con el registro anterior: 0.02 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>4,60</td>
+              <td>5,90</td>
+              <td>aguas medias</td>
+              <td></td>
+          </tr>
+          <tr data-id="34" data-series_id="34" data-x="-60.6308206" data-y="-32.94326994" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="75" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Rosario" data-id="34" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=34">Rosario</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,33 m" data-bs-toggle="tooltip" data-bs-placement="top">3,33 </a> <a href="#" title="diferencia con el registro anterior: 0.02 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,00</td>
+              <td>5,25</td>
+              <td>aguas medias</td>
+              <td></td>
+          </tr>
+          <tr data-id="52" data-series_id="52" data-x="-58.55" data-y="-34.43333333" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="50" data-tendencia="baja" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="San Fernando" data-id="52" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=52">San Fernando</div></td>
+              <td>Lujan</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 14:00
+1,14 m" data-bs-toggle="tooltip" data-bs-placement="top">1,14 </a> <a href="#" title="diferencia con el registro anterior: -0.11 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>3,00</td>
+              <td>3,50</td>
+              <td>aguas medias/medias altas</td>
+              <td></td>
+          </tr>
+          <tr data-id="55" data-series_id="55" data-x="-57.65" data-y="-25.36666667" data-status_color="#f6b26b" data-status_text="aguas medias bajas" data-percentil="95" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Puerto Pilcomayo" data-id="55" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=55">Puerto Pilcomayo</div></td>
+              <td>Paraguay</td>
+              <td style="background-color: #f6b26b !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+2,81 m" data-bs-toggle="tooltip" data-bs-placement="top">2,81 </a> <a href="#" title="diferencia con el registro anterior: 0.23 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5,35</td>
+              <td>6,00</td>
+              <td>aguas medias bajas</td>
+              <td></td>
+          </tr>
+          <tr data-id="57" data-series_id="57" data-x="-58.18333333" data-y="-26.18333333" data-status_color="#fff2cc" data-status_text="aguas medias" data-percentil="75" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Puerto Formosa" data-id="57" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=57">Puerto Formosa</div></td>
+              <td>Paraguay</td>
+              <td style="background-color: #fff2cc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,86 m" data-bs-toggle="tooltip" data-bs-placement="top">3,86 </a> <a href="#" title="diferencia con el registro anterior: 0.22 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>7,80</td>
+              <td>8,30</td>
+              <td>aguas medias</td>
+              <td></td>
+          </tr>
+          <tr data-id="65" data-series_id="65" data-x="-55.13333333" data-y="-27.88333333" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="baja" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="San Javier" data-id="65" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=65">San Javier</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+5,78 m" data-bs-toggle="tooltip" data-bs-placement="top">5,78 </a> <a href="#" title="diferencia con el registro anterior: -0.8 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>8,00</td>
+              <td>10,00</td>
+              <td>aguas altas</td>
+              <td></td>
+          </tr>
+          <tr data-id="68" data-series_id="68" data-x="-56.03333333" data-y="-28.55" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Santo Tomé" data-id="68" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=68">Santo Tomé</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+11,25 m" data-bs-toggle="tooltip" data-bs-placement="top">11,25 </a> <a href="#" title="diferencia con el registro anterior: 0.28 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>11,50</td>
+              <td>12,50</td>
+              <td>aguas altas</td>
+              <td></td>
+          </tr>
+          <tr data-id="72" data-series_id="72" data-x="-57.08333333" data-y="-29.71666667" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Paso de los Libres" data-id="72" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=72">Paso de los Libres</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+9,38 m" data-bs-toggle="tooltip" data-bs-placement="top">9,38 </a> <a href="#" title="diferencia con el registro anterior: 0.1 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>7,50</td>
+              <td>8,50</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+          <tr data-id="79" data-series_id="79" data-x="-58.01666667" data-y="-31.4" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="baja" data-aviso="alerta">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Concordia" data-id="79" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=79">Concordia</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+11,06 m" data-bs-toggle="tooltip" data-bs-placement="top">11,06 </a> <a href="#" title="diferencia con el registro anterior: -0.22 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>11,00</td>
+              <td>12,50</td>
+              <td>aguas medias altas/altas</td>
+              <td><a href="#" title="alerta" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: yellow !important;"></i></a></td>
+          </tr>
+          <tr data-id="81" data-series_id="81" data-x="-58.23333333" data-y="-32.48333333" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="baja" data-aviso="alerta">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Concepción del Uruguay" data-id="81" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=81">Concepción del Uruguay</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+5,78 m" data-bs-toggle="tooltip" data-bs-placement="top">5,78 </a> <a href="#" title="diferencia con el registro anterior: -0.18 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>5,30</td>
+              <td>6,30</td>
+              <td>aguas medias altas/altas</td>
+              <td><a href="#" title="alerta" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: yellow !important;"></i></a></td>
+          </tr>
+          <tr data-id="84" data-series_id="84" data-x="-58.41666667" data-y="-33.06666667" data-status_color="#cfe2f3" data-status_text="aguas medias altas" data-percentil="25" data-tendencia="igual" data-aviso="alerta">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Boca Gualeguaychú" data-id="84" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=84">Boca Gualeguaychú</div></td>
+              <td>Uruguay</td>
+              <td style="background-color: #cfe2f3 !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+3,00 m" data-bs-toggle="tooltip" data-bs-placement="top">3,00 </a> <a href="#" title="diferencia con el registro anterior: 0 m" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-equals" aria-hidden="true"></i></a>
+              </td>
+              <td>2,90</td>
+              <td>3,10</td>
+              <td>aguas medias altas</td>
+              <td><a href="#" title="alerta" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: yellow !important;"></i></a></td>
+          </tr>
+      </tbody></table>
+    </div>
+    <div class="table-wrapper">
+      <table class="table-hover tabla-hidro" id="tabla-caudales">
+        <thead>
+          <tr><th>Estación</th>
+          <th>Río</th>
+          <th>Caudal (m<sup>3</sup>/s)</th>
+          <th>Alerta</th>
+          <th>Evacuación</th>
+          <th>Perspectiva</th>
+          <th></th>
+        </tr></thead>
+          <tbody><tr data-id="91" data-series_id="940" data-x="-54.2342" data-y="-24.0425" data-status_color="#cfe2f3" data-status_text="aguas medias altas" data-percentil="25" data-tendencia="baja" data-aviso="ok">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Guaíra Porto" data-id="91" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=940">Guaíra Porto</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #cfe2f3 !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+16500 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">16500 </a> <a href="#" title="diferencia con el registro anterior: -4221 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>20000</td>
+              <td>25000</td>
+              <td>aguas medias altas/altas</td>
+              <td></td>
+          </tr>
+          <tr data-id="92" data-series_id="941" data-x="-54.583" data-y="-25.4" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="baja" data-aviso="alerta">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Represa Itaipú" data-id="92" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=941">Represa Itaipú</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+20400 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">20400 </a> <a href="#" title="diferencia con el registro anterior: -640 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+              </td>
+              <td>20000</td>
+              <td>25000</td>
+              <td>aguas medias altas/altas</td>
+              <td><a href="#" title="alerta" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: yellow !important;"></i></a></td>
+          </tr>
+          <tr data-id="8" data-series_id="857" data-x="-53.98333333" data-y="-25.58333333" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Andresito" data-id="8" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=857">Andresito</div></td>
+              <td>Iguazu</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+16227 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">16227 </a> <a href="#" title="diferencia con el registro anterior: 6355.69 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>5000</td>
+              <td>6500</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+          <tr data-id="93" data-series_id="942" data-x="-54.593363" data-y="-25.592701" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Confluencia" data-id="93" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=942">Confluencia</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+36627 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">36627 </a> <a href="#" title="diferencia con el registro anterior: 5715.69 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>25000</td>
+              <td>30000</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+          <tr data-id="87" data-series_id="936" data-x="-56.727244" data-y="-27.482557" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Yacyretá afluente" data-id="87" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=936">Yacyretá afluente</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+37300 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">37300 </a> <a href="#" title="diferencia con el registro anterior: 3800 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>25000</td>
+              <td>30000</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+          <tr data-id="88" data-series_id="937" data-x="-56.727244" data-y="-27.482557" data-status_color="#6fa8dc" data-status_text="aguas altas" data-percentil="5" data-tendencia="sube" data-aviso="evacuacion">
+              <td><div class="as-link" data-bs-toggle="modal" data-bs-target="#hidrolinksModal" style="cursor:pointer;" data-title="Yacyretá efluente" data-id="88" data-seccionesurl="https://alerta.ina.gob.ar/a5/secciones?seriesId=937">Yacyretá efluente</div></td>
+              <td>Paraná</td>
+              <td style="background-color: #6fa8dc !important;">
+                <a href="#" title="fecha: 14/10/2026 00:00
+38500 m³/s" data-bs-toggle="tooltip" data-bs-placement="top">38500 </a> <a href="#" title="diferencia con el registro anterior: 5400 m³/s" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+              </td>
+              <td>25000</td>
+              <td>30000</td>
+              <td>aguas altas</td>
+              <td><a href="#" title="evacuación" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: red !important;"></i></a></td>
+          </tr>
+      </tbody></table>
+    </div>
+    <table class="leyenda-tabla-hidro">
+      <tbody><tr>
+        <td style="background-color: #6fa8dc !important;" title="Niveles de aguas altas son aquellos valores que se igualan o exceden en el 5% o menos de los registros disponibles, en el sitio de medición.">aguas altas</td>
+        <td style="background-color: #cfe2f3 !important;" title="Niveles de aguas medias altas son aquellos valores que se igualan o exceden entre el 25% y el 5% de los registros disponibles, en el sitio de medición (por encima de los normales).">aguas medias altas</td>
+        <td style="background-color: #fff2cc !important;" title="Niveles de aguas medias son aquellos valores que se igualan o exceden entre el 75% y el 25% de los registros disponibles, en el sitio de medición (normales).">aguas medias</td>
+        <td style="background-color: #f6b26b !important;" title="Niveles de aguas medias bajas son aquellos valores que se igualan o exceden entre el 95% y el 75% de los registros disponibles, en el sitio de medición (por debajo de los normales)."> aguas medias bajas</td>
+        <td style="background-color: #ea9999 !important;" title="Niveles de aguas bajas son aquellos valores que se igualan o exceden en más del 95% de los registros disponibles, en el sitio de medición">aguas bajas</td>
+      </tr>
+    </tbody></table>
+    <div class="paragraph"><span id="docs-internal-guid-0c39ee56-7fff-c887-bcd9-5b67e1543875"><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"><br></span></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">SISTEMA URUGUAY:</span></div><div style="text-align: justify;"><br></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">- En el </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">tramo medio</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">del río Uruguay</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se observa el </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">tránsito de una onda de crecida</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">actualmente con excedencia de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Alerta</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> sobre las secciones de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Alvear, La Cruz, Yapeyú, Paso de los Libres y Bonpland</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. En la ruta </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">San Javier - Santo Tomé </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">se observa con ascenso de base y punta en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. En el corto plazo, se prevé que las lecturas del tramo permanezcan con proximidad a la cota de alerta, con posterior culminación y descenso, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en aguas altas/medias altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. Para plazo extendido, se espera la continuidad de la fase descendente, en aguas medias altas. Por otra parte, las lecturas del nivel en la estación de</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> Paso de los Libres </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">persisten con </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">ascenso en aguas altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">,</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> por encima del nivel de Evacuación</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. Al mismo tiempo, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">los principales tributarios del tramo continúan oscilantes en punta</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">.</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Se observaría con pronta definición de puntas, manteniéndose oscilante en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">por encima de la marca de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Evacuación </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">hasta el 16/10, y con excedencia del nivel de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Alerta </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">hasta el 18/10 inclusive (todavía con chances de extenderse hasta el 20/10)</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">En plazo extendido, y en vista&nbsp; de la tendencia descendente aguas arriba, en combinación con la pronta fase de descenso esperada sobre el aporte lateral, se espera pronta </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">culminación de crecida </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">e inicio de la fase de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">disminución</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">.</span></div><div style="text-align: justify;"><br></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">- La </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">afluencia a Salto Grande </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">se observa con punta </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en asociación al incremento constante del derrame desde el tramo medio.</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(255, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">A su vez, la </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">erogación</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> continua en leve descenso, en caudales propios de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, con vertedero abierto. Se prevé que permanezca oscilante/en descenso, manteniéndose todavía en rango de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> en plazo de 3 a 5 días.</span></div><div style="text-align: justify;"><br></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">- Sobre el </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">tramo inferior</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se observa con </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">ascenso en franja límite de aguas altas/medias altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, en asociación al tránsito de onda de crecida sobre el embalse.</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(255, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Las lecturas hidrométricas sobre las secciones de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Concordia, Puerto Yeruá, Colón y Concepción del Uruguay</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se observan con excedencia del nivel de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Alerta. </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Sobre la desembocadura del </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">Gualeguaychú</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> se observa con </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">leve descenso </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas medias altas </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en asociación a la disminución del derrame del propio cauce. Continuaría en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">descenso</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">,</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">con probabilidad de </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">sostenerse oscilante sobre la marca de alerta en el tramo Concordia</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"> </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">- Concepción del Uruguay</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">, con </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">probabilidad de excedencia del nivel de alerta </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en los </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">próximos 3 días</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">. La perspectiva hidrológica para el plazo extendido es </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">de base hacia aguas medias altas, </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">en asociación a las observaciones hidroclimáticas sobre el sector superior. Sobre esta condición, es probable que persistan repuntes frecuentes en </span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">aguas altas</span><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;">.</span></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"><br></span></div><div style="text-align: justify;"><span style="font-size: 13.5pt; font-family: Calibri, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-variant: normal; vertical-align: baseline; white-space: pre-wrap;"><span id="docs-internal-guid-ae25cf76-7fff-0389-0450-a14686609342"><div><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">SISTEMA PARAGUAY - IGUAZÚ - PARANÁ:</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- El </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alto Paraná en Guairá</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> exhibe el </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">tránsito de una onda de crecida en aguas medias altas/altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, por encima de las marcas alcanzadas en el tránsito anterior, en asociación al escenario de lluvias registrado en el sector no regulado (acumulados de precipitación abundantes). Actualmente, se observa un </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">empuntamiento en aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, con motivo de las lluvias registradas el 12/10 sobre el área de aporte directo a Itaipú. A corto plazo, se prevé que continúe oscilante/en ascenso en aguas medias altas/altas, en sintonía con la fase de ascenso/culminación de los aportes laterales, si bien es probable que primeramente exhiba leve disminución de punta, puesto la recesión del repunte fugaz de afluencia en ruta desde la cuenca propia debido a la disipación ocasional de las lluvias durante los próximos días. En asociación, la </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">erogación en Itaipú</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> exhibe</span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;"> incremento de punta en aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, con un </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">notorio incremento del caudal vertido para control del nivel del embalse</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">. A corto plazo, se prevé que sostenga el incremento del derrame en altas, en asociación a las maniobras de vertido y el patrón actual en la afluencia.</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">El río Iguazú en Andresito </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">exhibe el </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">tránsito de una onda de crecida en aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, en asociación al escenario de lluvias registrado durante los últimos días (acumulados de precipitación abundantes). Actualmente, se observa la </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">definición del pico </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas altas </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">(16.200 m³/s), por encima del registrado el 12/10, debido a un repunte acoplado de la afluencia en ruta. En Puerto Iguazú, persiste la excedencia de los niveles de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> y </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Evacuación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">. A corto plazo se prevé que continúe oscilante en punta en aguas altas, con pronta imposición de tendencia de descenso, en vista de la disipación ocasional de las lluvias en la región. En plazo de 7 - 15 días, se proyecta sosteniendo al menos la última recuperación de base en aguas medias altas/altas, y con chances de nuevos tránsitos de onda de crecida en aguas altas, puesto la persistencia de condiciones de precipitación favorables para la generación de incrementos notorios de la afluencia en ruta, en combinación con el bajo déficit hídrico actual.&nbsp;</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- El </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">río Paraguay </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">se observa en ascenso hacia </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas medias </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Puerto Pilcomayo</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">y en Formosa (más notorio)</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, por efecto de tránsito de onda en asociación a las lluvias observadas sobre la vertiente oriental del tramo medio e inferior (incremento de la afluencia en ruta por margen izquierda). A corto plazo, se prevé que sostenga la tendencia ascendente, en rango propio de aguas medias en Formosa.&nbsp;</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- En </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Yacyretá</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, la </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">afluencia</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> exhibe </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">franco ascenso en aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, por combinación de los tránsitos en curso del río Iguazú y del Alto Paraná, y el notorio repunte de afluencia en ruta desde la cuenca propia por efecto de las lluvias registradas en la región (acumulados de precipitación abundantes). Durante los próximos 4 días se prevé que sostenga el ascenso en aguas altas, probablemente con definición del pico hacia el 16/10. En asociación, la </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">erogación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> exhibe</span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;"> franco ascenso</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">en</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, con un notorio incremento del derrame en valores significativamente por encima de lo normal para la época del año (tránsito de onda de crecida en aguas altas). Durante los </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">próximos 4 días </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">se proyecta oscilante en punta en aguas altas, probablemente con definición del pico hacia el 17/10, notoriamente por encima del pico registrado en el tránsito precedente, sosteniendo el incremento significativo de volumen hacia aguas abajo. Actualmente, por efecto del tránsito de onda en curso, se observa excedencia</span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;"> </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">del nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> y <b>Evacuación</b> en Libertad, Eldorado, Libertador, Santa Ana e Ituzaingó.&nbsp;</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- El </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">río Paraná </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Corrientes - La Paz</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> se observa en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">ascenso</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, en asociación al </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">tránsito de onda de crecida en aguas medias altas/altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> en curso, por efecto del patrón observado en la descarga de Yacyretá (amplificación del tránsito precedente por efecto combinado de tránsitos desde el río Iguazú y el Alto Paraná, y el actual repunte de la afluencia en ruta desde la cuenca propia). Actualmente, en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Corrientes-Barranqueras</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> se registran marcas en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas medias altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, mientras que en las secciones rumbo a </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">La Paz</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> exhibe ascenso sobre o hacia </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas medias/medias altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">. Durante los próximos 7 - 10 días se espera que sostenga <b>franco ascenso hacia aguas altas</b>, primeramente en las secciones superiores, con alta probabilidad de excedencia de los niveles de alerta y probabilidad de excedencia de los niveles de evacuación. En </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Corrientes-Barranqueras</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> se prevé excedencia del nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> con mayores chances a partir del 15/10, y con probabilidad de exceder el nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Evacuación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 17/10. En </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Goya</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, se prevé excedencia del nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 15/10, y con probabilidad de exceder el nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Evacuación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 17/10. En </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Reconquista</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, se prevé excedencia del nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 16/10, y con probabilidad de exceder el nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Evacuación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 18/10. En </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">La Paz</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, se prevé alta probabilidad de excedencia del nivel de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Alerta</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 19/10 y con mayor probabilidad de excedencia del nivel de evacuación </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Evacuación</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> a partir del 21/10.</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- Aguas abajo, sobre </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Santa Fe/Paraná - Rosario</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, se observa con gradual ascenso</span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;"> en aguas medias</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, en sintonía con el tránsito en curso. </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">Durante los próximos 15 días </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">se prevé que se intensifique la tendencia y </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">continúe en ascenso sostenido en aguas medias hacia medias altas, actualmente </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">con chances de aproximación/excedencia del nivel de Alerta en Paraná/Santa Fe durante la última década de octubre.&nbsp;</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- Sobre el tramo </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">San Pedro - Escobar</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, en asociación a la condición persistente aguas arriba, se observa sostenida normalización de los niveles de base. Actualmente, exhibe ascenso de punta por efecto de marea del estuario del Río de La Plata. En plazo extendido, en vista de la perspectiva en el tramo medio, se espera gradual incremento del valor de base.</span></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"><br></span></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"><span id="docs-internal-guid-b4644bf8-7fff-36c6-618d-b96ba8e78ca7"><div><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">FRENTE DEL DELTA:</span></div><div><br></div><div><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">- En la proximidad al estuario del Río de la Plata, las alturas en la estación de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">San Fernando</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> sobre el brazo Luján se observan </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">estables, </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">con puntas en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">aguas medias altas. </span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">Para los próximos días&nbsp; se observaría en </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">leve ascenso</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;">, con probabilidad de </span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">puntas en aguas altas</span><span style="font-size: 13.5pt; background-color: transparent; font-variant: normal; vertical-align: baseline;"> para el 16/10. En plazo extendido se observaría en disminución, con puntas en aguas medias altas y mayor persistencia en aguas medias</span><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;">.</span></div><div><span style="font-size: 13.5pt; background-color: transparent; font-weight: 700; font-variant: normal; vertical-align: baseline;"><br></span></div></span></span></div></span></span></div></span></div>
+    <h4>Gráficos de nivel observado y previsión</h4>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Corrientes</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-19" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/corrientes.png" alt="Corrientes">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Barranqueras</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-20" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/barranqueras.png" alt="Barranqueras">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Goya</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-23" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/goya.png" alt="Goya">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Reconquista</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-24" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/reconquista.png" alt="Reconquista">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - La Paz</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-26" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/la_paz.png" alt="La Paz">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Paraná</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-29" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/parana.png" alt="Paraná">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Santa Fe</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-30" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/santa_fe.png" alt="Santa Fe">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraná - Rosario</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-34" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/rosario.png" alt="Rosario">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Luján - San Fernando</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-52" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/san_fernando.png" alt="San Fernando">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraguay - Puerto Pilcomayo</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-55" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/puerto_pilcomayo.png" alt="Puerto Pilcomayo">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Paraguay - Puerto Formosa</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-57" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/puerto_formosa.png" alt="Puerto Formosa">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Uruguay - San Javier</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-65" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/san_javier.png" alt="San Javier">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Uruguay - Santo Tomé</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-68" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/santo_tome.png" alt="Santo Tomé">
+          </div>
+        </div>
+        <div class="accordion">
+          <div class="accordion-header">Uruguay - Paso de los Libres</div>
+          <div class="accordion-content">
+            <img class="plot" id="hidrograma-72" src="https://alerta.ina.gob.ar/ina/08-PRONOSTICOS/graficos/paso_de_los_libres.png" alt="Paso de los Libres">
+          </div>
+        </div>
+    <div>
+      <h4>Notas</h4>
+      <ul id="lista-notas">
+        <li>Los pronósticos del río Paraná (tramo medio) se actualizan los días martes (a 7 y 14 días) y viernes (4 y 11 días)</li>
+        <li>Los pronósticos del río Uruguay se actualizan los lunes, miércoles y viernes.</li>
+        <li>
+          Para mayor seguimiento los productos operativos y experimentales de monitoreo, pronóstico y perspectiva pueden consultarse en:
+          <ul>
+            <li><a href="https://ina.gob.ar/alerta/">https://ina.gob.ar/alerta/</a> (sitio del Alerta Hidrológico de CDP del INA)</li>
+            <li><a href="https://alerta.ina.gob.ar/pub/mapa">https://alerta.ina.gob.ar/pub/mapa</a> (mapa web, productos puntuales y areales)</li>
+            <li><a href="https://alerta.ina.gob.ar/a5/secciones">https://alerta.ina.gob.ar/a5/secciones</a> (series de observaciones y previsiones numéricas de nivel o caudal)</li>
+            <li><a href="https://ina.gob.ar/alerta/index.php?seccion=10">https://ina.gob.ar/alerta/index.php?seccion=10</a> (previsiones numéricas Delta del Paraná)</li>
+          </ul>
+        </li>
+        <li>Niveles de aguas altas son aquellos valores que se igualan o exceden en el 5% o menos de los registros disponibles, en el sitio de medición.</li>
+        <li>Niveles de aguas medias altas son aquellos valores que se igualan o exceden entre el 25% y el 5% de los registros disponibles, en el sitio de medición (por encima de los normales).</li>
+        <li>Niveles de aguas medias son aquellos valores que se igualan o exceden entre el 75% y el 25% de los registros disponibles, en el sitio de medición (normales).</li>
+        <li>Niveles de aguas medias bajas son aquellos valores que se igualan o exceden entre el 95% y el 75% de los registros disponibles, en el sitio de medición (por debajo de los normales).</li>
+        <li>Niveles de aguas bajas son aquellos valores que se igualan o exceden en más del 95% de los registros disponibles, en el sitio de medición</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</main></div>
+      <!-- MODAL -->
+      <div class="modal fade" id="hidrolinksModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column text-center gap-2">
+              <a href="#hidrograma-0" id="hidrograma-link" class="btn btn-link" onclick="closeModal()">gráfico de previsión</a>
+              <a href="" target="_blank" id="secciones-link" class="btn btn-link" onclick="closeModal()">visualizador
+                (en pestaña nueva)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css" />
+      <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+      <script>
+        window.myData = {
+          "map_query_delay": 100,
+          "wmsLayerUrl": "https://alerta.ina.gob.ar/geoserver/wms",
+          "tramos_timeend": new Date("2026-10-14T23:02:28.491Z"),
+          "estacionId": "9_19_20_23_24_26_29_30_32_34_52_55_57_65_68_72_79_81_84_91_92_8_93_87_88"
+        };
+      </script>
+      <script src="scripts/reporte_diario.js"></script>
+      <!-- Fin Reporte  -->
+    </main>
+    <footer class="main-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6 col-md-4">
+            <div class="region region-footer1">
+              <section id="block-menu-menu-footer-1" class="block block-menu clearfix">
+                <h2 class="block-title h3 section-title h3 section-title">Tr&aacute;mites</h2>
+                <ul class="menu ">
+                  <li class="first leaf"><a href="https://www.argentina.gob.ar/turnos">Turnos</a></li>
+                  <li class="leaf"><a
+                      href="https://www.argentina.gob.ar/jefatura/innovacion-publica/administrativa/tramites-a-distancia">Trámites
+                      a distancia</a></li>
+                  <li class="last leaf"><a href="https://www.argentina.gob.ar/miargentina/mesadeayuda">Atenci&oacute;n
+                      al ciudadano</a></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="region region-footer2">
+              <section id="block-menu-menu-footer-2" class="block block-menu clearfix">
+                <h2 class="block-title h3 section-title h3 section-title">Acerca de la Rep&uacute;blica Argentina</h2>
+                <ul class="menu ">
+                  <li class="first leaf"><a href="https://www.argentina.gob.ar/pais">Nuestro país</a></li>
+                  <li class="leaf"><a href="https://www.argentina.gob.ar/normativa">Leyes argentinas</a></li>
+                  <li class="leaf"><a href="https://www.argentina.gob.ar/organismos">Organismos</a></li>
+                  <li class="last leaf"><a href="https://www.argentina.gob.ar/jefatura/mapa-del-estado">Mapa del
+                      Estado</a></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <div class="region region-footer3">
+              <section id="block-menu-menu-footer-3" class="block block-menu clearfix">
+                <h2 class="block-title h3 section-title h3 section-title">Acerca de Argentina.gob.ar</h2>
+                <ul class="menu ">
+                  <li class="first leaf"><a href="https://www.argentina.gob.ar/acerca">Acerca de este sitio</a></li>
+                  <li class="leaf"><a href="https://www.argentina.gob.ar/terminos-y-condiciones">T&eacute;rminos y
+                      condiciones</a></li>
+                  <li class="last leaf"><a href="https://www.argentina.gob.ar/sugerencias">Sugerencias</a></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-fluid border-top-amarillo">
+        <div class="row sub-footer">
+          <div class="container">
+            <div class="col-sm-6 m-y-1 p-x-0">
+              <!-- <p class="text-muted small m-b-2">
+<a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noreferrer">Los contenidos de Argentina.gob.ar están licenciados bajo Creative Commons Atribución 4.0 Internacional</a>            </p> -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </footer>
+  </body>
+
+</html>
+</body>
+</html>

@@ -16,11 +16,26 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
+
+## Cómo leer el color y el índice
+
+El **índice meteorológico (0–100)** conserva sus umbrales experimentales: amarillo desde 35 y rojo desde 55, salvo ajuste explícito de la sesión. El **riesgo integrado** puede ser rojo con un índice verde por un nivel fluvial observado, una previsión fluvial dentro de la ventana de preparación o un aviso SMN aplicable y vigente. Se muestran por separado.
+
+Cada localidad conserva `evidencias_alerta`, `desencadenantes` y `motivo_principal`. La causa del color identifica observación/previsión/SMN/meteorología, estación, valores y umbrales disponibles, fecha de lectura/emisión, horizonte, precisión temporal, límite de uso y enlaces. La fuente del umbral se conserva separada de la fuente de la altura cuando difieren (p. ej. lectura CTM y umbral INA). Una fuente fallida o sin URL oficial reconocida no acredita una causa fluvial/SMN. Las represas y las señales aguas arriba aportan vigilancia, sin convertir su caudal en altura local ni asignarles un rojo local.
+
+Una previsión textual no se presenta como altura observada ni se le inventa una altura futura. Si sólo publica un día, se indica **hora no publicada**: entrar en la ventana operativa de 72 horas no significa que se conozca la hora de inundación. El máximo de 48 horas desde la fuente es un criterio de vigencia de ALA; no prolonga la validez oficial.
+
+Al pasar el cursor sobre el mapa aparece una tarjeta breve. El selector **Detalle del nodo del mapa** abre una ficha persistente con acción y fuentes, también utilizable con teclado o celular. Los futuros mensajes y registros de transición explican la causa y el cambio del índice por separado. No se reescribe el historial de avisos ya enviados.
+
+El JSON compartido agrega `indice_meteorologico`, `nivel_meteorologico`, `estado_integrado_ala`, `nivel_integrado_vigente`, motivo y evidencias. Los campos históricos `indice_experimental` y `nivel_experimental` se conservan por compatibilidad: el segundo es un campo legado del nivel integrado, no la clasificación del índice. Los informes anteriores sin trazabilidad se identifican como tales. La fecha de generación no renueva las evidencias vencidas.
+
+Ver [investigación de los ocho rojos del 15/10/2026](docs/REVISION_ALERTAS_20261015.md). Las pruebas de regresión reproducen la transición de Reconquista, fuentes fallidas, fechas vencidas/futuras, observación frente a pronóstico, SMN, escenarios numéricos, coherencia entre superficies y HTML de Telegram sin envíos reales.
+
 ## Actualización
 
 Subí juntos a la rama utilizada por Streamlit:
 
-- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py` y `red_integrada.py` en la raíz.
+- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py` y `explicaciones_alerta.py` en la raíz.
 - `siga_inta.py`, `ficha_proyecto.py`, `decisiones_agro.py` y `panel_proyecto.py` en la raíz.
 - `requirements.txt` y `requirements_monitor.txt` en la raíz.
 - `.github/workflows/ala-monitor.yml` en esa ubicación exacta.
@@ -46,7 +61,7 @@ Ver [FICHA_DEL_PROYECTO.md](FICHA_DEL_PROYECTO.md) para la correspondencia con l
 ## Verificación
 
 ```bash
-python -m pip install -r requirements_monitor.txt
+python -m pip install -r requirements_test.txt
 python -m unittest discover -s tests -v
 ```
 

@@ -1,0 +1,2 @@
+-r requirements_monitor.txt
+plotly>=6.0,<8

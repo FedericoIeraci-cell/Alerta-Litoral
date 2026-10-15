@@ -312,6 +312,7 @@ def _pronosticos_texto(texto, emision, nombres, fuente):
                 resultados.append({"localidades": targets, "nivel": nivel,
                     "fecha_emision": emision.isoformat(), "desde": _iso(desde), "hasta": _iso(hasta),
                     "ventana": ventana, "texto": sentence.strip(), "fuente": fuente,
+                    "precision_fecha_emision": "fecha_sin_hora", "precision_desde": "fecha_sin_hora",
                     "tipo": "prevision_oficial_textual", "probabilidad": "probabilística según el texto oficial" if re.search(r"probabilidad|chances|probable", norm) else "según previsión oficial"})
         if not any(r["texto"] == sentence.strip() for r in resultados):
             desde, hasta, ventana = _plazo(sentence, emision)
@@ -343,7 +344,7 @@ def parsear_reporte_ina(contenido, referencia=None, url=INA_URL):
             fecha = _fecha(titulo_fecha)
             estacion = {"nombre": nombre, "rio": cells[1].text(), "altura_m": decimal_es(cells[2].text()),
                 "alerta_m": decimal_es(cells[3].text()), "evacuacion_m": decimal_es(cells[4].text()),
-                "fecha": _iso(fecha), "fecha_documento": _iso(emision), "fuente": url, "series_id": tr.attrs.get("data-series_id"),
+                "fecha": _iso(fecha), "precision_fecha": "fecha_sin_hora", "fecha_documento": _iso(emision), "fuente": url, "series_id": tr.attrs.get("data-series_id"),
                 "tendencia": tr.attrs.get("data-tendencia"), "perspectiva": cells[5].text() if len(cells) > 5 else "",
                 "representatividad": "Escala de la estación; no representa la cota de todas las viviendas de la localidad."}
             # El número de la altura no debe incluir la diferencia del tooltip.
@@ -693,6 +694,30 @@ def obtener_panorama(referencia=None, session=None):
     return panorama
 
 
+def _fuente_verificable(url, panorama):
+    """Una URL sola no anula un fallo registrado por el adaptador."""
+    from explicaciones_alerta import url_oficial
+    if not url_oficial(url):
+        return False
+    registros = [f for f in panorama.get("fuentes", []) if f.get("url") == url]
+    return not any(f.get("error") or f.get("estado") == "ERROR" for f in registros)
+
+
+def _evidencia(tipo, estacion, fuente, fecha, ahora, rango, **campos):
+    limite = _fecha(fecha) + timedelta(hours=MAX_EDAD_HORAS)
+    hasta = _fecha(campos.get("hasta"))
+    if hasta:
+        limite = min(limite, hasta)
+    documento = _fecha(campos.get("fecha_documento"))
+    if documento:
+        limite = min(limite, documento + timedelta(hours=MAX_EDAD_HORAS))
+    return {"tipo": tipo, "estacion": estacion, "fuente": fuente,
+            "rango": rango, "verificada": True, "vigente": True,
+            "evaluada_en": ahora.isoformat(), "valida_hasta": limite.isoformat(),
+            "criterio_vigencia": "Máximo 48 h desde la fecha de la fuente; límite de uso de ALA, no vigencia oficial adicional",
+            **campos}
+
+
 def _upstream(localidad, station_key, sistema, panorama, ahora):
     # Sólo para orden causal del tramo, no para asignar a Avellaneda una
     # altura/umbral medido en la ciudad vecina.
@@ -712,13 +737,14 @@ def _upstream(localidad, station_key, sistema, panorama, ahora):
     result = []
     for key in anteriores:
         obs = panorama.get("estaciones", {}).get(key)
-        if not obs or not _vigente(obs.get("fecha"), ahora):
+        if not obs or not _vigente(obs.get("fecha"), ahora) or not _fuente_verificable(obs.get("fuente"), panorama):
             continue
         if obs.get("fecha_documento") and not _vigente(obs["fecha_documento"], ahora):
             continue
         nivel = _nivel(obs.get("altura_m"), obs.get("alerta_m"), obs.get("evacuacion_m"))
         if nivel in ("ALERTA", "EVACUACION"):
             result.append({"estacion": obs.get("nombre", key), "nivel": nivel, "fecha": obs.get("fecha"), "fuente": obs.get("fuente"),
+                "altura_m": obs.get("altura_m"), "alerta_m": obs.get("alerta_m"), "evacuacion_m": obs.get("evacuacion_m"),
                 "nota": "Señal aguas arriba para vigilancia; no demuestra ese nivel ni un tiempo de llegada en la localidad."})
     return result
 
@@ -738,6 +764,7 @@ def evaluar_localidad(localidad, panorama, referencia=None):
         "hidrologia_firma": "", "hidrologia_cobertura": "NO_APLICA" if not mapping else "SIN_DATOS",
         "hidrologia_pronostico_texto": "", "hidrologia_alertas_aguas_arriba": [], "hidrologia_incertidumbre": ""}
     result["hidrologia_preparacion_evacuacion_72h"] = False
+    result["hidrologia_evidencias"] = []
     if not mapping:
         result["hidrologia_motivo"] = "Sin vínculo directo evaluado con una estación de los grandes ríos. El anegamiento local por lluvias se evalúa por separado; no se descarta inundación urbana o de arroyos."
         result["hidrologia_accion"] = "Consultar alertas meteorológicas y autoridades locales para arroyos, drenajes y anegamientos."
@@ -753,7 +780,9 @@ def evaluar_localidad(localidad, panorama, referencia=None):
             "hidrologia_evacuacion_m": estacion.get("evacuacion_m"), "hidrologia_fecha": estacion.get("fecha")})
         if estacion.get("fuente"):
             fuentes.add(estacion["fuente"])
-        vigente = _vigente(estacion.get("fecha"), ahora) and not estacion.get("umbral_invalido", False)
+        vigente = (_vigente(estacion.get("fecha"), ahora) and not estacion.get("umbral_invalido", False)
+                   and _fuente_verificable(estacion.get("fuente"), panorama)
+                   and _fuente_verificable(estacion.get("fuente_umbrales", estacion.get("fuente")), panorama))
         if estacion.get("fecha_documento"):
             vigente = vigente and _vigente(estacion["fecha_documento"], ahora)
         nivel = _nivel(estacion.get("altura_m"), estacion.get("alerta_m"), estacion.get("evacuacion_m")) if vigente else "SIN_DATOS"
@@ -761,13 +790,21 @@ def evaluar_localidad(localidad, panorama, referencia=None):
         result["hidrologia_vigente"] = vigente and nivel != "SIN_DATOS"
         observado_rango = {"BAJO": 0, "ALERTA": 1, "EVACUACION": 2}.get(nivel)
         if nivel != "SIN_DATOS":
+            result["hidrologia_evidencias"].append(_evidencia(
+                "observacion_fluvial", estacion_nombre, estacion.get("fuente"), estacion["fecha"], ahora, observado_rango,
+                nivel=nivel, altura_m=estacion.get("altura_m"), alerta_m=estacion.get("alerta_m"),
+                evacuacion_m=estacion.get("evacuacion_m"), fecha_observada=estacion["fecha"],
+                precision_fecha=estacion.get("precision_fecha", "fecha_hora_publicada"),
+                fecha_documento=estacion.get("fecha_documento"),
+                fuente_umbrales=estacion.get("fuente_umbrales", estacion.get("fuente"))))
             motivos.append(f"{estacion_nombre}: {estacion.get('altura_m')} m; nivel {nivel}, lectura {estacion.get('fecha')}.")
         else:
-            motivos.append("Lectura local vencida, futura, incompleta o sin umbrales válidos; riesgo observado sin evaluar.")
+            motivos.append("Lectura local vencida, futura, incompleta, sin umbrales válidos o sin fuente verificable; riesgo observado sin evaluar.")
     else:
         motivos.append(f"{tramo}: no hay estación local con altura y umbrales automatizados.")
     candidatos = [p for p in panorama.get("pronosticos", []) if key in p.get("localidades", []) or station_key in p.get("localidades", [])]
     validos = [p for p in candidatos if _vigente(p.get("fecha_emision"), ahora, p.get("hasta"))
+        and _fuente_verificable(p.get("fuente"), panorama)
         and not (p.get("tipo") in ("prevision_oficial_numerica", "banda_superior_incierta")
                  and _fecha(p.get("desde")) and _fecha(p["desde"]).date() < ahora.date())]
     textos, ventanas = [], []
@@ -797,6 +834,17 @@ def evaluar_localidad(localidad, panorama, referencia=None):
             previsto_rango = valor
         if nivel in ("ALERTA", "EVACUACION"):
             motivos.append(f"Previsión oficial {nivel}, emitida {p.get('fecha_emision')} ({p.get('ventana')}): {p.get('probabilidad', 'según el autor')}." + (" Preparación anticipada; cruce previsto más allá de 72 h o sin fecha precisa." if nivel == "EVACUACION" and valor == 1 else ""))
+        result["hidrologia_evidencias"].append(_evidencia(
+            "pronostico_fluvial", estacion_nombre or nombre, p.get("fuente"), p["fecha_emision"], ahora, valor,
+            nivel=nivel, clase=p.get("tipo"), fecha_emision=p["fecha_emision"], desde=p.get("desde"), hasta=p.get("hasta"),
+            precision_fecha_emision=p.get("precision_fecha_emision", "fecha_hora_publicada"),
+            precision_desde=p.get("precision_desde", "fecha_hora_publicada"),
+            ventana=p.get("ventana"), probabilidad=p.get("probabilidad"), texto=p.get("texto"),
+            central_m=p.get("central_m"), inferior_m=p.get("inferior_m"), superior_m=p.get("superior_m"),
+            minimo_m=p.get("minimo_m"), maximo_m=p.get("maximo_m"),
+            alerta_m=estacion.get("alerta_m") if estacion else None,
+            evacuacion_m=estacion.get("evacuacion_m") if estacion else None,
+            fuente_umbrales=p.get("fuente_umbrales") or (estacion.get("fuente_umbrales", estacion.get("fuente")) if estacion else None)))
         firma_previsiones.append((nivel, p.get("desde"), p.get("hasta")))
     if not validos:
         motivos.append("Pronóstico fluvial local vigente no disponible; no se puede afirmar ausencia de crecida futura.")
@@ -821,16 +869,25 @@ def evaluar_localidad(localidad, panorama, referencia=None):
     represa = panorama.get("represas", {}).get(represa_key or "")
     señal_represa = False
     if represa:
-        result["represa_vigente"] = _vigente(represa.get("fecha"), ahora, represa.get("hasta"))
+        result["represa_vigente"] = (_vigente(represa.get("fecha"), ahora, represa.get("hasta"))
+                                       and _fuente_verificable(represa.get("fuente"), panorama))
         if represa.get("fuente"):
             fuentes.add(represa["fuente"])
         señal_represa = result["represa_vigente"] and bool(represa.get("señal_aguas_arriba"))
         if señal_represa:
+            result["hidrologia_evidencias"].append(_evidencia(
+                "represa", represa.get("nombre", represa_key), represa.get("fuente"), represa["fecha"], ahora, 1,
+                fecha_emision=represa["fecha"], hasta=represa.get("hasta"), texto="Aportes/erogación elevados: vigilancia aguas abajo; sin altura local deducida"))
             motivos.append(f"{represa.get('nombre', represa_key)} publica aportes/erogación elevados: señal de vigilancia aguas abajo, sin convertir ese caudal en cota local.")
     elif result["represa_aplica"]:
         motivos.append("No hay información de operación de la represa vinculada con vigencia verificable.")
     upstream = _upstream(key, station_key, sistema, panorama, ahora)
     result["hidrologia_alertas_aguas_arriba"] = upstream
+    for senal in upstream:
+        result["hidrologia_evidencias"].append(_evidencia(
+            "aguas_arriba", senal["estacion"], senal["fuente"], senal["fecha"], ahora, 1,
+            fecha_observada=senal["fecha"], nivel=senal["nivel"], altura_m=senal.get("altura_m"),
+            alerta_m=senal.get("alerta_m"), evacuacion_m=senal.get("evacuacion_m"), texto=senal["nota"]))
     if upstream:
         motivos.append("Estaciones aguas arriba en alerta o sobre umbral de evacuación: " + ", ".join(s["estacion"] for s in upstream) + ". Reforzar vigilancia; sin tiempo de llegada calculado.")
     rangos = [r for r in (observado_rango, previsto_rango) if r is not None]
@@ -844,7 +901,7 @@ def evaluar_localidad(localidad, panorama, referencia=None):
     if result["nivel_hidrologico_observado"] == "EVACUACION":
         accion = "Umbral hidrométrico de evacuación superado: contactar de inmediato a Defensa Civil/municipio, preparar el traslado preventivo de personas, animales y bienes esenciales y seguir las indicaciones oficiales de evacuación. No circular por caminos inundados."
     elif result["hidrologia_preparacion_evacuacion_72h"]:
-        accion = "Previsión oficial de posible cruce del umbral de evacuación dentro de 72 h: preparar evacuación preventiva y coordinar con Defensa Civil/municipio puntos de encuentro, refugios y rutas transitables. Priorizar personas con movilidad reducida y traslado de hacienda antes de que se corten accesos."
+        accion = "Previsión oficial de posible cruce del umbral de evacuación en la ventana de preparación de 72 h (si sólo se publica el día, la hora no está determinada): preparar evacuación preventiva y coordinar con Defensa Civil/municipio puntos de encuentro, refugios y rutas transitables. Priorizar personas con movilidad reducida y traslado de hacienda antes de que se corten accesos."
     elif result["hidrologia_rango"] == 1:
         accion = "Activar preparación: seguir niveles y pronósticos oficiales, verificar accesos y lugares elevados, preparar documentación/medicación y plan de traslado de personas y animales; coordinar con autoridades locales. Revisar cada actualización y anticipar cortes antes del plazo indicado."
     else:
