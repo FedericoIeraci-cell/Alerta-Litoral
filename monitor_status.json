@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T14:35:08.551132+00:00",
-  "checked_at_art": "2026-10-15T11:35:08.551132-03:00",
+  "checked_at": "2026-10-15T15:36:52.376676+00:00",
+  "checked_at_art": "2026-10-15T12:36:52.376676-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 0,
     "fallidas": 0,
     "pendientes": 9,
-    "omitidas": 8,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 3,
     "atrasadas": 0,
