@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.6.0
+# Versión: V4.7.0
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -92,7 +92,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.6.1"
+VERSION = "V4.7.0"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1326,6 +1326,8 @@ def resultado_sin_datos(nodo, error="Sin datos suficientes"):
         "accion": "Sin datos suficientes.",
         "actualizado": ahora().strftime("%d/%m/%Y %H:%M"),
         "horas_disponibles": 0,
+        "cobertura_meteorologica": False,
+        "cobertura_pronostico_7d": False,
         "condicion_critica": False,
         "direccion_viento_texto": "Sin datos",
         "descripcion_tiempo": "Sin datos",
@@ -1370,6 +1372,12 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     horas = pd.DatetimeIndex(horas_raw)
     valid_time = ~horas.isna()
     horas = horas[valid_time]
+
+    if horas.has_duplicates:
+        return resultado_sin_datos(
+            nodo,
+            'La respuesta contiene marcas horarias duplicadas; no se suman ni se calcula el índice',
+        )
 
     n = len(horas)
 
@@ -1651,10 +1659,18 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         futuro_72,
     )
 
-    lluvia_futura_7d = suma_segura(
-        precipitacion,
-        futuro_7d,
-    )
+    # La cobertura de 72 h necesaria para el índice no acredita siete días.
+    # También se rechazan duplicados, huecos y marcas fuera de la secuencia
+    # horaria: una suma parcial no puede presentarse como acumulado de 7 días.
+    marcas_7d = pd.DatetimeIndex(horas[futuro_7d])
+    esperadas_7d = pd.date_range(referencia + pd.Timedelta(hours=1), periods=168, freq='h')
+    secuencia_completa_7d = bool(len(marcas_7d) == 168 and marcas_7d.is_unique
+                                and marcas_7d.equals(esperadas_7d))
+    valores_lluvia_7d = precipitacion[futuro_7d]
+    cobertura_pronostico_7d = bool(secuencia_completa_7d
+                                  and np.isfinite(valores_lluvia_7d).all()
+                                  and (valores_lluvia_7d >= 0).all())
+    lluvia_futura_7d = suma_segura(precipitacion, futuro_7d) if cobertura_pronostico_7d else np.nan
 
     rain_24 = suma_segura(
         rain,
@@ -1715,10 +1731,11 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         futuro_72,
     )
 
-    runoff_futuro_7d = suma_segura(
-        runoff,
-        futuro_7d,
-    )
+    valores_runoff_7d = runoff[futuro_7d]
+    cobertura_runoff_7d = bool(secuencia_completa_7d
+                              and np.isfinite(valores_runoff_7d).all()
+                              and (valores_runoff_7d >= 0).all())
+    runoff_futuro_7d = suma_segura(runoff, futuro_7d) if cobertura_runoff_7d else np.nan
 
     # ========================================================
     # PROBABILIDAD DE PRECIPITACIÓN
@@ -1982,6 +1999,7 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         "indice_parcial": indice_parcial,
         "nivel": nivel,
         "cobertura_meteorologica": cobertura_completa,
+        "cobertura_pronostico_7d": cobertura_pronostico_7d,
 
         "temperatura": (
             round(temperatura_actual, 1)
@@ -4328,8 +4346,8 @@ def json_finito(valor):
 
 
 def descargar_publico(url, params=None):
-    r = requests.get(url, params=params, timeout=(4, 18),
-                     headers={'User-Agent': 'Alerta-Litoral-Agro/4.0 (fuentes publicas)'})
+    r = requests.get(url, params=params, timeout=(15, 30),
+                     headers={'User-Agent': 'Alerta-Litoral-Agro/4.7 (fuentes publicas)'})
     r.raise_for_status()
     return r
 
@@ -4996,6 +5014,27 @@ def recorrido_orientativo(lat1,lon1,lat2,lon2):
         return {'error':str(exc) or type(exc).__name__}
 
 
+def fila_territorial_integrada(nodo, panorama=None):
+    """Reevalúa la localidad con las mismas fuentes automáticas y capas de sesión.
+
+    No deriva el color solamente del índice meteorológico: conserva las
+    elevaciones por niveles/pronósticos fluviales y avisos SMN. Las capas de
+    suelo, agua y relieve que acaba de cargar el usuario pasan por la misma
+    integración utilizada por el panel principal.
+    """
+    meteorologia = st.session_state.get('df_alerta', pd.DataFrame())
+    coincidencias = pd.DataFrame()
+    if isinstance(meteorologia, pd.DataFrame) and not meteorologia.empty and 'localidad' in meteorologia:
+        mascara = meteorologia.localidad.astype(str).eq(str(nodo['localidad']))
+        if 'provincia' in meteorologia and nodo.get('provincia'):
+            mascara &= meteorologia.provincia.astype(str).eq(str(nodo['provincia']))
+        coincidencias = meteorologia[mascara]
+    modelo = (coincidencias.iloc[0].to_dict() if not coincidencias.empty else
+              resultado_sin_datos(nodo, 'Meteorología local no disponible para la planificación'))
+    evaluacion = integrar_semaforo(pd.DataFrame([modelo]), panorama=panorama)
+    return evaluacion.iloc[0].to_dict()
+
+
 def mostrar_territorio_ficha():
     mostrar_registros_operativos()
     st.subheader('Semáforo operativo y planificación territorial')
@@ -5163,23 +5202,28 @@ def mostrar_territorio_ficha():
                 st.session_state.pop('ficha_suelo',None);st.error('Suelo rechazado: '+str(exc))
         else:
             st.session_state.pop('ficha_suelo',None)
-    df=st.session_state.get('df_alerta',pd.DataFrame())
-    modelo=df[df.localidad==nodo['localidad']].iloc[0].to_dict() if not df.empty and 'localidad' in df else {}
-    agua,suelo,baja,rio=componentes_localidad(nodo)
-    fusion=fusion_territorial(modelo,agua,suelo,baja,rio)
+    # Reutiliza la integración automática; las consultas manuales no pueden
+    # borrar una crecida o un aviso SMN que ya elevó el color de la localidad.
+    evaluacion = fila_territorial_integrada(nodo)
+    agua,suelo,baja,rio_manual=componentes_localidad(nodo)
+    fusion={'semaforo':evaluacion['nivel'],
+            'motivos':str(evaluacion.get('motivos_semaforo','')).split(' | '),
+            'cobertura':evaluacion.get('cobertura_territorial',0)}
     st.subheader('Semáforo integrado · '+nodo['localidad'])
     colores={'VERDE':'🟢','AMARILLO':'🟡','ROJO':'🔴','SIN DATOS':'⚪'}
     st.markdown(f'### {colores[fusion["semaforo"]]} {fusion["semaforo"]}')
-    st.caption(f'Cobertura territorial: {fusion["cobertura"]}/4 componentes (meteorología, suelo de fuente externa, agua superficial, relieve). La información incompleta mantiene incertidumbre; no certifica ausencia de riesgo.')
+    st.caption(f'Capas territoriales: {fusion["cobertura"]}/4 (meteorología, suelo de fuente externa, agua superficial, relieve). El color también incorpora la vigilancia fluvial automática y los avisos SMN que cubren esta localidad. La información incompleta no certifica ausencia de riesgo.')
     for motivo in fusion['motivos']:
         st.write('• '+motivo)
-    orientacion=dict(modelo,localidad=nodo['localidad'],provincia=nodo['provincia'],nivel=fusion['semaforo'],
-                     motivos_semaforo=' | '.join(fusion['motivos']))
-    mostrar_recomendaciones_alerta(orientacion,key='ficha_plan_acciones_territorio')
-    st.caption('Reglas de fusión exploratorias: índice con umbrales amarillo/rojo de referencia 35/55 o evaluados en esta sesión; NDWI > 0 de ≤ 72 h + lluvia ≥ 30 mm/72 h → rojo; agua útil ≥ 90 % de ≤ 10 días + lluvia ≥ 30 → amarillo y, en quintil inferior de relieve, rojo. Un umbral INA vigente puede elevar el estado sólo en el entorno de su estación. ENOS aporta contexto, sin sumar puntos automáticamente.')
+    mostrar_recomendaciones_alerta(evaluacion,key='ficha_plan_acciones_territorio')
+    st.caption('Se usan las mismas reglas del panel principal: índice meteorológico, niveles y previsiones oficiales por localidad, avisos SMN por polígono y las capas territoriales cargadas. Suelo, satélite y relieve incorporados por el usuario modifican esta sesión; no se incorporan al monitor automático de Telegram. ENOS aporta contexto sin sumar puntos automáticamente.')
+    hidro={k:v for k,v in evaluacion.items() if k.startswith(('hidrologia_','nivel_hidrologico_','represa_'))}
+    smn={k:v for k,v in evaluacion.items() if k.startswith('smn_')}
     informe={'version':VERSION,'fecha':ahora().isoformat(),'localidad':nodo['localidad'],
-             'semaforo':fusion,'modelo':modelo,'agua':agua,'suelo':suelo,'rio':rio,
-             'recomendaciones':recomendaciones_para_alerta(orientacion),
+             'semaforo':fusion,'evaluacion_integrada':evaluacion,
+             'modelo':evaluacion,'agua':agua,'suelo':suelo,'hidrologia':hidro,'avisos_smn':smn,
+             'rio_consultado_manualmente':rio_manual,
+             'recomendaciones':recomendaciones_para_alerta(evaluacion),
              'relieve_consultado':not dem.empty,'rutas':rutas,'recursos_declarados':extras.to_dict('records'),
              'limitaciones':'Prototipo experimental; confirmar áreas de influencia, accesos, refugios y atención con autoridad local.'}
     st.download_button('Descargar informe de planificación',json.dumps(json_finito(informe),ensure_ascii=False,indent=2,default=str,allow_nan=False),
@@ -6136,6 +6180,7 @@ def mostrar_trimestral_integrado():
     st.subheader('Perspectiva SMN a 90 días · mapas dentro de la aplicación')
     st.caption('Se recupera el último informe disponible en el repositorio oficial. Su publicación puede demorar respecto del sitio principal del SMN.')
     if st.button('Consultar último informe trimestral SMN',key='ficha_trimestral_cargar'):
+        consultar_trimestral.clear()
         with st.spinner('Recuperando el documento oficial y sus mapas…'):
             st.session_state['ficha_trimestral'] = consultar_trimestral()
     with st.expander('Cargar un informe oficial más reciente'):
@@ -6199,7 +6244,7 @@ def muestrear_raster_suelo(contenido, fecha, fuente, escala=1.0, offset=0.0):
 
 def mostrar_raster_inta():
     with st.expander('Integrar agua útil INTA desde un GeoTIFF'):
-        st.write('Descargá el raster PJ por el acceso autorizado de SEPA y cargalo aquí. La app extrae el píxel de cada localidad y lo incorpora al mismo semáforo del mapa y Telegram.')
+        st.write('Descargá el raster PJ por el acceso autorizado de SEPA y cargalo aquí. La app extrae el píxel de cada localidad y lo incorpora al análisis y al mapa de esta sesión. El monitor horario de Telegram no recibe estas cargas.')
         up=st.file_uploader('GeoTIFF PJ · agua útil del perfil',type=['tif','tiff'],key='ficha_inta_raster')
         fecha=st.date_input('Fin del período de observación del raster',value=ahora().date(),key='ficha_inta_raster_fecha')
         fuente=st.text_input('Página de origen del raster INTA',value=INTA_BASE+'/productos/geosepa/agua_en_suelo/pj/',key='ficha_inta_raster_fuente')
@@ -6384,6 +6429,7 @@ def mostrar_satelite_automatico():
         st.caption('Se busca una imagen reciente y se leen bandas de reflectancia y la máscara de calidad. Una imagen histórica conserva su fecha y no se interpreta como condición actual.')
         hasta=st.date_input('Último día de búsqueda',value=ahora().date(),max_value=ahora().date(),key='ficha_sat_hasta')
         if st.button('Buscar escenas satelitales',key='ficha_sat_buscar'):
+            buscar_escenas.clear()
             res=buscar_escenas(n['lat'],n['lon'],hasta-timedelta(days=30),hasta)
             st.session_state['ficha_sat_catalogo']=(nombre,hasta,res)
         cat=st.session_state.get('ficha_sat_catalogo')
@@ -6930,19 +6976,21 @@ def mostrar_caso_2016_integrado():
 def matriz_cumplimiento_ficha():
     evaluado='ficha_cal_protocolo' in st.session_state
     rows=[
-        ('Precipitación y pronóstico 7–14 días','Implementado','ECMWF/Open-Meteo; SMN para contraste; cobertura meteorológica y fechas visibles'),
-        ('Suelo INTA y agua superficial','Implementado con carga/consulta','Mapas SEPA, muestreo de GeoTIFF autorizado, Sentinel-2 automático y CSV; no equivale a saturación física in situ'),
-        ('SMN: alertas y tendencia a 90 días','Implementado','Alertas oficiales y PDF trimestral con mapas, período y aviso de vencimiento'),
-        ('INA: niveles y caudales','Implementado','Observaciones y umbrales por estación, vigencia y serie histórica Concordia'),
+        ('Precipitación y pronóstico 7–14 días','Integrado; cobertura por horizonte','ECMWF/Open-Meteo: 24/72 h y 7 días; días 8–14 sólo con siete días completos. Los faltantes no se completan con cero'),
+        ('Lluvia medida · INTA SIGA','Consulta por localidad disponible','Estación cercana, distancia, día observado y serie descargable. Una observación no se atribuye a todo el lote ni sustituye el pronóstico'),
+        ('Suelo INTA y agua superficial','Consulta/carga por sesión','Mapas SEPA, GeoTIFF autorizado, Sentinel-2 y CSV. Nubes, antigüedad y NoData pueden impedir una observación vigente; no son entradas automáticas del monitor horario'),
+        ('Saturación física del suelo','No medida directamente','Humedad volumétrica modelada y agua útil del perfil son variables distintas. La saturación física y la portancia requieren propiedades del suelo o mediciones locales'),
+        ('SMN: observaciones, alertas y perspectiva trimestral','Integración parcial por producto','Observaciones meteorológicas y CAP; PDF trimestral con mapas/período original. La fecha de consulta no lo convierte en pronóstico de los próximos 90 días; lluvia puntual SMN sin descarga actual comprobada'),
+        ('INA: niveles y previsiones; caudales según fuente','Integrado donde hay fuentes vigentes','Estación, escala, umbrales y previsiones oficiales; fuentes EBY/CTM y conexiones de cuenca. No todas las localidades tienen cobertura completa'),
         ('Litoral argentino · seis provincias','Cobertura geográfica ampliada','Santa Fe, Corrientes, Entre Ríos, Chaco, Formosa y Misiones; puntos de monitoreo y límites oficiales. No es cobertura continua ni validación en cada localidad'),
-        ('Caso histórico + aplicación','Implementado','2016: SMN + INA Concordia + imagen INTA del episodio; Vera 2025: contraste con corridas archivadas'),
-        ('Calibrar umbrales meteorológicos','Evaluado localmente' if evaluado else 'Controles documentados; prueba temporal pendiente',f'{len(controles_documentados())} ausencias explícitas documentadas; faltan emisiones e índices completos de una cohorte independiente'),
-        ('Semáforo verde/amarillo/rojo','Implementado','Misma fusión en panel, mapa, acciones, exportación y Telegram; gris para datos insuficientes'),
+        ('Caso histórico + aplicación','Prototipo y casos documentados','2016: SMN + INA Concordia + imagen INTA; Vera 2025: contraste con corridas archivadas. Reconstrucción no equivale a pronóstico emitido en tiempo real'),
+        ('Calibrar umbrales meteorológicos','Evaluación exploratoria local' if evaluado else 'Validación predictiva pendiente',f'{len(controles_documentados())} ausencias explícitas documentadas; faltan emisiones e índices completos de una cohorte independiente. No se acredita desempeño predictivo en las tres provincias originales'),
+        ('Semáforo verde/amarillo/rojo','Integración común y límites de sesión visibles','Panel, mapa, Territorio y planes reutilizan la evaluación integrada; gris indica datos insuficientes. El monitor horario usa sus fuentes automáticas, sin cargas privadas de la sesión'),
         ('Cotas y refugios','Fuentes y antecedentes incorporados; habilitación pendiente','DEM Copernicus, cuatro centros históricos de Vera y registros con capacidad declarada; capacidad y habilitación actuales no publicadas en forma verificable'),
         ('Vialidad nacional/provincial y caminos','Fuentes identificadas; estado vigente pendiente','Filtro nacional y fuentes provinciales para las seis jurisdicciones; sin feed provincial uniforme de cortes en la app'),
         ('Salud y suero antiofídico','Catálogos descargados el 10/10/2026; operación pendiente','Catálogo IGN: 2.077 puntos en las seis provincias; Entre Ríos: 212 registros legibles de centros, una fila excluida y 65 de hospitales. Guardia, camas, horarios y suero requieren confirmación local'),
-        ('Evacuar hacienda, siembra/cosecha, canales y operativos','Implementado como apoyo','Acciones por color; destinos, accesos y capacidad requieren confirmación del responsable'),
-        ('Inventario, calidad y representatividad','Implementado','Fechas, procedencia, datos ausentes, nubes y límites rurales; exportaciones para Python/QGIS/Leaflet'),
+        ('Evacuar hacienda, siembra/cosecha, canales y operativos','Plan por usuario y localidad','Productor, comité de cuenca o municipio/Defensa Civil. Acciones, plazos y verificaciones; sin inventar una ventana segura, destino habilitado u orden de evacuación'),
+        ('Inventario, calidad y representatividad','Inventario de la consulta y exportaciones','Plan y ficha del proyecto muestra datos presentes/ausentes, fuentes, fechas, unidades, alcance rural y cuáles utiliza el monitor horario'),
     ]
     return pd.DataFrame(rows,columns=['Requisito de la ficha','Estado','Evidencia y condición'])
 
@@ -6953,6 +7001,85 @@ def mostrar_cumplimiento_ficha():
     d=matriz_cumplimiento_ficha();st.dataframe(d,hide_index=True,use_container_width=True)
     st.download_button('Descargar correspondencia con la ficha',d.to_csv(index=False).encode('utf-8-sig'),'Cumplimiento_ficha.csv','text/csv',key='ficha_cumplimiento_csv')
     st.write(f'Los {len(controles_documentados())} controles negativos conservan evidencia de ausencia con fuente y fecha. Para cerrar la prueba estadística faltan corridas completas independientes y evidencia de disponibilidad original. En territorio, caminos provinciales, refugios, cupos y atención sanitaria requieren confirmación local vigente.')
+
+
+@st.cache_data(ttl=3600, show_spinner=False, max_entries=48)
+def consultar_siga_proyecto(localidad, provincia, lat, lon):
+    from siga_inta import obtener_panorama_siga
+    nodo={'localidad':localidad,'provincia':provincia,'lat':lat,'lon':lon}
+    panorama=obtener_panorama_siga([nodo],referencia=ahora(),max_estaciones=1)
+    asociacion=(panorama.get('asociaciones') or [{}])[0]
+    estacion=asociacion.get('estacion') or {}
+    consulta=asociacion.get('consulta') or {}
+    registros=consulta.get('registros') or []
+    if not estacion:
+        return {'error':'No se encontró una estación INTA pública dentro de 50 km; no se reemplaza la medición con cero.'}
+    if consulta.get('estado')=='ERROR' or not registros:
+        return {'error':'La estación cercana no devolvió registros diarios verificables para este período. Consultá la fuente oficial.'}
+    validos=[r for r in registros if r.get('precipitacion_mm') is not None]
+    ultimo=validos[-1] if validos else {}
+    distancia=asociacion.get('distancia_km')
+    fuente=(consulta.get('fuente') or {}).get('url','https://siga.inta.gob.ar/')
+    resumen={'fecha':ultimo.get('fecha_diaria'),'precipitacion_mm':ultimo.get('precipitacion_mm'),
+             'estacion':estacion.get('nombre'),'distancia_km':distancia,'fuente':fuente}
+    diarios=[{'Día informado':r.get('fecha_diaria'),'Lluvia medida (mm)':r.get('precipitacion_mm'),
+              'Temperatura media (°C)':r.get('temperatura_media_c'),
+              'HR del aire (%)':r.get('humedad_relativa_media_pct'),'Estación':estacion.get('nombre'),
+              'Distancia (km)':distancia,'Campo original de precipitación':r.get('precipitacion_campo'),
+              'Fuente':fuente} for r in registros]
+    faltantes=consulta.get('dias_faltantes') or []
+    etiqueta=(f'Estación {estacion.get("nombre")} · {distancia} km · último día informado: '
+              f'{consulta.get("ultimo_dia")} · antigüedad {consulta.get("edad_dias")} días. '
+              f'Faltan {len(faltantes)} días del período {consulta.get("desde")} a {consulta.get("hasta")}. '
+              'No se calcula acumulado completo cuando faltan días. HR corresponde al aire, no al suelo.')
+    return {'resumen':resumen,'diarios':diarios,'etiqueta':etiqueta,'error':'',
+            'evidencia':consulta,'fuente':fuente}
+
+
+def relieve_proyecto(nodo):
+    guardado=st.session_state.get('ficha_dem_por_localidad',{}).get(normalizar_nombre(nodo['localidad']))
+    if not guardado:
+        anterior=st.session_state.get('ficha_relieve')
+        if anterior and NODOS[anterior[0]]['localidad']==nodo['localidad']:
+            guardado=anterior[2]
+    if not guardado or guardado.get('error') or guardado.get('df',pd.DataFrame()).empty:
+        return None
+    dem=guardado['df'];ix=distancia_km(nodo['lat'],nodo['lon'],dem.lat,dem.lon).argmin()
+    return {'cota_m':float(dem.iloc[ix].cota_m),'consulta':guardado.get('consulta')}
+
+
+def datos_proyecto(nodo):
+    raw=st.session_state.get('raw_ecmwf') or []
+    indice=next((i for i,n in enumerate(NODOS) if n['localidad']==nodo['localidad']),None)
+    return raw[indice] if indice is not None and indice<len(raw) else {}
+
+
+def mostrar_plan_por_usuario(ui, plan):
+    ui.write('**'+str(plan['fase'])+'**')
+    ui.write(plan['decision_prioritaria'])
+    acciones=pd.DataFrame(plan.get('acciones',[])).rename(columns={
+        'area':'Área','accion':'Acción para este usuario','plazo':'Cuándo','verificar':'Confirmar antes de actuar'})
+    if not acciones.empty:
+        ui.dataframe(acciones,hide_index=True,use_container_width=True)
+    pendientes=plan.get('pendientes',[])
+    if pendientes:
+        with ui.expander('Datos que faltan para preparar el operativo',expanded=True):
+            for texto in pendientes:
+                ui.write('• '+texto)
+    for texto in plan.get('limitaciones',[]):
+        ui.caption(texto)
+    with ui.expander('Fuentes de las recomendaciones'):
+        for fuente in plan.get('fuentes',[]):
+            ui.link_button(fuente['organismo'],fuente['url'])
+
+
+def mostrar_proyecto_ficha():
+    from panel_proyecto import mostrar_panel_proyecto
+    contexto={'version':VERSION,'filas':st.session_state.get('df_operativo',pd.DataFrame()),
+              'nodos':NODOS,'componentes':componentes_localidad,'datos':datos_proyecto,
+              'relieve':relieve_proyecto,'ahora':ahora,'mostrar_plan':mostrar_plan_por_usuario,
+              'siga':lambda n:consultar_siga_proyecto(n['localidad'],n['provincia'],n['lat'],n['lon'])}
+    mostrar_panel_proyecto(st,contexto)
 
 
 # ============================================================
@@ -7008,7 +7135,7 @@ def mostrar_hero_litoral():
             <img class="ala-hero-logo" src="{logo}" alt="" />
           </div>
         </div>
-        <p class="ala-hero-descripcion">Sistema de alerta temprana para anticipar el impacto de lluvias intensas, saturación del suelo y crecidas.</p>
+        <p class="ala-hero-descripcion">Semáforo hídrico para preparar decisiones ante lluvias intensas, exceso de agua en el suelo y crecidas.</p>
         <div class="ala-hero-datos">{''.join('<span>'+html.escape(p)+'</span>' for p in PROVINCIAS_LITORAL)}<span>ECMWF IFS HRES 9 km</span></div>
       </div>
       <div class="ala-hero-version">{html.escape(VERSION)}</div>
@@ -7055,8 +7182,8 @@ def render_app():
     # SMN — DATOS EN DIRECTO
     # ============================================================
 
-    tab_agro, tab_red, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
-        "🌧️ Alerta Litoral Agro", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
+    tab_agro, tab_plan, tab_red, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
+        "🌧️ Alerta Litoral Agro", "📋 Plan y ficha del proyecto", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
         "🌱 Suelo y ríos", "🌊 El Niño / La Niña", "🗺️ Territorio y rutas", "📘 Caso histórico y ficha",
     ])
     with tab_red:
@@ -7089,6 +7216,8 @@ def render_app():
 
             obtener_datos_ecmwf.clear()
             obtener_panorama_hidrologico.clear()
+            consultar_siga_proyecto.clear()
+            st.session_state.pop('tp_siga', None)
             for consulta_ficha in (consultar_ina, estaciones_ina_publicas, catalogo_inta,
                                    imagen_inta_publica, obtener_roni, consultar_vialidad,
                                    consultar_relieve, consultar_salud_ign, recorrido_orientativo, consultar_trimestral, buscar_escenas, descargar_registro):
@@ -8534,6 +8663,8 @@ def render_app():
         )
 
 
+    with tab_plan:
+        mostrar_proyecto_ficha()
     mostrar_paneles_ficha(tab_fuentes, tab_enos, tab_territorio, tab_historia)
 
 

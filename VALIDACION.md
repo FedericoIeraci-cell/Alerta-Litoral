@@ -1,4 +1,19 @@
-# Verificación de Alerta Litoral Agro V4.6.0
+# Verificación de Alerta Litoral Agro
+
+## Versión V4.7.0 y ficha del proyecto
+
+Revisión del 15 de octubre de 2026.
+
+- 152 pruebas automatizadas aprobadas. Se agregan casos de consistencia principal/Territorio/exportación, integridad temporal de siete días, observaciones SIGA, faltantes y planes por usuario.
+- Prueba de interfaz de la página principal y la nueva solapa: nueve solapas, 31 métricas y nueve tablas, cero excepciones. La prueba usa datos controlados; los paneles secundarios se evalúan por separado. Cambio de usuario en el plan probado sin excepción.
+- Consulta real sin envíos del monitor y la red integrada: 48 puntos; meteorología 48/48, observaciones fluviales 22/29, previsión fluvial 16/29, represas 18/20, avisos SMN 48/48. Es el corte de la prueba, no una garantía de cobertura futura. No se escribió el estado remoto.
+- INTA SIGA: consulta pública completa comprobada, catálogo de 182 estaciones. Bella Vista: 10–13/10 y faltante 14/10; acumulado completo ausente y suma disponible identificada como parcial. Ceros, fechas diarias y tipos de lluvia se conservan sin mezclarse.
+- Sentinel-2: lectura real de bandas COG, máscara y GeoTIFF en Corrientes, escena del 02/10/2026. Sirve como antecedente y no como agua superficial del 15/10.
+- SMN trimestral: PDF del repositorio oficial de agosto–septiembre–octubre 2026. La fecha de descarga no cambia el período del producto.
+
+La calibración predictiva de una cohorte independiente y la disponibilidad local de caminos, refugios y atención siguen pendientes de evidencia operacional. Las pruebas de software no los dan por resueltos. Ver `FICHA_DEL_PROYECTO.md`.
+
+## Antecedente de verificación V4.6.0
 
 Fecha de verificación: 14 de octubre de 2026.
 
@@ -33,3 +48,4 @@ Esta versión integra pronósticos oficiales y reglas de vigilancia. Las pruebas
 Después de cada actualización, comprobar un workflow `dry_run`, la versión V4.6.0 visible y la cobertura de las fuentes; luego verificar un control real y sus confirmaciones. Subir el código por sí solo no acredita vigilancia activa. La prueba sin envíos no acredita entrega en Telegram. La guía incluida explica el procedimiento.
 
 Los documentos de `tests/fixtures/` son ejemplos oficiales fechados para pruebas. El monitor no los usa como respaldo de datos actuales.
+

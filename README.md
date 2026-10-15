@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.6.1
+# Alerta Litoral Agro · V4.7.0
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -20,7 +20,8 @@ Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación
 
 Subí juntos a la rama utilizada por Streamlit:
 
-- `app.py`, `hidrologia.py`, `ctm.py` y `monitor.py` en la raíz.
+- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py` y `red_integrada.py` en la raíz.
+- `siga_inta.py`, `ficha_proyecto.py`, `decisiones_agro.py` y `panel_proyecto.py` en la raíz.
 - `requirements.txt` y `requirements_monitor.txt` en la raíz.
 - `.github/workflows/ala-monitor.yml` en esa ubicación exacta.
 
@@ -30,7 +31,19 @@ La reserva del evento se guarda antes del envío. Solo una respuesta válida de 
 
 Ver [GUIA_MONITOR.md](GUIA_MONITOR.md) para actualización, Secrets, prueba sin envíos y diagnóstico.
 
-## Pruebas
+## Ficha del problema y decisiones agropecuarias
+
+La solapa **Plan y ficha del proyecto** reúne el semáforo integrado de la localidad, el usuario que decide, horizontes de lluvia e inventario de evidencias presentes y faltantes. Genera un plan con acciones, plazos, verificaciones y fuentes para productor, comité de cuenca o municipio/Defensa Civil, y permite descargarlo.
+
+La consulta pública a **INTA SIGA** descubre estaciones y registros diarios desde el servicio utilizado por su propia web. Conserva estación, distancia, día informado, ceros medidos, días sin datos y procedencia. No reemplaza el pronóstico ni atribuye la medición a cada lote. Es un servicio web sin API versionada: los cambios o fallas se muestran como faltantes.
+
+La cobertura meteorológica del índice de 72 horas no acredita siete días completos. El acumulado de siete días exige 168 horas únicas, contiguas y válidas; el de días calendario 8–14 exige sus siete días completos. No se rellenan faltantes con cero ni se calcula una ventana segura de trabajo por una cantidad universal de milímetros.
+
+Suelo INTA, satélite y relieve se incorporan mediante consultas/cargas de la sesión. No se envían al monitor horario. El panel principal y Territorio reutilizan la integración automática para evitar que una crecida roja quede oculta por un índice meteorológico bajo.
+
+Ver [FICHA_DEL_PROYECTO.md](FICHA_DEL_PROYECTO.md) para la correspondencia con la entrega y los requisitos que aún dependen de validación predictiva o confirmación operativa local.
+
+## Verificación
 
 ```bash
 python -m pip install -r requirements_monitor.txt
@@ -62,3 +75,4 @@ python monitor.py --dry-run --export-red red_integrada_revision.json
 ```
 
 [Abrir Alerta Litoral Agro](https://alerta-litoral-agro.streamlit.app/) · [Abrir Alerta Zárate–Campana](https://alerta-zarate-campana.streamlit.app/)
+
