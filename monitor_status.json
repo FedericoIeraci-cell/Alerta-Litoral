@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T16:34:11.685971+00:00",
-  "checked_at_art": "2026-10-15T13:34:11.685971-03:00",
+  "checked_at": "2026-10-15T17:31:40.393030+00:00",
+  "checked_at_art": "2026-10-15T14:31:40.393030-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 45,
-  "nodes_red": 9,
+  "nodes_red": 4,
   "nodes_invalid": 3,
-  "nodes_yellow": 17,
+  "nodes_yellow": 22,
   "nodes_green": 19,
   "configured_nodes": 48,
   "coverage": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 16,
+      "vigentes": 7,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 18,
+      "vigentes": 16,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -37,10 +37,10 @@
     "configurado": true,
     "enviadas": 0,
     "fallidas": 0,
-    "pendientes": 9,
-    "omitidas": 9,
+    "pendientes": 4,
+    "omitidas": 4,
     "inicializadas": 0,
-    "sin_datos": 3,
+    "sin_datos": 8,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -262,8 +262,8 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "16/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
+    "7/29 puntos aplicables con pronóstico fluvial vigente.",
+    "16/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false
