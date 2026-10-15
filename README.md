@@ -81,6 +81,8 @@ El informe reúne los **48 puntos del Litoral y 10 referencias meteorológicas d
 
 El monitor existente de ALA prepara el informe común después de guardar su evaluación regional. La consulta adicional de Zárate–Campana no incorpora nuevos candidatos ni destinatarios a Telegram. Cada aplicación conserva sus criterios y registros regionales; el informe común no activa una orden de evacuación.
 
+El publicador y los lectores comparten un límite de **2.000.000 bytes**. El JSON se guarda compacto, sin recortar evidencias. Cada escritura utiliza el SHA leído previamente y se confirma releyendo el contenido y el SHA remoto. `monitor_status.json` guarda primero `red_integrada_estado: pendiente` y luego el resultado final: `red_integrada_publicada`, estado, confirmación (SHA, bytes, generación y verificación) o código/etapa del error. Un fallo de publicación hace fallar Actions aunque la evaluación regional haya terminado; `health_evaluacion` conserva el resultado regional. Las reservas, confirmaciones y deduplicación de Telegram mantienen su circuito anterior.
+
 Un informe con más de 3 horas se señala como vencido. Las alturas y corridas locales de Zárate–Campana también se revisan con un máximo de 6 horas; la fecha de generación del informe no renueva una lectura antigua. No se suman caudales de estaciones sucesivas ni se calcula una hora de llegada desde las compuertas.
 
 Para actualizar, incluí `red_integrada.py` en la raíz de ambos repositorios. ALA también requiere el `monitor.py` actualizado. Una prueba de consulta y exportación sin envíos es:
@@ -88,6 +90,16 @@ Para actualizar, incluí `red_integrada.py` en la raíz de ambos repositorios. A
 ```bash
 python monitor.py --dry-run --export-red red_integrada_revision.json
 ```
+
+Para recuperar y verificar **sólo la publicación**, con permisos de GitHub y sin credenciales de Telegram:
+
+```bash
+python monitor.py --publish-red-only
+```
+
+Este modo consulta fuentes actuales, publica y relee `red_integrada.json`, pero no lee ni escribe el SQLite de avisos ni `monitor_status.json`. El informe indica `dry_run: true` para no atribuirle una evaluación de envíos. La siguiente ejecución horaria normal lo reemplaza. El workflow de validación ejecuta este modo después de superar las pruebas en un push a la rama principal, con la misma exclusión de concurrencia que el monitor horario. En ramas y pull requests sólo valida, sin publicaciones ni envíos.
+
+Diagnóstico y regresiones de la incidencia: [Publicación de la red, 15/10/2026](docs/PUBLICACION_RED_20261015.md).
 
 [Abrir Alerta Litoral Agro](https://alerta-litoral-agro.streamlit.app/) · [Abrir Alerta Zárate–Campana](https://alerta-zarate-campana.streamlit.app/)
 

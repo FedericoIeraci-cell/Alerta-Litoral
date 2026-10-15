@@ -44,3 +44,33 @@ jobs:
           TZ: America/Argentina/Buenos_Aires
         run: python monitor.py --dry-run
 
+  publicar-red:
+    # Al integrar una corrección, comprobar también la escritura real del informe.
+    # Esta tarea no recibe credenciales de Telegram ni toca su SQLite.
+    if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    needs: verificar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    concurrency:
+      group: ala-monitor-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements_monitor.txt
+      - name: Publicar y releer informe sin Telegram
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ALA_MONITOR_STATE_BRANCH: ala-monitor-state
+          ALA_MONITOR_STATE_DIR: ${{ runner.temp }}/ala-publicacion
+          PYTHONUNBUFFERED: '1'
+          TZ: America/Argentina/Buenos_Aires
+        run: python monitor.py --publish-red-only
+
