@@ -51,10 +51,22 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import requests
-from hidrologia import obtener_panorama, evaluar_localidad
 from explicaciones_alerta import (construir_explicacion, motivo_publico, motivo_transicion,
     causas_verificadas, detalle_evidencia, fuentes_evidencia, tarjeta_nodo_html, hover_nodo,
     url_oficial, fecha as fecha_alerta)
+
+def cargar_motor_hidrologico():
+    """Evita mezclar la interfaz nueva con un módulo previo retenido por Streamlit."""
+    import hidrologia
+    if getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) != 1:
+        import importlib
+        hidrologia = importlib.reload(hidrologia)
+    if getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) != 1:
+        raise RuntimeError('El despliegue hidrológico está incompleto; reiniciar la aplicación.')
+    return hidrologia.obtener_panorama, hidrologia.evaluar_localidad
+
+
+obtener_panorama, evaluar_localidad = cargar_motor_hidrologico()
 
 ALA_MONITOR_HEADLESS = os.environ.get('ALA_MONITOR_HEADLESS') == '1'
 
@@ -7828,8 +7840,8 @@ def render_app():
         tabla.columns = [
             "Localidad",
             "Provincia",
-            "Riesgo",
-            "Nivel",
+            "Índice meteorológico /100",
+            "Riesgo integrado",
             "Temp. °C",
             "HR %",
             "Viento km/h",
@@ -8268,7 +8280,7 @@ def render_app():
         # ------------------------------------------------------------
 
         st.subheader(
-            "📊 Componentes del riesgo"
+            "📊 Componentes del índice meteorológico"
         )
 
         componentes = pd.DataFrame({
@@ -8437,7 +8449,7 @@ def render_app():
                                 y="indice",
                                 markers=True,
                                 title=(
-                                    f"Evolución del riesgo — "
+                                    f"Evolución del índice meteorológico — "
                                     f"{localidad_hist}"
                                 ),
                             )
