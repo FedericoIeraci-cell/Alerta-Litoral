@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T06:39:13.693715+00:00",
-  "checked_at_art": "2026-10-15T03:39:13.693715-03:00",
+  "checked_at": "2026-10-15T07:41:57.141565+00:00",
+  "checked_at_art": "2026-10-15T04:41:57.141565-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
