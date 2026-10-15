@@ -36,6 +36,10 @@ class FichaProyectoTests(unittest.TestCase):
         completa = horizontes_lluvia(self.row(lluvia_futura_7d=168, cobertura_pronostico_7d=True), referencia=NOW)
         self.assertEqual(completa[2]["precipitacion_mm"], 168)
 
+    def test_respuesta_fresca_pero_incompleta_no_acredita_cero_lluvia(self):
+        row = self.row(cobertura_meteorologica=False, lluvia_futura_24=0, lluvia_futura_72=0)
+        self.assertTrue(all(r["precipitacion_mm"] is None for r in horizontes_lluvia(row, referencia=NOW)))
+
     def test_cero_observado_y_ausencia_son_diferentes(self):
         a = construir_inventario(self.row(), siga={"fecha": NOW.isoformat(), "precipitacion_mm": 0}, referencia=NOW)
         b = construir_inventario(self.row(), siga={"fecha": NOW.isoformat(), "precipitacion_mm": None}, referencia=NOW)

@@ -66,7 +66,7 @@ def _valor(numero, unidad):
 def horizontes_lluvia(row, datos=None, referencia=None):
     """Los días 8–14 usan siete días calendario completos, nunca suma parcial."""
     ref = _fecha(referencia) or datetime.now(ART)
-    reciente = _vigente(row.get("actualizado"), 12, ref)
+    reciente = bool(row.get("cobertura_meteorologica") is True and _vigente(row.get("actualizado"), 12, ref))
     salida = []
     for titulo, campo, horas in [
         ("Próximas 24 horas", "lluvia_futura_24", 24),

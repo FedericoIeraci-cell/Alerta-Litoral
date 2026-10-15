@@ -4,7 +4,7 @@
 
 Revisión del 15 de octubre de 2026.
 
-- 152 pruebas automatizadas aprobadas. Se agregan casos de consistencia principal/Territorio/exportación, integridad temporal de siete días, observaciones SIGA, faltantes y planes por usuario.
+- 153 pruebas automatizadas aprobadas. Se agregan casos de consistencia principal/Territorio/exportación, integridad temporal de siete días, observaciones SIGA, faltantes y planes por usuario.
 - Prueba de interfaz de la página principal y la nueva solapa: nueve solapas, 31 métricas y nueve tablas, cero excepciones. La prueba usa datos controlados; los paneles secundarios se evalúan por separado. Cambio de usuario en el plan probado sin excepción.
 - Consulta real sin envíos del monitor y la red integrada: 48 puntos; meteorología 48/48, observaciones fluviales 22/29, previsión fluvial 16/29, represas 18/20, avisos SMN 48/48. Es el corte de la prueba, no una garantía de cobertura futura. No se escribió el estado remoto.
 - INTA SIGA: consulta pública completa comprobada, catálogo de 182 estaciones. Bella Vista: 10–13/10 y faltante 14/10; acumulado completo ausente y suma disponible identificada como parcial. Ceros, fechas diarias y tipos de lluvia se conservan sin mezclarse.

@@ -6246,13 +6246,13 @@ def mostrar_raster_inta():
     with st.expander('Integrar agua útil INTA desde un GeoTIFF'):
         st.write('Descargá el raster PJ por el acceso autorizado de SEPA y cargalo aquí. La app extrae el píxel de cada localidad y lo incorpora al análisis y al mapa de esta sesión. El monitor horario de Telegram no recibe estas cargas.')
         up=st.file_uploader('GeoTIFF PJ · agua útil del perfil',type=['tif','tiff'],key='ficha_inta_raster')
-        fecha=st.date_input('Fin del período de observación del raster',value=ahora().date(),key='ficha_inta_raster_fecha')
+        fecha=st.date_input('Fin del período de observación del raster (no la fecha de descarga)',value=None,max_value=ahora().date(),key='ficha_inta_raster_fecha')
         fuente=st.text_input('Página de origen del raster INTA',value=INTA_BASE+'/productos/geosepa/agua_en_suelo/pj/',key='ficha_inta_raster_fuente')
         st.caption('La escala y el offset deben corresponder a la documentación del raster. Valores por defecto: producto ya expresado en porcentaje.')
         a,b=st.columns(2)
         escala=a.number_input('Escala declarada por el producto',value=1.0,format='%.6f',key='ficha_inta_escala')
         offset=b.number_input('Offset declarado por el producto',value=0.0,format='%.6f',key='ficha_inta_offset')
-        if st.button('Extraer e integrar suelo INTA',key='ficha_inta_extraer',disabled=up is None):
+        if st.button('Extraer e integrar suelo INTA',key='ficha_inta_extraer',disabled=up is None or fecha is None):
             try:
                 ds=muestrear_raster_suelo(up.getvalue(),fecha,fuente,escala,offset)
                 st.session_state['ficha_suelo_raster']=ds
@@ -7073,12 +7073,17 @@ def mostrar_plan_por_usuario(ui, plan):
             ui.link_button(fuente['organismo'],fuente['url'])
 
 
+def actualizar_siga_proyecto(nodo):
+    consultar_siga_proyecto.clear()
+    return consultar_siga_proyecto(nodo['localidad'],nodo['provincia'],nodo['lat'],nodo['lon'])
+
+
 def mostrar_proyecto_ficha():
     from panel_proyecto import mostrar_panel_proyecto
     contexto={'version':VERSION,'filas':st.session_state.get('df_operativo',pd.DataFrame()),
               'nodos':NODOS,'componentes':componentes_localidad,'datos':datos_proyecto,
               'relieve':relieve_proyecto,'ahora':ahora,'mostrar_plan':mostrar_plan_por_usuario,
-              'siga':lambda n:consultar_siga_proyecto(n['localidad'],n['provincia'],n['lat'],n['lon'])}
+              'siga':actualizar_siga_proyecto}
     mostrar_panel_proyecto(st,contexto)
 
 
