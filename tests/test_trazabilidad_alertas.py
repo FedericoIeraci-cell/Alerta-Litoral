@@ -50,6 +50,16 @@ class TrazabilidadTests(unittest.TestCase):
         row = met_row(nombre, provincia, indice=indice, actualizado=self.now.strftime('%d/%m/%Y %H:%M'), **campos)
         return app.integrar_semaforo(app.pd.DataFrame([row]), panorama=panorama if panorama is not None else panorama_archivado()).iloc[0].to_dict()
 
+    def test_despliegue_recarga_motor_previo_sin_evidencias(self):
+        with patch.object(h, 'VERSION_EVIDENCIAS', 0), \
+             patch.object(h, 'evaluar_localidad', return_value={'hidrologia_rango':2}):
+            _, evaluar = app.cargar_motor_hidrologico()
+            lectura = evaluar('Reconquista', panorama_archivado(), referencia=NOW)
+            self.assertEqual(h.VERSION_EVIDENCIAS, 1)
+            self.assertTrue(lectura['hidrologia_evidencias'])
+        with patch('importlib.reload', side_effect=AssertionError('Motor vigente no se recarga')):
+            app.cargar_motor_hidrologico()
+
     def test_ocho_rojos_con_causa_y_mismo_indice(self):
         tipos = {'Reconquista':'pronostico_fluvial','Corrientes':'pronostico_fluvial',
                  'Goya':'pronostico_fluvial','Resistencia':'pronostico_fluvial',

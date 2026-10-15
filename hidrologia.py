@@ -694,6 +694,9 @@ def obtener_panorama(referencia=None, session=None):
     return panorama
 
 
+VERSION_EVIDENCIAS = 1
+
+
 def _fuente_verificable(url, panorama):
     """Una URL sola no anula un fallo registrado por el adaptador."""
     from explicaciones_alerta import url_oficial
