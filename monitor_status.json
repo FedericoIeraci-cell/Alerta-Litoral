@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-15T19:32:03.410825+00:00",
-  "checked_at_art": "2026-10-15T16:32:03.410825-03:00",
+  "checked_at": "2026-10-15T20:29:22.902096+00:00",
+  "checked_at_art": "2026-10-15T17:29:22.902096-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 44,
   "nodes_red": 4,
-  "nodes_invalid": 3,
-  "nodes_yellow": 21,
-  "nodes_green": 20,
+  "nodes_invalid": 4,
+  "nodes_yellow": 19,
+  "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,18 +35,48 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 2,
     "fallidas": 0,
     "pendientes": 4,
-    "omitidas": 4,
+    "omitidas": 2,
     "inicializadas": 0,
-    "sin_datos": 8,
+    "sin_datos": 9,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "9a967e039dd6",
+      "creado": "2026-10-15T20:29:22.902583+00:00",
+      "intento": "2026-10-15T20:29:22.902583+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 12.4 puntos. Río observado en Puerto Ituzaingó: 4,63 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 15/10/2026 00:00 ART. Previsión fluvial en Puerto Ituzaingó: posible superación del umbral de evacuación (4,00 m) a partir de 14/10/2026 00:00 ART; rango publicado 4,80–5,00 m. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 46,4 → 34,0/100; se evalúa por separado.",
+      "indice_anterior": 46.4,
+      "indice": 34.0,
+      "estado": "enviado",
+      "message_id": 55,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "d56e20494114",
+      "creado": "2026-10-15T20:29:22.902583+00:00",
+      "intento": "2026-10-15T20:29:22.902583+00:00",
+      "localidad": "Andresito",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Índice meteorológico 62,4/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 72,4 → 62,4/100; se evalúa por separado.",
+      "indice_anterior": 72.4,
+      "indice": 62.4,
+      "estado": "enviado",
+      "message_id": 56,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "74221348110c",
       "creado": "2026-10-15T14:35:08.551505+00:00",
@@ -268,15 +298,6 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 378689,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "4e4eab43c082ab9d4ffdfcaebb2d717e8d0864df",
-    "bytes": 378689,
-    "generated_at": "2026-10-15T19:32:05.960252+00:00",
-    "verified_at": "2026-10-15T19:32:13.042700+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
