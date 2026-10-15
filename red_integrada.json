@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "catalogo_version": 1,
-  "generated_at": "2026-10-14T23:28:16.272689+00:00",
+  "generated_at": "2026-10-15T00:39:41.589022+00:00",
   "producer": {
     "app": "Alerta Litoral Agro · monitor",
     "version": "V4.6.1"
   },
   "monitor": {
-    "checked_at": "2026-10-14T23:28:12.893670+00:00",
+    "checked_at": "2026-10-15T00:39:39.030528+00:00",
     "health": "datos_parciales",
     "scope": "Meteorología + hidrología + represas",
     "frequency_minutes": 60,
@@ -28,12 +28,12 @@
       "lluvia_prevista_72_mm": 2.7,
       "lluvia_prevista_7d_mm": 2.7,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 41.6,
+      "lluvia_previa_7d_mm": 40.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.44,
-      "indice_experimental": 24.8,
+      "indice_experimental": 24.3,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -41,7 +41,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -62,12 +62,12 @@
       "lluvia_prevista_72_mm": 2.7,
       "lluvia_prevista_7d_mm": 2.7,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 23.2,
+      "lluvia_previa_7d_mm": 20.4,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.409,
       "indice_experimental": 21.2,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -75,7 +75,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -96,12 +96,12 @@
       "lluvia_prevista_72_mm": 0.9,
       "lluvia_prevista_7d_mm": 3.0,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 38.2,
+      "lluvia_previa_7d_mm": 37.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.429,
-      "indice_experimental": 26.5,
+      "indice_experimental": 25.9,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -109,7 +109,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -135,7 +135,7 @@
       "humedad_0_7_m3_m3": 0.461,
       "indice_experimental": 22.0,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -143,7 +143,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -169,7 +169,7 @@
       "humedad_0_7_m3_m3": 0.441,
       "indice_experimental": 21.3,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -177,7 +177,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -203,7 +203,7 @@
       "humedad_0_7_m3_m3": 0.48,
       "indice_experimental": 25.0,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -211,7 +211,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -237,7 +237,7 @@
       "humedad_0_7_m3_m3": 0.463,
       "indice_experimental": 22.1,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -245,7 +245,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -271,7 +271,7 @@
       "humedad_0_7_m3_m3": 0.432,
       "indice_experimental": 21.7,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -279,7 +279,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -305,7 +305,7 @@
       "humedad_0_7_m3_m3": 0.327,
       "indice_experimental": 11.5,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -313,7 +313,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -336,10 +336,10 @@
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 81.9,
       "escurrimiento_previsto_72_mm": 0.6,
-      "humedad_0_7_m3_m3": 0.389,
+      "humedad_0_7_m3_m3": 0.388,
       "indice_experimental": 24.3,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -347,7 +347,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -368,12 +368,12 @@
       "lluvia_prevista_72_mm": 1.8,
       "lluvia_prevista_7d_mm": 1.8,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 20.9,
+      "lluvia_previa_7d_mm": 18.3,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.424,
+      "humedad_0_7_m3_m3": 0.423,
       "indice_experimental": 20.6,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -381,7 +381,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -402,12 +402,12 @@
       "lluvia_prevista_72_mm": 0.3,
       "lluvia_prevista_7d_mm": 0.3,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 32.2,
+      "lluvia_previa_7d_mm": 27.9,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.476,
-      "indice_experimental": 25.6,
+      "indice_experimental": 25.4,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -415,7 +415,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -436,12 +436,12 @@
       "lluvia_prevista_72_mm": 1.5,
       "lluvia_prevista_7d_mm": 1.8,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 25.4,
+      "lluvia_previa_7d_mm": 22.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.448,
       "indice_experimental": 25.0,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -449,7 +449,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -470,12 +470,12 @@
       "lluvia_prevista_72_mm": 0.6,
       "lluvia_prevista_7d_mm": 0.6,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 41.4,
-      "escurrimiento_previsto_72_mm": 4.9,
+      "lluvia_previa_7d_mm": 39.3,
+      "escurrimiento_previsto_72_mm": 4.8,
       "humedad_0_7_m3_m3": 0.464,
-      "indice_experimental": 27.9,
+      "indice_experimental": 27.8,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -483,11 +483,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=72&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=72&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -505,11 +505,11 @@
       "lluvia_prevista_7d_mm": 1.8,
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 134.7,
-      "escurrimiento_previsto_72_mm": 27.8,
+      "escurrimiento_previsto_72_mm": 27.6,
       "humedad_0_7_m3_m3": 0.482,
       "indice_experimental": 50.6,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -517,11 +517,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=68&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=68&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -543,7 +543,7 @@
       "humedad_0_7_m3_m3": 0.293,
       "indice_experimental": 11.7,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -551,7 +551,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -572,12 +572,12 @@
       "lluvia_prevista_72_mm": 0.9,
       "lluvia_prevista_7d_mm": 0.9,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 22.7,
+      "lluvia_previa_7d_mm": 22.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.326,
       "indice_experimental": 15.0,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -585,7 +585,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -606,12 +606,12 @@
       "lluvia_prevista_72_mm": 2.4,
       "lluvia_prevista_7d_mm": 2.4,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 14.2,
+      "lluvia_previa_7d_mm": 11.7,
       "escurrimiento_previsto_72_mm": 7.2,
       "humedad_0_7_m3_m3": 0.249,
       "indice_experimental": 10.6,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -619,11 +619,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/diario/reporte_diario | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484 | https://www.saltogrande.org/docs/hidrologia/Comunicado.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/diario/reporte_diario | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771 | https://www.saltogrande.org/docs/hidrologia/Comunicado.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -640,12 +640,12 @@
       "lluvia_prevista_72_mm": 0.0,
       "lluvia_prevista_7d_mm": 0.0,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 69.4,
+      "lluvia_previa_7d_mm": 69.3,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.434,
+      "humedad_0_7_m3_m3": 0.433,
       "indice_experimental": 25.3,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -653,7 +653,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -679,7 +679,7 @@
       "humedad_0_7_m3_m3": 0.479,
       "indice_experimental": 27.9,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -687,7 +687,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -708,12 +708,12 @@
       "lluvia_prevista_72_mm": 2.1,
       "lluvia_prevista_7d_mm": 2.1,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 53.5,
+      "lluvia_previa_7d_mm": 53.4,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.353,
+      "humedad_0_7_m3_m3": 0.352,
       "indice_experimental": 12.0,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -721,7 +721,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -744,10 +744,10 @@
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 15.6,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.378,
+      "humedad_0_7_m3_m3": 0.377,
       "indice_experimental": 13.4,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -755,7 +755,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -772,16 +772,16 @@
       "partido": null,
       "lat": -27.576877556,
       "lon": -60.711125666,
-      "lluvia_prevista_24_mm": 1.4,
-      "lluvia_prevista_72_mm": 2.0,
-      "lluvia_prevista_7d_mm": 2.0,
+      "lluvia_prevista_24_mm": 1.2,
+      "lluvia_prevista_72_mm": 1.8,
+      "lluvia_prevista_7d_mm": 1.8,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 28.3,
+      "lluvia_previa_7d_mm": 28.5,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.351,
       "indice_experimental": 10.5,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -789,7 +789,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -815,7 +815,7 @@
       "humedad_0_7_m3_m3": 0.332,
       "indice_experimental": 12.5,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -823,7 +823,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -849,7 +849,7 @@
       "humedad_0_7_m3_m3": 0.45,
       "indice_experimental": 30.7,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -857,7 +857,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -876,14 +876,14 @@
       "lon": -57.7224082,
       "lluvia_prevista_24_mm": 0.3,
       "lluvia_prevista_72_mm": 0.3,
-      "lluvia_prevista_7d_mm": 24.2,
+      "lluvia_prevista_7d_mm": 24.3,
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 117.6,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.469,
-      "indice_experimental": 32.8,
+      "humedad_0_7_m3_m3": 0.468,
+      "indice_experimental": 32.7,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -891,7 +891,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -914,10 +914,10 @@
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 75.0,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.483,
+      "humedad_0_7_m3_m3": 0.482,
       "indice_experimental": 28.0,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -925,7 +925,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -949,9 +949,9 @@
       "lluvia_previa_7d_mm": 89.7,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.475,
-      "indice_experimental": 29.7,
+      "indice_experimental": 29.6,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -959,7 +959,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "SIN DATOS",
@@ -985,7 +985,7 @@
       "humedad_0_7_m3_m3": 0.361,
       "indice_experimental": 13.5,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -993,7 +993,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -1019,7 +1019,7 @@
       "humedad_0_7_m3_m3": 0.358,
       "indice_experimental": 13.4,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1027,7 +1027,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -1044,16 +1044,16 @@
       "partido": null,
       "lat": -27.36642598,
       "lon": -55.893980275,
-      "lluvia_prevista_24_mm": 1.3,
-      "lluvia_prevista_72_mm": 1.3,
-      "lluvia_prevista_7d_mm": 12.1,
+      "lluvia_prevista_24_mm": 1.2,
+      "lluvia_prevista_72_mm": 1.2,
+      "lluvia_prevista_7d_mm": 12.0,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 177.5,
-      "escurrimiento_previsto_72_mm": 23.8,
+      "lluvia_previa_7d_mm": 177.6,
+      "escurrimiento_previsto_72_mm": 23.7,
       "humedad_0_7_m3_m3": 0.421,
-      "indice_experimental": 48.7,
+      "indice_experimental": 48.0,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1061,7 +1061,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1078,16 +1078,16 @@
       "partido": null,
       "lat": -27.486790956,
       "lon": -55.120056983,
-      "lluvia_prevista_24_mm": 1.1,
-      "lluvia_prevista_72_mm": 1.4,
-      "lluvia_prevista_7d_mm": 10.3,
+      "lluvia_prevista_24_mm": 0.9,
+      "lluvia_prevista_72_mm": 1.2,
+      "lluvia_prevista_7d_mm": 10.2,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 128.8,
-      "escurrimiento_previsto_72_mm": 19.0,
-      "humedad_0_7_m3_m3": 0.506,
+      "lluvia_previa_7d_mm": 129.0,
+      "escurrimiento_previsto_72_mm": 18.9,
+      "humedad_0_7_m3_m3": 0.505,
       "indice_experimental": 46.8,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1095,7 +1095,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1112,16 +1112,16 @@
       "partido": null,
       "lat": -26.408876964,
       "lon": -54.60705304,
-      "lluvia_prevista_24_mm": 1.9,
-      "lluvia_prevista_72_mm": 1.9,
-      "lluvia_prevista_7d_mm": 37.9,
+      "lluvia_prevista_24_mm": 1.8,
+      "lluvia_prevista_72_mm": 1.8,
+      "lluvia_prevista_7d_mm": 38.4,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 140.9,
+      "lluvia_previa_7d_mm": 141.0,
       "escurrimiento_previsto_72_mm": 14.7,
-      "humedad_0_7_m3_m3": 0.507,
-      "indice_experimental": 55.3,
+      "humedad_0_7_m3_m3": 0.504,
+      "indice_experimental": 55.2,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1129,7 +1129,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -1147,15 +1147,15 @@
       "lat": -25.597210098,
       "lon": -54.577223001,
       "lluvia_prevista_24_mm": 3.0,
-      "lluvia_prevista_72_mm": 3.1,
-      "lluvia_prevista_7d_mm": 53.5,
+      "lluvia_prevista_72_mm": 3.0,
+      "lluvia_prevista_7d_mm": 55.2,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 130.7,
-      "escurrimiento_previsto_72_mm": 1.7,
-      "humedad_0_7_m3_m3": 0.5,
-      "indice_experimental": 57.7,
+      "lluvia_previa_7d_mm": 130.8,
+      "escurrimiento_previsto_72_mm": 1.8,
+      "humedad_0_7_m3_m3": 0.499,
+      "indice_experimental": 57.6,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1163,7 +1163,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -1186,10 +1186,10 @@
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 112.5,
       "escurrimiento_previsto_72_mm": 14.4,
-      "humedad_0_7_m3_m3": 0.504,
-      "indice_experimental": 44.0,
+      "humedad_0_7_m3_m3": 0.502,
+      "indice_experimental": 43.9,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1197,7 +1197,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1214,16 +1214,16 @@
       "partido": null,
       "lat": -27.297511036,
       "lon": -54.197545618,
-      "lluvia_prevista_24_mm": 1.3,
-      "lluvia_prevista_72_mm": 2.2,
+      "lluvia_prevista_24_mm": 1.2,
+      "lluvia_prevista_72_mm": 2.1,
       "lluvia_prevista_7d_mm": 19.5,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 124.1,
+      "lluvia_previa_7d_mm": 124.2,
       "escurrimiento_previsto_72_mm": 14.4,
-      "humedad_0_7_m3_m3": 0.504,
+      "humedad_0_7_m3_m3": 0.502,
       "indice_experimental": 44.6,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1231,7 +1231,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1252,12 +1252,12 @@
       "lluvia_prevista_72_mm": 3.3,
       "lluvia_prevista_7d_mm": 3.3,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 18.1,
+      "lluvia_previa_7d_mm": 16.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.416,
       "indice_experimental": 22.6,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1265,11 +1265,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=84&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=84&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -1286,12 +1286,12 @@
       "lluvia_prevista_72_mm": 2.4,
       "lluvia_prevista_7d_mm": 2.4,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 5.9,
+      "lluvia_previa_7d_mm": 5.7,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": 21.9,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1299,7 +1299,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "SIN DATOS",
@@ -1316,16 +1316,16 @@
       "partido": null,
       "lat": -32.621605823,
       "lon": -60.157953952,
-      "lluvia_prevista_24_mm": 0.5,
+      "lluvia_prevista_24_mm": 0.6,
       "lluvia_prevista_72_mm": 1.8,
       "lluvia_prevista_7d_mm": 1.8,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 7.0,
+      "lluvia_previa_7d_mm": 6.9,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.457,
       "indice_experimental": 23.5,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1333,7 +1333,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1354,12 +1354,12 @@
       "lluvia_prevista_72_mm": 2.1,
       "lluvia_prevista_7d_mm": 2.4,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 23.3,
+      "lluvia_previa_7d_mm": 21.9,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.47,
-      "indice_experimental": 24.3,
+      "humedad_0_7_m3_m3": 0.469,
+      "indice_experimental": 24.2,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1367,7 +1367,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -1388,12 +1388,12 @@
       "lluvia_prevista_72_mm": 2.7,
       "lluvia_prevista_7d_mm": 2.7,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 12.9,
+      "lluvia_previa_7d_mm": 10.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.438,
       "indice_experimental": 24.9,
       "nivel_experimental": "VERDE",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1401,7 +1401,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "VERDE",
@@ -1422,12 +1422,12 @@
       "lluvia_prevista_72_mm": 2.4,
       "lluvia_prevista_7d_mm": 2.7,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 33.2,
+      "lluvia_previa_7d_mm": 28.2,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.396,
-      "indice_experimental": 22.2,
+      "indice_experimental": 22.0,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1435,7 +1435,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "SIN DATOS",
@@ -1458,10 +1458,10 @@
       "lluvia_prevista_15d_mm": null,
       "lluvia_previa_7d_mm": 197.4,
       "escurrimiento_previsto_72_mm": 14.4,
-      "humedad_0_7_m3_m3": 0.378,
-      "indice_experimental": 53.8,
+      "humedad_0_7_m3_m3": 0.377,
+      "indice_experimental": 53.5,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1469,7 +1469,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
@@ -1490,12 +1490,12 @@
       "lluvia_prevista_72_mm": 0.0,
       "lluvia_prevista_7d_mm": 0.0,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 69.4,
+      "lluvia_previa_7d_mm": 69.3,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.434,
+      "humedad_0_7_m3_m3": 0.433,
       "indice_experimental": 25.3,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1503,7 +1503,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -1520,16 +1520,16 @@
       "partido": null,
       "lat": -25.5833333333333,
       "lon": -53.9833333333333,
-      "lluvia_prevista_24_mm": 1.7,
-      "lluvia_prevista_72_mm": 2.3,
-      "lluvia_prevista_7d_mm": 63.7,
+      "lluvia_prevista_24_mm": 1.5,
+      "lluvia_prevista_72_mm": 2.1,
+      "lluvia_prevista_7d_mm": 68.1,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 174.1,
+      "lluvia_previa_7d_mm": 174.3,
       "escurrimiento_previsto_72_mm": 14.4,
-      "humedad_0_7_m3_m3": 0.505,
+      "humedad_0_7_m3_m3": 0.504,
       "indice_experimental": 70.6,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1537,7 +1537,7 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
@@ -1558,12 +1558,12 @@
       "lluvia_prevista_72_mm": 3.9,
       "lluvia_prevista_7d_mm": 3.9,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 11.8,
+      "lluvia_previa_7d_mm": 8.4,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.243,
       "indice_experimental": 7.9,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1571,11 +1571,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=80&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=80&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -1588,16 +1588,16 @@
       "partido": null,
       "lat": -32.4833333333333,
       "lon": -58.2333333333333,
-      "lluvia_prevista_24_mm": 3.5,
+      "lluvia_prevista_24_mm": 3.6,
       "lluvia_prevista_72_mm": 6.6,
       "lluvia_prevista_7d_mm": 6.6,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 19.2,
+      "lluvia_previa_7d_mm": 17.7,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.195,
       "indice_experimental": 5.2,
       "nivel_experimental": "AMARILLO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1605,11 +1605,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "AMARILLO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/diario/reporte_diario | https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=81&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/diario/reporte_diario | https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=81&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -1622,16 +1622,16 @@
       "partido": null,
       "lat": -27.8833333333333,
       "lon": -55.1333333333333,
-      "lluvia_prevista_24_mm": 0.8,
-      "lluvia_prevista_72_mm": 1.4,
-      "lluvia_prevista_7d_mm": 4.7,
+      "lluvia_prevista_24_mm": 0.6,
+      "lluvia_prevista_72_mm": 1.2,
+      "lluvia_prevista_7d_mm": 4.5,
       "lluvia_prevista_15d_mm": null,
-      "lluvia_previa_7d_mm": 179.5,
+      "lluvia_previa_7d_mm": 179.7,
       "escurrimiento_previsto_72_mm": 6.9,
-      "humedad_0_7_m3_m3": 0.418,
+      "humedad_0_7_m3_m3": 0.417,
       "indice_experimental": 55.9,
       "nivel_experimental": "ROJO",
-      "fecha_calculo": "2026-10-14T20:28:00-03:00",
+      "fecha_calculo": "2026-10-14T21:39:00-03:00",
       "fecha_consulta": null,
       "fecha_emision_modelo": null,
       "cobertura_horaria": {},
@@ -1639,11 +1639,11 @@
       "error": "",
       "fuente": "https://api.open-meteo.com/v1/ecmwf",
       "modelo": "ECMWF IFS / Open-Meteo",
-      "fecha_evaluacion_integrada": "2026-10-14T23:28:12.854272+00:00",
+      "fecha_evaluacion_integrada": "2026-10-15T00:39:38.982850+00:00",
       "precision_calculo": "hora de cálculo meteorológico de ALA; zona ART de la aplicación",
       "nivel_tipo": "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana",
       "estado_integrado_ala": "ROJO",
-      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=65&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuentes_integracion": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=65&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true | https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "edad_horas": 0.01,
       "vigente": true,
       "estado_tiempo": "VIGENTE",
@@ -1656,17 +1656,17 @@
       "partido": "Zárate",
       "lat": -34.098,
       "lon": -59.028,
-      "lluvia_prevista_24_mm": 7.1,
+      "lluvia_prevista_24_mm": 7.2,
       "lluvia_prevista_72_mm": 7.2,
       "lluvia_prevista_7d_mm": 7.2,
       "lluvia_prevista_15d_mm": 44.4,
-      "lluvia_previa_7d_mm": 14.1,
+      "lluvia_previa_7d_mm": 13.5,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.536,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1682,8 +1682,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -1714,17 +1714,17 @@
       "partido": "Zárate",
       "lat": -34.089,
       "lon": -59.011,
-      "lluvia_prevista_24_mm": 7.1,
+      "lluvia_prevista_24_mm": 7.2,
       "lluvia_prevista_72_mm": 7.2,
       "lluvia_prevista_7d_mm": 7.2,
       "lluvia_prevista_15d_mm": 44.4,
-      "lluvia_previa_7d_mm": 14.1,
+      "lluvia_previa_7d_mm": 13.5,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.536,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1740,8 +1740,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -1776,13 +1776,13 @@
       "lluvia_prevista_72_mm": 5.1,
       "lluvia_prevista_7d_mm": 5.1,
       "lluvia_prevista_15d_mm": 53.7,
-      "lluvia_previa_7d_mm": 10.8,
+      "lluvia_previa_7d_mm": 9.9,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.465,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1798,8 +1798,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -1830,17 +1830,17 @@
       "partido": "Zárate",
       "lat": -34.164,
       "lon": -59.112,
-      "lluvia_prevista_24_mm": 7.2,
-      "lluvia_prevista_72_mm": 7.3,
-      "lluvia_prevista_7d_mm": 7.3,
-      "lluvia_prevista_15d_mm": 69.7,
-      "lluvia_previa_7d_mm": 13.3,
+      "lluvia_prevista_24_mm": 6.9,
+      "lluvia_prevista_72_mm": 6.9,
+      "lluvia_prevista_7d_mm": 6.9,
+      "lluvia_prevista_15d_mm": 69.3,
+      "lluvia_previa_7d_mm": 13.1,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.431,
+      "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1856,8 +1856,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -1888,17 +1888,17 @@
       "partido": "Zárate",
       "lat": -34.025,
       "lon": -58.935,
-      "lluvia_prevista_24_mm": 7.1,
+      "lluvia_prevista_24_mm": 7.2,
       "lluvia_prevista_72_mm": 7.2,
       "lluvia_prevista_7d_mm": 7.2,
       "lluvia_prevista_15d_mm": 44.4,
-      "lluvia_previa_7d_mm": 14.1,
+      "lluvia_previa_7d_mm": 13.5,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.536,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1914,8 +1914,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -1946,17 +1946,17 @@
       "partido": "Campana",
       "lat": -34.168,
       "lon": -58.959,
-      "lluvia_prevista_24_mm": 7.2,
-      "lluvia_prevista_72_mm": 7.3,
-      "lluvia_prevista_7d_mm": 7.3,
-      "lluvia_prevista_15d_mm": 69.7,
-      "lluvia_previa_7d_mm": 13.3,
+      "lluvia_prevista_24_mm": 6.9,
+      "lluvia_prevista_72_mm": 6.9,
+      "lluvia_prevista_7d_mm": 6.9,
+      "lluvia_prevista_15d_mm": 69.3,
+      "lluvia_previa_7d_mm": 13.1,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.431,
+      "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -1972,8 +1972,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -2004,17 +2004,17 @@
       "partido": "Campana",
       "lat": -34.155,
       "lon": -58.96,
-      "lluvia_prevista_24_mm": 7.2,
-      "lluvia_prevista_72_mm": 7.3,
-      "lluvia_prevista_7d_mm": 7.3,
-      "lluvia_prevista_15d_mm": 69.7,
-      "lluvia_previa_7d_mm": 13.3,
+      "lluvia_prevista_24_mm": 6.9,
+      "lluvia_prevista_72_mm": 6.9,
+      "lluvia_prevista_7d_mm": 6.9,
+      "lluvia_prevista_15d_mm": 69.3,
+      "lluvia_previa_7d_mm": 13.1,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.431,
+      "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -2030,8 +2030,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -2062,17 +2062,17 @@
       "partido": "Campana",
       "lat": -34.237,
       "lon": -58.893,
-      "lluvia_prevista_24_mm": 7.2,
-      "lluvia_prevista_72_mm": 7.3,
-      "lluvia_prevista_7d_mm": 7.3,
-      "lluvia_prevista_15d_mm": 69.7,
-      "lluvia_previa_7d_mm": 13.3,
+      "lluvia_prevista_24_mm": 6.9,
+      "lluvia_prevista_72_mm": 6.9,
+      "lluvia_prevista_7d_mm": 6.9,
+      "lluvia_prevista_15d_mm": 69.3,
+      "lluvia_previa_7d_mm": 13.1,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.431,
+      "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -2088,8 +2088,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -2120,17 +2120,17 @@
       "partido": "Campana",
       "lat": -34.28,
       "lon": -58.888,
-      "lluvia_prevista_24_mm": 7.2,
-      "lluvia_prevista_72_mm": 7.3,
-      "lluvia_prevista_7d_mm": 7.3,
-      "lluvia_prevista_15d_mm": 69.7,
-      "lluvia_previa_7d_mm": 13.3,
+      "lluvia_prevista_24_mm": 6.9,
+      "lluvia_prevista_72_mm": 6.9,
+      "lluvia_prevista_7d_mm": 6.9,
+      "lluvia_prevista_15d_mm": 69.3,
+      "lluvia_previa_7d_mm": 13.1,
       "escurrimiento_previsto_72_mm": 0.0,
-      "humedad_0_7_m3_m3": 0.431,
+      "humedad_0_7_m3_m3": 0.435,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -2146,8 +2146,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -2178,17 +2178,17 @@
       "partido": "Campana",
       "lat": -34.123,
       "lon": -58.842,
-      "lluvia_prevista_24_mm": 4.7,
+      "lluvia_prevista_24_mm": 4.8,
       "lluvia_prevista_72_mm": 4.8,
       "lluvia_prevista_7d_mm": 4.8,
       "lluvia_prevista_15d_mm": 46.8,
-      "lluvia_previa_7d_mm": 11.5,
+      "lluvia_previa_7d_mm": 11.3,
       "escurrimiento_previsto_72_mm": 0.0,
       "humedad_0_7_m3_m3": 0.557,
       "indice_experimental": null,
       "nivel_experimental": "SIN DATOS",
-      "fecha_calculo": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_calculo": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
       "fecha_emision_modelo": null,
       "cobertura_horaria": {
         "lluvia_prevista_24": {
@@ -2204,8 +2204,8 @@
           "esperadas": 168
         },
         "lluvia_prevista_15d": {
-          "validas": 339,
-          "esperadas": 339,
+          "validas": 338,
+          "esperadas": 338,
           "hasta": "2026-10-29T02:00:00+00:00",
           "maximo_solicitado_horas": 360
         },
@@ -2252,7 +2252,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -2293,10 +2293,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2334,10 +2334,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2375,10 +2375,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2416,10 +2416,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2457,10 +2457,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2498,10 +2498,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2539,10 +2539,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2567,7 +2567,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -2608,10 +2608,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 44.47,
+      "pronostico_edad_horas": 45.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -2620,486 +2620,516 @@
       "estacion": "San Fernando",
       "serie_observada": 52,
       "serie_pronostico": 52,
-      "altura_m": 0.89,
+      "altura_m": 1.21,
       "alerta_m": 3.0,
       "evacuacion_m": 3.5,
-      "fecha_observada": "2026-10-14T20:45:00+00:00",
-      "fecha_observada_original": "2026-10-14T17:45:00-03:00",
+      "fecha_observada": "2026-10-14T22:45:00+00:00",
+      "fecha_observada_original": "2026-10-14T19:45:00-03:00",
       "precision_observada": "fecha_hora_publicada",
       "fecha_documento_original": "",
-      "fecha_emision": "2026-10-14T06:00:00+00:00",
+      "fecha_emision": "2026-10-14T12:00:00+00:00",
       "pronostico": [
         {
-          "fecha": "2026-10-15T00:00:00+00:00",
-          "central_m": 1.22733,
-          "inferior_m": null,
-          "superior_m": null
-        },
-        {
           "fecha": "2026-10-15T01:00:00+00:00",
-          "central_m": 1.37232,
+          "central_m": 1.40669,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T02:00:00+00:00",
-          "central_m": 1.46417,
+          "central_m": 1.49944,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T03:00:00+00:00",
-          "central_m": 1.49389,
+          "central_m": 1.53854,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T04:00:00+00:00",
-          "central_m": 1.46147,
+          "central_m": 1.50581,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T05:00:00+00:00",
-          "central_m": 1.36241,
+          "central_m": 1.40579,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T06:00:00+00:00",
-          "central_m": 1.22463,
+          "central_m": 1.25757,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T07:00:00+00:00",
-          "central_m": 1.07334,
+          "central_m": 1.1139,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T08:00:00+00:00",
-          "central_m": 0.950875,
+          "central_m": 0.99024,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T09:00:00+00:00",
-          "central_m": 0.888739,
+          "central_m": 0.927499,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T10:00:00+00:00",
-          "central_m": 0.922958,
+          "central_m": 0.962053,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T11:00:00+00:00",
-          "central_m": 1.03642,
+          "central_m": 1.07662,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T12:00:00+00:00",
-          "central_m": 1.176,
+          "central_m": 1.21756,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T13:00:00+00:00",
-          "central_m": 1.29487,
+          "central_m": 1.33759,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T14:00:00+00:00",
-          "central_m": 1.35611,
+          "central_m": 1.40851,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T15:00:00+00:00",
-          "central_m": 1.36151,
+          "central_m": 1.40488,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T16:00:00+00:00",
-          "central_m": 1.31919,
+          "central_m": 1.36214,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T17:00:00+00:00",
-          "central_m": 1.25705,
+          "central_m": 1.29031,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T18:00:00+00:00",
-          "central_m": 1.19762,
+          "central_m": 1.21211,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T19:00:00+00:00",
-          "central_m": 1.11297,
+          "central_m": 1.11754,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T20:00:00+00:00",
-          "central_m": 1.03552,
+          "central_m": 1.04844,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T21:00:00+00:00",
-          "central_m": 1.02742,
+          "central_m": 1.04934,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T22:00:00+00:00",
-          "central_m": 1.12648,
+          "central_m": 1.15846,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-15T23:00:00+00:00",
-          "central_m": 1.27506,
+          "central_m": 1.31758,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T00:00:00+00:00",
-          "central_m": 1.46327,
+          "central_m": 1.49853,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T01:00:00+00:00",
-          "central_m": 1.63526,
+          "central_m": 1.66312,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T02:00:00+00:00",
-          "central_m": 1.76764,
+          "central_m": 1.78768,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T03:00:00+00:00",
-          "central_m": 1.84058,
+          "central_m": 1.85225,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T04:00:00+00:00",
-          "central_m": 1.8649,
+          "central_m": 1.8677,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T05:00:00+00:00",
-          "central_m": 1.79736,
+          "central_m": 1.8086,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T06:00:00+00:00",
-          "central_m": 1.67219,
+          "central_m": 1.67311,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T07:00:00+00:00",
-          "central_m": 1.5254,
+          "central_m": 1.5249,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T08:00:00+00:00",
-          "central_m": 1.38132,
+          "central_m": 1.37032,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T09:00:00+00:00",
-          "central_m": 1.27146,
+          "central_m": 1.25939,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T10:00:00+00:00",
-          "central_m": 1.24805,
+          "central_m": 1.22666,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T11:00:00+00:00",
-          "central_m": 1.37682,
+          "central_m": 1.31122,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T12:00:00+00:00",
-          "central_m": 1.54251,
+          "central_m": 1.46034,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T13:00:00+00:00",
-          "central_m": 1.6821,
+          "central_m": 1.60128,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T14:00:00+00:00",
-          "central_m": 1.77035,
+          "central_m": 1.6813,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T15:00:00+00:00",
-          "central_m": 1.80096,
+          "central_m": 1.70312,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T16:00:00+00:00",
-          "central_m": 1.77665,
+          "central_m": 1.66038,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T17:00:00+00:00",
-          "central_m": 1.73972,
+          "central_m": 1.61401,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T18:00:00+00:00",
-          "central_m": 1.72892,
+          "central_m": 1.57582,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T19:00:00+00:00",
-          "central_m": 1.70821,
+          "central_m": 1.54581,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T20:00:00+00:00",
-          "central_m": 1.67669,
+          "central_m": 1.48671,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T21:00:00+00:00",
-          "central_m": 1.66048,
+          "central_m": 1.47944,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T22:00:00+00:00",
-          "central_m": 1.6893,
+          "central_m": 1.554,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-16T23:00:00+00:00",
-          "central_m": 1.76675,
+          "central_m": 1.66857,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T00:00:00+00:00",
-          "central_m": 1.89461,
+          "central_m": 1.82497,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T01:00:00+00:00",
-          "central_m": 2.0504,
+          "central_m": 1.98227,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T02:00:00+00:00",
-          "central_m": 2.17828,
+          "central_m": 2.12049,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T03:00:00+00:00",
-          "central_m": 2.2107,
+          "central_m": 2.1805,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T04:00:00+00:00",
-          "central_m": 2.16567,
+          "central_m": 2.15323,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T05:00:00+00:00",
-          "central_m": 2.08822,
+          "central_m": 2.06593,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T06:00:00+00:00",
-          "central_m": 1.98377,
+          "central_m": 1.96045,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T07:00:00+00:00",
-          "central_m": 1.85769,
+          "central_m": 1.83315,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T08:00:00+00:00",
-          "central_m": 1.70911,
+          "central_m": 1.68312,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T09:00:00+00:00",
-          "central_m": 1.55872,
+          "central_m": 1.53127,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T10:00:00+00:00",
-          "central_m": 1.45246,
+          "central_m": 1.42397,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T11:00:00+00:00",
-          "central_m": 1.40293,
+          "central_m": 1.37396,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T12:00:00+00:00",
-          "central_m": 1.42275,
+          "central_m": 1.39396,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T13:00:00+00:00",
-          "central_m": 1.48218,
+          "central_m": 1.45398,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T14:00:00+00:00",
-          "central_m": 1.54432,
+          "central_m": 1.544,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T15:00:00+00:00",
-          "central_m": 1.55872,
+          "central_m": 1.60401,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T16:00:00+00:00",
-          "central_m": 1.5182,
+          "central_m": 1.59038,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T17:00:00+00:00",
-          "central_m": 1.44706,
+          "central_m": 1.55491,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T18:00:00+00:00",
-          "central_m": 1.39033,
+          "central_m": 1.53399,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T19:00:00+00:00",
-          "central_m": 1.37682,
+          "central_m": 1.55673,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T20:00:00+00:00",
-          "central_m": 1.35701,
+          "central_m": 1.60037,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T21:00:00+00:00",
-          "central_m": 1.3435,
+          "central_m": 1.6413,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T22:00:00+00:00",
-          "central_m": 1.3408,
+          "central_m": 1.66584,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-17T23:00:00+00:00",
-          "central_m": 1.37232,
+          "central_m": 1.70676,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T00:00:00+00:00",
-          "central_m": 1.46957,
+          "central_m": 1.79587,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T01:00:00+00:00",
-          "central_m": 1.60105,
+          "central_m": 1.93772,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T02:00:00+00:00",
-          "central_m": 1.72172,
+          "central_m": 2.09594,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T03:00:00+00:00",
-          "central_m": 1.78205,
+          "central_m": 2.19323,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T04:00:00+00:00",
-          "central_m": 1.73972,
+          "central_m": 2.18687,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T05:00:00+00:00",
-          "central_m": 1.66949,
+          "central_m": 2.12503,
           "inferior_m": null,
           "superior_m": null
         },
         {
           "fecha": "2026-10-18T06:00:00+00:00",
-          "central_m": 1.60375,
+          "central_m": 2.03138,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T07:00:00+00:00",
+          "central_m": 1.93226,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T08:00:00+00:00",
+          "central_m": 1.80951,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T09:00:00+00:00",
+          "central_m": 1.66857,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T10:00:00+00:00",
+          "central_m": 1.52763,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T11:00:00+00:00",
+          "central_m": 1.41306,
+          "inferior_m": null,
+          "superior_m": null
+        },
+        {
+          "fecha": "2026-10-18T12:00:00+00:00",
+          "central_m": 1.34123,
           "inferior_m": null,
           "superior_m": null
         }
@@ -3111,10 +3141,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 2.72,
+      "edad_observada_horas": 1.91,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 17.47,
+      "pronostico_edad_horas": 12.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3188,10 +3218,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 11.47,
+      "pronostico_edad_horas": 12.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3265,10 +3295,10 @@
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 11.47,
+      "pronostico_edad_horas": 12.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3288,88 +3318,88 @@
       "pronostico": [
         {
           "fecha": "2026-10-15T03:00:00+00:00",
-          "central_m": 6.46203,
-          "inferior_m": 4.70156,
-          "superior_m": 8.2225
+          "central_m": 6.47695,
+          "inferior_m": 4.71683,
+          "superior_m": 8.23707
         },
         {
           "fecha": "2026-10-16T03:00:00+00:00",
-          "central_m": 5.48469,
-          "inferior_m": 3.72422,
-          "superior_m": 7.24516
+          "central_m": 5.48841,
+          "inferior_m": 3.72829,
+          "superior_m": 7.24853
         },
         {
           "fecha": "2026-10-17T03:00:00+00:00",
-          "central_m": 5.42999,
-          "inferior_m": 3.66951,
-          "superior_m": 7.19046
+          "central_m": 5.43132,
+          "inferior_m": 3.6712,
+          "superior_m": 7.19145
         },
         {
           "fecha": "2026-10-18T03:00:00+00:00",
-          "central_m": 5.04338,
-          "inferior_m": 3.28291,
-          "superior_m": 6.80385
+          "central_m": 5.04419,
+          "inferior_m": 3.28407,
+          "superior_m": 6.80431
         },
         {
           "fecha": "2026-10-19T03:00:00+00:00",
-          "central_m": 4.56997,
-          "inferior_m": 2.8095,
-          "superior_m": 6.33044
+          "central_m": 4.57063,
+          "inferior_m": 2.81051,
+          "superior_m": 6.33076
         },
         {
           "fecha": "2026-10-20T03:00:00+00:00",
-          "central_m": 4.14475,
-          "inferior_m": 2.38428,
-          "superior_m": 5.90522
+          "central_m": 4.14535,
+          "inferior_m": 2.38523,
+          "superior_m": 5.90548
         },
         {
           "fecha": "2026-10-21T03:00:00+00:00",
-          "central_m": 3.79775,
-          "inferior_m": 2.03728,
-          "superior_m": 5.55822
+          "central_m": 3.79831,
+          "inferior_m": 2.03819,
+          "superior_m": 5.55844
         },
         {
           "fecha": "2026-10-22T03:00:00+00:00",
-          "central_m": 3.53133,
-          "inferior_m": 1.77086,
-          "superior_m": 5.2918
+          "central_m": 3.53186,
+          "inferior_m": 1.77174,
+          "superior_m": 5.29199
         },
         {
           "fecha": "2026-10-23T03:00:00+00:00",
-          "central_m": 3.36159,
-          "inferior_m": 1.60111,
-          "superior_m": 5.12206
+          "central_m": 3.3621,
+          "inferior_m": 1.60198,
+          "superior_m": 5.12223
         },
         {
           "fecha": "2026-10-24T03:00:00+00:00",
-          "central_m": 3.24364,
-          "inferior_m": 1.48317,
-          "superior_m": 5.00411
+          "central_m": 3.24414,
+          "inferior_m": 1.48402,
+          "superior_m": 5.00427
         },
         {
           "fecha": "2026-10-25T03:00:00+00:00",
-          "central_m": 3.15843,
-          "inferior_m": 1.39796,
-          "superior_m": 4.9189
+          "central_m": 3.15892,
+          "inferior_m": 1.3988,
+          "superior_m": 4.91905
         },
         {
           "fecha": "2026-10-26T03:00:00+00:00",
-          "central_m": 3.0985,
-          "inferior_m": 1.33803,
-          "superior_m": 4.85897
+          "central_m": 3.09899,
+          "inferior_m": 1.33887,
+          "superior_m": 4.85911
         }
       ],
-      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
-      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
+      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "representatividad": "Escala CTM de la estación; requiere umbrales compatibles, no cota del terreno.",
       "escala_equivalente": true,
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 13.47,
+      "edad_observada_horas": 14.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 20.47,
+      "pronostico_edad_horas": 21.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3389,88 +3419,88 @@
       "pronostico": [
         {
           "fecha": "2026-10-15T03:00:00+00:00",
-          "central_m": 10.7337,
-          "inferior_m": 8.98133,
-          "superior_m": 12.486
+          "central_m": 10.7259,
+          "inferior_m": 8.97339,
+          "superior_m": 12.4784
         },
         {
           "fecha": "2026-10-16T03:00:00+00:00",
-          "central_m": 9.89154,
-          "inferior_m": 8.13921,
-          "superior_m": 11.6439
+          "central_m": 9.88879,
+          "inferior_m": 8.13627,
+          "superior_m": 11.6413
         },
         {
           "fecha": "2026-10-17T03:00:00+00:00",
-          "central_m": 9.10443,
-          "inferior_m": 7.3521,
-          "superior_m": 10.8568
+          "central_m": 9.1033,
+          "inferior_m": 7.35077,
+          "superior_m": 10.8558
         },
         {
           "fecha": "2026-10-18T03:00:00+00:00",
-          "central_m": 8.61412,
-          "inferior_m": 6.86178,
-          "superior_m": 10.3665
+          "central_m": 8.6135,
+          "inferior_m": 6.86098,
+          "superior_m": 10.366
         },
         {
           "fecha": "2026-10-19T03:00:00+00:00",
-          "central_m": 8.51305,
-          "inferior_m": 6.76071,
-          "superior_m": 10.2654
+          "central_m": 8.51259,
+          "inferior_m": 6.76007,
+          "superior_m": 10.2651
         },
         {
           "fecha": "2026-10-20T03:00:00+00:00",
-          "central_m": 8.1577,
-          "inferior_m": 6.40537,
-          "superior_m": 9.91004
+          "central_m": 8.15733,
+          "inferior_m": 6.40481,
+          "superior_m": 9.90986
         },
         {
           "fecha": "2026-10-21T03:00:00+00:00",
-          "central_m": 7.6798,
-          "inferior_m": 5.92746,
-          "superior_m": 9.43213
+          "central_m": 7.6795,
+          "inferior_m": 5.92697,
+          "superior_m": 9.43203
         },
         {
           "fecha": "2026-10-22T03:00:00+00:00",
-          "central_m": 7.19301,
-          "inferior_m": 5.44067,
-          "superior_m": 8.94534
+          "central_m": 7.19277,
+          "inferior_m": 5.44024,
+          "superior_m": 8.9453
         },
         {
           "fecha": "2026-10-23T03:00:00+00:00",
-          "central_m": 6.74272,
-          "inferior_m": 4.99039,
-          "superior_m": 8.49506
+          "central_m": 6.74254,
+          "inferior_m": 4.99001,
+          "superior_m": 8.49507
         },
         {
           "fecha": "2026-10-24T03:00:00+00:00",
-          "central_m": 5.54742,
-          "inferior_m": 3.79508,
-          "superior_m": 7.29975
+          "central_m": 5.54738,
+          "inferior_m": 3.79485,
+          "superior_m": 7.2999
         },
         {
           "fecha": "2026-10-25T03:00:00+00:00",
-          "central_m": 5.10577,
-          "inferior_m": 3.35344,
-          "superior_m": 6.8581
+          "central_m": 5.10578,
+          "inferior_m": 3.35326,
+          "superior_m": 6.85831
         },
         {
           "fecha": "2026-10-26T03:00:00+00:00",
-          "central_m": 4.77198,
-          "inferior_m": 3.01964,
-          "superior_m": 6.52431
+          "central_m": 4.77203,
+          "inferior_m": 3.0195,
+          "superior_m": 6.52456
         }
       ],
-      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
-      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
+      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "representatividad": "Escala CTM de la estación; requiere umbrales compatibles, no cota del terreno.",
       "escala_equivalente": true,
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 13.47,
+      "edad_observada_horas": 14.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 20.47,
+      "pronostico_edad_horas": 21.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3561,17 +3591,17 @@
           "superior_m": 5.03367
         }
       ],
-      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
-      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
+      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "representatividad": "Escala CTM de la estación; requiere umbrales compatibles, no cota del terreno.",
       "escala_equivalente": true,
       "error": "",
       "error_pronostico": "",
       "cero_ign_m": null,
-      "edad_observada_horas": 13.47,
+      "edad_observada_horas": 14.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
-      "pronostico_edad_horas": 20.47,
+      "pronostico_edad_horas": 21.66,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -3589,14 +3619,14 @@
       "fecha_documento_original": "2026-10-14T09:00:00-03:00",
       "fecha_emision": null,
       "pronostico": [],
-      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
-      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
+      "fuente_pronostico": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "representatividad": "Escala CTM de la estación; requiere umbrales compatibles, no cota del terreno.",
       "escala_equivalente": true,
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 13.47,
+      "edad_observada_horas": 14.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3624,7 +3654,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3652,7 +3682,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3680,7 +3710,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 7.47,
+      "edad_observada_horas": 8.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3708,7 +3738,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3736,7 +3766,7 @@
       "error": "",
       "error_pronostico": "Sin puntos numéricos publicados",
       "cero_ign_m": null,
-      "edad_observada_horas": 20.47,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VIGENTE",
       "observacion_vigente": true,
       "pronostico_edad_horas": null,
@@ -3753,446 +3783,440 @@
       "evacuacion_m": 2.2,
       "cero_ign_m": 0.243,
       "fecha_observada": "2026-10-14T03:00:00+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_emision": "2026-10-14T21:25:03.452000+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_emision": "2026-10-15T00:25:03.164000+00:00",
       "pronostico": [
         {
-          "fecha": "2026-10-15T00:00:00+00:00",
-          "central_m": 1.28181,
-          "inferior_m": 1.13252,
-          "superior_m": 1.39944
-        },
-        {
           "fecha": "2026-10-15T01:00:00+00:00",
-          "central_m": 1.33479,
-          "inferior_m": 1.1855,
-          "superior_m": 1.45242
+          "central_m": 1.2502,
+          "inferior_m": 1.10076,
+          "superior_m": 1.36776
         },
         {
           "fecha": "2026-10-15T02:00:00+00:00",
-          "central_m": 1.41956,
-          "inferior_m": 1.27027,
-          "superior_m": 1.53719
+          "central_m": 1.33506,
+          "inferior_m": 1.18562,
+          "superior_m": 1.45262
         },
         {
           "fecha": "2026-10-15T03:00:00+00:00",
-          "central_m": 1.49373,
-          "inferior_m": 1.34444,
-          "superior_m": 1.61136
+          "central_m": 1.46235,
+          "inferior_m": 1.31291,
+          "superior_m": 1.57991
         },
         {
           "fecha": "2026-10-15T04:00:00+00:00",
-          "central_m": 1.54671,
-          "inferior_m": 1.39742,
-          "superior_m": 1.66434
+          "central_m": 1.55782,
+          "inferior_m": 1.40838,
+          "superior_m": 1.67538
         },
         {
           "fecha": "2026-10-15T05:00:00+00:00",
-          "central_m": 1.5785,
-          "inferior_m": 1.42921,
-          "superior_m": 1.69613
+          "central_m": 1.60025,
+          "inferior_m": 1.45081,
+          "superior_m": 1.71781
         },
         {
           "fecha": "2026-10-15T06:00:00+00:00",
-          "central_m": 1.5891,
-          "inferior_m": 1.4398,
-          "superior_m": 1.70673
+          "central_m": 1.61086,
+          "inferior_m": 1.46142,
+          "superior_m": 1.72842
         },
         {
           "fecha": "2026-10-15T07:00:00+00:00",
-          "central_m": 1.5785,
-          "inferior_m": 1.42921,
-          "superior_m": 1.69613
+          "central_m": 1.60025,
+          "inferior_m": 1.45081,
+          "superior_m": 1.71781
         },
         {
           "fecha": "2026-10-15T08:00:00+00:00",
-          "central_m": 1.53612,
-          "inferior_m": 1.38682,
-          "superior_m": 1.65375
+          "central_m": 1.55782,
+          "inferior_m": 1.40838,
+          "superior_m": 1.67538
         },
         {
           "fecha": "2026-10-15T09:00:00+00:00",
-          "central_m": 1.48314,
-          "inferior_m": 1.33384,
-          "superior_m": 1.60077
+          "central_m": 1.50478,
+          "inferior_m": 1.35534,
+          "superior_m": 1.62235
         },
         {
           "fecha": "2026-10-15T10:00:00+00:00",
-          "central_m": 1.41956,
-          "inferior_m": 1.27027,
-          "superior_m": 1.53719
+          "central_m": 1.44114,
+          "inferior_m": 1.2917,
+          "superior_m": 1.5587
         },
         {
           "fecha": "2026-10-15T11:00:00+00:00",
-          "central_m": 1.38777,
-          "inferior_m": 1.23848,
-          "superior_m": 1.5054
+          "central_m": 1.3987,
+          "inferior_m": 1.24926,
+          "superior_m": 1.51627
         },
         {
           "fecha": "2026-10-15T12:00:00+00:00",
-          "central_m": 1.36658,
-          "inferior_m": 1.21729,
-          "superior_m": 1.48421
+          "central_m": 1.3881,
+          "inferior_m": 1.23866,
+          "superior_m": 1.50566
         },
         {
           "fecha": "2026-10-15T13:00:00+00:00",
-          "central_m": 1.38777,
-          "inferior_m": 1.23848,
-          "superior_m": 1.5054
+          "central_m": 1.40931,
+          "inferior_m": 1.25987,
+          "superior_m": 1.52688
         },
         {
           "fecha": "2026-10-15T14:00:00+00:00",
-          "central_m": 1.43016,
-          "inferior_m": 1.28086,
-          "superior_m": 1.54779
+          "central_m": 1.45174,
+          "inferior_m": 1.3023,
+          "superior_m": 1.56931
         },
         {
           "fecha": "2026-10-15T15:00:00+00:00",
-          "central_m": 1.48314,
-          "inferior_m": 1.33384,
-          "superior_m": 1.60077
+          "central_m": 1.50478,
+          "inferior_m": 1.35534,
+          "superior_m": 1.62235
         },
         {
           "fecha": "2026-10-15T16:00:00+00:00",
-          "central_m": 1.51492,
-          "inferior_m": 1.36563,
-          "superior_m": 1.63256
+          "central_m": 1.5366,
+          "inferior_m": 1.38716,
+          "superior_m": 1.65417
         },
         {
           "fecha": "2026-10-15T17:00:00+00:00",
-          "central_m": 1.53612,
-          "inferior_m": 1.38682,
-          "superior_m": 1.65375
+          "central_m": 1.55782,
+          "inferior_m": 1.40838,
+          "superior_m": 1.67538
         },
         {
           "fecha": "2026-10-15T18:00:00+00:00",
-          "central_m": 1.53612,
-          "inferior_m": 1.38682,
-          "superior_m": 1.65375
+          "central_m": 1.56843,
+          "inferior_m": 1.41899,
+          "superior_m": 1.68599
         },
         {
           "fecha": "2026-10-15T19:00:00+00:00",
-          "central_m": 1.52552,
-          "inferior_m": 1.37623,
-          "superior_m": 1.64315
+          "central_m": 1.55782,
+          "inferior_m": 1.40838,
+          "superior_m": 1.67538
         },
         {
           "fecha": "2026-10-15T20:00:00+00:00",
-          "central_m": 1.50433,
-          "inferior_m": 1.35504,
-          "superior_m": 1.62196
+          "central_m": 1.526,
+          "inferior_m": 1.37656,
+          "superior_m": 1.64356
         },
         {
           "fecha": "2026-10-15T21:00:00+00:00",
-          "central_m": 1.48314,
-          "inferior_m": 1.33384,
-          "superior_m": 1.60077
+          "central_m": 1.49417,
+          "inferior_m": 1.34473,
+          "superior_m": 1.61174
         },
         {
           "fecha": "2026-10-15T22:00:00+00:00",
-          "central_m": 1.45135,
-          "inferior_m": 1.30206,
-          "superior_m": 1.56898
+          "central_m": 1.46235,
+          "inferior_m": 1.31291,
+          "superior_m": 1.57991
         },
         {
           "fecha": "2026-10-15T23:00:00+00:00",
-          "central_m": 1.44075,
-          "inferior_m": 1.29146,
-          "superior_m": 1.55838
+          "central_m": 1.45174,
+          "inferior_m": 1.3023,
+          "superior_m": 1.56931
         },
         {
           "fecha": "2026-10-16T00:00:00+00:00",
-          "central_m": 1.45135,
-          "inferior_m": 1.30206,
-          "superior_m": 1.56898
+          "central_m": 1.47296,
+          "inferior_m": 1.32352,
+          "superior_m": 1.59052
         },
         {
           "fecha": "2026-10-16T01:00:00+00:00",
-          "central_m": 1.50433,
-          "inferior_m": 1.35504,
-          "superior_m": 1.62196
+          "central_m": 1.51539,
+          "inferior_m": 1.36595,
+          "superior_m": 1.63295
         },
         {
           "fecha": "2026-10-16T02:00:00+00:00",
-          "central_m": 1.5679,
-          "inferior_m": 1.41861,
-          "superior_m": 1.68554
+          "central_m": 1.58964,
+          "inferior_m": 1.4402,
+          "superior_m": 1.70721
         },
         {
           "fecha": "2026-10-16T03:00:00+00:00",
-          "central_m": 1.65267,
-          "inferior_m": 1.50338,
-          "superior_m": 1.7703
+          "central_m": 1.6745,
+          "inferior_m": 1.52506,
+          "superior_m": 1.79207
         },
         {
           "fecha": "2026-10-16T04:00:00+00:00",
-          "central_m": 1.73744,
-          "inferior_m": 1.58815,
-          "superior_m": 1.85507
+          "central_m": 1.74876,
+          "inferior_m": 1.59932,
+          "superior_m": 1.86632
         },
         {
           "fecha": "2026-10-16T05:00:00+00:00",
-          "central_m": 1.80102,
-          "inferior_m": 1.65172,
-          "superior_m": 1.91865
+          "central_m": 1.8124,
+          "inferior_m": 1.66296,
+          "superior_m": 1.92997
         },
         {
           "fecha": "2026-10-16T06:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.84423,
+          "inferior_m": 1.69479,
+          "superior_m": 1.96179
         },
         {
           "fecha": "2026-10-16T07:00:00+00:00",
-          "central_m": 1.85399,
-          "inferior_m": 1.7047,
-          "superior_m": 1.97163
+          "central_m": 1.85483,
+          "inferior_m": 1.70539,
+          "superior_m": 1.9724
         },
         {
           "fecha": "2026-10-16T08:00:00+00:00",
-          "central_m": 1.8328,
-          "inferior_m": 1.68351,
-          "superior_m": 1.95044
+          "central_m": 1.84423,
+          "inferior_m": 1.69479,
+          "superior_m": 1.96179
         },
         {
           "fecha": "2026-10-16T09:00:00+00:00",
-          "central_m": 1.80102,
-          "inferior_m": 1.65172,
-          "superior_m": 1.91865
+          "central_m": 1.8018,
+          "inferior_m": 1.65236,
+          "superior_m": 1.91936
         },
         {
           "fecha": "2026-10-16T10:00:00+00:00",
-          "central_m": 1.74804,
-          "inferior_m": 1.59874,
-          "superior_m": 1.86567
+          "central_m": 1.74876,
+          "inferior_m": 1.59932,
+          "superior_m": 1.86632
         },
         {
           "fecha": "2026-10-16T11:00:00+00:00",
-          "central_m": 1.69506,
-          "inferior_m": 1.54576,
-          "superior_m": 1.81269
+          "central_m": 1.69572,
+          "inferior_m": 1.54628,
+          "superior_m": 1.81328
         },
         {
           "fecha": "2026-10-16T12:00:00+00:00",
-          "central_m": 1.65267,
-          "inferior_m": 1.50338,
-          "superior_m": 1.7703
+          "central_m": 1.64268,
+          "inferior_m": 1.49324,
+          "superior_m": 1.76025
         },
         {
           "fecha": "2026-10-16T13:00:00+00:00",
-          "central_m": 1.64208,
-          "inferior_m": 1.49278,
-          "superior_m": 1.75971
+          "central_m": 1.63207,
+          "inferior_m": 1.48263,
+          "superior_m": 1.74964
         },
         {
           "fecha": "2026-10-16T14:00:00+00:00",
-          "central_m": 1.67386,
-          "inferior_m": 1.52457,
-          "superior_m": 1.7915
+          "central_m": 1.64268,
+          "inferior_m": 1.49324,
+          "superior_m": 1.76025
         },
         {
           "fecha": "2026-10-16T15:00:00+00:00",
-          "central_m": 1.72684,
-          "inferior_m": 1.57755,
-          "superior_m": 1.84448
+          "central_m": 1.68511,
+          "inferior_m": 1.53567,
+          "superior_m": 1.80268
         },
         {
           "fecha": "2026-10-16T16:00:00+00:00",
-          "central_m": 1.77982,
-          "inferior_m": 1.63053,
-          "superior_m": 1.89746
+          "central_m": 1.72754,
+          "inferior_m": 1.5781,
+          "superior_m": 1.84511
         },
         {
           "fecha": "2026-10-16T17:00:00+00:00",
-          "central_m": 1.81161,
-          "inferior_m": 1.66232,
-          "superior_m": 1.92924
+          "central_m": 1.75937,
+          "inferior_m": 1.60993,
+          "superior_m": 1.87693
         },
         {
           "fecha": "2026-10-16T18:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-16T19:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-16T20:00:00+00:00",
-          "central_m": 1.85399,
-          "inferior_m": 1.7047,
-          "superior_m": 1.97163
+          "central_m": 1.76997,
+          "inferior_m": 1.62053,
+          "superior_m": 1.88754
         },
         {
           "fecha": "2026-10-16T21:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.75937,
+          "inferior_m": 1.60993,
+          "superior_m": 1.87693
         },
         {
           "fecha": "2026-10-16T22:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.73815,
+          "inferior_m": 1.58871,
+          "superior_m": 1.85571
         },
         {
           "fecha": "2026-10-16T23:00:00+00:00",
-          "central_m": 1.8328,
-          "inferior_m": 1.68351,
-          "superior_m": 1.95044
+          "central_m": 1.72754,
+          "inferior_m": 1.5781,
+          "superior_m": 1.84511
         },
         {
           "fecha": "2026-10-17T00:00:00+00:00",
-          "central_m": 1.8328,
-          "inferior_m": 1.68351,
-          "superior_m": 1.95044
+          "central_m": 1.73815,
+          "inferior_m": 1.58871,
+          "superior_m": 1.85571
         },
         {
           "fecha": "2026-10-17T01:00:00+00:00",
-          "central_m": 1.8434,
-          "inferior_m": 1.69411,
-          "superior_m": 1.96103
+          "central_m": 1.75937,
+          "inferior_m": 1.60993,
+          "superior_m": 1.87693
         },
         {
           "fecha": "2026-10-17T02:00:00+00:00",
-          "central_m": 1.88578,
-          "inferior_m": 1.73649,
-          "superior_m": 2.00342
+          "central_m": 1.8124,
+          "inferior_m": 1.66296,
+          "superior_m": 1.92997
         },
         {
           "fecha": "2026-10-17T03:00:00+00:00",
-          "central_m": 1.93876,
-          "inferior_m": 1.78947,
-          "superior_m": 2.0564
+          "central_m": 1.88666,
+          "inferior_m": 1.73722,
+          "superior_m": 2.00422
         },
         {
           "fecha": "2026-10-17T04:00:00+00:00",
-          "central_m": 2.00234,
-          "inferior_m": 1.85305,
-          "superior_m": 2.11997
+          "central_m": 1.96091,
+          "inferior_m": 1.81147,
+          "superior_m": 2.07848
         },
         {
           "fecha": "2026-10-17T05:00:00+00:00",
-          "central_m": 2.06591,
-          "inferior_m": 1.91662,
-          "superior_m": 2.18355
+          "central_m": 2.03517,
+          "inferior_m": 1.88573,
+          "superior_m": 2.15273
         },
         {
           "fecha": "2026-10-17T06:00:00+00:00",
-          "central_m": 2.0977,
-          "inferior_m": 1.94841,
-          "superior_m": 2.21534
+          "central_m": 2.0776,
+          "inferior_m": 1.92816,
+          "superior_m": 2.19516
         },
         {
           "fecha": "2026-10-17T07:00:00+00:00",
-          "central_m": 2.11889,
-          "inferior_m": 1.9696,
-          "superior_m": 2.23653
+          "central_m": 2.0882,
+          "inferior_m": 1.93876,
+          "superior_m": 2.20577
         },
         {
           "fecha": "2026-10-17T08:00:00+00:00",
-          "central_m": 2.1083,
-          "inferior_m": 1.95901,
-          "superior_m": 2.22593
+          "central_m": 2.0776,
+          "inferior_m": 1.92816,
+          "superior_m": 2.19516
         },
         {
           "fecha": "2026-10-17T09:00:00+00:00",
-          "central_m": 2.08711,
-          "inferior_m": 1.93782,
-          "superior_m": 2.20474
+          "central_m": 2.05638,
+          "inferior_m": 1.90694,
+          "superior_m": 2.17394
         },
         {
           "fecha": "2026-10-17T10:00:00+00:00",
-          "central_m": 2.05532,
-          "inferior_m": 1.90603,
-          "superior_m": 2.17295
+          "central_m": 2.01395,
+          "inferior_m": 1.86451,
+          "superior_m": 2.13151
         },
         {
           "fecha": "2026-10-17T11:00:00+00:00",
-          "central_m": 2.00234,
-          "inferior_m": 1.85305,
-          "superior_m": 2.11997
+          "central_m": 1.96091,
+          "inferior_m": 1.81147,
+          "superior_m": 2.07848
         },
         {
           "fecha": "2026-10-17T12:00:00+00:00",
-          "central_m": 1.94936,
-          "inferior_m": 1.80007,
-          "superior_m": 2.06699
+          "central_m": 1.90787,
+          "inferior_m": 1.75843,
+          "superior_m": 2.02544
         },
         {
           "fecha": "2026-10-17T13:00:00+00:00",
-          "central_m": 1.90697,
-          "inferior_m": 1.75768,
-          "superior_m": 2.02461
+          "central_m": 1.85483,
+          "inferior_m": 1.70539,
+          "superior_m": 1.9724
         },
         {
           "fecha": "2026-10-17T14:00:00+00:00",
-          "central_m": 1.85399,
-          "inferior_m": 1.7047,
-          "superior_m": 1.97163
+          "central_m": 1.8124,
+          "inferior_m": 1.66296,
+          "superior_m": 1.92997
         },
         {
           "fecha": "2026-10-17T15:00:00+00:00",
-          "central_m": 1.82221,
-          "inferior_m": 1.67292,
-          "superior_m": 1.93984
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T16:00:00+00:00",
-          "central_m": 1.80102,
-          "inferior_m": 1.65172,
-          "superior_m": 1.91865
+          "central_m": 1.76997,
+          "inferior_m": 1.62053,
+          "superior_m": 1.88754
         },
         {
           "fecha": "2026-10-17T17:00:00+00:00",
-          "central_m": 1.80102,
-          "inferior_m": 1.65172,
-          "superior_m": 1.91865
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T18:00:00+00:00",
-          "central_m": 1.79042,
-          "inferior_m": 1.64113,
-          "superior_m": 1.90805
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T19:00:00+00:00",
-          "central_m": 1.76923,
-          "inferior_m": 1.61994,
-          "superior_m": 1.88686
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T20:00:00+00:00",
-          "central_m": 1.74804,
-          "inferior_m": 1.59874,
-          "superior_m": 1.86567
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T21:00:00+00:00",
-          "central_m": 1.72684,
-          "inferior_m": 1.57755,
-          "superior_m": 1.84448
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T22:00:00+00:00",
-          "central_m": 1.71625,
-          "inferior_m": 1.56696,
-          "superior_m": 1.83388
+          "central_m": 1.78058,
+          "inferior_m": 1.63114,
+          "superior_m": 1.89814
         },
         {
           "fecha": "2026-10-17T23:00:00+00:00",
-          "central_m": 1.69506,
-          "inferior_m": 1.54576,
-          "superior_m": 1.81269
+          "central_m": 1.79119,
+          "inferior_m": 1.64175,
+          "superior_m": 1.90875
         },
         {
           "fecha": "2026-10-18T00:00:00+00:00",
-          "central_m": 1.68446,
-          "inferior_m": 1.53517,
-          "superior_m": 1.80209
+          "central_m": 1.8124,
+          "inferior_m": 1.66296,
+          "superior_m": 1.92997
         }
       ],
       "fuente": "https://alerta.ina.gob.ar/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public2%3Aultimas_alturas_con_timeseries&outputFormat=application%2Fjson&CQL_FILTER=series_id+IN+%2840%2C41%29&propertyName=series_id%2Cnombre%2Cvar_id%2Ctabla%2Cnivel_de_alerta%2Cnivel_de_evacuacion%2Ccero_ign%2Cfecha%2Cvalor%2Ctimeseries",
@@ -4202,13 +4226,13 @@
       "error_pronostico": "",
       "zona_horaria_verificada": true,
       "umbrales_solo_serie_observada": true,
-      "fecha_consulta_umbrales": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta_pronostico": "2026-10-14T23:28:16.272689+00:00",
-      "corrida_id": 1231263,
-      "edad_observada_horas": 20.47,
+      "fecha_consulta_umbrales": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta_pronostico": "2026-10-15T00:39:41.589022+00:00",
+      "corrida_id": 1231307,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VENCIDO",
       "observacion_vigente": false,
-      "pronostico_edad_horas": 2.05,
+      "pronostico_edad_horas": 0.25,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     },
@@ -4222,188 +4246,182 @@
       "evacuacion_m": 2.45,
       "cero_ign_m": 0.418,
       "fecha_observada": "2026-10-14T03:00:00+00:00",
-      "fecha_consulta": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_emision": "2026-10-14T21:25:03.452000+00:00",
+      "fecha_consulta": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_emision": "2026-10-15T00:25:03.164000+00:00",
       "pronostico": [
         {
-          "fecha": "2026-10-15T00:00:00+00:00",
-          "central_m": 0.953669,
-          "inferior_m": 0.789197,
-          "superior_m": 1.13918
-        },
-        {
           "fecha": "2026-10-15T01:00:00+00:00",
-          "central_m": 1.01742,
-          "inferior_m": 0.852944,
-          "superior_m": 1.20292
+          "central_m": 0.928171,
+          "inferior_m": 0.763698,
+          "superior_m": 1.11368
         },
         {
           "fecha": "2026-10-15T02:00:00+00:00",
-          "central_m": 1.10666,
-          "inferior_m": 0.942189,
-          "superior_m": 1.29217
+          "central_m": 1.03017,
+          "inferior_m": 0.865693,
+          "superior_m": 1.21567
         },
         {
           "fecha": "2026-10-15T03:00:00+00:00",
-          "central_m": 1.18316,
-          "inferior_m": 1.01868,
-          "superior_m": 1.36866
-        },
-        {
-          "fecha": "2026-10-15T04:00:00+00:00",
-          "central_m": 1.23415,
-          "inferior_m": 1.06968,
-          "superior_m": 1.41966
-        },
-        {
-          "fecha": "2026-10-15T05:00:00+00:00",
-          "central_m": 1.2724,
-          "inferior_m": 1.10793,
-          "superior_m": 1.45791
-        },
-        {
-          "fecha": "2026-10-15T06:00:00+00:00",
-          "central_m": 1.2724,
-          "inferior_m": 1.10793,
-          "superior_m": 1.45791
-        },
-        {
-          "fecha": "2026-10-15T07:00:00+00:00",
-          "central_m": 1.2469,
-          "inferior_m": 1.08243,
-          "superior_m": 1.43241
-        },
-        {
-          "fecha": "2026-10-15T08:00:00+00:00",
-          "central_m": 1.19591,
-          "inferior_m": 1.03143,
-          "superior_m": 1.38141
-        },
-        {
-          "fecha": "2026-10-15T09:00:00+00:00",
-          "central_m": 1.13216,
-          "inferior_m": 0.967688,
-          "superior_m": 1.31767
-        },
-        {
-          "fecha": "2026-10-15T10:00:00+00:00",
-          "central_m": 1.08116,
-          "inferior_m": 0.91669,
-          "superior_m": 1.26667
-        },
-        {
-          "fecha": "2026-10-15T11:00:00+00:00",
-          "central_m": 1.03017,
-          "inferior_m": 0.865693,
-          "superior_m": 1.21567
-        },
-        {
-          "fecha": "2026-10-15T12:00:00+00:00",
-          "central_m": 1.03017,
-          "inferior_m": 0.865693,
-          "superior_m": 1.21567
-        },
-        {
-          "fecha": "2026-10-15T13:00:00+00:00",
-          "central_m": 1.05566,
-          "inferior_m": 0.891192,
-          "superior_m": 1.24117
-        },
-        {
-          "fecha": "2026-10-15T14:00:00+00:00",
-          "central_m": 1.10666,
-          "inferior_m": 0.942189,
-          "superior_m": 1.29217
-        },
-        {
-          "fecha": "2026-10-15T15:00:00+00:00",
           "central_m": 1.15766,
           "inferior_m": 0.993186,
           "superior_m": 1.34317
         },
         {
-          "fecha": "2026-10-15T16:00:00+00:00",
-          "central_m": 1.19591,
-          "inferior_m": 1.03143,
-          "superior_m": 1.38141
+          "fecha": "2026-10-15T04:00:00+00:00",
+          "central_m": 1.2469,
+          "inferior_m": 1.08243,
+          "superior_m": 1.43241
         },
         {
-          "fecha": "2026-10-15T17:00:00+00:00",
-          "central_m": 1.20866,
-          "inferior_m": 1.04418,
-          "superior_m": 1.39416
+          "fecha": "2026-10-15T05:00:00+00:00",
+          "central_m": 1.2979,
+          "inferior_m": 1.13343,
+          "superior_m": 1.48341
         },
         {
-          "fecha": "2026-10-15T18:00:00+00:00",
-          "central_m": 1.20866,
-          "inferior_m": 1.04418,
-          "superior_m": 1.39416
+          "fecha": "2026-10-15T06:00:00+00:00",
+          "central_m": 1.2979,
+          "inferior_m": 1.13343,
+          "superior_m": 1.48341
         },
         {
-          "fecha": "2026-10-15T19:00:00+00:00",
-          "central_m": 1.19591,
-          "inferior_m": 1.03143,
-          "superior_m": 1.38141
-        },
-        {
-          "fecha": "2026-10-15T20:00:00+00:00",
-          "central_m": 1.17041,
-          "inferior_m": 1.00594,
-          "superior_m": 1.35591
-        },
-        {
-          "fecha": "2026-10-15T21:00:00+00:00",
-          "central_m": 1.13216,
-          "inferior_m": 0.967688,
-          "superior_m": 1.31767
-        },
-        {
-          "fecha": "2026-10-15T22:00:00+00:00",
-          "central_m": 1.10666,
-          "inferior_m": 0.942189,
-          "superior_m": 1.29217
-        },
-        {
-          "fecha": "2026-10-15T23:00:00+00:00",
-          "central_m": 1.09391,
-          "inferior_m": 0.92944,
-          "superior_m": 1.27942
-        },
-        {
-          "fecha": "2026-10-16T00:00:00+00:00",
-          "central_m": 1.13216,
-          "inferior_m": 0.967688,
-          "superior_m": 1.31767
-        },
-        {
-          "fecha": "2026-10-16T01:00:00+00:00",
-          "central_m": 1.18316,
-          "inferior_m": 1.01868,
-          "superior_m": 1.36866
-        },
-        {
-          "fecha": "2026-10-16T02:00:00+00:00",
+          "fecha": "2026-10-15T07:00:00+00:00",
           "central_m": 1.2724,
           "inferior_m": 1.10793,
           "superior_m": 1.45791
         },
         {
+          "fecha": "2026-10-15T08:00:00+00:00",
+          "central_m": 1.22141,
+          "inferior_m": 1.05693,
+          "superior_m": 1.40691
+        },
+        {
+          "fecha": "2026-10-15T09:00:00+00:00",
+          "central_m": 1.15766,
+          "inferior_m": 0.993186,
+          "superior_m": 1.34317
+        },
+        {
+          "fecha": "2026-10-15T10:00:00+00:00",
+          "central_m": 1.09391,
+          "inferior_m": 0.92944,
+          "superior_m": 1.27942
+        },
+        {
+          "fecha": "2026-10-15T11:00:00+00:00",
+          "central_m": 1.05566,
+          "inferior_m": 0.891192,
+          "superior_m": 1.24117
+        },
+        {
+          "fecha": "2026-10-15T12:00:00+00:00",
+          "central_m": 1.05566,
+          "inferior_m": 0.891192,
+          "superior_m": 1.24117
+        },
+        {
+          "fecha": "2026-10-15T13:00:00+00:00",
+          "central_m": 1.08116,
+          "inferior_m": 0.91669,
+          "superior_m": 1.26667
+        },
+        {
+          "fecha": "2026-10-15T14:00:00+00:00",
+          "central_m": 1.13216,
+          "inferior_m": 0.967688,
+          "superior_m": 1.31767
+        },
+        {
+          "fecha": "2026-10-15T15:00:00+00:00",
+          "central_m": 1.18316,
+          "inferior_m": 1.01868,
+          "superior_m": 1.36866
+        },
+        {
+          "fecha": "2026-10-15T16:00:00+00:00",
+          "central_m": 1.22141,
+          "inferior_m": 1.05693,
+          "superior_m": 1.40691
+        },
+        {
+          "fecha": "2026-10-15T17:00:00+00:00",
+          "central_m": 1.23415,
+          "inferior_m": 1.06968,
+          "superior_m": 1.41966
+        },
+        {
+          "fecha": "2026-10-15T18:00:00+00:00",
+          "central_m": 1.23415,
+          "inferior_m": 1.06968,
+          "superior_m": 1.41966
+        },
+        {
+          "fecha": "2026-10-15T19:00:00+00:00",
+          "central_m": 1.22141,
+          "inferior_m": 1.05693,
+          "superior_m": 1.40691
+        },
+        {
+          "fecha": "2026-10-15T20:00:00+00:00",
+          "central_m": 1.18316,
+          "inferior_m": 1.01868,
+          "superior_m": 1.36866
+        },
+        {
+          "fecha": "2026-10-15T21:00:00+00:00",
+          "central_m": 1.14491,
+          "inferior_m": 0.980437,
+          "superior_m": 1.33042
+        },
+        {
+          "fecha": "2026-10-15T22:00:00+00:00",
+          "central_m": 1.11941,
+          "inferior_m": 0.954938,
+          "superior_m": 1.30492
+        },
+        {
+          "fecha": "2026-10-15T23:00:00+00:00",
+          "central_m": 1.11941,
+          "inferior_m": 0.954938,
+          "superior_m": 1.30492
+        },
+        {
+          "fecha": "2026-10-16T00:00:00+00:00",
+          "central_m": 1.14491,
+          "inferior_m": 0.980437,
+          "superior_m": 1.33042
+        },
+        {
+          "fecha": "2026-10-16T01:00:00+00:00",
+          "central_m": 1.20866,
+          "inferior_m": 1.04418,
+          "superior_m": 1.39416
+        },
+        {
+          "fecha": "2026-10-16T02:00:00+00:00",
+          "central_m": 1.28515,
+          "inferior_m": 1.12068,
+          "superior_m": 1.47066
+        },
+        {
           "fecha": "2026-10-16T03:00:00+00:00",
-          "central_m": 1.36165,
-          "inferior_m": 1.19718,
-          "superior_m": 1.54715
+          "central_m": 1.3744,
+          "inferior_m": 1.20992,
+          "superior_m": 1.5599
         },
         {
           "fecha": "2026-10-16T04:00:00+00:00",
-          "central_m": 1.43814,
-          "inferior_m": 1.27367,
-          "superior_m": 1.62365
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-16T05:00:00+00:00",
-          "central_m": 1.50189,
-          "inferior_m": 1.33742,
-          "superior_m": 1.6874
+          "central_m": 1.51464,
+          "inferior_m": 1.35017,
+          "superior_m": 1.70015
         },
         {
           "fecha": "2026-10-16T06:00:00+00:00",
@@ -4437,189 +4455,189 @@
         },
         {
           "fecha": "2026-10-16T11:00:00+00:00",
-          "central_m": 1.36165,
-          "inferior_m": 1.19718,
-          "superior_m": 1.54715
+          "central_m": 1.3489,
+          "inferior_m": 1.18443,
+          "superior_m": 1.53441
         },
         {
           "fecha": "2026-10-16T12:00:00+00:00",
-          "central_m": 1.3234,
-          "inferior_m": 1.15893,
-          "superior_m": 1.50891
+          "central_m": 1.31065,
+          "inferior_m": 1.14618,
+          "superior_m": 1.49616
         },
         {
           "fecha": "2026-10-16T13:00:00+00:00",
+          "central_m": 1.2979,
+          "inferior_m": 1.13343,
+          "superior_m": 1.48341
+        },
+        {
+          "fecha": "2026-10-16T14:00:00+00:00",
           "central_m": 1.3234,
           "inferior_m": 1.15893,
           "superior_m": 1.50891
         },
         {
-          "fecha": "2026-10-16T14:00:00+00:00",
-          "central_m": 1.36165,
-          "inferior_m": 1.19718,
-          "superior_m": 1.54715
+          "fecha": "2026-10-16T15:00:00+00:00",
+          "central_m": 1.3744,
+          "inferior_m": 1.20992,
+          "superior_m": 1.5599
         },
         {
-          "fecha": "2026-10-16T15:00:00+00:00",
+          "fecha": "2026-10-16T16:00:00+00:00",
           "central_m": 1.41265,
           "inferior_m": 1.24817,
           "superior_m": 1.59815
         },
         {
-          "fecha": "2026-10-16T16:00:00+00:00",
+          "fecha": "2026-10-16T17:00:00+00:00",
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
+        },
+        {
+          "fecha": "2026-10-16T18:00:00+00:00",
           "central_m": 1.46364,
           "inferior_m": 1.29917,
           "superior_m": 1.64915
         },
         {
-          "fecha": "2026-10-16T17:00:00+00:00",
+          "fecha": "2026-10-16T19:00:00+00:00",
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
+        },
+        {
+          "fecha": "2026-10-16T20:00:00+00:00",
+          "central_m": 1.43814,
+          "inferior_m": 1.27367,
+          "superior_m": 1.62365
+        },
+        {
+          "fecha": "2026-10-16T21:00:00+00:00",
+          "central_m": 1.42539,
+          "inferior_m": 1.26092,
+          "superior_m": 1.6109
+        },
+        {
+          "fecha": "2026-10-16T22:00:00+00:00",
+          "central_m": 1.41265,
+          "inferior_m": 1.24817,
+          "superior_m": 1.59815
+        },
+        {
+          "fecha": "2026-10-16T23:00:00+00:00",
+          "central_m": 1.3999,
+          "inferior_m": 1.23542,
+          "superior_m": 1.5854
+        },
+        {
+          "fecha": "2026-10-17T00:00:00+00:00",
+          "central_m": 1.41265,
+          "inferior_m": 1.24817,
+          "superior_m": 1.59815
+        },
+        {
+          "fecha": "2026-10-17T01:00:00+00:00",
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
+        },
+        {
+          "fecha": "2026-10-17T02:00:00+00:00",
           "central_m": 1.50189,
           "inferior_m": 1.33742,
           "superior_m": 1.6874
         },
         {
-          "fecha": "2026-10-16T18:00:00+00:00",
-          "central_m": 1.52739,
-          "inferior_m": 1.36292,
-          "superior_m": 1.7129
-        },
-        {
-          "fecha": "2026-10-16T19:00:00+00:00",
-          "central_m": 1.52739,
-          "inferior_m": 1.36292,
-          "superior_m": 1.7129
-        },
-        {
-          "fecha": "2026-10-16T20:00:00+00:00",
-          "central_m": 1.52739,
-          "inferior_m": 1.36292,
-          "superior_m": 1.7129
-        },
-        {
-          "fecha": "2026-10-16T21:00:00+00:00",
-          "central_m": 1.52739,
-          "inferior_m": 1.36292,
-          "superior_m": 1.7129
-        },
-        {
-          "fecha": "2026-10-16T22:00:00+00:00",
-          "central_m": 1.51464,
-          "inferior_m": 1.35017,
-          "superior_m": 1.70015
-        },
-        {
-          "fecha": "2026-10-16T23:00:00+00:00",
-          "central_m": 1.51464,
-          "inferior_m": 1.35017,
-          "superior_m": 1.70015
-        },
-        {
-          "fecha": "2026-10-17T00:00:00+00:00",
-          "central_m": 1.51464,
-          "inferior_m": 1.35017,
-          "superior_m": 1.70015
-        },
-        {
-          "fecha": "2026-10-17T01:00:00+00:00",
-          "central_m": 1.52739,
-          "inferior_m": 1.36292,
-          "superior_m": 1.7129
-        },
-        {
-          "fecha": "2026-10-17T02:00:00+00:00",
-          "central_m": 1.57839,
-          "inferior_m": 1.41391,
-          "superior_m": 1.76389
-        },
-        {
           "fecha": "2026-10-17T03:00:00+00:00",
-          "central_m": 1.64213,
-          "inferior_m": 1.47766,
-          "superior_m": 1.82764
+          "central_m": 1.59114,
+          "inferior_m": 1.42666,
+          "superior_m": 1.77664
         },
         {
           "fecha": "2026-10-17T04:00:00+00:00",
-          "central_m": 1.71863,
-          "inferior_m": 1.55416,
-          "superior_m": 1.90414
+          "central_m": 1.68038,
+          "inferior_m": 1.51591,
+          "superior_m": 1.86589
         },
         {
           "fecha": "2026-10-17T05:00:00+00:00",
+          "central_m": 1.74413,
+          "inferior_m": 1.57966,
+          "superior_m": 1.92963
+        },
+        {
+          "fecha": "2026-10-17T06:00:00+00:00",
           "central_m": 1.78238,
           "inferior_m": 1.6179,
           "superior_m": 1.96788
         },
         {
-          "fecha": "2026-10-17T06:00:00+00:00",
-          "central_m": 1.80787,
-          "inferior_m": 1.6434,
-          "superior_m": 1.99338
-        },
-        {
           "fecha": "2026-10-17T07:00:00+00:00",
-          "central_m": 1.80787,
-          "inferior_m": 1.6434,
-          "superior_m": 1.99338
+          "central_m": 1.78238,
+          "inferior_m": 1.6179,
+          "superior_m": 1.96788
         },
         {
           "fecha": "2026-10-17T08:00:00+00:00",
-          "central_m": 1.79513,
-          "inferior_m": 1.63065,
-          "superior_m": 1.98063
-        },
-        {
-          "fecha": "2026-10-17T09:00:00+00:00",
           "central_m": 1.76963,
           "inferior_m": 1.60515,
           "superior_m": 1.95513
         },
         {
+          "fecha": "2026-10-17T09:00:00+00:00",
+          "central_m": 1.73138,
+          "inferior_m": 1.56691,
+          "superior_m": 1.91689
+        },
+        {
           "fecha": "2026-10-17T10:00:00+00:00",
-          "central_m": 1.71863,
-          "inferior_m": 1.55416,
-          "superior_m": 1.90414
+          "central_m": 1.68038,
+          "inferior_m": 1.51591,
+          "superior_m": 1.86589
         },
         {
           "fecha": "2026-10-17T11:00:00+00:00",
-          "central_m": 1.66763,
-          "inferior_m": 1.50316,
-          "superior_m": 1.85314
+          "central_m": 1.62938,
+          "inferior_m": 1.46491,
+          "superior_m": 1.81489
         },
         {
           "fecha": "2026-10-17T12:00:00+00:00",
-          "central_m": 1.61663,
-          "inferior_m": 1.45216,
-          "superior_m": 1.80214
+          "central_m": 1.56564,
+          "inferior_m": 1.40116,
+          "superior_m": 1.75114
         },
         {
           "fecha": "2026-10-17T13:00:00+00:00",
-          "central_m": 1.55289,
-          "inferior_m": 1.38842,
-          "superior_m": 1.73839
-        },
-        {
-          "fecha": "2026-10-17T14:00:00+00:00",
           "central_m": 1.51464,
           "inferior_m": 1.35017,
           "superior_m": 1.70015
         },
         {
-          "fecha": "2026-10-17T15:00:00+00:00",
-          "central_m": 1.48914,
-          "inferior_m": 1.32467,
-          "superior_m": 1.67465
-        },
-        {
-          "fecha": "2026-10-17T16:00:00+00:00",
-          "central_m": 1.47639,
-          "inferior_m": 1.31192,
-          "superior_m": 1.6619
-        },
-        {
-          "fecha": "2026-10-17T17:00:00+00:00",
+          "fecha": "2026-10-17T14:00:00+00:00",
           "central_m": 1.46364,
           "inferior_m": 1.29917,
           "superior_m": 1.64915
+        },
+        {
+          "fecha": "2026-10-17T15:00:00+00:00",
+          "central_m": 1.43814,
+          "inferior_m": 1.27367,
+          "superior_m": 1.62365
+        },
+        {
+          "fecha": "2026-10-17T16:00:00+00:00",
+          "central_m": 1.43814,
+          "inferior_m": 1.27367,
+          "superior_m": 1.62365
+        },
+        {
+          "fecha": "2026-10-17T17:00:00+00:00",
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-17T18:00:00+00:00",
@@ -4629,39 +4647,39 @@
         },
         {
           "fecha": "2026-10-17T19:00:00+00:00",
-          "central_m": 1.43814,
-          "inferior_m": 1.27367,
-          "superior_m": 1.62365
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-17T20:00:00+00:00",
-          "central_m": 1.41265,
-          "inferior_m": 1.24817,
-          "superior_m": 1.59815
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-17T21:00:00+00:00",
-          "central_m": 1.38715,
-          "inferior_m": 1.22267,
-          "superior_m": 1.57265
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-17T22:00:00+00:00",
-          "central_m": 1.3744,
-          "inferior_m": 1.20992,
-          "superior_m": 1.5599
+          "central_m": 1.45089,
+          "inferior_m": 1.28642,
+          "superior_m": 1.6364
         },
         {
           "fecha": "2026-10-17T23:00:00+00:00",
-          "central_m": 1.36165,
-          "inferior_m": 1.19718,
-          "superior_m": 1.54715
+          "central_m": 1.46364,
+          "inferior_m": 1.29917,
+          "superior_m": 1.64915
         },
         {
           "fecha": "2026-10-18T00:00:00+00:00",
-          "central_m": 1.3489,
-          "inferior_m": 1.18443,
-          "superior_m": 1.53441
+          "central_m": 1.48914,
+          "inferior_m": 1.32467,
+          "superior_m": 1.67465
         }
       ],
       "fuente": "https://alerta.ina.gob.ar/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public2%3Aultimas_alturas_con_timeseries&outputFormat=application%2Fjson&CQL_FILTER=series_id+IN+%2840%2C41%29&propertyName=series_id%2Cnombre%2Cvar_id%2Ctabla%2Cnivel_de_alerta%2Cnivel_de_evacuacion%2Ccero_ign%2Cfecha%2Cvalor%2Ctimeseries",
@@ -4671,13 +4689,13 @@
       "error_pronostico": "",
       "zona_horaria_verificada": true,
       "umbrales_solo_serie_observada": true,
-      "fecha_consulta_umbrales": "2026-10-14T23:28:16.272689+00:00",
-      "fecha_consulta_pronostico": "2026-10-14T23:28:16.272689+00:00",
-      "corrida_id": 1231263,
-      "edad_observada_horas": 20.47,
+      "fecha_consulta_umbrales": "2026-10-15T00:39:41.589022+00:00",
+      "fecha_consulta_pronostico": "2026-10-15T00:39:41.589022+00:00",
+      "corrida_id": 1231307,
+      "edad_observada_horas": 21.66,
       "observacion_estado": "VENCIDO",
       "observacion_vigente": false,
-      "pronostico_edad_horas": 2.05,
+      "pronostico_edad_horas": 0.25,
       "pronostico_estado": "VIGENTE",
       "pronostico_vigente": true
     }
@@ -4697,7 +4715,7 @@
       "afluente_previsto_min_m3s": null,
       "afluente_previsto_max_m3s": null,
       "cota_embalse_m": null,
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4725,7 +4743,7 @@
       "fecha": "2026-10-14T10:00:00+00:00",
       "fecha_original": "2026-10-14T07:00:00-03:00",
       "hasta": null,
-      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "fuente": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "tipo": "",
       "texto": "COMISION TECNICA MIXTA DE SALTO GRANDE\nGerencia General - Area Hidrologia\nReporte de caudales (m³/s) y niveles (m) observados a las 09:00hs de día 14/10/2026\nVolumenes Hora 07:00 (%)\n11/10/2026\n12/10/2026\n13/10/2026\n14/10/2026\nMachadinho\n73\n73\n72\n71\nItá\n59\n60\n62\n64\nCaudales Medios Diarios Hora 07:00 (m3/s)\n11/10/2026\n12/10/2026\n13/10/2026\n14/10/2026\nMachadinho\n2193\n1296\n1730\n2119\nItá\n3338\n2244\n2238\n2708\nFoz de Chapecó\n5082\n4096\n2931\n3894\nCaudales Hora 07:00 (m3/s)\n11/10/2026\n12/10/2026\n13/10/2026\n14/10/2026\nEl Soberbio\n8909\n9157\n6002\n9490\nSan Javier\n10503\n10991\n10583\n9578\nGarruchos\n11417\n12896\n13530\n12567\nSanto Tomé\n11181\n12680\n13710\n13942\nAlvear\n15120\n15478\n15979\n16649\nPaso de los Libres\n17057\n17274\n17383\n17673\nAporte\n18476\n18593\n18613\n18328\nSalto Grande - Erogado Medio Diario (m3/s)\n11/10/2026\n12/10/2026\n13/10/2026\n14/10/2026\nHora\nQTurb\nQVert\nQTotal QTurb\nQVert\nQTotal QTurb\nQVert\nQTotal QTurb\nQVert\nQTotal\n0 a 0\n7348\n10920\n18268\n7363\n10769\n18132\n7429\n10071\n17500\n7413\n9669\n17083\n7 a 7\n7352\n10851\n18203\n7375\n10661\n18036\n7450\n9929\n17379\n7439\n9456\n16896\nNiveles Hora 07:00 (m)\n11/10/2026\n12/10/2026\n13/10/2026\n14/10/2026\nEl Soberbio\n7.20\n7.35\n5.35\n7.55\nSan Javier\n6.40\n6.58\n6.43\n6.05\nGarruchos\n9.95\n10.78\n11.12\n10.60\nSanto Tomé\n9.95\n10.66\n11.12\n11.22\nAlvear\n10.00\n10.10\n10.24\n10.42\nPaso de los Libres\n9.20\n9.26\n9.29\n9.37\nFederación\n32.47\n32.56\n32.77\n33.02\nSalto Grande\n32.24\n32.38\n32.61\n32.88\nConcordia\n11.56\n11.50\n11.30\n11.10\nPowered by TCPDF (www.tcpdf.org)\nPagina 1 de 1\nGerencia General - Area Hidrologia",
       "afluente_m3s": null,
@@ -4733,7 +4751,7 @@
       "afluente_previsto_min_m3s": null,
       "afluente_previsto_max_m3s": null,
       "cota_embalse_m": null,
-      "edad_horas": 13.47,
+      "edad_horas": 14.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4751,7 +4769,7 @@
       "afluente_previsto_min_m3s": null,
       "afluente_previsto_max_m3s": null,
       "cota_embalse_m": null,
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     }
@@ -4763,7 +4781,7 @@
       "url": "https://alerta.ina.gob.ar/a5/diario/reporte_diario",
       "fecha_documento": null,
       "fecha_documento_original": "2026-10-14",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
@@ -4777,11 +4795,11 @@
       "url": "https://www.eby.gov.py/alerta-hidrologico-n06-octubre/",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": "2026-10-17T02:59:59+00:00",
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4791,11 +4809,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=8&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4805,11 +4823,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=9&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4819,11 +4837,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=19&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4833,11 +4851,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=20&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4847,11 +4865,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=23&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4861,11 +4879,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=24&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4875,11 +4893,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=26&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4889,11 +4907,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=29&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4903,11 +4921,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=30&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4917,11 +4935,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=32&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4931,11 +4949,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=34&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4943,13 +4961,13 @@
       "red": "Cuenca compartida",
       "organismo": "INA SERIE 52",
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=52&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
-      "fecha_documento": "2026-10-14T20:45:00+00:00",
-      "fecha_documento_original": "2026-10-14T17:45:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "fecha_documento": "2026-10-14T22:45:00+00:00",
+      "fecha_documento_original": "2026-10-14T19:45:00-03:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 2.72,
+      "edad_horas": 1.91,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4959,11 +4977,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=55&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T12:00:00+00:00",
       "fecha_documento_original": "2026-10-14T09:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 11.47,
+      "edad_horas": 12.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4973,11 +4991,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=57&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T12:00:00+00:00",
       "fecha_documento_original": "2026-10-14T09:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 11.47,
+      "edad_horas": 12.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -4987,11 +5005,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=65&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5001,11 +5019,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=68&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5015,11 +5033,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=72&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5029,11 +5047,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=79&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5043,11 +5061,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=80&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5057,11 +5075,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=81&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5071,11 +5089,11 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=84&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5085,39 +5103,39 @@
       "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=15&tipo=puntual&timestart=2026-10-12&timeend=2026-10-29&includeProno=true",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
     {
       "red": "Cuenca compartida",
       "organismo": "CTM Salto Grande",
-      "url": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792020484",
+      "url": "https://www.saltogrande.org/docs/hidrologia/CaudalesNiveles.pdf?1792024771",
       "fecha_documento": "2026-10-14T12:00:00+00:00",
       "fecha_documento_original": "2026-10-14T09:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": null,
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 11.47,
+      "edad_horas": 12.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
     {
       "red": "Cuenca compartida",
       "organismo": "CTM Salto Grande",
-      "url": "https://www.saltogrande.org/docs/hidrologia/Comunicado.pdf?1792020484",
+      "url": "https://www.saltogrande.org/docs/hidrologia/Comunicado.pdf?1792024771",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T00:00:00-03:00",
-      "consultado": "2026-10-14T23:27:55.925894+00:00",
+      "consultado": "2026-10-15T00:39:24.859355+00:00",
       "valido_hasta": "2026-10-15T18:00:00+00:00",
       "estado_publicado": "VIGENTE",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5127,7 +5145,7 @@
       "url": "https://api.open-meteo.com/v1/ecmwf",
       "fecha_documento": null,
       "fecha_documento_original": "",
-      "consultado": "2026-10-14T23:28:16.272689+00:00",
+      "consultado": "2026-10-15T00:39:41.589022+00:00",
       "valido_hasta": null,
       "estado_publicado": "CONSULTA",
       "error": "",
@@ -5141,11 +5159,11 @@
       "url": "https://alerta.ina.gob.ar/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public2%3Aultimas_alturas_con_timeseries&outputFormat=application%2Fjson&CQL_FILTER=series_id+IN+%2840%2C41%29&propertyName=series_id%2Cnombre%2Cvar_id%2Ctabla%2Cnivel_de_alerta%2Cnivel_de_evacuacion%2Ccero_ign%2Cfecha%2Cvalor%2Ctimeseries",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T03:00:00+00:00",
-      "consultado": "2026-10-14T23:28:16.272689+00:00",
+      "consultado": "2026-10-15T00:39:41.589022+00:00",
       "valido_hasta": null,
       "estado_publicado": "",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5153,13 +5171,13 @@
       "red": "Zárate–Campana",
       "organismo": "INA · pronóstico Zárate",
       "url": "https://alerta.ina.gob.ar/a5/sim/calibrados/489/corridas/last?group_by_qualifier=true&includeProno=true&series_id=29534",
-      "fecha_documento": "2026-10-14T21:25:03.452000+00:00",
-      "fecha_documento_original": "2026-10-14T21:25:03.452000+00:00",
-      "consultado": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_documento": "2026-10-15T00:25:03.164000+00:00",
+      "fecha_documento_original": "2026-10-15T00:25:03.164000+00:00",
+      "consultado": "2026-10-15T00:39:41.589022+00:00",
       "valido_hasta": null,
       "estado_publicado": "",
       "error": "",
-      "edad_horas": 2.05,
+      "edad_horas": 0.25,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5169,11 +5187,11 @@
       "url": "https://alerta.ina.gob.ar/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public2%3Aultimas_alturas_con_timeseries&outputFormat=application%2Fjson&CQL_FILTER=series_id+IN+%2840%2C41%29&propertyName=series_id%2Cnombre%2Cvar_id%2Ctabla%2Cnivel_de_alerta%2Cnivel_de_evacuacion%2Ccero_ign%2Cfecha%2Cvalor%2Ctimeseries",
       "fecha_documento": "2026-10-14T03:00:00+00:00",
       "fecha_documento_original": "2026-10-14T03:00:00+00:00",
-      "consultado": "2026-10-14T23:28:16.272689+00:00",
+      "consultado": "2026-10-15T00:39:41.589022+00:00",
       "valido_hasta": null,
       "estado_publicado": "",
       "error": "",
-      "edad_horas": 20.47,
+      "edad_horas": 21.66,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     },
@@ -5181,13 +5199,13 @@
       "red": "Zárate–Campana",
       "organismo": "INA · pronóstico Campana",
       "url": "https://alerta.ina.gob.ar/a5/sim/calibrados/489/corridas/last?group_by_qualifier=true&includeProno=true&series_id=3405",
-      "fecha_documento": "2026-10-14T21:25:03.452000+00:00",
-      "fecha_documento_original": "2026-10-14T21:25:03.452000+00:00",
-      "consultado": "2026-10-14T23:28:16.272689+00:00",
+      "fecha_documento": "2026-10-15T00:25:03.164000+00:00",
+      "fecha_documento_original": "2026-10-15T00:25:03.164000+00:00",
+      "consultado": "2026-10-15T00:39:41.589022+00:00",
       "valido_hasta": null,
       "estado_publicado": "",
       "error": "",
-      "edad_horas": 2.05,
+      "edad_horas": 0.25,
       "vigente": true,
       "estado_tiempo": "VIGENTE"
     }
