@@ -58,6 +58,9 @@ class FichaProyectoTests(unittest.TestCase):
         self.assertEqual(d["agua_util"]["estado"], "Sin carga para esta localidad")
         self.assertIn("no mide saturación", d["humedad_modelada"]["alcance"])
         self.assertEqual(d["relieve"]["valor"], "Sin dato")
+        desconocido = {r["id"]: r for r in construir_inventario(self.row(cobertura_meteorologica=float("nan")), referencia=NOW)}
+        self.assertEqual(desconocido["lluvia_modelada"]["estado"], "Incompleto o vencido")
+        self.assertEqual(desconocido["humedad_modelada"]["estado"], "Sin dato vigente")
 
 
 if __name__ == "__main__":

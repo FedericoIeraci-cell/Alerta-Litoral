@@ -120,7 +120,7 @@ def construir_inventario(row, *, agua=None, suelo=None, relieve=None, siga=None,
                       "fuente": str(fuente or ""), "fecha": str(fecha or "Sin fecha"),
                       "alcance": alcance, "monitor_horario": "Sí" if monitor else "No"})
 
-    met = bool(row.get("cobertura_meteorologica")) and _vigente(row.get("actualizado"), 12, ref)
+    met = row.get("cobertura_meteorologica") is True and _vigente(row.get("actualizado"), 12, ref)
     agregar("lluvia_modelada", "Lluvia y pronóstico de grilla",
             _valor(row.get("lluvia_futura_72"), "mm / próximas 72 h"),
             "Disponible" if met else "Incompleto o vencido", "https://open-meteo.com/en/docs/ecmwf-api",
