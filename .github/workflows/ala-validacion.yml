@@ -5,12 +5,14 @@ on:
     paths:
       - '*.py'
       - 'requirements_monitor.txt'
+      - 'requirements_test.txt'
       - 'tests/**'
       - '.github/workflows/ala-validacion.yml'
   pull_request:
     paths:
       - '*.py'
       - 'requirements_monitor.txt'
+      - 'requirements_test.txt'
       - 'tests/**'
       - '.github/workflows/ala-validacion.yml'
   workflow_dispatch:
@@ -28,9 +30,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: requirements_monitor.txt
-      - name: Instalar dependencias del monitor
-        run: python -m pip install -r requirements_monitor.txt
+          cache-dependency-path: requirements_test.txt
+      - name: Instalar dependencias de prueba
+        run: python -m pip install -r requirements_test.txt
       - name: Verificar reglas y continuidad sin envios
         run: |
           python -m py_compile app.py hidrologia.py ctm.py monitor.py red_integrada.py siga_inta.py ficha_proyecto.py panel_proyecto.py decisiones_agro.py

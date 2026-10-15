@@ -474,7 +474,7 @@ class TelegramIntegradoTests(unittest.TestCase):
                       motivos_semaforo="Estación fluvial supera el umbral de evacuación.",
                       hidrologia_rango=2, hidrologia_vigente=True)
         mensaje = app.generar_mensaje_alerta(row)
-        self.assertNotIn("nan", mensaje.lower())
+        self.assertNotRegex(mensaje.lower(), r"\bnan\b")
         self.assertIn("evac", mensaje.lower())
 
 

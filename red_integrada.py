@@ -419,8 +419,14 @@ def _normalizar_nodo_ala(nodo, fila):
         salida["nivel_experimental"] = _texto(fila.get("nivel")) or "SIN DATOS"
     else:
         salida["error"] = salida["error"] or "Variables incompletas: el informe común no completa valores ausentes con cero"
-    salida["nivel_tipo"] = "Evaluación ALA experimental del punto; no alerta de evacuación de Zárate–Campana"
+    salida["nivel_tipo"] = "nivel_experimental es legado del estado integrado ALA; usar nivel_meteorologico para el índice"
     salida["estado_integrado_ala"] = _texto(fila.get("nivel")) or "SIN DATOS"
+    salida["nivel_meteorologico"] = _texto(fila.get("nivel_meteorologico")) or "SIN DATOS"
+    salida["indice_meteorologico"] = salida.get("indice_experimental")
+    salida["motivo_principal"] = _texto(fila.get("motivo_principal"), 3000)
+    salida["desencadenantes"] = _json_finito(fila.get("desencadenantes") or [])
+    salida["evidencias_alerta"] = _json_finito(fila.get("evidencias_alerta") or [])
+    salida["explicacion_version"] = fila.get("explicacion_version")
     salida["fuentes_integracion"] = _texto(fila.get("hidrologia_fuentes"), 2000)
     return salida
 
@@ -543,6 +549,24 @@ def validar_red_integrada(payload, referencia=None):
         node.update(temp)
         node["vigente"] = temp["vigente"] and out["snapshot_vigente"]
         node["nivel_vigente"] = node.get("nivel_experimental", "SIN DATOS") if node["vigente"] else "SIN DATOS"
+        integrada = _estado_fecha(node.get("fecha_evaluacion_integrada"), ref, 3)
+        integrada_vigente = integrada["vigente"] and out["snapshot_vigente"]
+        node["nivel_integrado_vigente"] = node.get("estado_integrado_ala", "SIN DATOS") if integrada_vigente else "SIN DATOS"
+        # La hora del snapshot no renueva las evidencias. Los informes antiguos
+        # conservan su color histórico, sin inventarles un desencadenante.
+        for campo in ("desencadenantes", "evidencias_alerta"):
+            evidencias = node.get(campo) or []
+            if not isinstance(evidencias, list) or len(evidencias) > 500:
+                raise ValueError("Evidencias del nodo no válidas")
+            for e in evidencias:
+                if not isinstance(e, dict):
+                    raise ValueError("Evidencia no válida")
+                limite = _fecha(e.get("valida_hasta") or e.get("hasta"))
+                e["vigente"] = bool(e.get("vigente") is True and integrada_vigente
+                    and (e.get("tipo") != "meteorologia" or node["vigente"]) and (limite is None or ref <= limite))
+            node[campo] = evidencias
+        node["explicacion_estado"] = ("Evaluación histórica; revisar vigencia de cada evidencia" if not integrada_vigente
+            else "Trazabilidad disponible" if node.get("explicacion_version") == 1 else "Informe anterior sin desencadenante estructurado")
     if found != set(expected):
         raise ValueError("El informe no conserva los 58 puntos del catálogo")
     for rio in out["rios"]:
@@ -685,11 +709,23 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None):
              "Fin de cobertura extendida": _mostrar_fecha((n.get("cobertura_horaria") or {}).get("lluvia_prevista_15d", {}).get("hasta")),
              "Lluvia previa 7 días (mm)": n.get("lluvia_previa_7d_mm"),
              "Suelo superficial (m³/m³)": n.get("humedad_0_7_m3_m3"), "Escurrimiento futuro 72 h (mm)": n.get("escurrimiento_previsto_72_mm"),
-             "Evaluación ALA original": n.get("estado_integrado_ala", "Variables compartidas · sin índice ALA"),
+             "Índice meteorológico /100": n.get("indice_experimental"),
+             "Nivel meteorológico": n.get("nivel_meteorologico", "Sin discriminar en informe anterior"),
+             "Riesgo integrado ALA al evaluar": n.get("estado_integrado_ala", "Variables compartidas · sin índice ALA"),
+             "Desencadenante": n.get("motivo_principal") or "No documentado en este informe",
+             "Trazabilidad": n.get("explicacion_estado"),
              "Estado temporal": n.get("estado_tiempo"), "Fecha de cálculo": _mostrar_fecha(n.get("fecha_calculo")), "Cobertura": n.get("estado_datos"), "Observación": n.get("error", "")} for n in nodes]
     st.dataframe(rows, hide_index=True, use_container_width=True)
     st.caption("Las ventanas comienzan en la hora de cálculo. El acumulado extendido suma sólo las horas hasta el fin de cobertura publicado, como máximo 15 días: puede terminar antes y no se prolonga. Las ventanas de 24/72 horas y 7 días necesitan todos sus datos. Suelo y escurrimiento son modelados. Un valor ausente permanece vacío.")
     st.map([{"lat": n["lat"], "lon": n["lon"]} for n in nodes])
+    with st.expander("Evidencias del color integrado · estación, previsión y fuente"):
+        st.dataframe([{"Localidad": n["localidad"], "Tipo": e.get("tipo"), "Estación": e.get("estacion"),
+            "Altura observada (m)": e.get("altura_m"), "Umbral alerta (m)": e.get("alerta_m"),
+            "Umbral evacuación (m)": e.get("evacuacion_m"), "Central prevista (m)": e.get("central_m"),
+            "Desde": e.get("desde"), "Emisión": e.get("fecha_emision"), "Hora/fecha publicada": e.get("precision_desde"),
+            "Límite de uso ALA": e.get("valida_hasta"), "Vigente al leer": e.get("vigente"),
+            "Fuente": e.get("fuente"), "Fuente umbrales": e.get("fuente_umbrales")}
+            for n in nodes for e in n.get("desencadenantes", [])], hide_index=True, use_container_width=True)
     st.markdown("**Ríos y pronósticos oficiales**")
     rivers = datos["rios"]
     st.dataframe([{"Región": r.get("red"), "Estación": r.get("estacion"), "Serie observada": r.get("serie_observada"),
