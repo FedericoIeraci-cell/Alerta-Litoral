@@ -23,6 +23,9 @@ class TestRedMonitor(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.calls = []
+        guard = patch("requests.sessions.Session.request", side_effect=AssertionError("Red/Telegram prohibidos"))
+        guard.start()
+        self.addCleanup(guard.stop)
         self.panorama = {"estaciones": {"rosario": {"altura_m": 2.1}}}
         self.frame = pd.DataFrame([{
             "localidad": "Rosario", "provincia": "Santa Fe", "nivel": "AMARILLO",
@@ -42,7 +45,7 @@ class TestRedMonitor(unittest.TestCase):
             restore_db=lambda path: self.calls.append("restore"),
             save_db=lambda path: self.calls.append("db"),
             save_status=lambda status: self.calls.append(("status", copy.deepcopy(status))),
-            save_red_integrada=lambda value: self.calls.append("save_red"),
+            save_red_integrada=lambda value: self.calls.append("save_red") or {"sha": "a" * 40, "bytes": 120, "generated_at": value.get("generated_at")},
         )
         self.module = types.ModuleType("red_integrada")
         self.module.consultar_zc_red = lambda **kwargs: self.calls.append("query_zc") or {"nodes": "ZC"}
@@ -71,7 +74,7 @@ class TestRedMonitor(unittest.TestCase):
         self.assertIs(frame, self.frame)
         self.assertEqual(panorama, self.panorama)
         self.calls.append("build_red")
-        return {"schema_version": 1, "generated_at": kwargs["referencia"].isoformat(), "public": True}
+        return {"schema_version": 1, "generated_at": kwargs["referencia"].isoformat(), "public": True, "snapshot_vigente": True}
 
     def run_monitor(self, **kwargs):
         return monitor.run_monitor(store=self.store, state_dir=self.temp.name,
@@ -88,6 +91,10 @@ class TestRedMonitor(unittest.TestCase):
         self.assertLess(names.index("status"), names.index("save_red"))
         saved = next(call[1] for call in self.calls if isinstance(call, tuple))
         self.assertNotIn("red_integrada", saved)
+        final = [call[1] for call in self.calls if isinstance(call, tuple)][-1]
+        self.assertTrue(final["red_integrada_publicada"])
+        self.assertEqual(final["red_integrada_estado"], "verificada")
+        self.assertNotIn("red_integrada", final)
         self.assertTrue(status["red_integrada_publicada"])
         self.assertTrue(status["ok"])
         self.assertEqual(status["nodes_total"], 1)
@@ -113,15 +120,19 @@ class TestRedMonitor(unittest.TestCase):
     def test_compat_sin_getter_automatico_sin_kwargs(self):
         del self.app.obtener_panorama_hidrologico
         self.app.obtener_riesgo_automatico = lambda: self.calls.append("risk") or self.frame
-        self.module.construir_red_integrada = lambda *args, **kwargs: {"schema_version": 1}
+        self.module.construir_red_integrada = lambda *args, **kwargs: {"schema_version": 1, "snapshot_vigente": True}
         status = self.run_monitor()
         self.assertNotIn("panorama", self.calls)
         self.assertEqual(status["result"]["enviadas"], 1)
 
     def test_consulta_red_fallida_no_cambia_canal(self):
         self.module.consultar_zc_red = lambda **kwargs: (_ for _ in ()).throw(TimeoutError("HTTP token secret"))
-        status = self.run_monitor()
-        self.assertTrue(status["ok"])
+        with self.assertRaises(monitor.MonitorError):
+            self.run_monitor()
+        status = [call[1] for call in self.calls if isinstance(call, tuple)][-1]
+        self.assertFalse(status["ok"])
+        self.assertEqual(status["health"], "error_red_integrada")
+        self.assertEqual(status["health_evaluacion"], "ok")
         self.assertEqual(status["result"]["enviadas"], 1)
         self.assertNotIn("save_red", self.calls)
         self.assertNotIn("secret", status["red_integrada_error"])
@@ -129,10 +140,13 @@ class TestRedMonitor(unittest.TestCase):
 
     def test_publicacion_red_fallida_no_cambia_canal(self):
         self.store.save_red_integrada = lambda value: (_ for _ in ()).throw(monitor.StateStoreError("conflict"))
-        status = self.run_monitor()
-        self.assertTrue(status["ok"])
+        with self.assertRaises(monitor.MonitorError):
+            self.run_monitor()
+        status = [call[1] for call in self.calls if isinstance(call, tuple)][-1]
+        self.assertFalse(status["ok"])
         self.assertEqual(status["result"]["enviadas"], 1)
         self.assertFalse(status["red_integrada_publicada"])
+        self.assertEqual(self.calls.count("telegram"), 1)
         self.assertIn("red_integrada_error", status)
 
     def test_rechazo_telegram_conserva_error_original_y_snapshot(self):
@@ -159,28 +173,46 @@ class TestRedMonitor(unittest.TestCase):
         self.assertEqual(saved["coverage"], status["coverage"])
         self.assertEqual(saved["history"], [])
 
-    def test_store_leer_sha_red_independiente_antes_escribir(self):
-        store = monitor.GitHubStateStore("secret", "owner/repo")
-        order = []
-        store._read_file = lambda path, maximum: order.append(("read", path, maximum))
-        store._write_file = lambda path, payload, message: order.append(("write", path, json.loads(payload)))
-        document = {"schema_version": 1, "public": True}
-        store.save_red_integrada(document)
-        self.assertEqual(order[0], ("read", "red_integrada.json", 500_000))
-        self.assertEqual(order[1], ("write", "red_integrada.json", document))
+    def test_publicacion_sola_no_lee_secrets_ni_estado_telegram(self):
+        self.app.obtener_secrets_telegram = lambda: self.fail("No debe leer secretos")
+        status = self.run_monitor(publish_red_only=True)
+        self.assertEqual(self.calls, ["panorama", "risk", "query_zc", "build_red", "save_red"])
+        self.assertTrue(status["red_integrada_publicada"])
+        self.assertTrue(status["dry_run"])
+        self.assertFalse(Path(self.app.TELEGRAM_DB_FILE).exists())
+
+    def test_dry_run_falla_si_no_puede_preparar_red(self):
+        self.module.consultar_zc_red = lambda **kwargs: (_ for _ in ()).throw(ValueError("secret"))
+        with self.assertRaisesRegex(monitor.MonitorError, "preparacion"):
+            self.run_monitor(dry_run=True)
+        self.assertNotIn("telegram", self.calls)
+        self.assertNotIn("restore", self.calls)
+
+    def test_main_devuelve_uno_si_falla_publicacion(self):
+        from contextlib import redirect_stderr
+        from io import StringIO
+        stderr = StringIO()
+        with patch.object(monitor, "run_monitor", side_effect=monitor.MonitorError("Red integrada: error")), redirect_stderr(stderr):
+            self.assertEqual(monitor.main([]), 1)
+        self.assertIn("Red integrada", stderr.getvalue())
+
+    def test_modos_excluyentes(self):
+        with self.assertRaisesRegex(monitor.MonitorError, "excluyentes"):
+            self.run_monitor(dry_run=True, publish_red_only=True)
+        self.assertEqual(self.calls, [])
 
     def test_store_no_escritura_cuando_validador_rechaza(self):
         self.module.validar_red_integrada = lambda *args, **kwargs: (_ for _ in ()).throw(ValueError("private"))
         store = monitor.GitHubStateStore("secret", "owner/repo")
         store._read_file = lambda *args: self.fail("No debe contactar GitHub")
-        with self.assertRaisesRegex(monitor.StateStoreError, "contrato público"):
+        with self.assertRaisesRegex(monitor.StateStoreError, "contrato_invalido"):
             store.save_red_integrada({"token": "secret"})
 
     def test_store_limite_tamano(self):
         store = monitor.GitHubStateStore("secret", "owner/repo")
         store._read_file = lambda *args: self.fail("No debe contactar GitHub")
-        with self.assertRaisesRegex(monitor.StateStoreError, "tamaño"):
-            store.save_red_integrada({"public": "x" * 500_000})
+        with self.assertRaisesRegex(monitor.StateStoreError, "tamano_excedido"):
+            store.save_red_integrada({"public": "x" * monitor.MAX_RED_BYTES, "snapshot_vigente": True})
 
 
 if __name__ == "__main__":

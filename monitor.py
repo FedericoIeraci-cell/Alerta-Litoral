@@ -26,6 +26,8 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+from red_integrada import MAX_BYTES as MAX_RED_BYTES
+
 
 ART = ZoneInfo("America/Argentina/Buenos_Aires")
 DB_REMOTE_PATH = "telegram_alerts.sqlite3"
@@ -33,7 +35,6 @@ STATUS_REMOTE_PATH = "monitor_status.json"
 RED_REMOTE_PATH = "red_integrada.json"
 MAX_DB_BYTES = 20_000_000
 MAX_STATUS_BYTES = 500_000
-MAX_RED_BYTES = 500_000
 MONITOR_SCOPE = "Meteorología + hidrología + represas"
 LEGACY_SCOPE = "ECMWF / índice meteorológico"
 HISTORY_FIELDS = (
@@ -52,6 +53,34 @@ class MonitorError(RuntimeError):
 
 class StateStoreError(MonitorError):
     """El estado durable no pudo leerse o confirmarse."""
+
+    def __init__(self, message: str, *, code: str = "estado_no_confirmado"):
+        super().__init__(message)
+        self.code = code
+
+
+class RedPublicationError(StateStoreError):
+    """Diagnóstico acotado: nunca incorpora cuerpos HTTP ni credenciales."""
+
+    def __init__(self, stage: str, code: str, *, size: int | None = None):
+        super().__init__(f"Red integrada: fallo en {stage} ({code}).", code=code)
+        self.stage = stage
+        self.size = size
+
+
+def _serializar_red_integrada(value):
+    try:
+        from red_integrada import validar_red_integrada
+        document = validar_red_integrada(value)
+        payload = json.dumps(document, ensure_ascii=False, allow_nan=False,
+                             separators=(",", ":")).encode("utf-8") + b"\n"
+    except (ImportError, ValueError, TypeError, OverflowError):
+        raise RedPublicationError("validacion", "contrato_invalido") from None
+    if len(payload) > MAX_RED_BYTES:
+        raise RedPublicationError("serializacion", "tamano_excedido", size=len(payload))
+    if document.get("snapshot_vigente") is not True:
+        raise RedPublicationError("validacion", "informe_vencido")
+    return document, payload
 
 
 def _valid_repository(value: str) -> str:
@@ -188,15 +217,15 @@ class GitHubStateStore:
                 headers=self._headers, timeout=(10, 45), allow_redirects=False, **kwargs,
             )
         except requests.RequestException:
-            raise StateStoreError("No se pudo contactar a GitHub; no se enviarán avisos sin guardar su registro.") from None
+            raise StateStoreError("No se pudo contactar a GitHub; no se enviarán avisos sin guardar su registro.", code="conexion") from None
         if allow_missing and response.status_code == 404:
             return None
         if not 200 <= response.status_code < 300:
             if response.status_code in {409, 422}:
-                raise StateStoreError("El estado cambió o entró en conflicto; se detuvo el envío para evitar duplicados.")
+                raise StateStoreError("El estado cambió o entró en conflicto; se detuvo el envío para evitar duplicados.", code=f"http_{response.status_code}")
             if response.status_code in {401, 403}:
-                raise StateStoreError("GitHub rechazó el acceso al registro; revisá los permisos del workflow.")
-            raise StateStoreError("GitHub no pudo confirmar el registro; se detuvo la evaluación.")
+                raise StateStoreError("GitHub rechazó el acceso al registro; revisá los permisos del workflow.", code=f"http_{response.status_code}")
+            raise StateStoreError("GitHub no pudo confirmar el registro; se detuvo la evaluación.", code=f"http_{response.status_code}")
         return response
 
     @staticmethod
@@ -347,20 +376,32 @@ class GitHubStateStore:
             raise StateStoreError("El informe del monitor supera el tamaño permitido.")
         self._write_file(STATUS_REMOTE_PATH, payload, "ALA: actualizar estado del monitor")
 
-    def save_red_integrada(self, value: dict[str, Any]) -> None:
-        """Publica datos públicos separados del registro durable de avisos."""
+    def save_red_integrada(self, value: dict[str, Any]) -> dict[str, Any]:
+        """Confirma por relectura el contenido y SHA, sin tocar el registro de avisos."""
+        document, payload = _serializar_red_integrada(value)
+        stage = "lectura_previa"
         try:
-            from red_integrada import validar_red_integrada
-            document = validar_red_integrada(value)
-            payload = json.dumps(document, ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8") + b"\n"
-        except (ImportError, ValueError, TypeError, OverflowError):
-            raise StateStoreError("El resumen de la red integrada no tiene un contrato público válido.") from None
-        if len(payload) > MAX_RED_BYTES:
-            raise StateStoreError("El resumen de la red integrada supera el tamaño permitido.")
-        # Este SHA se obtiene por separado: ni la base de avisos ni el informe
-        # anterior autorizan reemplazar un archivo de red que no se haya leído.
-        self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
-        self._write_file(RED_REMOTE_PATH, payload, "ALA: actualizar datos de la red Litoral-Zárate-Campana")
+            # El SHA del informe se lee por separado, sin reutilizar el del SQLite.
+            self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
+            stage = "escritura"
+            self._write_file(RED_REMOTE_PATH, payload, "ALA: actualizar datos de la red Litoral-Zárate-Campana")
+            written_sha = self._shas[RED_REMOTE_PATH]
+            stage = "verificacion"
+            confirmed = self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
+            if confirmed != payload or self._shas[RED_REMOTE_PATH] != written_sha:
+                raise RedPublicationError(stage, "contenido_no_confirmado", size=len(payload))
+            # Una escritura tardía tampoco acredita un informe vigente.
+            _serializar_red_integrada(json.loads(confirmed))
+        except RedPublicationError:
+            raise
+        except StateStoreError as error:
+            code = error.code if re.fullmatch(r"http_[1-5][0-9]{2}|conexion|estado_no_confirmado", error.code) else "estado_no_confirmado"
+            raise RedPublicationError(stage, code, size=len(payload)) from None
+        except Exception:
+            raise RedPublicationError(stage, "error_interno", size=len(payload)) from None
+        return {"sha": written_sha, "bytes": len(payload),
+                "generated_at": document["generated_at"],
+                "verified_at": datetime.now(timezone.utc).isoformat()}
 
 
 def load_app(path: str | Path):
@@ -487,21 +528,36 @@ def _coverage_errors(coverage: dict[str, Any]) -> list[str]:
 def _preparar_red_integrada(frame, panorama, status, app) -> dict[str, Any] | None:
     """La consulta regional adicional nunca cambia candidatos ni envíos ALA."""
     try:
-        from red_integrada import consultar_zc_red, construir_red_integrada, validar_red_integrada
+        from red_integrada import consultar_zc_red, construir_red_integrada
         referencia = datetime.now(timezone.utc)
         zc = consultar_zc_red(referencia=referencia)
         document = construir_red_integrada(
             frame, panorama or {}, zc=zc, monitor=status,
             referencia=referencia, version_ala=str(getattr(app, "VERSION", "")),
         )
-        return validar_red_integrada(document, referencia=referencia)
+        document, payload = _serializar_red_integrada(document)
+        status["red_integrada_bytes"] = len(payload)
+        status["red_integrada_limite_bytes"] = MAX_RED_BYTES
+        return document
+    except RedPublicationError as error:
+        _error_red_integrada(status, error)
+        return None
     except Exception:
         # No se propagan HTTP, credenciales ni errores del productor al canal.
-        status["red_integrada_error"] = "No se pudo preparar un resumen verificable de la red integrada."
+        _error_red_integrada(status, RedPublicationError("preparacion", "error_interno"))
         return None
 
 
+def _error_red_integrada(status, error):
+    status.update(red_integrada_publicada=False, red_integrada_estado="error",
+                  red_integrada_error=str(error), red_integrada_etapa=error.stage,
+                  red_integrada_error_codigo=error.code, red_integrada_limite_bytes=MAX_RED_BYTES)
+    if error.size is not None:
+        status["red_integrada_bytes"] = error.size
+
+
 def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
+    status.update(red_integrada_publicada=False, red_integrada_estado="pendiente")
     document = _preparar_red_integrada(frame, panorama, status, app)
     if document is None:
         return
@@ -509,22 +565,32 @@ def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
     # dentro de monitor_status.json ni del SQLite de alertas.
     status["red_integrada"] = document
     try:
-        store.save_red_integrada(document)
+        receipt = store.save_red_integrada(document)
         status["red_integrada_publicada"] = True
+        status["red_integrada_estado"] = "verificada"
+        status["red_integrada_confirmacion"] = receipt
+    except RedPublicationError as error:
+        _error_red_integrada(status, error)
     except Exception:
-        status["red_integrada_publicada"] = False
-        status["red_integrada_error"] = "No se pudo confirmar la publicación del resumen de la red integrada."
+        _error_red_integrada(status, RedPublicationError("publicacion", "error_interno"))
+
+
+def _guardar_resultado_publicacion(status, store):
+    status["health_evaluacion"] = status["health"]
+    if not status.get("red_integrada_publicada"):
+        status["ok"] = False
+        status["errors"].append(status["red_integrada_error"])
+        if status["health"] in {"ok", "datos_parciales"}:
+            status["health"] = "error_red_integrada"
+    # El snapshot grande tiene su propio archivo; sólo el diagnóstico va al estado.
+    store.save_status({k: v for k, v in status.items() if k != "red_integrada"})
 
 
 def _exportar_red_local(value: Any, destination: str | Path) -> None:
     """Exportación optativa local, sin escrituras en GitHub ni Telegram."""
     temporary = None
     try:
-        from red_integrada import validar_red_integrada
-        document = validar_red_integrada(value)
-        payload = json.dumps(document, ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8") + b"\n"
-        if len(payload) > MAX_RED_BYTES:
-            raise ValueError()
+        _, payload = _serializar_red_integrada(value)
         destination = Path(destination).resolve()
         destination.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(dir=destination.parent, prefix=".red-integrada-", delete=False) as stream:
@@ -541,19 +607,22 @@ def _exportar_red_local(value: Any, destination: str | Path) -> None:
 
 def run_monitor(
     app_path: str | Path = "app.py", *, store=None, dry_run: bool = False,
-    state_dir: str | Path | None = None, app_loader=None,
+    state_dir: str | Path | None = None, app_loader=None, publish_red_only: bool = False,
 ) -> dict[str, Any]:
     """Una evaluación; las dependencias pueden sustituirse en pruebas sin red."""
+    if dry_run and publish_red_only:
+        raise MonitorError("dry-run y publish-red-only son modos excluyentes.")
+    no_telegram = dry_run or publish_red_only
     directory = Path(state_dir or os.environ.get("ALA_MONITOR_STATE_DIR", ".ala-monitor")).resolve()
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     database = directory / DB_REMOTE_PATH
-    if not dry_run:
+    if not no_telegram:
         store = store if store is not None else GitHubStateStore.from_environment()
         store.restore_db(database)
     os.environ["ALA_MONITOR_HEADLESS"] = "1"
     app = (app_loader or load_app)(app_path)
     app.TELEGRAM_DB_FILE = database
-    if not dry_run:
+    if not no_telegram:
         token, chat = app.obtener_secrets_telegram()
         if not token or not chat:
             raise MonitorError("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID en los secretos del repositorio.")
@@ -592,16 +661,26 @@ def run_monitor(
         "coverage": coverage,
         "result": {},
         "history": [],
-        "health": "dry_run" if dry_run else "ok",
+        "health": "dry_run" if no_telegram else "ok",
         "ok": False,
         "errors": source_errors,
-        "dry_run": bool(dry_run),
+        "dry_run": bool(no_telegram),
+        "publication_only": bool(publish_red_only),
+        "red_integrada_publicada": False,
+        "red_integrada_estado": "pendiente" if not dry_run else "no_solicitada",
     }
-    if dry_run:
+    if no_telegram:
         if valid == 0:
             raise MonitorError("La prueba no recibió ningún nodo con fuentes vigentes para interpretar el semáforo.")
-        document = _preparar_red_integrada(frame, panorama, status, app)
-        if document is not None:
+        if publish_red_only:
+            store = store if store is not None else GitHubStateStore.from_environment()
+            _publicar_red_integrada(frame, panorama, status, app, store)
+            if not status["red_integrada_publicada"]:
+                raise MonitorError(status["red_integrada_error"])
+        else:
+            document = _preparar_red_integrada(frame, panorama, status, app)
+            if document is None:
+                raise MonitorError(status["red_integrada_error"])
             status["red_integrada"] = document
         return status
     if valid == 0:
@@ -613,6 +692,7 @@ def run_monitor(
         store.save_db(database)
         store.save_status(status)
         _publicar_red_integrada(frame, panorama, status, app, store)
+        _guardar_resultado_publicacion(status, store)
         raise MonitorError("Ninguna localidad tuvo un semáforo interpretable; no se enviaron avisos y el workflow falló.")
     try:
         result = app.procesar_alertas_telegram(frame, guardar_registro=lambda: store.save_db(database))
@@ -645,19 +725,24 @@ def run_monitor(
     store.save_db(database)
     store.save_status(status)
     _publicar_red_integrada(frame, panorama, status, app, store)
+    _guardar_resultado_publicacion(status, store)
     if status["health"] in {"error_registro", "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida"}:
         raise MonitorError("El monitor registró un problema de envío o persistencia; revisá el historial y el workflow.")
+    if not status["red_integrada_publicada"]:
+        raise MonitorError(status["red_integrada_error"] + " La evaluación regional quedó guardada, pero el informe compartido no se confirmó.")
     return status
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Evalúa las alertas ALA sin abrir la página.")
     parser.add_argument("--app", default="app.py", help="Ruta del archivo principal de Alerta Litoral Agro.")
-    parser.add_argument("--dry-run", action="store_true", help="Consulta datos sin enviar ni modificar el registro remoto.")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--dry-run", action="store_true", help="Consulta datos sin enviar ni modificar el registro remoto.")
+    modes.add_argument("--publish-red-only", action="store_true", help="Evalúa y publica sólo la red; no lee secretos de Telegram ni modifica su registro o monitor_status.")
     parser.add_argument("--export-red", help="Guarda el resumen de la red integrada en este archivo local.")
     args = parser.parse_args(argv)
     try:
-        status = run_monitor(args.app, dry_run=args.dry_run)
+        status = run_monitor(args.app, dry_run=args.dry_run, publish_red_only=args.publish_red_only)
         if args.export_red:
             _exportar_red_local(status.get("red_integrada"), args.export_red)
         # Resumen deliberadamente pequeño: no imprime mensajes, secretos ni respuestas HTTP.
@@ -669,6 +754,8 @@ def main(argv=None) -> int:
             "result": status["result"], "dry_run": status["dry_run"],
             "red_integrada_publicada": status.get("red_integrada_publicada", False),
             "red_integrada_error": status.get("red_integrada_error"),
+            "red_integrada_confirmacion": status.get("red_integrada_confirmacion"),
+            "publication_only": status["publication_only"],
         }, ensure_ascii=False, allow_nan=False))
         return 0
     except MonitorError as error:

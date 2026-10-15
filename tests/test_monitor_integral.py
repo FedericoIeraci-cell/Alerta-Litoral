@@ -1,5 +1,6 @@
 """Pruebas sin red ni envíos de la integración del monitor automático."""
 
+import copy
 import json
 from pathlib import Path
 import sqlite3
@@ -48,7 +49,10 @@ class MemoryStore:
 
     def save_status(self, status):
         monitor._validate_status(status)
-        self.status = status
+        self.status = copy.deepcopy(status)
+
+    def save_red_integrada(self, document):
+        return {"sha": "a" * 40, "generated_at": document["generated_at"]}
 
 
 class FakeApp:
@@ -145,7 +149,7 @@ class IntegralMonitorTests(unittest.TestCase):
         self.assertEqual(status["health"], "datos_parciales")
         self.assertFalse(status["ok"])
         self.assertIn("observaciones fluviales", " ".join(status["errors"]))
-        self.assertIs(store.status, status)
+        self.assertEqual(store.status, {k:v for k,v in status.items() if k != "red_integrada"})
 
     def test_severe_current_hydrology_is_evaluated_despite_missing_meteorology(self):
         status, app, _ = self.run_fake([node(
