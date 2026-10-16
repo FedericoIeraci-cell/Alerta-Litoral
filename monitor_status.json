@@ -288,16 +288,23 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "datos_parciales",
+  "health": "error_red_integrada",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "7/29 puntos aplicables con pronóstico fluvial vigente.",
     "16/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable."
+    "Una parte de las localidades no tuvo un semáforo interpretable.",
+    "Red integrada: fallo en verificacion (contenido_no_confirmado)."
   ],
   "dry_run": false,
   "publication_only": false,
   "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente"
+  "red_integrada_estado": "error",
+  "red_integrada_bytes": 395990,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_error": "Red integrada: fallo en verificacion (contenido_no_confirmado).",
+  "red_integrada_etapa": "verificacion",
+  "red_integrada_error_codigo": "contenido_no_confirmado",
+  "health_evaluacion": "datos_parciales"
 }
