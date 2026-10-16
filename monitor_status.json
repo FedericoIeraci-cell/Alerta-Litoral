@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-16T10:34:43.323445+00:00",
-  "checked_at_art": "2026-10-16T07:34:43.323445-03:00",
+  "checked_at": "2026-10-16T11:32:18.559117+00:00",
+  "checked_at_art": "2026-10-16T08:32:18.559117-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 19,
-  "nodes_red": 3,
-  "nodes_invalid": 29,
-  "nodes_yellow": 16,
-  "nodes_green": 0,
+  "nodes_valid": 44,
+  "nodes_red": 4,
+  "nodes_invalid": 4,
+  "nodes_yellow": 19,
+  "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 0,
+      "vigentes": 48,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 3,
+    "pendientes": 4,
     "omitidas": 3,
     "inicializadas": 0,
-    "sin_datos": 34,
+    "sin_datos": 9,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "6a81cd87832c",
+      "creado": "2026-10-16T11:32:18.559579+00:00",
+      "intento": "2026-10-16T11:32:18.559579+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Puerto Iguazú: 32,70 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 15/10/2026 00:00 ART. Índice meteorológico: 48,6 → 38,6/100; se evalúa por separado.",
+      "indice_anterior": 48.6,
+      "indice": 38.6,
+      "estado": "enviado",
+      "message_id": 57,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "9a967e039dd6",
       "creado": "2026-10-15T20:29:22.902583+00:00",
@@ -291,7 +306,6 @@
   "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "0/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "6/29 puntos aplicables con pronóstico fluvial vigente.",
     "4/20 puntos aplicables con información vigente de represas.",
@@ -299,15 +313,6 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 319474,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "c214b1ffcefddf1929dce637d2f130f699d6e5fd",
-    "bytes": 319474,
-    "generated_at": "2026-10-16T10:34:45.483340+00:00",
-    "verified_at": "2026-10-16T10:34:56.135504+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
