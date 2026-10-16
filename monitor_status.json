@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-16T02:31:46.620234+00:00",
-  "checked_at_art": "2026-10-15T23:31:46.620234-03:00",
+  "checked_at": "2026-10-16T03:31:37.495153+00:00",
+  "checked_at_art": "2026-10-16T00:31:37.495153-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 7,
+      "vigentes": 6,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 16,
+      "vigentes": 4,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -292,21 +292,12 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "7/29 puntos aplicables con pronóstico fluvial vigente.",
-    "16/20 puntos aplicables con información vigente de represas.",
+    "6/29 puntos aplicables con pronóstico fluvial vigente.",
+    "4/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 395690,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "93fd244165381675ce90df0b2483ee92c4319d99",
-    "bytes": 395690,
-    "generated_at": "2026-10-16T02:31:50.105017+00:00",
-    "verified_at": "2026-10-16T02:31:57.798206+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
