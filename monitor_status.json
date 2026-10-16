@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-16T01:32:33.435031+00:00",
-  "checked_at_art": "2026-10-15T22:32:33.435031-03:00",
+  "checked_at": "2026-10-16T02:31:46.620234+00:00",
+  "checked_at_art": "2026-10-15T23:31:46.620234-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -288,23 +288,16 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_red_integrada",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "7/29 puntos aplicables con pronóstico fluvial vigente.",
     "16/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Red integrada: fallo en verificacion (contenido_no_confirmado)."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
   "red_integrada_publicada": false,
-  "red_integrada_estado": "error",
-  "red_integrada_bytes": 395990,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_error": "Red integrada: fallo en verificacion (contenido_no_confirmado).",
-  "red_integrada_etapa": "verificacion",
-  "red_integrada_error_codigo": "contenido_no_confirmado",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_estado": "pendiente"
 }
