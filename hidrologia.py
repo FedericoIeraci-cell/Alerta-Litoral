@@ -695,6 +695,7 @@ def obtener_panorama(referencia=None, session=None):
 
 
 VERSION_EVIDENCIAS = 1
+VERSION_MOTOR = "2026-10-17.1"
 
 
 def _fuente_verificable(url, panorama):
@@ -912,7 +913,11 @@ def evaluar_localidad(localidad, panorama, referencia=None):
     result["hidrologia_accion"] = accion
     result["hidrologia_motivo"] = " ".join(motivos)
     result["hidrologia_fuentes"] = " | ".join(sorted(fuentes))
+    # Un plazo textual puede omitir desde/hasta (None), mientras una serie
+    # numérica aporta fechas ISO. Ordenar nulos primero evita comparar None
+    # con str y conserva los valores y el orden de las firmas ya válidas.
+    firma_previsiones.sort(key=lambda p: tuple((v is not None, v) for v in p))
     firma = [key, result["nivel_hidrologico_observado"], result["nivel_hidrologico_previsto"],
-             sorted(firma_previsiones), señal_represa, sorted((s["estacion"], s["nivel"]) for s in upstream), result["hidrologia_cobertura"]]
+             firma_previsiones, señal_represa, sorted((s["estacion"], s["nivel"]) for s in upstream), result["hidrologia_cobertura"]]
     result["hidrologia_firma"] = sha256(json.dumps(firma, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:20]
     return result

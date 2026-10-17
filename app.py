@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.7.0
+# Versión: V4.7.1
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -58,10 +58,13 @@ from explicaciones_alerta import (construir_explicacion, motivo_publico, motivo_
 def cargar_motor_hidrologico():
     """Evita mezclar la interfaz nueva con un módulo previo retenido por Streamlit."""
     import hidrologia
-    if getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) != 1:
+    def motor_vigente():
+        return (getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) == 1 and
+                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-17.1')
+    if not motor_vigente():
         import importlib
         hidrologia = importlib.reload(hidrologia)
-    if getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) != 1:
+    if not motor_vigente():
         raise RuntimeError('El despliegue hidrológico está incompleto; reiniciar la aplicación.')
     return hidrologia.obtener_panorama, hidrologia.evaluar_localidad
 
@@ -107,7 +110,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.7.0"
+VERSION = "V4.7.1"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -3127,6 +3130,21 @@ def mostrar_goes19():
 # ============================================================
 # PRONÓSTICO EXTENDIDO
 # ============================================================
+
+def seleccionar_horizonte_pronostico(dias_disponibles):
+    """Mantiene visible un pronóstico corto sin crear un slider inválido."""
+    dias_disponibles = min(15, dias_disponibles)
+    if dias_disponibles <= 5:
+        st.caption(f"Días de pronóstico disponibles: {dias_disponibles}. Se muestran todos los días recibidos.")
+        return dias_disponibles
+    return st.slider(
+        "Mostrar horizonte",
+        min_value=5,
+        max_value=dias_disponibles,
+        value=dias_disponibles,
+        key="horizonte_pronostico",
+    )
+
 
 def extraer_pronostico_diario(
     datos
@@ -7664,19 +7682,7 @@ def render_app():
 
         else:
 
-            horizonte = st.slider(
-                "Mostrar horizonte",
-                min_value=5,
-                max_value=min(
-                    15,
-                    len(pronostico_15),
-                ),
-                value=min(
-                    15,
-                    len(pronostico_15),
-                ),
-                key="horizonte_pronostico",
-            )
+            horizonte = seleccionar_horizonte_pronostico(len(pronostico_15))
 
             pronostico_mostrar = (
                 pronostico_15

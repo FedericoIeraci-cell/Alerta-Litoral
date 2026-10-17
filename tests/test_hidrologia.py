@@ -1,6 +1,7 @@
 """Regresiones offline: documentos y series oficiales capturados el 14/10/2026."""
 import copy
 from datetime import datetime, timedelta
+from itertools import permutations
 import json
 from pathlib import Path
 import sys
@@ -172,6 +173,46 @@ class HidrologiaTests(unittest.TestCase):
         p["estaciones"]["paso de los libres"].update(altura_m=7.6)
         c = h.evaluar_localidad("Paso de los Libres", p, NOW + timedelta(minutes=2))
         self.assertNotEqual(a["hidrologia_firma"], c["hidrologia_firma"])
+
+    def test_firma_combina_fechas_numericas_y_plazos_textuales_incompletos(self):
+        raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
+        p = h.parsear_serie_ina(raw, 19, NOW)
+        for texto in (
+            "En Corrientes se prevé exceder el nivel de Evacuación a corto plazo.",
+            "En Corrientes se prevé exceder el nivel de Evacuación.",
+        ):
+            p["pronosticos"].extend(h._pronosticos_texto(texto, NOW, {"corrientes"}, h.INA_URL))
+
+        # Las fuentes pueden completarse en distinto orden. No debe fallar ni
+        # cambiar la firma si coinciden niveles con desde/hasta ISO y None.
+        firmas = set()
+        for orden in permutations(p["pronosticos"]):
+            x = h.evaluar_localidad("Corrientes", dict(p, pronosticos=list(orden)), NOW)
+            firmas.add(x["hidrologia_firma"])
+            self.assertEqual(x["nivel_hidrologico_previsto"], "EVACUACION")
+            self.assertTrue(x["hidrologia_pronostico_vigente"])
+            self.assertEqual(x["hidrologia_rango"], 1)
+            self.assertFalse(x["hidrologia_preparacion_evacuacion_72h"])
+        self.assertEqual(len(firmas), 1)
+        textos = [e for e in x["hidrologia_evidencias"] if e.get("clase") == "prevision_oficial_textual"]
+        self.assertEqual(len(textos), 2)
+        self.assertTrue(all(e["desde"] is None for e in textos))
+        self.assertEqual(sum(e["hasta"] is None for e in textos), 1)
+
+    def test_firmas_compatibles_evitan_reavisos_por_la_correccion(self):
+        # Firmas capturadas antes de la corrección: datos que ya funcionaban
+        # deben conservar la identidad usada para deduplicar notificaciones.
+        p = panorama_diario()
+        for lugar, firma in (
+            ("Corrientes", "5dfa4a2e158a646a3a0f"),
+            ("Paso de los Libres", "710556a173bc174dac6e"),
+            ("Formosa", "0771d812adcc77256c96"),
+        ):
+            with self.subTest(localidad=lugar):
+                self.assertEqual(h.evaluar_localidad(lugar, p, NOW)["hidrologia_firma"], firma)
+        raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
+        p = h.parsear_serie_ina(raw, 19, NOW)
+        self.assertEqual(h.evaluar_localidad("Corrientes", p, NOW)["hidrologia_firma"], "586aaae33b5834dc38a4")
 
     def test_panorama_serializable_y_fallos_no_encubren_ausencia(self):
         class Session:

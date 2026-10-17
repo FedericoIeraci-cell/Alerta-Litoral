@@ -60,6 +60,28 @@ class TrazabilidadTests(unittest.TestCase):
         with patch('importlib.reload', side_effect=AssertionError('Motor vigente no se recarga')):
             app.cargar_motor_hidrologico()
 
+    def test_despliegue_recarga_motor_previo_con_esquema_vigente(self):
+        for version_anterior in (None, '2026-10-15.1'):
+            with self.subTest(version_anterior=version_anterior), \
+                 patch.object(h, 'VERSION_EVIDENCIAS', 1), \
+                 patch.object(h, 'VERSION_MOTOR', version_anterior), \
+                 patch.object(h, 'evaluar_localidad', side_effect=TypeError('Motor retenido')):
+                if version_anterior is None:
+                    del h.VERSION_MOTOR
+                _, evaluar = app.cargar_motor_hidrologico()
+                lectura = evaluar('Reconquista', panorama_archivado(), referencia=NOW)
+                self.assertEqual(h.VERSION_EVIDENCIAS, 1)
+                self.assertEqual(h.VERSION_MOTOR, '2026-10-17.1')
+                self.assertTrue(lectura['hidrologia_evidencias'])
+
+    def test_despliegue_motor_actual_no_necesita_recarga(self):
+        with patch.object(h, 'VERSION_EVIDENCIAS', 1), \
+             patch.object(h, 'VERSION_MOTOR', '2026-10-17.1'), \
+             patch('importlib.reload', side_effect=AssertionError('Motor vigente no se recarga')):
+            panorama, evaluar = app.cargar_motor_hidrologico()
+            self.assertIs(panorama, h.obtener_panorama)
+            self.assertIs(evaluar, h.evaluar_localidad)
+
     def test_ocho_rojos_con_causa_y_mismo_indice(self):
         tipos = {'Reconquista':'pronostico_fluvial','Corrientes':'pronostico_fluvial',
                  'Goya':'pronostico_fluvial','Resistencia':'pronostico_fluvial',
