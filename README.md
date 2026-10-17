@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.7.0
+# Alerta Litoral Agro · V4.7.1
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -32,6 +32,14 @@ El JSON compartido agrega `indice_meteorologico`, `nivel_meteorologico`, `estado
 Ver [investigación de los ocho rojos del 15/10/2026](docs/REVISION_ALERTAS_20261015.md). Las pruebas de regresión reproducen la transición de Reconquista, fuentes fallidas, fechas vencidas/futuras, observación frente a pronóstico, SMN, escenarios numéricos, coherencia entre superficies y HTML de Telegram sin envíos reales.
 
 ## Actualización
+
+La versión **V4.7.1 (17/10/2026)** corrige el bloqueo al combinar pronósticos
+hidrológicos con fechas completas y fechas ausentes, reproducido en Concordia.
+Conserva las fechas originales, los niveles y las firmas previamente válidas.
+El panel comprueba la revisión del motor al recargar, admite pronósticos cortos
+de uno a cinco días y el monitor informa el tipo y la etapa de un error de
+evaluación sin publicar mensajes HTTP ni credenciales. Las 185 pruebas de
+regresión se ejecutan sin envíos reales.
 
 Subí juntos a la rama utilizada por Streamlit:
 

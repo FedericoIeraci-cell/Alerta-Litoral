@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import builtins
 import importlib.util
 import json
 import math
@@ -49,6 +50,16 @@ RESULT_FIELDS = (
 
 class MonitorError(RuntimeError):
     """Error público que no incluye respuestas ni credenciales."""
+
+
+def _safe_exception_type(error: Exception) -> str:
+    """Sólo nombres conocidos; los mensajes HTTP y clases externas son privados."""
+    for cls in type(error).__mro__:
+        name = cls.__name__
+        if (getattr(builtins, name, None) is cls
+                or getattr(requests.exceptions, name, None) is cls):
+            return name
+    return "Exception"
 
 
 class StateStoreError(MonitorError):
@@ -629,14 +640,19 @@ def run_monitor(
     automatic_risk = getattr(app, "obtener_riesgo_automatico", None)
     if not callable(automatic_risk):
         raise MonitorError("Falta la integración automática de fuentes; actualizá app.py junto con monitor.py e hidrologia.py.")
+    evaluation_stage = "obtener_panorama_hidrologico"
     try:
         # La misma evaluación automática abastece al panel y al monitor. No se
         # usan las capas privadas que una persona haya cargado en el navegador.
         panorama_getter = getattr(app, "obtener_panorama_hidrologico", None)
         panorama = panorama_getter() if callable(panorama_getter) else None
+        evaluation_stage = "obtener_riesgo_automatico"
         frame = automatic_risk(panorama=panorama) if callable(panorama_getter) else automatic_risk()
-    except Exception:
-        raise MonitorError("No se pudo completar la evaluación automática de meteorología, hidrología y represas.") from None
+    except Exception as error:
+        raise MonitorError(
+            "No se pudo completar la evaluación automática de meteorología, hidrología y represas. "
+            f"Diagnóstico: {_safe_exception_type(error)} en {evaluation_stage}."
+        ) from None
     total = len(frame)
     levels = frame["nivel"].astype(str).str.upper() if "nivel" in frame else None
     if levels is None:
