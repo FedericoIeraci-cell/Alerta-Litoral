@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-17T16:27:39.851354+00:00",
-  "checked_at_art": "2026-10-17T13:27:39.851354-03:00",
+  "checked_at": "2026-10-17T17:25:47.989833+00:00",
+  "checked_at_art": "2026-10-17T14:25:47.989833-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 2,
     "fallidas": 0,
     "pendientes": 8,
-    "omitidas": 8,
+    "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 5,
     "atrasadas": 0,
@@ -47,6 +47,36 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "ae297d56d6be",
+      "creado": "2026-10-17T17:25:47.990599+00:00",
+      "intento": "2026-10-17T17:25:47.990599+00:00",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DEL RIESGO",
+      "motivo": "Actualización del riesgo: nueva condición determinante. Río observado en Barranqueras: 6,50 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 17/10/2026 00:00 ART. Previsión fluvial en Barranqueras: posible superación del umbral de evacuación (6,50 m) a partir de 17/10/2026 · hora no publicada; previsión textual, sin altura numérica de cruce publicada. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 25,3 → 19,9/100; se evalúa por separado.",
+      "indice_anterior": 25.3,
+      "indice": 19.9,
+      "estado": "enviado",
+      "message_id": 58,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "a6f285278393",
+      "creado": "2026-10-17T17:25:47.990599+00:00",
+      "intento": "2026-10-17T17:25:47.990599+00:00",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DEL RIESGO",
+      "motivo": "Actualización del riesgo: nueva condición determinante. Río observado en Barranqueras: 6,50 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 17/10/2026 00:00 ART. Previsión fluvial en Barranqueras: posible superación del umbral de evacuación (6,50 m) a partir de 17/10/2026 · hora no publicada; previsión textual, sin altura numérica de cruce publicada. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 25,3 → 19,9/100; se evalúa por separado.",
+      "indice_anterior": 25.3,
+      "indice": 19.9,
+      "estado": "enviado",
+      "message_id": 59,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "6a81cd87832c",
       "creado": "2026-10-16T11:32:18.559579+00:00",
@@ -313,15 +343,6 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 429648,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "9d2901336b7639dc2a839fb32f46e28b04fc9136",
-    "bytes": 429648,
-    "generated_at": "2026-10-17T16:27:44.711008+00:00",
-    "verified_at": "2026-10-17T16:27:56.162385+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
