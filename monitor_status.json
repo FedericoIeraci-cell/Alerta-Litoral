@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-17T12:32:03.867423+00:00",
-  "checked_at_art": "2026-10-17T09:32:03.867423-03:00",
+  "checked_at": "2026-10-17T13:29:59.483064+00:00",
+  "checked_at_art": "2026-10-17T10:29:59.483064-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 20,
+  "nodes_valid": 43,
   "nodes_red": 8,
-  "nodes_invalid": 28,
-  "nodes_yellow": 12,
-  "nodes_green": 0,
+  "nodes_invalid": 5,
+  "nodes_yellow": 14,
+  "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 0,
+      "vigentes": 48,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -40,7 +40,7 @@
     "pendientes": 8,
     "omitidas": 8,
     "inicializadas": 0,
-    "sin_datos": 28,
+    "sin_datos": 5,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -306,7 +306,6 @@
   "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "0/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "16/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
@@ -314,15 +313,6 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 378126,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "65e7e643088d9f22958ae62170493d26f2a51c19",
-    "bytes": 378126,
-    "generated_at": "2026-10-17T12:32:06.798778+00:00",
-    "verified_at": "2026-10-17T12:32:18.852221+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
