@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.10.0
+# Alerta Litoral Agro · V4.10.1
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -16,6 +16,10 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
+
+## Corrección visual V4.10.1
+
+El mapa principal utiliza dibujo 2D con Leaflet incluido en la aplicación. Conserva las provincias, las referencias y sus explicaciones aunque el navegador no pueda usar WebGL. Si no carga el fondo de OpenStreetMap, los puntos y límites del Litoral siguen visibles. El cambio no modifica datos, colores ni reglas de evaluación.
 
 ## Cambios de la versión V4.10.0
 
