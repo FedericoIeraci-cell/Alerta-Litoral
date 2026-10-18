@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.8.0
+# Versión: V4.9.0
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.8.0"
+VERSION = "V4.9.0"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -7474,11 +7474,9 @@ def render_app():
         st.subheader('Tu localidad · qué ocurre y qué hacer')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
-            if st.session_state.get('localidad_detalle') not in localidades:
-                st.session_state.pop('localidad_detalle',None)
-            destacada=localidad_prioritaria(df_alerta)
-            localidad_seleccionada=st.selectbox('Seleccionar localidad',localidades,
-                index=localidades.index(destacada) if destacada in localidades else 0,key='localidad_detalle')
+            from ubicacion_local import seleccionar_localidad
+            localidad_seleccionada=seleccionar_localidad(st,app='ala',nodos=NODOS,opciones=localidades,
+                destacada=localidad_prioritaria(df_alerta),key='localidad_detalle')
             row_acciones=df_alerta[df_alerta.localidad.eq(localidad_seleccionada)].iloc[0]
             st.markdown(html_portada_local(construir_portada_local(row_acciones, panorama_hidro, ahora())),unsafe_allow_html=True)
             with st.expander('Plan completo por tarea · evidencias y descarga'):

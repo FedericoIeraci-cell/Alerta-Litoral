@@ -1,0 +1,469 @@
+{
+  "version": "2026-10-18.1",
+  "referencias": [
+    {
+      "id": "ala-reconquista",
+      "app": "ala",
+      "localidad": "Reconquista",
+      "provincia": "Santa Fe",
+      "lat": -29.144,
+      "lon": -59.643
+    },
+    {
+      "id": "ala-avellaneda",
+      "app": "ala",
+      "localidad": "Avellaneda",
+      "provincia": "Santa Fe",
+      "lat": -29.117,
+      "lon": -59.658
+    },
+    {
+      "id": "ala-vera",
+      "app": "ala",
+      "localidad": "Vera",
+      "provincia": "Santa Fe",
+      "lat": -29.46,
+      "lon": -60.213
+    },
+    {
+      "id": "ala-tostado",
+      "app": "ala",
+      "localidad": "Tostado",
+      "provincia": "Santa Fe",
+      "lat": -29.233,
+      "lon": -61.769
+    },
+    {
+      "id": "ala-rafaela",
+      "app": "ala",
+      "localidad": "Rafaela",
+      "provincia": "Santa Fe",
+      "lat": -31.25,
+      "lon": -61.486
+    },
+    {
+      "id": "ala-santa-fe",
+      "app": "ala",
+      "localidad": "Santa Fe",
+      "provincia": "Santa Fe",
+      "lat": -31.633,
+      "lon": -60.7
+    },
+    {
+      "id": "ala-esperanza",
+      "app": "ala",
+      "localidad": "Esperanza",
+      "provincia": "Santa Fe",
+      "lat": -31.448,
+      "lon": -60.932
+    },
+    {
+      "id": "ala-rosario",
+      "app": "ala",
+      "localidad": "Rosario",
+      "provincia": "Santa Fe",
+      "lat": -32.946,
+      "lon": -60.639
+    },
+    {
+      "id": "ala-venado-tuerto",
+      "app": "ala",
+      "localidad": "Venado Tuerto",
+      "provincia": "Santa Fe",
+      "lat": -33.745,
+      "lon": -61.968
+    },
+    {
+      "id": "ala-corrientes",
+      "app": "ala",
+      "localidad": "Corrientes",
+      "provincia": "Corrientes",
+      "lat": -27.469,
+      "lon": -58.83
+    },
+    {
+      "id": "ala-goya",
+      "app": "ala",
+      "localidad": "Goya",
+      "provincia": "Corrientes",
+      "lat": -29.14,
+      "lon": -59.263
+    },
+    {
+      "id": "ala-mercedes",
+      "app": "ala",
+      "localidad": "Mercedes",
+      "provincia": "Corrientes",
+      "lat": -29.182,
+      "lon": -58.075
+    },
+    {
+      "id": "ala-curuzu-cuatia",
+      "app": "ala",
+      "localidad": "Curuzú Cuatiá",
+      "provincia": "Corrientes",
+      "lat": -29.791,
+      "lon": -58.054
+    },
+    {
+      "id": "ala-paso-de-los-libres",
+      "app": "ala",
+      "localidad": "Paso de los Libres",
+      "provincia": "Corrientes",
+      "lat": -29.713,
+      "lon": -57.088
+    },
+    {
+      "id": "ala-santo-tome",
+      "app": "ala",
+      "localidad": "Santo Tomé",
+      "provincia": "Corrientes",
+      "lat": -28.549,
+      "lon": -56.04
+    },
+    {
+      "id": "ala-parana",
+      "app": "ala",
+      "localidad": "Paraná",
+      "provincia": "Entre Ríos",
+      "lat": -31.741,
+      "lon": -60.511
+    },
+    {
+      "id": "ala-la-paz",
+      "app": "ala",
+      "localidad": "La Paz",
+      "provincia": "Entre Ríos",
+      "lat": -30.744,
+      "lon": -59.645
+    },
+    {
+      "id": "ala-concordia",
+      "app": "ala",
+      "localidad": "Concordia",
+      "provincia": "Entre Ríos",
+      "lat": -31.393,
+      "lon": -58.02
+    },
+    {
+      "id": "ala-resistencia",
+      "app": "ala",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "lat": -27.451075711,
+      "lon": -58.986483529
+    },
+    {
+      "id": "ala-general-jose-de-san-martin",
+      "app": "ala",
+      "localidad": "General José de San Martín",
+      "provincia": "Chaco",
+      "lat": -26.53630236,
+      "lon": -59.341321005
+    },
+    {
+      "id": "ala-presidencia-roque-saenz-pena",
+      "app": "ala",
+      "localidad": "Presidencia Roque Sáenz Peña",
+      "provincia": "Chaco",
+      "lat": -26.790971775,
+      "lon": -60.441248325
+    },
+    {
+      "id": "ala-charata",
+      "app": "ala",
+      "localidad": "Charata",
+      "provincia": "Chaco",
+      "lat": -27.217922303,
+      "lon": -61.187347968
+    },
+    {
+      "id": "ala-villa-angela",
+      "app": "ala",
+      "localidad": "Villa Ángela",
+      "provincia": "Chaco",
+      "lat": -27.576877556,
+      "lon": -60.711125666
+    },
+    {
+      "id": "ala-nueva-pompeya",
+      "app": "ala",
+      "localidad": "Nueva Pompeya",
+      "provincia": "Chaco",
+      "lat": -24.933074618,
+      "lon": -61.483145173
+    },
+    {
+      "id": "ala-formosa",
+      "app": "ala",
+      "localidad": "Formosa",
+      "provincia": "Formosa",
+      "lat": -26.185008983,
+      "lon": -58.174896483
+    },
+    {
+      "id": "ala-clorinda",
+      "app": "ala",
+      "localidad": "Clorinda",
+      "provincia": "Formosa",
+      "lat": -25.286080881,
+      "lon": -57.7224082
+    },
+    {
+      "id": "ala-pirane",
+      "app": "ala",
+      "localidad": "Pirané",
+      "provincia": "Formosa",
+      "lat": -25.732649819,
+      "lon": -59.109808063
+    },
+    {
+      "id": "ala-el-colorado",
+      "app": "ala",
+      "localidad": "El Colorado",
+      "provincia": "Formosa",
+      "lat": -26.309061021,
+      "lon": -59.372308046
+    },
+    {
+      "id": "ala-las-lomitas",
+      "app": "ala",
+      "localidad": "Las Lomitas",
+      "provincia": "Formosa",
+      "lat": -24.708135606,
+      "lon": -60.591376883
+    },
+    {
+      "id": "ala-ingeniero-guillermo-n-juarez",
+      "app": "ala",
+      "localidad": "Ingeniero Guillermo N. Juárez",
+      "provincia": "Formosa",
+      "lat": -23.90373915,
+      "lon": -61.842429269
+    },
+    {
+      "id": "ala-posadas",
+      "app": "ala",
+      "localidad": "Posadas",
+      "provincia": "Misiones",
+      "lat": -27.36642598,
+      "lon": -55.893980275
+    },
+    {
+      "id": "ala-obera",
+      "app": "ala",
+      "localidad": "Oberá",
+      "provincia": "Misiones",
+      "lat": -27.486790956,
+      "lon": -55.120056983
+    },
+    {
+      "id": "ala-eldorado",
+      "app": "ala",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "lat": -26.408876964,
+      "lon": -54.60705304
+    },
+    {
+      "id": "ala-puerto-iguazu",
+      "app": "ala",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "lat": -25.597210098,
+      "lon": -54.577223001
+    },
+    {
+      "id": "ala-san-vicente",
+      "app": "ala",
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "lat": -26.993297387,
+      "lon": -54.486618972
+    },
+    {
+      "id": "ala-el-soberbio",
+      "app": "ala",
+      "localidad": "El Soberbio",
+      "provincia": "Misiones",
+      "lat": -27.297511036,
+      "lon": -54.197545618
+    },
+    {
+      "id": "ala-gualeguaychu",
+      "app": "ala",
+      "localidad": "Gualeguaychú",
+      "provincia": "Entre Ríos",
+      "lat": -33.007797697,
+      "lon": -58.510770086
+    },
+    {
+      "id": "ala-gualeguay",
+      "app": "ala",
+      "localidad": "Gualeguay",
+      "provincia": "Entre Ríos",
+      "lat": -33.15043008,
+      "lon": -59.310575586
+    },
+    {
+      "id": "ala-victoria",
+      "app": "ala",
+      "localidad": "Victoria",
+      "provincia": "Entre Ríos",
+      "lat": -32.621605823,
+      "lon": -60.157953952
+    },
+    {
+      "id": "ala-villaguay",
+      "app": "ala",
+      "localidad": "Villaguay",
+      "provincia": "Entre Ríos",
+      "lat": -31.867637571,
+      "lon": -59.026885213
+    },
+    {
+      "id": "ala-federal",
+      "app": "ala",
+      "localidad": "Federal",
+      "provincia": "Entre Ríos",
+      "lat": -30.956214281,
+      "lon": -58.779587505
+    },
+    {
+      "id": "ala-chajari",
+      "app": "ala",
+      "localidad": "Chajarí",
+      "provincia": "Entre Ríos",
+      "lat": -30.754724203,
+      "lon": -57.981789368
+    },
+    {
+      "id": "ala-ituzaingo",
+      "app": "ala",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "lat": -27.5833333333333,
+      "lon": -56.7
+    },
+    {
+      "id": "ala-barranqueras",
+      "app": "ala",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "lat": -27.4833333333333,
+      "lon": -58.9333333333333
+    },
+    {
+      "id": "ala-andresito",
+      "app": "ala",
+      "localidad": "Andresito",
+      "provincia": "Misiones",
+      "lat": -25.5833333333333,
+      "lon": -53.9833333333333
+    },
+    {
+      "id": "ala-colon",
+      "app": "ala",
+      "localidad": "Colón",
+      "provincia": "Entre Ríos",
+      "lat": -32.2333333333333,
+      "lon": -58.1166666666667
+    },
+    {
+      "id": "ala-concepcion-del-uruguay",
+      "app": "ala",
+      "localidad": "Concepción del Uruguay",
+      "provincia": "Entre Ríos",
+      "lat": -32.4833333333333,
+      "lon": -58.2333333333333
+    },
+    {
+      "id": "ala-san-javier-misiones",
+      "app": "ala",
+      "localidad": "San Javier (Misiones)",
+      "provincia": "Misiones",
+      "lat": -27.8833333333333,
+      "lon": -55.1333333333333
+    },
+    {
+      "id": "zc-zarate-centro",
+      "app": "zc",
+      "localidad": "Zárate centro",
+      "provincia": "Buenos Aires",
+      "lat": -34.098,
+      "lon": -59.028
+    },
+    {
+      "id": "zc-zarate-costanera",
+      "app": "zc",
+      "localidad": "Zárate costanera",
+      "provincia": "Buenos Aires",
+      "lat": -34.089,
+      "lon": -59.011
+    },
+    {
+      "id": "zc-lima",
+      "app": "zc",
+      "localidad": "Lima",
+      "provincia": "Buenos Aires",
+      "lat": -34.05,
+      "lon": -59.197
+    },
+    {
+      "id": "zc-escalada",
+      "app": "zc",
+      "localidad": "Escalada",
+      "provincia": "Buenos Aires",
+      "lat": -34.164,
+      "lon": -59.112
+    },
+    {
+      "id": "zc-delta-de-zarate-referencia",
+      "app": "zc",
+      "localidad": "Delta de Zárate · referencia",
+      "provincia": "Buenos Aires",
+      "lat": -34.025,
+      "lon": -58.935
+    },
+    {
+      "id": "zc-campana-centro",
+      "app": "zc",
+      "localidad": "Campana centro",
+      "provincia": "Buenos Aires",
+      "lat": -34.168,
+      "lon": -58.959
+    },
+    {
+      "id": "zc-campana-costanera",
+      "app": "zc",
+      "localidad": "Campana costanera",
+      "provincia": "Buenos Aires",
+      "lat": -34.155,
+      "lon": -58.96
+    },
+    {
+      "id": "zc-ingeniero-otamendi",
+      "app": "zc",
+      "localidad": "Ingeniero Otamendi",
+      "provincia": "Buenos Aires",
+      "lat": -34.237,
+      "lon": -58.893
+    },
+    {
+      "id": "zc-rio-lujan",
+      "app": "zc",
+      "localidad": "Río Luján",
+      "provincia": "Buenos Aires",
+      "lat": -34.28,
+      "lon": -58.888
+    },
+    {
+      "id": "zc-delta-de-campana-referencia",
+      "app": "zc",
+      "localidad": "Delta de Campana · referencia",
+      "provincia": "Buenos Aires",
+      "lat": -34.123,
+      "lon": -58.842
+    }
+  ]
+}
