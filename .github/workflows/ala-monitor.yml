@@ -23,6 +23,7 @@ concurrency:
   # La misma exclusividad para ejecuciones programadas y manuales.
   group: ala-monitor-${{ github.repository }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   vigilar:

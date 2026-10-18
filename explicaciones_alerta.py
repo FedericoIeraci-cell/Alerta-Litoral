@@ -29,6 +29,8 @@ def fecha(valor, precision='fecha_hora_publicada'):
         if dt.tzinfo is None:
             return dt.strftime('%d/%m/%Y') + ' · hora no publicada'
         dt = dt.astimezone(TZ)
+        if precision == 'fecha_registro_fuente':
+            return dt.strftime('%d/%m/%Y %H:%M') + ' ART · registro de la fuente; hora de medición no confirmada'
         return (dt.strftime('%d/%m/%Y') + ' · hora no publicada' if precision == 'fecha_sin_hora'
                 else dt.strftime('%d/%m/%Y %H:%M') + ' ART')
     except (ValueError, TypeError):

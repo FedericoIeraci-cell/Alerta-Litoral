@@ -161,7 +161,7 @@ def url_rios():
     return INA_WFS+'?'+urlencode({'service':'WFS','version':'1.0.0','request':'GetFeature',
         'typeName':'public2:ultimas_alturas_con_timeseries','outputFormat':'application/json',
         'CQL_FILTER':'series_id IN ('+','.join(map(str,ESTACIONES))+')',
-        'propertyName':'series_id,nombre,var_id,tabla,fecha,valor,timeseries'})
+        'propertyName':'series_id,nombre,var_id,tabla,fecha,valor,timeseries,nivel_de_alerta,nivel_de_evacuacion'})
 
 
 def parsear_rios(payload, referencia=None):
@@ -171,7 +171,9 @@ def parsear_rios(payload, referencia=None):
     salida = []
     for sid,nombre in ESTACIONES.items():
         item = {'nombre':nombre,'serie':sid,'fecha':None,'altura_m':None,'fuente':url_rios(),
-                'tipo':'lectura_ina','consulta':ref.isoformat(),'error':'Serie ausente o identidad no verificada.'}
+                'tipo':'lectura_ina','consulta':ref.isoformat(),'error':'Serie ausente o identidad no verificada.',
+                'precision_fecha':'fecha_registro_fuente', 'automatica':None,
+                'nota_fecha':'Fecha y hora del registro INA; la hora de medición no está confirmada.'}
         filas = [f.get('properties',{}) for f in payload['features'] if isinstance(f,dict)
                  and isinstance(f.get('properties'),dict) and f['properties'].get('series_id')==sid]
         if (len(filas)==1 and filas[0].get('tabla')=='alturas_prefe' and filas[0].get('var_id')==2
@@ -180,14 +182,25 @@ def parsear_rios(payload, referencia=None):
             # Se conserva la fecha registrada por INA; puede corresponder a un dato diario.
             fecha,valor = _fecha(p.get('fecha')),_numero(p.get('valor'))
             if fecha and fecha<=ref and valor is not None:
-                item.update(fecha=fecha.isoformat(),altura_m=valor,error='')
+                alerta,evacuacion = _numero(p.get('nivel_de_alerta')),_numero(p.get('nivel_de_evacuacion'))
+                umbral_invalido = (any(p.get(c) is not None and _numero(p[c]) is None
+                    for c in ('nivel_de_alerta','nivel_de_evacuacion'))
+                    or (alerta is not None and evacuacion is not None and evacuacion<alerta))
+                item.update(fecha=fecha.isoformat(),fecha_registro=p['fecha'],altura_m=valor,error='',
+                    tabla='alturas_prefe',var_id=2,unidad='m',alerta_m=alerta,evacuacion_m=evacuacion,
+                    umbral_invalido=umbral_invalido,fuente_umbrales=url_rios())
         salida.append(estado_lectura(item,ref))
     return salida
 
 
+def consultar_rios(referencia=None, session=None):
+    """Alturas y umbrales de la misma escala INA; no consulta la serie RHN."""
+    return parsear_rios(json.loads(_descargar(url_rios(),session)),referencia)
+
+
 def _consulta(nombre, referencia):
     if nombre=='salto': return [consultar_salto_grande(referencia)]
-    if nombre=='rios': return parsear_rios(json.loads(_descargar(url_rios())),referencia)
+    if nombre=='rios': return consultar_rios(referencia)
     from hidrometria_local import consultar_altura_zarate
     dato = consultar_altura_zarate(referencia)
     return [{'nombre':'Zárate · automática RHN', 'serie':29437,'tipo':'automatica_rhn',

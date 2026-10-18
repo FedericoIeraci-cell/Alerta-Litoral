@@ -1,0 +1,50 @@
+name: Alerta Litoral Agro - actualizar red integrada
+
+on:
+  schedule:
+    # Cadencia objetivo: 10 minutos. Actions puede demorar el inicio.
+    # Consultar más seguido no modifica la hora de observación de las fuentes.
+    - cron: '3,13,23,33,43,53 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Todos los escritores de ala-monitor-state comparten exclusión.
+  # La cola evita reemplazar una vigilancia horaria que esté pendiente.
+  group: ala-monitor-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Descargar el codigo de la rama principal
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements_monitor.txt
+
+      - name: Instalar dependencias
+        run: python -m pip install -r requirements_monitor.txt
+
+      - name: Recalcular, publicar y confirmar el informe compartido
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ALA_MONITOR_STATE_BRANCH: ala-monitor-state
+          ALA_MONITOR_STATE_DIR: ${{ runner.temp }}/ala-red-integrada
+          PYTHONUNBUFFERED: '1'
+          TZ: America/Argentina/Buenos_Aires
+        # Este modo no consulta credenciales ni lee/escribe el registro de avisos.
+        # Un fallo de publicación o de confirmación finaliza con código distinto de cero.
+        run: python monitor.py --publish-red-only
