@@ -1131,7 +1131,7 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
         return datos if isinstance(datos, dict) else {"error": resumen["error"], "snapshot_vigente": False}
     snapshot_url = datos.get("snapshot_url", "")
     datos = {**resumen["datos"], "snapshot_url": snapshot_url}
-    st.caption("Informe generado: " + fecha_publica(datos["generated_at"]) + " · actualización prevista: cada hora")
+    st.caption("Informe generado: " + fecha_publica(datos["generated_at"]) + " · publicación programada aproximadamente cada 10 minutos")
     if resumen["estado"] == "antiguo":
         st.warning("Informe antiguo. Se conserva como referencia; sus colores no describen la situación actual.")
     _mostrar_control_publico(st, control, comprobacion_datos=resumen["prueba"])
