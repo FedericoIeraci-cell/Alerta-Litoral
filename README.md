@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.8.0
+# Alerta Litoral Agro · V4.9.0
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -33,6 +33,10 @@ Ver [investigación de los ocho rojos del 15/10/2026](docs/REVISION_ALERTAS_2026
 
 ## Actualización
 
+La versión **V4.9.0** agrega **Usar mi ubicación** junto al selector manual. El navegador pide permiso y calcula una referencia pública cercana; las coordenadas del dispositivo no se envían a la app. Un permiso previamente concedido permite una consulta automática por sesión, sin seguimiento continuo. La distancia es aproximada y en línea recta: no acredita una medición en la calle o el lote, ni una cobertura territorial exacta. Una selección manual posterior se respeta, incluso si llega tarde la respuesta del navegador.
+
+Cuando no hay precisión suficiente, la referencia está muy alejada o el navegador no permite obtener ubicación, se conserva la selección manual. Si la referencia cercana pertenece a Zárate–Campana, se ofrece un enlace voluntario que contiene sólo su identificador público. Ver [funcionamiento, privacidad y pruebas de ubicación](docs/GEOLOCALIZACION.md).
+
 La versión **V4.8.0 (17/10/2026)** pone primero la localidad elegida, el motivo del color, lluvia y río con sus fechas, represas, avisos SMN y acciones para vecinos y productores. Se distingue el momento de cálculo de la fecha de los datos y de la referencia de los períodos de lluvia. Los detalles, mapas y descargas siguen disponibles.
 
 La red compartida utiliza el mismo lector en las dos páginas. Al vencer el informe se invalidan tanto el color actual como sus evidencias. Las tablas de fuentes y ríos aplican el mismo límite de seis horas a las lecturas y emisiones INA de Zárate–Campana. El botón de actualización solicita una nueva descarga sin modificar las fechas originales. El informe agrega la trazabilidad de la consulta SMN, elimina únicamente partes de represa idénticos y publica el horizonte real de lluvia disponible, sin completar días ausentes ni modificar el índice meteorológico.
@@ -54,6 +58,7 @@ regresión se ejecutan sin envíos reales.
 Subí juntos a la rama utilizada por Streamlit:
 
 - `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py`, `portada_local.py` y `explicaciones_alerta.py` en la raíz.
+- `ubicacion_local.py` en la raíz y la carpeta completa `ubicacion_local_frontend/`, incluidos su catálogo, HTML, JavaScript y CSS locales.
 - `siga_inta.py`, `ficha_proyecto.py`, `decisiones_agro.py` y `panel_proyecto.py` en la raíz.
 - `requirements.txt` y `requirements_monitor.txt` en la raíz.
 - `.github/workflows/ala-monitor.yml` en esa ubicación exacta.
