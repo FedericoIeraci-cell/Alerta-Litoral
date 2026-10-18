@@ -3,8 +3,10 @@ from copy import deepcopy
 from datetime import timedelta
 import json
 from pathlib import Path
+import sys
+from types import ModuleType, SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import hidro_actual
 import hidrologia as h
@@ -175,6 +177,40 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         self.assertEqual(fuente["estado"], "ERROR")
         self.assertIn("TimeoutError", fuente["error"])
         self.assertNotIn("privado", json.dumps(panorama))
+
+    def test_modulo_retenido_se_recarga_y_conserva_consulta_causal(self):
+        anterior = ModuleType("hidro_actual")
+        consulta = (NOW - timedelta(minutes=5)).isoformat()
+        lecturas = hidro_actual.parsear_rios(WFS, NOW)
+        for lectura in lecturas:
+            lectura["consulta"] = consulta
+        nuevo = SimpleNamespace(url_rios=hidro_actual.url_rios,
+                                consultar_rios=Mock(return_value=lecturas))
+        panorama = {"estaciones": {}, "fuentes": []}
+        sesion = object()
+        with patch.dict(sys.modules, {"hidro_actual": anterior}), \
+             patch("importlib.reload", return_value=nuevo) as recargar:
+            h._integrar_lecturas_actuales_ina(panorama, NOW, sesion, {})
+        recargar.assert_called_once_with(anterior)
+        nuevo.consultar_rios.assert_called_once_with(NOW, sesion)
+        self.assertEqual(panorama["estaciones"]["corrientes"]["altura_m"], 6.89)
+        evidencia = next(e for e in h.evaluar_localidad("Corrientes", panorama, NOW)["hidrologia_evidencias"]
+                         if e["tipo"] == "observacion_fluvial")
+        self.assertEqual(evidencia["consultado"], consulta)
+        senal = next(e for e in h.evaluar_localidad("Goya", panorama, NOW)["hidrologia_evidencias"]
+                     if e["tipo"] == "aguas_arriba")
+        self.assertEqual(senal["consultado"], consulta)
+
+    def test_fallo_de_recarga_no_interrumpe_el_panorama(self):
+        anterior = ModuleType("hidro_actual")
+        original = {"altura_m": 5.5, "fecha": "2026-10-14T03:00:00Z"}
+        panorama = {"estaciones": {"corrientes": deepcopy(original)}, "fuentes": []}
+        with patch.dict(sys.modules, {"hidro_actual": anterior}), \
+             patch("importlib.reload", side_effect=ImportError("detalle privado")):
+            h._integrar_lecturas_actuales_ina(panorama, NOW, object(), {})
+        self.assertEqual(panorama["estaciones"]["corrientes"], original)
+        self.assertEqual(panorama["fuentes"][0]["estado"], "ERROR")
+        self.assertNotIn("privado", panorama["fuentes"][0]["error"])
 
     def test_evidencia_aguas_arriba_conserva_precision_sin_trasladar_altura(self):
         panorama = self.panorama()

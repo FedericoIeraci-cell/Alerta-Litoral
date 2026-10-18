@@ -45,7 +45,7 @@ def dibujar_panel(st, lecturas, informe=None):
         st.caption('Datos horarios CTM. Más de 2 horas se indica como lectura atrasada. La cota del embalse no es la altura de un puerto.')
         st.markdown('[Fuente horaria de Salto Grande](https://www.saltogrande.org/datos_horarios.php)')
         st.write('Yacyretá · boletín oficial, sin telemetría en vivo verificada')
-        st.caption('Se recibe del informe compartido, cuyo monitor está programado cada hora. Conserva la fecha original del boletín.')
+        st.caption('Se recibe del informe compartido, cuya actualización está programada aproximadamente cada 10 minutos. Conserva la fecha original del boletín.')
         partes = [d for d in (informe or {}).get('represas',[]) if d.get('nombre')=='Yacyretá']
         if partes:
             from red_integrada import fecha_publica, estado_publico

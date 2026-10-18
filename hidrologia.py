@@ -613,10 +613,16 @@ def _integrar_lecturas_actuales_ina(panorama, ahora, session, estaciones_series)
     WFS identifica la serie, tabla y variable y publica umbrales de esa misma
     feature. Las previsiones conservan su corrida, fecha y fuente originales.
     """
-    from hidro_actual import consultar_rios, url_rios
-    url = url_rios()
+    url = "https://alerta.ina.gob.ar/geoserver/ows"
     try:
-        lecturas = consultar_rios(ahora, session)
+        import hidro_actual
+        # Streamlit puede conservar el módulo anterior tras actualizar archivos.
+        # Recargar sólo si falta la interfaz nueva; un fallo queda diagnosticado.
+        if not callable(getattr(hidro_actual, "consultar_rios", None)):
+            from importlib import reload
+            hidro_actual = reload(hidro_actual)
+        url = hidro_actual.url_rios()
+        lecturas = hidro_actual.consultar_rios(ahora, session)
         panorama["lecturas_actuales_ina"] = lecturas
         validas = [d for d in lecturas if not d.get("error") and _fecha(d.get("fecha"))
                    and d.get("altura_m") is not None]
@@ -871,6 +877,7 @@ def _upstream(localidad, station_key, sistema, panorama, ahora):
                 "altura_m": obs.get("altura_m"), "alerta_m": obs.get("alerta_m"), "evacuacion_m": obs.get("evacuacion_m"),
                 "precision_fecha": obs.get("precision_fecha", "fecha_hora_publicada"),
                 "fecha_registro": obs.get("fecha_registro"), "fuente_umbrales": obs.get("fuente_umbrales", obs.get("fuente")),
+                "consultado": obs.get("consultado"),
                 "nota": "Señal aguas arriba para vigilancia; no demuestra ese nivel ni un tiempo de llegada en la localidad."})
     return result
 
@@ -1017,6 +1024,7 @@ def evaluar_localidad(localidad, panorama, referencia=None):
             "aguas_arriba", senal["estacion"], senal["fuente"], senal["fecha"], ahora, 1,
             fecha_observada=senal["fecha"], nivel=senal["nivel"], altura_m=senal.get("altura_m"),
             precision_fecha=senal.get("precision_fecha"), fecha_registro=senal.get("fecha_registro"),
+            consultado=senal.get("consultado"),
             fuente_umbrales=senal.get("fuente_umbrales"),
             alerta_m=senal.get("alerta_m"), evacuacion_m=senal.get("evacuacion_m"), texto=senal["nota"]))
     if upstream:
