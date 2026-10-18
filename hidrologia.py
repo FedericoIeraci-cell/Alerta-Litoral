@@ -403,44 +403,70 @@ def parsear_boletin_yacyreta(contenido, referencia=None, url=EBY_URL):
     fin = _fecha_es(fin_match[1], fecha.year) if fin_match and fecha else None
     if fin:
         fin = fin.replace(hour=23, minute=59, second=59)
-    nivel_texto = next((p.text() for p in (article.iter("p") if article else []) if "Puerto Ituzaingó" in p.text() and "lectura" in p.text().lower()), "")
-    altura_m = alerta_m = None
+    # Un mismo parte puede repartir el puerto, la lectura y los umbrales en
+    # varios párrafos. Acotar por el próximo puerto mantiene las escalas separadas.
+    bloque_ituzaingo = re.search(r"\bPuerto Ituzaing[oó]\b.*?(?=\bPuerto (?:de )?Ayolas\b|$)", texto, re.I)
+    nivel_texto = bloque_ituzaingo[0] if bloque_ituzaingo else ""
+    altura_m = alerta_m = evacuacion_m = None
     fecha_lectura = fecha
     lectura = re.search(r"lectura.*?hora\s+(\d{1,2}):(\d{2}).*?fue de\s*([\d.,]+)\s*m", nivel_texto, re.I)
     umbral = re.search(r"Nivel de alerta en Puerto Ituzaing[oó]\s*:\s*([\d.,]+)\s*m", nivel_texto, re.I)
+    umbral_evacuacion = re.search(r"Nivel de Evacuaci[oó]n(?:\s+en Puerto Ituzaing[oó])?\s*:?\s*([\d.,]+)\s*m", nivel_texto, re.I)
     if lectura:
         altura_m = decimal_es(lectura[3])
         if fecha:
             fecha_lectura = fecha.replace(hour=int(lectura[1]), minute=int(lectura[2]))
     if umbral:
         alerta_m = decimal_es(umbral[1])
+    if umbral_evacuacion:
+        # Sólo la referencia explícita del bloque de este puerto; no trasladar
+        # la inundabilidad de Ayolas ni completar un umbral ausente.
+        evacuacion_m = decimal_es(umbral_evacuacion[1])
     estaciones = {}
     if altura_m is not None and alerta_m is not None:
         estaciones["puerto ituzaingo"] = {"nombre": "Puerto Ituzaingó", "rio": "Paraná", "altura_m": altura_m,
-            "alerta_m": alerta_m, "evacuacion_m": None, "fecha": _iso(fecha_lectura), "fecha_documento": _iso(fecha), "fuente": url,
+            "alerta_m": alerta_m, "evacuacion_m": evacuacion_m, "fecha": _iso(fecha_lectura),
+            "precision_fecha": "fecha_hora_publicada", "fecha_documento": _iso(fecha),
+            "precision_fecha_documento": "fecha_sin_hora", "fuente": url,
             "perspectiva": nivel_texto, "representatividad": "Puerto Ituzaingó; lectura de escala, no cota de cada vivienda."}
     pronosticos = []
     rango = re.search(r"proximos d[ií]as.*?entre\s*([\d.,]+)\s*/\s*([\d.,]+)\s*m", normalizar(nivel_texto))
     if rango and fecha and fin:
-        minimo, maximo = decimal_es(rango[1]), decimal_es(rango[2])
-        if minimo is not None and maximo is not None and minimo <= maximo:
+        extremos = [decimal_es(rango[1]), decimal_es(rango[2])]
+        if all(v is not None for v in extremos):
+            # EBY también publica los extremos en orden descendente (5/4.4 m).
+            # Su orden textual se conserva; no se deducen horas ni probabilidades.
+            minimo, maximo = min(extremos), max(extremos)
             pronosticos.append({"localidades": ["ituzaingo"], "nivel": "ALERTA" if maximo >= (alerta_m or math.inf) else "SIN_DATOS",
-                "fecha_emision": _iso(fecha), "desde": _iso(fecha), "hasta": _iso(fin),
-                "ventana": f"hasta {fin.strftime('%d/%m/%Y')} según EBY", "texto": nivel_texto,
+                # El parte delimita un período; no publica un punto de cruce.
+                # Una fecha documental a medianoche no activa preparación de 72 h.
+                "fecha_emision": _iso(fecha), "desde": None, "hasta": _iso(fin),
+                "precision_fecha_emision": "fecha_sin_hora", "precision_desde": "fecha_sin_hora",
+                "precision_hasta": "fecha_sin_hora",
+                "ventana": f"próximos días, hasta {fin.strftime('%d/%m/%Y')} según EBY; sin fecha de cruce publicada", "texto": nivel_texto,
                 "fuente": url, "tipo": "prevision_oficial_rango", "minimo_m": minimo, "maximo_m": maximo,
-                "probabilidad": "rango oficial sujeto a revisión"})
+                "extremos_publicados_m": extremos,
+                "probabilidad": "sin probabilidad cuantificada; extremos del período publicados por EBY, sujetos a revisión"})
     entrada = re.search(r"caudal afluente previsto.*?entorno de\s*([\d.,]+)\s*m", texto, re.I)
     aporte_futuro = re.search(r"proximos d[ií]as entre\s*([\d.,]+)\s*a\s*([\d.,]+)\s*m", normalizar(texto))
     def caudal(s):
         # Los boletines EBY usan punto como separador de miles (34.100 m³/s).
         return decimal_es(s.replace(".", "")) if s else None
+    aportes = [caudal(aporte_futuro[1]), caudal(aporte_futuro[2])] if aporte_futuro else []
+    aportes = aportes if aportes and all(v is not None for v in aportes) else []
     represa = {"nombre": "Yacyretá", "fecha": _iso(fecha), "hasta": _iso(fin), "fuente": url,
+        "precision_fecha": "fecha_sin_hora", "precision_hasta": "fecha_sin_hora",
         "texto": texto, "señal_aguas_arriba": bool(re.search(r"ascenso en los niveles|tendencia creciente", normalizar(texto))),
         "afluente_m3s": caudal(entrada[1]) if entrada else None,
-        "afluente_previsto_min_m3s": caudal(aporte_futuro[1]) if aporte_futuro else None,
-        "afluente_previsto_max_m3s": caudal(aporte_futuro[2]) if aporte_futuro else None,
-        "nota": "El caudal afluente es agua que ingresa al embalse; no es una cota prevista para todo el Litoral."}
-    return {"fuente": _estado_fuente("eby_yacyreta", url, _iso(fecha), ahora, _iso(fin)),
+        "afluente_tipo": "prevision_del_dia" if entrada else None,
+        "afluente_previsto_min_m3s": min(aportes) if aportes else None,
+        "afluente_previsto_max_m3s": max(aportes) if aportes else None,
+        "afluente_previsto_extremos_publicados_m3s": aportes,
+        "afluente_previsto_interpretacion": "Extremos del período en el orden del boletín; sin probabilidad cuantificada ni fechas puntuales asignadas." if aportes else None,
+        "nota": "El caudal afluente es agua que ingresa al embalse; el valor del día se publica como previsto. Los extremos futuros conservan el texto y su orden original; no forman una banda probabilística ni una cota prevista para todo el Litoral."}
+    fuente = {**_estado_fuente("eby_yacyreta", url, _iso(fecha), ahora, _iso(fin)),
+              "precision_fecha_documento": "fecha_sin_hora", "precision_valido_hasta": "fecha_sin_hora"}
+    return {"fuente": fuente,
             "estaciones": estaciones, "pronosticos": pronosticos, "represa": represa}
 
 
@@ -670,7 +696,7 @@ def obtener_panorama(referencia=None, session=None):
     except Exception as exc:
         panorama["fuentes"].append(_estado_fuente("ctm_salto_grande", "https://www.saltogrande.org/", None, ahora,
             error=f"No se obtuvo un documento CTM verificable ({type(exc).__name__})."))
-    # Enriquecer rangos oficiales sólo con el umbral de la escala local INA.
+    # Enriquecer rangos oficiales sólo con el umbral de la escala local.
     # Un límite superior aislado nunca demuestra que se alcanzará evacuación.
     for p in panorama["pronosticos"]:
         if p.get("tipo") not in ("prevision_oficial_rango", "prevision_oficial_ctm"):
@@ -685,7 +711,7 @@ def obtener_panorama(referencia=None, session=None):
         minimo, maximo = decimal_es(p.get("minimo_m")), decimal_es(p.get("maximo_m"))
         if minimo is not None and evacuacion is not None and minimo >= evacuacion:
             p["nivel"] = "EVACUACION"
-            p["probabilidad"] = p.get("probabilidad", "rango oficial") + "; el rango completo supera el umbral local de evacuación de INA"
+            p["probabilidad"] = p.get("probabilidad", "rango oficial") + "; el rango completo supera el umbral local de evacuación de la estación"
         elif maximo is not None and alerta is not None and maximo >= alerta:
             p["nivel"] = "ALERTA"
             if minimo is None or minimo < alerta:
@@ -695,7 +721,7 @@ def obtener_panorama(referencia=None, session=None):
 
 
 VERSION_EVIDENCIAS = 1
-VERSION_MOTOR = "2026-10-17.1"
+VERSION_MOTOR = "2026-10-17.2"
 
 
 def _fuente_verificable(url, panorama):

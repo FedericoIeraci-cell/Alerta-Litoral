@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.7.1
+# Alerta Litoral Agro · V4.8.0
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -25,13 +25,23 @@ Cada localidad conserva `evidencias_alerta`, `desencadenantes` y `motivo_princip
 
 Una previsión textual no se presenta como altura observada ni se le inventa una altura futura. Si sólo publica un día, se indica **hora no publicada**: entrar en la ventana operativa de 72 horas no significa que se conozca la hora de inundación. El máximo de 48 horas desde la fuente es un criterio de vigencia de ALA; no prolonga la validez oficial.
 
-Al pasar el cursor sobre el mapa aparece una tarjeta breve. El selector **Detalle del nodo del mapa** abre una ficha persistente con acción y fuentes, también utilizable con teclado o celular. Los futuros mensajes y registros de transición explican la causa y el cambio del índice por separado. No se reescribe el historial de avisos ya enviados.
+Al pasar el cursor sobre el mapa aparece una tarjeta breve. El selector **Seleccionar localidad**, al inicio, controla la ficha persistente, sus datos y acciones; también se utiliza con teclado o celular. Los mensajes y registros de transición explican la causa y el cambio del índice por separado. No se reescribe el historial de avisos ya enviados.
 
 El JSON compartido agrega `indice_meteorologico`, `nivel_meteorologico`, `estado_integrado_ala`, `nivel_integrado_vigente`, motivo y evidencias. Los campos históricos `indice_experimental` y `nivel_experimental` se conservan por compatibilidad: el segundo es un campo legado del nivel integrado, no la clasificación del índice. Los informes anteriores sin trazabilidad se identifican como tales. La fecha de generación no renueva las evidencias vencidas.
 
 Ver [investigación de los ocho rojos del 15/10/2026](docs/REVISION_ALERTAS_20261015.md). Las pruebas de regresión reproducen la transición de Reconquista, fuentes fallidas, fechas vencidas/futuras, observación frente a pronóstico, SMN, escenarios numéricos, coherencia entre superficies y HTML de Telegram sin envíos reales.
 
 ## Actualización
+
+La versión **V4.8.0 (17/10/2026)** pone primero la localidad elegida, el motivo del color, lluvia y río con sus fechas, represas, avisos SMN y acciones para vecinos y productores. Se distingue el momento de cálculo de la fecha de los datos y de la referencia de los períodos de lluvia. Los detalles, mapas y descargas siguen disponibles.
+
+La red compartida utiliza el mismo lector en las dos páginas. Al vencer el informe se invalidan tanto el color actual como sus evidencias. Las tablas de fuentes y ríos aplican el mismo límite de seis horas a las lecturas y emisiones INA de Zárate–Campana. El botón de actualización solicita una nueva descarga sin modificar las fechas originales. El informe agrega la trazabilidad de la consulta SMN, elimina únicamente partes de represa idénticos y publica el horizonte real de lluvia disponible, sin completar días ausentes ni modificar el índice meteorológico.
+
+Se corrige la lectura del boletín EBY n.º 07: respeta los párrafos del mismo puerto, los extremos publicados en descenso, la condición de caudal previsto y la precisión de sus fechas. Cada dato conserva la fuente original.
+
+Ver [auditoría de datos, conexión y presentación del 17/10/2026](docs/AUDITORIA_SAT_20261017.md) para el corte revisado, las limitaciones y los controles de esta actualización.
+
+### Corrección anterior
 
 La versión **V4.7.1 (17/10/2026)** corrige el bloqueo al combinar pronósticos
 hidrológicos con fechas completas y fechas ausentes, reproducido en Concordia.
@@ -43,7 +53,7 @@ regresión se ejecutan sin envíos reales.
 
 Subí juntos a la rama utilizada por Streamlit:
 
-- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py` y `explicaciones_alerta.py` en la raíz.
+- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py`, `portada_local.py` y `explicaciones_alerta.py` en la raíz.
 - `siga_inta.py`, `ficha_proyecto.py`, `decisiones_agro.py` y `panel_proyecto.py` en la raíz.
 - `requirements.txt` y `requirements_monitor.txt` en la raíz.
 - `.github/workflows/ala-monitor.yml` en esa ubicación exacta.

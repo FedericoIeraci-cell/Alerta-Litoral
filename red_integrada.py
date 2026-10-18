@@ -21,6 +21,7 @@ from zoneinfo import ZoneInfo
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 SCHEMA_VERSION = 1
 CATALOGO_VERSION = 1
+VERSION_RED = "2026-10-17.2"
 REPOSITORY = "FedericoIeraci-cell/Alerta-Litoral"
 STATE_BRANCH = "ala-monitor-state"
 SNAPSHOT_PATH = "red_integrada.json"
@@ -164,7 +165,7 @@ def _nodo_vacio(nodo, red="Zárate–Campana", error="Sin fuente consultada"):
             "lluvia_previa_7d_mm": None, "escurrimiento_previsto_72_mm": None,
             "humedad_0_7_m3_m3": None, "indice_experimental": None,
             "nivel_experimental": "SIN DATOS", "fecha_calculo": None,
-            "fecha_consulta": None, "fecha_emision_modelo": None,
+            "fecha_consulta": None, "fecha_emision_modelo": None, "referencia_pronostico": None,
             "cobertura_horaria": {}, "estado_datos": "SIN DATOS", "error": error,
             "fuente": API_METEO, "modelo": "ECMWF IFS / Open-Meteo"}
 
@@ -202,6 +203,7 @@ def parsear_meteorologia_zc(nodo, payload, consultado, referencia=None):
         salida["error"] = "Grilla horaria ausente, repetida o discontinua"
         return salida
     ref = ref.replace(minute=0, second=0, microsecond=0)
+    salida["referencia_pronostico"] = ref.astimezone(TZ).isoformat()
     indexes = {t: i for i, t in enumerate(times)}
     errors = []
     def acumulado(variable, horas, futuro=True):
@@ -405,6 +407,7 @@ def _normalizar_nodo_ala(nodo, fila):
         except (ValueError, TypeError):
             pass
     salida.update(fecha_calculo=fecha, fecha_consulta=_iso(fila.get("consulta_meteorologica")),
+                  referencia_pronostico=_iso(fila.get("referencia_pronostico")),
                   fecha_evaluacion_integrada=_iso(fila.get("fecha_evaluacion_integrada")),
                   precision_calculo=precision, estado_datos=_texto(fila.get("estado_datos")), error=_texto(fila.get("error_datos")))
     completa = fila.get("cobertura_meteorologica") is True or str(fila.get("estado_datos")) == "OK"
@@ -428,6 +431,16 @@ def _normalizar_nodo_ala(nodo, fila):
     salida["evidencias_alerta"] = _json_finito(fila.get("evidencias_alerta") or [])
     salida["explicacion_version"] = fila.get("explicacion_version")
     salida["fuentes_integracion"] = _texto(fila.get("hidrologia_fuentes"), 2000)
+    # El horizonte extendido conserva su fin real; no se completa hasta 15 días.
+    horas = _numero(fila.get("pronostico_extendido_horas"), 1, 360)
+    hasta = _iso(fila.get("pronostico_extendido_hasta"))
+    extendida = _numero(fila.get("lluvia_futura_extendida"), 0, 100000)
+    if fila.get("cobertura_pronostico_extendido") is True and horas is not None and horas.is_integer() and hasta and extendida is not None:
+        salida["lluvia_prevista_15d_mm"] = extendida
+        salida["cobertura_horaria"]["lluvia_prevista_15d"] = {
+            "validas": int(horas), "esperadas": int(horas), "hasta": hasta,
+            "maximo_solicitado_horas": 360,
+        }
     return salida
 
 
@@ -466,8 +479,14 @@ def _normalizar_represa(key, item):
         doc_date, original = None, original[:10]
     campos = {"red": "Cuenca compartida", "nombre": _texto(item.get("nombre") or key),
               "fecha": doc_date, "fecha_original": original,
+              "precision_fecha": _texto(item.get("precision_fecha")), "precision_hasta": _texto(item.get("precision_hasta")),
               "hasta": _iso(item.get("hasta")), "fuente": _url(item.get("fuente")),
               "tipo": _texto(item.get("tipo")), "texto": _texto(item.get("texto"), 5000)}
+    for field in ("afluente_tipo", "afluente_previsto_interpretacion"):
+        campos[field] = _texto(item.get(field), 1200)
+    extremos = item.get("afluente_previsto_extremos_publicados_m3s")
+    if isinstance(extremos, (tuple, list)):
+        campos["afluente_previsto_extremos_publicados_m3s"] = [_numero(v, 0) for v in extremos[:2]]
     for k in ("afluente_m3s", "erogado_m3s", "afluente_previsto_min_m3s", "afluente_previsto_max_m3s", "cota_embalse_m"):
         campos[k] = _numero(item.get(k), 0)
     return campos
@@ -482,6 +501,8 @@ def _normalizar_fuente(item):
             "organismo": _texto(item.get("organismo") or item.get("nombre") or item.get("id")),
             "url": _url(item.get("url")), "fecha_documento": doc_date,
             "fecha_documento_original": original,
+            "precision_fecha_documento": _texto(item.get("precision_fecha_documento")),
+            "precision_valido_hasta": _texto(item.get("precision_valido_hasta")),
             "consultado": _iso(item.get("consultado")), "valido_hasta": _iso(item.get("valido_hasta")),
             "estado_publicado": _texto(item.get("estado_publicado") or item.get("estado")),
             "error": _texto(item.get("error"))}
@@ -499,12 +520,23 @@ def construir_red_integrada(frame_ala, panorama_ala, zc=None, monitor=None, refe
     zrows = [zindex.get(_normalizar(n["localidad"]), _nodo_vacio(n)) for n in NODOS_ZC]
     monitor = monitor if isinstance(monitor, dict) else {}
     safe_monitor = {k: _json_finito(monitor.get(k)) for k in ("checked_at", "health", "scope", "frequency_minutes", "dry_run", "nodes_total", "nodes_valid", "nodes_red")}
+    fuentes = list(panorama_ala.get("fuentes", [])) + list(zc.get("fuentes", []))
+    smn = panorama_ala.get("smn")
+    if isinstance(smn, dict):
+        incompleto = bool(smn.get("error") or smn.get("fallos") or smn.get("truncado"))
+        fuentes.append({
+            "red": "Litoral", "organismo": "SMN · canal de avisos consultado por ALA",
+            "url": "https://ssl.smn.gob.ar/CAP/AR.php",
+            "fecha_documento": smn.get("fecha_feed"), "consultado": smn.get("consultado"),
+            "estado_publicado": "CONSULTA_INCOMPLETA" if incompleto else "CONSULTA_COMPLETA",
+            "error": "La consulta de avisos está incompleta; revisar los documentos oficiales." if incompleto else "",
+        })
     payload = {"schema_version": SCHEMA_VERSION, "catalogo_version": CATALOGO_VERSION,
                "generated_at": ref.isoformat(), "producer": {"app": "Alerta Litoral Agro · monitor", "version": _texto(version_ala)},
                "monitor": safe_monitor, "nodos": ala + zrows,
                "rios": [_normalizar_rio_ala(k, v) for k, v in panorama_ala.get("estaciones", {}).items() if isinstance(v, dict)] + list(zc.get("rios", [])),
                "represas": [_normalizar_represa(k, v) for k, v in panorama_ala.get("represas", {}).items() if isinstance(v, dict)],
-               "fuentes": [_normalizar_fuente(f) for f in list(panorama_ala.get("fuentes", [])) + list(zc.get("fuentes", [])) if isinstance(f, dict)],
+               "fuentes": [_normalizar_fuente(f) for f in fuentes if isinstance(f, dict)],
                "limitaciones": list(LIMITES), "permite_orden_evacuacion": False, "envia_telegram": False}
     return validar_red_integrada(_json_finito(payload), ref)
 
@@ -523,6 +555,8 @@ def validar_red_integrada(payload, referencia=None):
     for k in ("nodos", "rios", "represas", "fuentes"):
         if not isinstance(payload.get(k), list) or len(payload[k]) > 500:
             raise ValueError("Colección de informe no válida: " + k)
+    if payload.get("monitor") is not None and not isinstance(payload["monitor"], dict):
+        raise ValueError("Estado del control automático no válido")
     expected = {(red, n["localidad"]): n for red, nodes in (("Litoral", NODOS_ALA), ("Zárate–Campana", NODOS_ZC)) for n in nodes}
     found = set()
     out = {k: deepcopy(payload.get(k)) for k in ("schema_version", "catalogo_version", "generated_at", "producer", "monitor", "nodos", "rios", "represas", "fuentes")}
@@ -616,15 +650,38 @@ def validar_red_integrada(payload, referencia=None):
                 item["fecha_original"] = _texto(item.get("fecha_original") or item.get("fecha"))[:10]
                 item["fecha"] = None
             temporal = _estado_fecha(item.get("fecha"), ref, 48)
+            hasta = _fecha(item.get("hasta"))
+            if hasta is not None and ref > hasta:
+                temporal.update(vigente=False, estado_tiempo="VENCIDO")
             item.update(temporal)
             item["vigente"] = temporal["vigente"] and out["snapshot_vigente"]
+    # El mismo parte puede llegar con dos claves internas. No duplica una represa
+    # ni su caudal; se conservan informes que difieran en fecha, fuente o contenido.
+    reportes, vistos = [], set()
+    for item in out["represas"]:
+        firma = json.dumps(item, sort_keys=True, ensure_ascii=False, allow_nan=False)
+        if firma not in vistos:
+            vistos.add(firma)
+            reportes.append(item)
+    out["represas"] = reportes
     for item in out["fuentes"]:
         if isinstance(item, dict):
             if "/diario/reporte_diario" in _url(item.get("url")):
                 item["fecha_documento_original"] = _texto(item.get("fecha_documento_original") or item.get("fecha_documento"))[:10]
                 item["fecha_documento"] = None
-            temporal = _estado_fecha(item.get("fecha_documento"), ref, 48)
+            # La tabla de fuentes aplica la misma ventana que la tabla de ríos.
+            # Una observación local antigua no se vuelve vigente por releerla.
+            es_ina_local = item.get("red") == "Zárate–Campana" and (
+                _normalizar(item.get("organismo")).startswith("ina ")
+                or "alerta.ina.gob.ar" in _url(item.get("url")))
+            es_smn = "smn" in _normalizar(item.get("organismo"))
+            max_horas = 6 if es_ina_local else 24 if es_smn else 48
+            temporal = _estado_fecha(item.get("fecha_documento"), ref, max_horas)
+            hasta = _fecha(item.get("valido_hasta"))
+            if hasta is not None and ref > hasta:
+                temporal.update(vigente=False, estado_tiempo="VENCIDO")
             item.update(temporal)
+            item["limite_antiguedad_horas"] = max_horas
             item["vigente"] = temporal["vigente"] and out["snapshot_vigente"] and not item.get("error")
     return _json_finito(out)
 
@@ -634,19 +691,21 @@ def limpiar_cache_red_integrada():
         _CACHE_RED.clear()
 
 
-def consultar_red_integrada(repository=REPOSITORY, session=None, referencia=None):
+def consultar_red_integrada(repository=REPOSITORY, session=None, referencia=None, actualizar=False):
     if not isinstance(repository, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
         return {"error": "Repositorio del informe no válido", "snapshot_vigente": False}
     url = f"https://raw.githubusercontent.com/{repository}/{STATE_BRANCH}/{SNAPSHOT_PATH}"
     try:
         payload = None
-        if session is None:
+        if session is None and not actualizar:
             with _CACHE_LOCK:
                 cached = _CACHE_RED.get(repository)
                 if cached and time.monotonic() - cached[0] <= 300:
                     payload = deepcopy(cached[1])
         if payload is None:
-            payload, _ = _request_json(session, url)
+            # El botón solicita una nueva versión también al caché HTTP de GitHub.
+            params = {"revision": str(time.time_ns())} if actualizar else None
+            payload, _ = _request_json(session, url, params=params)
             # Cache raw evidence, never its recency; revalidate every call below.
             validar_red_integrada(payload, referencia)
             if session is None:
@@ -665,89 +724,237 @@ def _mostrar_fecha(valor):
     return date.astimezone(TZ).strftime("%d/%m/%Y %H:%M ART") if date is not None else _texto(valor) or "Sin fecha/hora verificadas"
 
 
+def fecha_publica(valor, precision="fecha_hora_publicada"):
+    """Fecha legible sin agregar una hora que la fuente no publicó."""
+    texto = _texto(valor, 100)
+    if precision in {"fecha_sin_hora", "hora_no_verificada_en_reporte_diario"}:
+        fecha = _fecha(valor)
+        if fecha is not None:
+            return fecha.astimezone(TZ).strftime("%d/%m/%Y") + " · hora no publicada"
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", texto):
+        try:
+            return datetime.strptime(texto, "%Y-%m-%d").strftime("%d/%m/%Y") + " · hora no publicada"
+        except ValueError:
+            return "Fecha no verificada"
+    return _mostrar_fecha(valor)
+
+
+def valor_publico(valor, unidad=""):
+    numero = _numero(valor)
+    if numero is None:
+        return "Sin dato"
+    texto = f"{numero:,.2f}".rstrip("0").rstrip(".")
+    texto = texto.replace(",", "_").replace(".", ",").replace("_", ".")
+    return texto + (" " + unidad if unidad else "")
+
+
+def estado_publico(estado, vigente, informe_vigente=True, error=""):
+    if not informe_vigente:
+        return "Informe antiguo: revisar actualización"
+    if error:
+        return "Datos incompletos: revisar fuente"
+    if vigente:
+        return "Dentro del plazo de uso"
+    return {"VENCIDO": "Dato antiguo: no confirma la situación actual",
+            "FECHA_FUTURA": "Fecha inconsistente: no usar como dato actual",
+            "SIN_FECHA_HORA_VERIFICADA": "Fecha u hora sin verificar"}.get(estado, "Situación actual sin confirmar")
+
+
+def resumen_publico_red(datos, referencia=None):
+    """Hechos de conexión y cobertura. No deduce una alerta local nueva."""
+    if not isinstance(datos, dict) or datos.get("error"):
+        return {"estado": "sin_confirmar", "error": "No se pudo comprobar el informe compartido."}
+    try:
+        verificado = validar_red_integrada(datos, referencia)
+    except (ValueError, TypeError):
+        return {"estado": "sin_confirmar", "error": "El informe compartido no pasó la comprobación de datos."}
+    nodos, rios = verificado["nodos"], verificado["rios"]
+    monitor = verificado.get("monitor") or {}
+    control = _estado_fecha(monitor.get("checked_at"), _ahora(referencia), 3)
+    return {"estado": "reciente" if verificado["snapshot_vigente"] else "antiguo",
+            "generated_at": verificado["generated_at"], "edad_horas": verificado["snapshot_edad_horas"],
+            "prueba": monitor.get("dry_run") is True,
+            "control_reciente": control["vigente"] and monitor.get("dry_run") is False and monitor.get("health") in {"ok", "datos_parciales"},
+            "control_parcial": monitor.get("health") == "datos_parciales",
+            "nodos": len(nodos), "litoral": sum(n["red"] == "Litoral" for n in nodos),
+            "zarate_campana": sum(n["red"] == "Zárate–Campana" for n in nodos),
+            "lluvia_72_reciente": sum(n.get("vigente") is True and n.get("lluvia_prevista_72_mm") is not None for n in nodos),
+            "alturas_recientes": sum(r.get("observacion_vigente") is True for r in rios),
+            "pronosticos_rio_recientes": sum(r.get("pronostico_vigente") is True for r in rios),
+            "estaciones": len(rios),
+            "rojos": [n["localidad"] for n in nodos if n.get("nivel_integrado_vigente") == "ROJO"],
+            "sin_clasificacion_litoral": [n["localidad"] for n in nodos if n["red"] == "Litoral" and n.get("nivel_integrado_vigente") == "SIN DATOS"],
+            "datos": verificado}
+
+
+def mostrar_estado_conexion(st, app_actual="ala", datos=None):
+    datos = consultar_red_integrada() if datos is None else datos
+    resumen = resumen_publico_red(datos)
+    if resumen["estado"] == "sin_confirmar":
+        st.warning("Conexión entre las páginas sin confirmar. Revisá la fecha de cada dato antes de usarlo.")
+        return resumen
+    edad = resumen["edad_horas"]
+    minutos = max(0, round(edad * 60)) if edad is not None else None
+    antiguedad = f" · hace {minutos} min" if minutos is not None else ""
+    st.caption("Red Litoral–Zárate–Campana · informe común: " + fecha_publica(resumen["generated_at"]) + antiguedad)
+    if resumen["estado"] == "antiguo":
+        st.warning("El informe compartido tiene más de 3 horas. La actualización entre las páginas necesita revisión.")
+    elif resumen["prueba"]:
+        st.info("Informe de comprobación de datos. Por sí solo no confirma que el control horario automático esté activo.")
+    elif not resumen["control_reciente"]:
+        st.warning("El informe es reciente, pero no se pudo confirmar un control horario automático reciente.")
+    otra = "Zárate–Campana" if str(app_actual).lower() == "ala" else "Litoral"
+    url = "https://alerta-zarate-campana.streamlit.app/" if otra == "Zárate–Campana" else "https://alerta-litoral-agro.streamlit.app/"
+    st.caption(f"48 localidades del Litoral + 10 referencias de Zárate–Campana. [Ver {otra}]({url}). "
+               "El informe común y la consulta local pueden tener horas distintas; compará también el período de cada pronóstico.")
+    return resumen
+
+
+def filas_publicas_nodos(datos, region="Ambas regiones"):
+    filas = []
+    for n in datos["nodos"]:
+        if region != "Ambas regiones" and n["red"] != region:
+            continue
+        litoral = n["red"] == "Litoral"
+        nivel = n.get("nivel_integrado_vigente", "SIN DATOS") if litoral else "Ver evaluación local"
+        motivo = n.get("motivo_principal") or "No hay una explicación verificable para esta evaluación."
+        if litoral and nivel == "SIN DATOS":
+            motivo = "Faltan datos para una clasificación integrada actual. La lluvia se muestra por separado."
+        if not litoral:
+            motivo = "Variables compartidas; la evaluación de inundación local se consulta en Zárate–Campana."
+        filas.append({"Localidad": n["localidad"], "Región": n["red"], "Evaluación integrada": nivel,
+                      "Por qué / alcance": motivo,
+                      "Lluvia prevista 24 h": valor_publico(n.get("lluvia_prevista_24_mm"), "mm"),
+                      "Lluvia prevista 72 h": valor_publico(n.get("lluvia_prevista_72_mm"), "mm"),
+                      "Consulta / cálculo de lluvia": fecha_publica(n.get("fecha_calculo")),
+                      "Vigencia de la lluvia": estado_publico(n.get("estado_tiempo"), n.get("vigente"), datos["snapshot_vigente"], n.get("error"))})
+    return filas
+
+
 def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None):
-    """Vista idéntica en ambos Streamlit, con estados del mismo informe horario."""
+    """La misma evidencia, las mismas edades y el mismo lenguaje en ambas páginas."""
     st.subheader("🌐 Red integrada · Litoral y Zárate–Campana")
-    st.write("Las dos páginas comparten este informe de meteorología, ríos y represas. Permite revisar la cuenca aguas arriba junto con la situación del Delta.")
+    st.write("Seguimiento compartido de lluvia, ríos y represas. Cada dato conserva su lugar, su fecha y su fuente.")
     left, right = st.columns(2)
     left.link_button("Abrir Alerta Litoral Agro", "https://alerta-litoral-agro.streamlit.app/", key="red_integrada_ala")
     right.link_button("Abrir Alerta Zárate–Campana", "https://alerta-zarate-campana.streamlit.app/", key="red_integrada_zc")
-    if datos is None and st.button("Actualizar informe compartido", key="red_integrada_actualizar"):
-        limpiar_cache_red_integrada()
-    datos = datos if isinstance(datos, dict) else consultar_red_integrada(repository)
-    if datos.get("error"):
-        st.warning(datos["error"] + ". No se confirma vigilancia conjunta hasta recuperar un informe válido.")
-        st.link_button("Ver controles del informe compartido", datos.get("actions_url", f"https://github.com/{repository}/actions"), key="red_integrada_actions_error")
-        return datos
-    # Also revalidate cached values: opening a page cannot refresh a source timestamp.
-    try:
-        datos = {**validar_red_integrada(datos), "snapshot_url": datos.get("snapshot_url", "")}
-    except ValueError as exc:
-        st.warning("Informe común rechazado: " + str(exc))
-        return {"error": str(exc), "snapshot_vigente": False}
-    st.caption("Informe generado: " + _mostrar_fecha(datos["generated_at"]) + " · actualización prevista: cada hora · catálogo 1")
-    monitor = datos.get("monitor") if isinstance(datos.get("monitor"), dict) else {}
-    checked = _estado_fecha(monitor.get("checked_at"), _ahora(), 3)
-    st.caption("Último control informado: " + _mostrar_fecha(monitor.get("checked_at")) + " · estado: " + _texto(monitor.get("health") or "sin informar"))
-    if monitor.get("dry_run") is True:
-        st.info("Este informe procede de una prueba de datos. El ensayo no acredita por sí solo que la actualización programada de ambas regiones esté activa.")
-    elif not checked["vigente"]:
-        st.warning("El informe no confirma un control automático reciente. Revisá la programación y la última ejecución del monitor.")
-    st.link_button("Ver controles del informe compartido", f"https://github.com/{repository}/actions", key="red_integrada_actions")
-    if not datos["snapshot_vigente"]:
-        st.warning("El informe compartido tiene más de 3 horas. Se conserva como referencia fechada; la vigilancia conjunta actual no está confirmada.")
+    actualizar = datos is None and st.button("Actualizar informe compartido", key="red_integrada_actualizar")
+    datos = consultar_red_integrada(repository, actualizar=actualizar) if datos is None else datos
+    resumen = resumen_publico_red(datos)
+    if resumen["estado"] == "sin_confirmar":
+        st.warning(resumen["error"] + " La conexión actual entre las páginas no está confirmada.")
+        st.link_button("Ver controles del informe compartido", f"https://github.com/{repository}/actions", key="red_integrada_actions_error")
+        return datos if isinstance(datos, dict) else {"error": resumen["error"], "snapshot_vigente": False}
+    snapshot_url = datos.get("snapshot_url", "")
+    datos = {**resumen["datos"], "snapshot_url": snapshot_url}
+    st.caption("Informe generado: " + fecha_publica(datos["generated_at"]) + " · actualización prevista: cada hora")
+    if resumen["estado"] == "antiguo":
+        st.warning("Informe antiguo. Se conserva como referencia; sus colores no describen la situación actual.")
+    elif resumen["prueba"]:
+        st.info("Este informe procede de una comprobación de datos; no acredita por sí solo un control horario automático.")
+    elif not resumen["control_reciente"]:
+        st.warning("No se confirma un control horario automático reciente.")
+    else:
+        st.caption("Control horario reciente confirmado. Hay fuentes pendientes o parciales: revisá las fechas de cada sección.")
     a, b, c = st.columns(3)
-    a.metric("Puntos del Litoral", sum(n["red"] == "Litoral" for n in datos["nodos"]))
-    b.metric("Puntos Zárate–Campana", sum(n["red"] == "Zárate–Campana" for n in datos["nodos"]))
-    c.metric("Lluvia 72 h con fecha vigente", sum(n.get("vigente") and n.get("lluvia_prevista_72_mm") is not None for n in datos["nodos"]))
+    a.metric("Localidades con lluvia reciente", f"{resumen['lluvia_72_reciente']}/{resumen['nodos']}")
+    b.metric("Estaciones con altura reciente", f"{resumen['alturas_recientes']}/{resumen['estaciones']}")
+    c.metric("Estaciones con pronóstico vigente", f"{resumen['pronosticos_rio_recientes']}/{resumen['estaciones']}")
+    if resumen["rojos"]:
+        st.error("Atención prioritaria en el Litoral: " + ", ".join(resumen["rojos"]) + ". Revisá el motivo y las acciones de cada localidad.")
+    st.caption("El color integrado de ALA combina sus evidencias disponibles. No es un nivel oficial del SMN ni una orden de evacuación. "
+               "Una crecida aguas arriba refuerza la preparación; no permite fijar la llegada del agua a Zárate o Campana.")
+    if resumen["sin_clasificacion_litoral"] and resumen["estado"] == "reciente":
+        st.warning("Clasificación integrada sin datos suficientes: " + ", ".join(resumen["sin_clasificacion_litoral"]) + ". La falta de información no significa riesgo bajo.")
     seleccion = st.selectbox("Área de la red integrada", ["Ambas regiones", "Litoral", "Zárate–Campana"], key="red_integrada_region")
     nodes = [n for n in datos["nodos"] if seleccion == "Ambas regiones" or n["red"] == seleccion]
-    st.markdown("**Meteorología compartida**")
-    rows = [{"Región": n["red"], "Localidad": n["localidad"], "Lluvia futura 24 h (mm)": n.get("lluvia_prevista_24_mm"),
-             "Lluvia futura 72 h (mm)": n.get("lluvia_prevista_72_mm"), "Lluvia futura 7 días (mm)": n.get("lluvia_prevista_7d_mm"),
-             "Lluvia disponible hasta 15 días (mm)": n.get("lluvia_prevista_15d_mm"),
-             "Fin de cobertura extendida": _mostrar_fecha((n.get("cobertura_horaria") or {}).get("lluvia_prevista_15d", {}).get("hasta")),
-             "Lluvia previa 7 días (mm)": n.get("lluvia_previa_7d_mm"),
-             "Suelo superficial (m³/m³)": n.get("humedad_0_7_m3_m3"), "Escurrimiento futuro 72 h (mm)": n.get("escurrimiento_previsto_72_mm"),
-             "Índice meteorológico /100": n.get("indice_experimental"),
-             "Nivel meteorológico": n.get("nivel_meteorologico", "Sin discriminar en informe anterior"),
-             "Riesgo integrado ALA al evaluar": n.get("estado_integrado_ala", "Variables compartidas · sin índice ALA"),
-             "Desencadenante": n.get("motivo_principal") or "No documentado en este informe",
-             "Trazabilidad": n.get("explicacion_estado"),
-             "Estado temporal": n.get("estado_tiempo"), "Fecha de cálculo": _mostrar_fecha(n.get("fecha_calculo")), "Cobertura": n.get("estado_datos"), "Observación": n.get("error", "")} for n in nodes]
-    st.dataframe(rows, hide_index=True, use_container_width=True)
-    st.caption("Las ventanas comienzan en la hora de cálculo. El acumulado extendido suma sólo las horas hasta el fin de cobertura publicado, como máximo 15 días: puede terminar antes y no se prolonga. Las ventanas de 24/72 horas y 7 días necesitan todos sus datos. Suelo y escurrimiento son modelados. Un valor ausente permanece vacío.")
-    st.map([{"lat": n["lat"], "lon": n["lon"]} for n in nodes])
-    with st.expander("Evidencias del color integrado · estación, previsión y fuente"):
-        st.dataframe([{"Localidad": n["localidad"], "Tipo": e.get("tipo"), "Estación": e.get("estacion"),
-            "Altura observada (m)": e.get("altura_m"), "Umbral alerta (m)": e.get("alerta_m"),
-            "Umbral evacuación (m)": e.get("evacuacion_m"), "Central prevista (m)": e.get("central_m"),
-            "Desde": e.get("desde"), "Emisión": e.get("fecha_emision"), "Hora/fecha publicada": e.get("precision_desde"),
-            "Límite de uso ALA": e.get("valida_hasta"), "Vigente al leer": e.get("vigente"),
-            "Fuente": e.get("fuente"), "Fuente umbrales": e.get("fuente_umbrales")}
-            for n in nodes for e in n.get("desencadenantes", [])], hide_index=True, use_container_width=True)
-    st.markdown("**Ríos y pronósticos oficiales**")
+    st.markdown("### Situación y lluvia por localidad")
+    st.dataframe(filas_publicas_nodos(datos, seleccion), hide_index=True, use_container_width=True)
+    st.caption("0 mm significa que no se prevé lluvia en esa ventana. Sin dato significa información ausente. "
+               "La hora de consulta no es la hora de emisión del modelo. Los avisos oficiales y las acciones locales se muestran en la portada de cada región.")
+    with st.expander("Ubicación de las localidades de la red"):
+        st.map([{"lat": n["lat"], "lon": n["lon"]} for n in nodes])
+        st.caption("Este mapa ubica los puntos de consulta; sus marcadores no representan niveles de alerta.")
+    with st.expander("Más datos de lluvia, suelo y períodos disponibles"):
+        st.dataframe([{"Localidad": n["localidad"], "Lluvia prevista 7 días": valor_publico(n.get("lluvia_prevista_7d_mm"), "mm"),
+            "Períodos contados desde": fecha_publica(n.get("referencia_pronostico")),
+            "Qué representa la fecha": n.get("precision_calculo") or "Revisar fuente",
+            "Lluvia en el horizonte disponible": valor_publico(n.get("lluvia_prevista_15d_mm"), "mm"),
+            "Fin de ese horizonte": fecha_publica((n.get("cobertura_horaria") or {}).get("lluvia_prevista_15d", {}).get("hasta")),
+            "Lluvia de los 7 días anteriores": valor_publico(n.get("lluvia_previa_7d_mm"), "mm"),
+            "Humedad estimada de 0 a 7 cm": valor_publico(n.get("humedad_0_7_m3_m3"), "m³/m³"),
+            "Agua que podría escurrir en 72 h": valor_publico(n.get("escurrimiento_previsto_72_mm"), "mm"),
+            "Índice meteorológico /100": valor_publico(n.get("indice_experimental")),
+            "Nivel sólo meteorológico": n.get("nivel_meteorologico") if n.get("vigente") else "Sin evaluación vigente",
+            "Información pendiente": n.get("error") or "Sin faltantes registrados en estas variables"} for n in nodes], hide_index=True, use_container_width=True)
+        st.caption("El horizonte puede terminar antes de 15 días. La humedad y el escurrimiento son estimaciones del modelo; "
+                   "no acreditan suelo transitable ni profundidad de inundación. El índice no es un porcentaje de probabilidad.")
+    st.markdown("### Ríos · última lectura y pronóstico por separado")
     rivers = datos["rios"]
-    st.dataframe([{"Región": r.get("red"), "Estación": r.get("estacion"), "Serie observada": r.get("serie_observada"),
-                   "Altura observada (m)": r.get("altura_m"), "Fecha observada": _mostrar_fecha(r.get("fecha_observada") or r.get("fecha_observada_original")),
-                   "Estado observado": r.get("observacion_estado"), "Umbral alerta observado (m)": r.get("alerta_m"),
-                   "Umbral evacuación observado (m)": r.get("evacuacion_m"), "Serie pronóstico": r.get("serie_pronostico"),
-                   "Emisión pronóstico": _mostrar_fecha(r.get("fecha_emision")), "Estado pronóstico": r.get("pronostico_estado"),
-                   "Último punto publicado": _mostrar_fecha(max((p.get("fecha") for p in r.get("pronostico", []) if p.get("fecha")), default=None)),
-                   "Fuente observada": r.get("fuente"), "Fuente pronóstico": r.get("fuente_pronostico"),
-                   "Observaciones": "; ".join(x for x in (r.get("error"), r.get("error_pronostico")) if x)} for r in rivers], hide_index=True, use_container_width=True)
-    with st.expander("Ver puntos numéricos de los pronósticos oficiales"):
-        st.dataframe([{"Estación": r["estacion"], "Serie": r.get("serie_pronostico"), "Hora publicada": _mostrar_fecha(p.get("fecha")),
-                       "Central (m)": p.get("central_m"), "Inferior (m)": p.get("inferior_m"), "Superior (m)": p.get("superior_m")} for r in rivers for p in r.get("pronostico", [])], hide_index=True, use_container_width=True)
-    st.caption("Zárate y Campana: lecturas y corridas de hasta 6 horas. Las previsiones locales conservan su propia escala y llegan como máximo a 96 horas; no se comparan con umbrales de otra serie ni se extrapolan a semanas.")
-    st.markdown("**Represas y cobertura de las fuentes**")
-    st.dataframe(datos["represas"], hide_index=True, use_container_width=True)
-    st.dataframe(datos["fuentes"], hide_index=True, use_container_width=True)
-    with st.expander("Alcance de la integración y límites"):
+    st.dataframe([{"Estación": r.get("estacion"), "Región": r.get("red"),
+        "Última altura publicada": valor_publico(r.get("altura_m"), "m"),
+        "Fecha de esa lectura": fecha_publica(r.get("fecha_observada") or r.get("fecha_observada_original")),
+        "¿Sirve como lectura actual?": estado_publico(r.get("observacion_estado"), r.get("observacion_vigente"), datos["snapshot_vigente"], r.get("error")),
+        "Emisión del pronóstico": fecha_publica(r.get("fecha_emision")),
+        "¿Pronóstico vigente?": "Sí" if r.get("pronostico_vigente") else "No confirmado",
+        "Hasta cuándo hay previsión": fecha_publica(max((p.get("fecha") for p in r.get("pronostico", []) if p.get("fecha")), default=None))
+        } for r in rivers], hide_index=True, use_container_width=True)
+    st.caption("El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
+               "No se confirmó la equivalencia de escala entre sus series observadas y de pronóstico; por eso no se comparan directamente con los umbrales observados. "
+               "Las alturas de estaciones diferentes tampoco se suman ni indican profundidad en un barrio.")
+    with st.expander("Fuentes, referencias de alerta y puntos del pronóstico de los ríos"):
+        st.dataframe([{"Estación": r.get("estacion"), "Serie observada": r.get("serie_observada"),
+            "Referencia de alerta de esa estación": valor_publico(r.get("alerta_m"), "m"),
+            "Referencia de evacuación de esa estación": valor_publico(r.get("evacuacion_m"), "m"),
+            "Serie de pronóstico": r.get("serie_pronostico"), "Fuente de la lectura": r.get("fuente"),
+            "Fuente del pronóstico": r.get("fuente_pronostico"),
+            "Limitaciones": "; ".join(x for x in (r.get("error"), r.get("error_pronostico")) if x)} for r in rivers], hide_index=True, use_container_width=True)
+        st.dataframe([{"Estación": r["estacion"], "Fecha prevista": fecha_publica(p.get("fecha")),
+            "Escenario central": valor_publico(p.get("central_m"), "m"), "Extremo inferior publicado": valor_publico(p.get("inferior_m"), "m"),
+            "Extremo superior publicado": valor_publico(p.get("superior_m"), "m"),
+            "Vigencia de la emisión": "Vigente" if r.get("pronostico_vigente") else "No vigente"}
+            for r in rivers for p in r.get("pronostico", [])], hide_index=True, use_container_width=True)
+        st.caption("La referencia de evacuación pertenece a la estación y requiere corroboración local. No equivale a una orden de evacuación. "
+                   "Los extremos publicados no se convierten en una probabilidad que la fuente no informó.")
+    st.markdown("### Represas · qué se informó y de cuándo es")
+    st.dataframe([{"Represa": d.get("nombre"), "Fecha del parte": fecha_publica(d.get("fecha") or d.get("fecha_original"), d.get("precision_fecha")),
+        "Agua entrante informada": valor_publico(d.get("afluente_m3s"), "m³/s"),
+        "Tipo del dato entrante": "Previsión para el día del parte" if d.get("afluente_tipo") == "prevision_del_dia" else "Ver el parte original",
+        "Descarga informada": valor_publico(d.get("erogado_m3s"), "m³/s"),
+        "Evolución de aportes publicada": " → ".join(valor_publico(v, "m³/s") for v in d.get("afluente_previsto_extremos_publicados_m3s", [])) or "Sin secuencia publicada",
+        "Hasta": fecha_publica(d.get("hasta"), d.get("precision_hasta")),
+        "Vigencia": estado_publico(d.get("estado_tiempo"), d.get("vigente"), datos["snapshot_vigente"]),
+        "Fuente": d.get("fuente")} for d in datos["represas"]], hide_index=True, use_container_width=True)
+    st.caption("m³/s expresa cuánta agua pasa por segundo, no la altura del río. Un caudal entrante previsto no es una descarga medida. "
+               "No se suman represas de una misma cadena. El mismo parte repetido se muestra una sola vez.")
+    with st.expander("Leer el detalle de los partes de represas"):
+        for d in datos["represas"]:
+            st.markdown("**" + _texto(d.get("nombre")) + " · " + fecha_publica(d.get("fecha") or d.get("fecha_original"), d.get("precision_fecha")) + "**")
+            st.write(d.get("texto") or "Sin detalle textual publicado en este informe.")
+            if d.get("afluente_previsto_interpretacion"):
+                st.caption(d["afluente_previsto_interpretacion"])
+    st.markdown("### Estado de las fuentes")
+    st.dataframe([{"Fuente": f.get("organismo"), "Región / alcance": f.get("red"),
+        "Fecha del dato o documento": fecha_publica(f.get("fecha_documento") or f.get("fecha_documento_original"), f.get("precision_fecha_documento")),
+        "Última consulta": fecha_publica(f.get("consultado")),
+        "Vigencia": estado_publico(f.get("estado_tiempo"), f.get("vigente"), datos["snapshot_vigente"], f.get("error")),
+        "Qué falta confirmar": f.get("error") or "", "Enlace original": f.get("url")
+        } for f in datos["fuentes"]], hide_index=True, use_container_width=True)
+    with st.expander("Evidencias que explican el color integrado"):
+        st.dataframe([{"Localidad": n["localidad"], "Tipo de evidencia": e.get("tipo"), "Estación": e.get("estacion"),
+            "Fecha publicada": fecha_publica(e.get("fecha_observada") or e.get("desde"), e.get("precision_fecha") or e.get("precision_desde")),
+            "Emisión": fecha_publica(e.get("fecha_emision"), e.get("precision_fecha_emision")),
+            "Precisión de la fecha": e.get("precision_fecha") or e.get("precision_desde"), "Vigente al consultar": "Sí" if e.get("vigente") else "No",
+            "Fuente": e.get("fuente"), "Fuente de los umbrales": e.get("fuente_umbrales")}
+            for n in nodes for e in n.get("desencadenantes", [])], hide_index=True, use_container_width=True)
+    with st.expander("Cómo funcionan juntas las dos páginas y qué falta completar"):
+        st.write("El monitor de ALA consulta las fuentes y publica un informe horario común. Las dos páginas leen ese mismo archivo. "
+                 "Cada portada conserva su evaluación local y puede consultar datos más recientes; eso no cambia la fecha del informe común.")
         for limite in datos["limitaciones"]:
             st.write("• " + limite)
-        st.write("El modelo local, los avisos oficiales y los accesos/refugios se revisan en las solapas de cada región. El informe compartido no confirma recursos operativos locales.")
-    st.download_button("Descargar informe común JSON", json.dumps(datos, ensure_ascii=False, allow_nan=False, indent=2),
+        st.write("Los accesos, refugios y recursos sanitarios se confirman con la autoridad local. Un punto en el mapa no acredita que estén disponibles.")
+    st.link_button("Ver controles del informe compartido", f"https://github.com/{repository}/actions", key="red_integrada_actions")
+    st.download_button("Descargar los datos y sus fuentes", json.dumps(datos, ensure_ascii=False, allow_nan=False, indent=2),
                        "red_litoral_zarate_campana.json", "application/json", key="red_integrada_descargar")
     return datos
 

@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.7.1
+# Versión: V4.8.0
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -54,13 +54,15 @@ import requests
 from explicaciones_alerta import (construir_explicacion, motivo_publico, motivo_transicion,
     causas_verificadas, detalle_evidencia, fuentes_evidencia, tarjeta_nodo_html, hover_nodo,
     url_oficial, fecha as fecha_alerta)
+from portada_local import (construir_portada_local, html_portada_local, fecha_publica,
+    precision_observada, mensaje_estado_monitor)
 
 def cargar_motor_hidrologico():
     """Evita mezclar la interfaz nueva con un módulo previo retenido por Streamlit."""
     import hidrologia
     def motor_vigente():
         return (getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) == 1 and
-                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-17.1')
+                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-17.2')
     if not motor_vigente():
         import importlib
         hidrologia = importlib.reload(hidrologia)
@@ -110,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.7.1"
+VERSION = "V4.8.0"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1346,6 +1348,11 @@ def resultado_sin_datos(nodo, error="Sin datos suficientes"):
         "horas_disponibles": 0,
         "cobertura_meteorologica": False,
         "cobertura_pronostico_7d": False,
+        "lluvia_futura_extendida": None,
+        "cobertura_pronostico_extendido": False,
+        "pronostico_extendido_horas": 0,
+        "pronostico_extendido_hasta": None,
+        "referencia_pronostico": None,
         "condicion_critica": False,
         "direccion_viento_texto": "Sin datos",
         "descripcion_tiempo": "Sin datos",
@@ -1690,6 +1697,20 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
                                   and (valores_lluvia_7d >= 0).all())
     lluvia_futura_7d = suma_segura(precipitacion, futuro_7d) if cobertura_pronostico_7d else np.nan
 
+    # Contexto extendido para la red compartida. Usa el fin real de la serie,
+    # no completa días faltantes ni participa en el índice meteorológico.
+    futuro_extendido = ventana_mascara(horas, referencia, referencia + pd.Timedelta(hours=360))
+    marcas_extendidas = pd.DatetimeIndex(horas[futuro_extendido])
+    pronostico_extendido_horas = max(0, int((marcas_extendidas.max() - referencia).total_seconds() // 3600)) if len(marcas_extendidas) else 0
+    esperadas_extendidas = pd.date_range(referencia + pd.Timedelta(hours=1), periods=pronostico_extendido_horas, freq='h')
+    valores_extendidos = precipitacion[futuro_extendido]
+    cobertura_pronostico_extendido = bool(pronostico_extendido_horas > 0
+        and marcas_extendidas.is_unique and marcas_extendidas.equals(esperadas_extendidas)
+        and np.isfinite(valores_extendidos).all() and (valores_extendidos >= 0).all())
+    lluvia_futura_extendida = round(float(valores_extendidos.sum()), 1) if cobertura_pronostico_extendido else None
+    pronostico_extendido_hasta = ((referencia + pd.Timedelta(hours=pronostico_extendido_horas)).tz_localize(TZ).isoformat()
+                                  if pronostico_extendido_horas else None)
+
     rain_24 = suma_segura(
         rain,
         pasado_24,
@@ -2018,6 +2039,11 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         "nivel": nivel,
         "cobertura_meteorologica": cobertura_completa,
         "cobertura_pronostico_7d": cobertura_pronostico_7d,
+        "lluvia_futura_extendida": lluvia_futura_extendida,
+        "cobertura_pronostico_extendido": cobertura_pronostico_extendido,
+        "pronostico_extendido_horas": pronostico_extendido_horas,
+        "pronostico_extendido_hasta": pronostico_extendido_hasta,
+        "referencia_pronostico": referencia.tz_localize(TZ).isoformat(),
 
         "temperatura": (
             round(temperatura_actual, 1)
@@ -3356,12 +3382,8 @@ def estado_telegram_ui():
             st.warning('La fecha del último control no es válida. Revisá el monitor en Actions.')
         else:
             st.write(f"Último control del monitor: **{fecha.astimezone(TZ).strftime('%d/%m/%Y %H:%M')} ART**")
-            if ahora().astimezone(timezone.utc) - fecha > timedelta(hours=3):
-                st.warning('El último control tiene más de tres horas. La vigilancia puede estar interrumpida; revisá GitHub Actions.')
-            elif estado.get('ok') is not True:
-                st.warning('El último control registró un problema. Revisá la cobertura, las confirmaciones y GitHub Actions.')
-            else:
-                st.success('Hay un control reciente registrado. Frecuencia programada: una hora; GitHub puede demorar ejecuciones.')
+            estilo_estado, texto_estado = mensaje_estado_monitor(estado, referencia=ahora())
+            getattr(st, estilo_estado)(texto_estado)
         resultado = estado.get('result', {})
         if not isinstance(resultado, dict):
             resultado = {}
@@ -5782,8 +5804,9 @@ def html_recomendaciones_alerta(row):
             return 'Sin dato'
     tareas=''.join(f'<article class="ala-rec-tarea"><h3>{esc(t["area"])}</h3><p>{esc(t["accion"])}</p></article>' for t in plan['tareas'])
     pasos=''.join('<li>'+esc(p)+'</li>' for p in plan['ahora'])
-    contexto='<p class="ala-rec-contexto">'+esc(plan['contexto'])+'</p>' if plan['contexto'] else ''
-    motivos=esc(row.get('motivos_semaforo','Consultá las fuentes y condiciones locales.'))
+    contexto_texto = motivo_publico(row) if row.get('hidrologia_rango') == 2 else plan['contexto']
+    contexto='<p class="ala-rec-contexto">'+esc(contexto_texto)+'</p>' if contexto_texto else ''
+    motivos=esc(motivo_publico(row))
     consulta=row.get('actualizado') if isinstance(row.get('actualizado'),str) and row.get('actualizado').strip() else 'Sin hora confirmada'
     return f'''<style>
     .ala-rec{{background:#f8fafc;color:#183448;border:1px solid #d4dee7;border-top:6px solid {color};border-radius:18px;padding:24px;margin:12px 0 22px;font-family:system-ui,sans-serif;box-shadow:0 6px 22px rgba(20,43,60,.07)}}
@@ -5794,7 +5817,7 @@ def html_recomendaciones_alerta(row):
     .ala-rec-grid{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}.ala-rec-tarea{{background:#fff;border:1px solid #dce5ed;border-radius:12px;padding:16px}}.ala-rec p{{font-size:15px;line-height:1.5;margin:0;overflow-wrap:anywhere}}
     .ala-rec-contexto{{background:#fff6df;padding:10px 12px;border-radius:8px;margin:12px 0!important}}.ala-rec-motivos{{margin:10px 0 16px!important;color:#496579;font-size:13px!important}}.ala-rec-footer{{border-top:1px solid #d4dee7;margin-top:18px;padding-top:14px}}.ala-rec-footer p{{font-size:13px;margin:5px 0;color:#496579}}.ala-rec-links{{display:flex;flex-wrap:wrap;gap:10px 18px;margin:12px 0 0}}.ala-rec a{{color:#075d78;font-size:14px;text-decoration:underline;text-underline-offset:3px}}
     @media(max-width:900px){{.ala-rec-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.ala-rec{{padding:17px}}.ala-rec-head{{flex-direction:column;gap:12px}}.ala-rec h2{{font-size:23px}}.ala-rec-grid{{grid-template-columns:1fr}}.ala-rec-badge{{font-size:18px}}.ala-rec-ahora{{padding:15px}}}}
-    </style><section class="ala-rec" aria-label="Alerta local y acciones recomendadas"><div class="ala-rec-head"><div><div class="ala-rec-kicker">Alerta local y acciones</div><h2>{esc(row.get('localidad','Localidad sin identificar'))}</h2><div class="ala-rec-provincia">{esc(row.get('provincia',''))} · {esc(plan['fase'])}</div></div><div class="ala-rec-badge">{emoji_nivel(nivel)} {esc(nivel)}</div></div><div class="ala-rec-meta"><span>Índice meteorológico: {esc(numero('indice','/100'))}</span><span>Lluvia prevista 72 h: {esc(numero('lluvia_futura_72','mm'))}</span><span>Consulta: {esc(consulta)}</span></div><p class="ala-rec-motivos"><strong>Motivos del semáforo:</strong> {motivos}</p>{contexto}<div class="ala-rec-ahora"><h3>Qué hacer ahora</h3><ol>{pasos}</ol></div><div class="ala-rec-grid">{tareas}</div><div class="ala-rec-footer"><p>Semáforo experimental. Contrastá la decisión con avisos oficiales y condiciones del lote. El color no confirma portancia, caminos abiertos, cupos ni atención disponible.</p><p>Refugios, caminos y contactos locales: pestaña <strong>Territorio y rutas</strong>. Orientaciones adaptadas de INTA y SINAGIR; no son una orden de evacuación.</p><div class="ala-rec-links"><a href="https://www.smn.gob.ar/" target="_blank" rel="noopener noreferrer">Consultar avisos SMN</a><a href="https://www.argentina.gob.ar/noticias/recomendaciones-para-prevenir-riesgos-y-reducir-el-impacto-del-fenomeno-del-nino-0" target="_blank" rel="noopener noreferrer">Guía rural INTA</a><a href="https://www.argentina.gob.ar/sinagir/riesgos-frecuentes/inundacion/prevencion" target="_blank" rel="noopener noreferrer">Prevención SINAGIR</a></div></div></section>'''
+    </style><section class="ala-rec" aria-label="Alerta local y acciones recomendadas"><div class="ala-rec-head"><div><div class="ala-rec-kicker">Alerta local y acciones</div><h2>{esc(row.get('localidad','Localidad sin identificar'))}</h2><div class="ala-rec-provincia">{esc(row.get('provincia',''))} · {esc(plan['fase'])}</div></div><div class="ala-rec-badge">{emoji_nivel(nivel)} {esc(nivel)}</div></div><div class="ala-rec-meta"><span>Índice meteorológico: {esc(numero('indice','/100'))}</span><span>Lluvia prevista 72 h: {esc(numero('lluvia_futura_72','mm'))}</span><span>Cálculo meteorológico: {esc(consulta)}</span></div><p class="ala-rec-motivos"><strong>Motivos del semáforo:</strong> {motivos}</p>{contexto}<div class="ala-rec-ahora"><h3>Qué hacer ahora</h3><ol>{pasos}</ol></div><div class="ala-rec-grid">{tareas}</div><div class="ala-rec-footer"><p>Semáforo experimental. Contrastá la decisión con avisos oficiales y condiciones del lote. El color no confirma portancia, caminos abiertos, cupos ni atención disponible.</p><p>Refugios, caminos y contactos locales: pestaña <strong>Territorio y rutas</strong>. Orientaciones adaptadas de INTA y SINAGIR; no son una orden de evacuación.</p><div class="ala-rec-links"><a href="https://www.smn.gob.ar/" target="_blank" rel="noopener noreferrer">Consultar avisos SMN</a><a href="https://www.argentina.gob.ar/noticias/recomendaciones-para-prevenir-riesgos-y-reducir-el-impacto-del-fenomeno-del-nino-0" target="_blank" rel="noopener noreferrer">Guía rural INTA</a><a href="https://www.argentina.gob.ar/sinagir/riesgos-frecuentes/inundacion/prevencion" target="_blank" rel="noopener noreferrer">Prevención SINAGIR</a></div></div></section>'''
 
 
 def mostrar_recomendaciones_alerta(row,key):
@@ -5978,34 +6001,40 @@ def evaluar_smn_local(localidad, panorama, referencia):
 
 
 def mostrar_vigilancia_inundaciones(df, panorama):
-    st.subheader('🌊 Vigilancia integrada de crecidas e inundaciones')
-    st.write('Meteorología local + niveles y pronósticos oficiales de los ríos + situación aguas arriba y represas. Cada aviso conserva la estación, la fecha de la fuente y el plazo publicado.')
+    st.subheader('🌎 Situación en el resto del Litoral')
+    st.caption('Colores experimentales de ALA: integran lluvia, niveles y previsiones de ríos, represas y avisos SMN. No son los colores oficiales del SMN.')
     fluviales = df[df.hidrologia_aplica.fillna(False).astype(bool)]
     a,b,c,d = st.columns(4)
-    a.metric('Meteorología vigente', f"{int(df.cobertura_meteorologica.fillna(False).sum())}/{len(df)}")
-    b.metric('Río observado vigente', f"{int(fluviales.hidrologia_vigente.fillna(False).sum())}/{len(fluviales)}")
-    c.metric('Pronóstico fluvial vigente', f"{int(fluviales.hidrologia_pronostico_vigente.fillna(False).sum())}/{len(fluviales)}")
-    d.metric('Preparar / coordinar evacuación', int(pd.to_numeric(fluviales.hidrologia_rango,errors='coerce').eq(2).sum()))
-    criticos = fluviales[pd.to_numeric(fluviales.hidrologia_rango,errors='coerce').eq(2)]
+    for columna,nivel,etiqueta in ((a,'ROJO','🔴 Rojo'),(b,'AMARILLO','🟡 Amarillo'),(c,'VERDE','🟢 Verde'),(d,'SIN DATOS','⚪ Sin datos')):
+        columna.metric(etiqueta, int(df.nivel.eq(nivel).sum()))
+    criticos = df[df.nivel.eq('ROJO')]
     if not criticos.empty:
-        st.error('Riesgo fluvial elevado observado o previsto: ' + ', '.join(criticos.localidad.tolist()) + '. Revisá la fecha y el plazo de cada localidad; coordiná con la autoridad antes de un traslado.')
+        st.error('Atención prioritaria en ' + ', '.join(criticos.localidad.tolist()) + '. Seleccioná la localidad para conocer la causa, el plazo y las acciones. Una previsión no confirma que ya haya inundación.')
+    elif df.nivel.eq('AMARILLO').any():
+        st.warning('Preparación preventiva en ' + ', '.join(df.loc[df.nivel.eq('AMARILLO'),'localidad'].tolist()) + '. Revisá los próximos avisos y verificá condiciones locales.')
     faltantes = fluviales[~(fluviales.hidrologia_vigente.fillna(False) & fluviales.hidrologia_pronostico_vigente.fillna(False))]
     if not faltantes.empty:
         st.warning(f'Cobertura fluvial parcial en {len(faltantes)} localidades. Un dato ausente o antiguo no equivale a riesgo bajo; puede mantenerse una alerta por otra evidencia vigente.')
+    st.caption(f"Información vigente: meteorología {int(df.cobertura_meteorologica.fillna(False).sum())}/{len(df)} localidades; "
+               f"río observado {int(fluviales.hidrologia_vigente.fillna(False).sum())}/{len(fluviales)} y previsión fluvial "
+               f"{int(fluviales.hidrologia_pronostico_vigente.fillna(False).sum())}/{len(fluviales)} localidades vinculadas a ríos.")
     campos = ['localidad','nivel','indice','nivel_meteorologico','motivo_principal','hidrologia_estacion','nivel_hidrologico_observado','hidrologia_altura_m',
               'hidrologia_alerta_m','hidrologia_evacuacion_m','nivel_hidrologico_previsto',
               'hidrologia_ventana','hidrologia_fecha','hidrologia_cobertura','hidrologia_fuentes']
     tabla=fluviales[[x for x in campos if x in fluviales]].rename(columns={
-        'localidad':'Localidad','nivel':'Alerta integrada','indice':'Índice meteorológico /100',
+        'localidad':'Localidad','nivel':'Color experimental ALA','indice':'Índice meteorológico /100',
         'nivel_meteorologico':'Nivel meteorológico','motivo_principal':'Desencadenante del color','hidrologia_estacion':'Estación de referencia',
         'nivel_hidrologico_observado':'Río observado','hidrologia_altura_m':'Altura (m)',
         'hidrologia_alerta_m':'Umbral alerta (m)','hidrologia_evacuacion_m':'Umbral evacuación (m)',
         'nivel_hidrologico_previsto':'Río previsto','hidrologia_ventana':'Plazo oficial',
         'hidrologia_fecha':'Fecha observada','hidrologia_cobertura':'Cobertura fluvial',
         'hidrologia_fuentes':'Fuentes'})
-    st.dataframe(tabla,hide_index=True,use_container_width=True)
-    st.download_button('Descargar evaluación integrada de inundaciones',df.to_csv(index=False).encode('utf-8-sig'),
-        'evaluacion_inundaciones_litoral.csv','text/csv',key='hidro_integrada_exportar')
+    if 'Fecha observada' in tabla:
+        tabla['Fecha observada'] = [fecha_publica(row.get('hidrologia_fecha'),precision_observada(row,panorama)) for _,row in fluviales.iterrows()]
+    with st.expander('Ver localidades, niveles de río y fuentes · descargar evaluación'):
+        st.dataframe(tabla,hide_index=True,use_container_width=True)
+        st.download_button('Descargar evaluación integrada de inundaciones',df.to_csv(index=False).encode('utf-8-sig'),
+            'evaluacion_inundaciones_litoral.csv','text/csv',key='hidro_integrada_exportar')
     with st.expander('Fuentes, boletines y conexión de las cuencas'):
         fuentes=list(panorama.get('fuentes',[]))
         smn=panorama.get('smn',{})
@@ -6051,10 +6080,19 @@ def mostrar_pronostico_fluvial_local(row, panorama):
     st.subheader('Nivel del río y previsión oficial de esta estación')
     obs=pd.DataFrame(estacion.get('observaciones',[]))
     previsto=pd.DataFrame(estacion.get('pronostico_numerico',[]))
+    precision = precision_observada(row, panorama)
+    st.caption('Lectura utilizada: ' + fecha_publica(estacion.get('fecha'), precision) +
+               '. Fecha del parte: ' + fecha_publica(estacion.get('fecha_documento'), 'fecha_sin_hora' if '/diario/reporte_diario' in str(estacion.get('fuente','')) else estacion.get('precision_fecha_documento', 'fecha_hora_publicada')) + '.')
+    if precision == 'fecha_sin_hora':
+        st.caption('El parte diario informa el día, sin una hora de medición verificable. Los puntos se ubican por día; no representan una lectura tomada a medianoche.')
+    if obs.empty and _numero_telegram(estacion.get('altura_m')) is not None and estacion.get('fecha'):
+        obs = pd.DataFrame([{'fecha':estacion['fecha'],'valor':estacion['altura_m']}])
     fig=go.Figure()
     if not obs.empty and {'fecha','valor'}<=set(obs):
         obs['fecha_ART']=pd.to_datetime(obs.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
-        fig.add_trace(go.Scatter(x=obs.fecha_ART,y=obs.valor,mode='lines+markers',name='Observado'))
+        obs['fecha_publicada'] = obs.fecha.map(lambda valor: fecha_publica(valor,precision))
+        fig.add_trace(go.Scatter(x=obs.fecha_ART,y=obs.valor,mode='markers' if precision=='fecha_sin_hora' else 'lines+markers',name='Observado',
+            customdata=obs[['fecha_publicada']],hovertemplate='%{customdata[0]}<br>Altura: %{y:.2f} m<extra>Observado</extra>'))
     if not previsto.empty and {'fecha','valor'}<=set(previsto):
         previsto['fecha_ART']=pd.to_datetime(previsto.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
         superior=pd.to_numeric(previsto.get('superior',pd.Series(np.nan,index=previsto.index)),errors='coerce')
@@ -6069,12 +6107,19 @@ def mostrar_pronostico_fluvial_local(row, panorama):
         if limite is not None:
             fig.add_hline(y=limite,line_dash='dash',line_color=color,annotation_text=nombre_umbral)
     if not obs.empty or not previsto.empty:
-        fig.update_layout(height=370,xaxis_title='Fecha ART',yaxis_title='Metros sobre la escala de esta estación',margin={'t':20,'b':35,'l':30,'r':20})
+        fig.update_layout(height=370,xaxis_title='Fecha publicada · ART cuando la fuente informa hora',yaxis_title='Metros sobre la escala de esta estación',margin={'t':20,'b':35,'l':30,'r':20})
+        if precision == 'fecha_sin_hora':
+            fig.update_xaxes(tickformat='%d/%m/%Y')
         st.plotly_chart(fig,use_container_width=True,key='hidro_curva_local')
     if row.get('hidrologia_pronostico_texto'):
         st.write('**Previsión publicada:** '+str(row['hidrologia_pronostico_texto']))
     if not previsto.empty:
-        st.dataframe(previsto,hide_index=True,use_container_width=True)
+        tabla_prevista = previsto.drop(columns=['fecha_ART'],errors='ignore').copy()
+        for columna in ('fecha','emision'):
+            if columna in tabla_prevista:
+                tabla_prevista[columna] = tabla_prevista[columna].map(fecha_publica)
+        st.dataframe(tabla_prevista.rename(columns={'fecha':'Fecha del punto publicado','emision':'Emisión de la corrida','valor':'Altura central (m)',
+            'inferior':'Banda inferior (m)','superior':'Banda superior (m)','modelo':'Modelo publicado','fuente':'Fuente'}),hide_index=True,use_container_width=True)
     st.caption('Una altura de escala no es una cota del terreno ni la profundidad del agua en un barrio. La inundabilidad y los destinos de evacuación requieren validación local.')
 
 
@@ -7128,6 +7173,14 @@ def mostrar_proyecto_ficha():
     mostrar_panel_proyecto(st,contexto)
 
 
+def cargar_panel_red():
+    import red_integrada as red
+    if getattr(red, 'VERSION_RED', None) != '2026-10-17.2':
+        import importlib
+        red = importlib.reload(red)
+    return red
+
+
 # ============================================================
 # CABECERA VISUAL
 # ============================================================
@@ -7202,7 +7255,13 @@ def mostrar_hero_litoral():
       .ala-hero .ala-hero-datos{{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}}
       .ala-hero .ala-hero-datos span{{font-size:12px;font-weight:700;line-height:1.3;color:#dffbff;border:1px solid rgba(182,245,246,.4);background:rgba(4,33,49,.52);padding:7px 11px;border-radius:999px;backdrop-filter:blur(4px)}}
       .ala-hero .ala-hero-version{{position:absolute;right:18px;bottom:14px;z-index:2;font-size:11px;font-weight:800;color:#d9fbff;background:rgba(1,18,30,.68);border:1px solid rgba(184,244,244,.35);padding:6px 9px;border-radius:999px}}
-      @media(max-width:620px){{.ala-hero{{border-radius:16px}}.ala-hero .ala-hero-contenido{{padding:24px 18px 52px}}.ala-hero .ala-hero-kicker{{font-size:9px;letter-spacing:.08em;margin-bottom:14px}}.ala-hero .ala-hero-kicker:before{{flex-basis:18px}}.ala-hero .ala-hero-marca{{padding:10px 8px;margin-bottom:18px;border-radius:12px}}.ala-hero .ala-hero-datos{{margin-top:18px;gap:6px}}.ala-hero .ala-hero-datos span{{font-size:11px;padding:6px 9px}}}}
+      .ala-hero .ala-hero-contenido{{display:grid;grid-template-columns:minmax(180px,280px) 1fr;align-items:center;text-align:left;gap:8px 26px;max-width:1200px;padding:22px 30px 30px}}
+      .ala-hero .ala-hero-marca{{grid-column:1;grid-row:1 / 4;width:100%;padding:8px 12px;margin:0}}
+      .ala-hero .ala-hero-kicker{{grid-column:2;justify-content:flex-start;margin:0;font-size:10px;letter-spacing:.08em}}
+      .ala-hero p.ala-hero-descripcion{{grid-column:2;font-size:17px;max-width:720px}}
+      .ala-hero .ala-hero-datos{{grid-column:2;justify-content:flex-start;gap:6px;margin:2px 0 0}}
+      .ala-hero .ala-hero-datos span{{font-size:10px;padding:4px 7px}}
+      @media(max-width:620px){{.ala-hero .ala-hero-contenido{{display:flex;gap:8px;text-align:center}}.ala-hero .ala-hero-marca{{max-width:250px}}.ala-hero .ala-hero-datos{{justify-content:center}}.ala-hero{{border-radius:16px}}.ala-hero .ala-hero-contenido{{padding:24px 18px 52px}}.ala-hero .ala-hero-kicker{{font-size:9px;letter-spacing:.08em;margin-bottom:14px}}.ala-hero .ala-hero-kicker:before{{flex-basis:18px}}.ala-hero .ala-hero-marca{{padding:10px 8px;margin-bottom:18px;border-radius:12px}}.ala-hero .ala-hero-datos{{margin-top:18px;gap:6px}}.ala-hero .ala-hero-datos span{{font-size:11px;padding:6px 9px}}}}
     </style>
     '''
     # Altura natural, sin iframe fijo que recorte la cabecera en celulares.
@@ -7232,17 +7291,6 @@ def render_app():
         "🌧️ Alerta Litoral Agro", "📋 Plan y ficha del proyecto", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
         "🌱 Suelo y ríos", "🌊 El Niño / La Niña", "🗺️ Territorio y rutas", "📘 Caso histórico y ficha",
     ])
-    with tab_red:
-        try:
-            from red_integrada import mostrar_red_integrada
-            mostrar_red_integrada(st, repository="FedericoIeraci-cell/Alerta-Litoral", app_actual="ala")
-        except Exception:
-            st.warning("No se pudo cargar la información compartida en esta consulta. Los paneles regionales siguen disponibles; no se confirma el estado de la red.")
-    with tab_radar:
-        mostrar_radar_smn()
-    with tab_smn:
-        mostrar_datos_smn()
-
     # ============================================================
     # SIDEBAR
     # ============================================================
@@ -7288,10 +7336,10 @@ def render_app():
     - ECMWF IFS HRES 9 km
     - Precipitación / lluvia / chaparrones
     - Humedad y temperatura del suelo
-    - Runoff
+    - Agua que escurre sobre el suelo
     - Probabilidad de precipitación
     - Viento y ráfagas
-    - CAPE / VPD
+    - Condiciones para tormentas y evaporación
     - Presión / nubosidad
 
     **Vigilancia satelital**
@@ -7300,7 +7348,7 @@ def render_app():
     - Sector Sudamérica Sur
 
     **Suelo e hidrología**
-    - INTA SEPA: suelo, excedentes y NDVI
+    - INTA SEPA: humedad del suelo, agua excedente y estado de la vegetación
     - INA: alturas, caudales, umbrales y pronósticos automáticos
     - Yacyretá / Salto Grande: informes oficiales y aportes aguas arriba
     - NOAA CPC: ENOS (RONI)
@@ -7423,8 +7471,7 @@ def render_app():
         panorama_hidro = obtener_panorama_hidrologico()
         df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
-        mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
-        st.subheader('Tu localidad · alerta y acciones recomendadas')
+        st.subheader('Tu localidad · qué ocurre y qué hacer')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
             if st.session_state.get('localidad_detalle') not in localidades:
@@ -7433,17 +7480,25 @@ def render_app():
             localidad_seleccionada=st.selectbox('Seleccionar localidad',localidades,
                 index=localidades.index(destacada) if destacada in localidades else 0,key='localidad_detalle')
             row_acciones=df_alerta[df_alerta.localidad.eq(localidad_seleccionada)].iloc[0]
-            mostrar_recomendaciones_alerta(row_acciones,key='plan_acciones_principal')
-            mostrar_pronostico_fluvial_local(row_acciones,panorama_hidro)
+            st.markdown(html_portada_local(construir_portada_local(row_acciones, panorama_hidro, ahora())),unsafe_allow_html=True)
+            with st.expander('Plan completo por tarea · evidencias y descarga'):
+                mostrar_recomendaciones_alerta(row_acciones,key='plan_acciones_principal')
+            with st.expander('Ver la curva del río y todas sus previsiones'):
+                mostrar_pronostico_fluvial_local(row_acciones,panorama_hidro)
         else:
             localidad_seleccionada=None
-        st.subheader(f'Cobertura regional · {len(NODOS)} puntos en seis provincias')
-        cobertura_regional=pd.DataFrame([{'Provincia':p,'Puntos de monitoreo':sum(n['provincia']==p for n in NODOS),
-            'Índices meteorológicos completos':int((df_alerta.provincia.eq(p)&df_alerta.estado_datos.eq('OK')).sum()),
-            'Sin índice completo':int((df_alerta.provincia.eq(p)&df_alerta.indice.isna()).sum())} for p in PROVINCIAS_LITORAL])
-        st.dataframe(cobertura_regional,hide_index=True,use_container_width=True)
-        st.caption('La red monitorea localidades de las seis provincias. Una celda del modelo no representa cada lote; la ampliación geográfica no demuestra calibración local ni disponibilidad de recursos.')
-        with st.expander('Ver y descargar localidades monitoreadas'):
+        try:
+            cargar_panel_red().mostrar_estado_conexion(st, app_actual='ala')
+        except Exception:
+            st.warning('No se pudo confirmar la actualización del informe compartido. Revisá Red integrada y las fuentes de cada localidad.')
+        mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
+        with st.expander('Cobertura por provincia y localidades monitoreadas'):
+            st.subheader(f'Cobertura regional · {len(NODOS)} puntos en seis provincias')
+            cobertura_regional=pd.DataFrame([{'Provincia':p,'Puntos de monitoreo':sum(n['provincia']==p for n in NODOS),
+                'Índices meteorológicos completos':int((df_alerta.provincia.eq(p)&df_alerta.estado_datos.eq('OK')).sum()),
+                'Sin índice completo':int((df_alerta.provincia.eq(p)&df_alerta.indice.isna()).sum())} for p in PROVINCIAS_LITORAL])
+            st.dataframe(cobertura_regional,hide_index=True,use_container_width=True)
+            st.caption('La red monitorea localidades de las seis provincias. Una celda del modelo no representa cada lote; la ampliación geográfica no demuestra calibración local ni disponibilidad de recursos.')
             st.dataframe(pd.DataFrame(NODOS),hide_index=True,use_container_width=True)
             st.download_button('Descargar puntos de monitoreo',pd.DataFrame(NODOS).to_csv(index=False).encode('utf-8-sig'),
                 'nodos_litoral_6_provincias.csv','text/csv',key='cobertura_nodos_csv')
@@ -7512,30 +7567,28 @@ def render_app():
         cantidad_rojo = int((df_alerta["nivel"] == "ROJO").sum())
         cantidad_amarillo = int((df_alerta["nivel"] == "AMARILLO").sum())
         cantidad_verde = int((df_alerta["nivel"] == "VERDE").sum())
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("🔴 Rojo", cantidad_rojo)
-        col2.metric("🟡 Amarillo", cantidad_amarillo)
-        col3.metric("🟢 Verde", cantidad_verde)
-        col4.metric("📊 Índice meteorológico máximo", f"{maximo:.1f}/100" if np.isfinite(maximo) else 'Sin datos')
-        if cantidad_rojo:
-            st.error(f"🔴 {cantidad_rojo} nodos en ROJO según las fuentes disponibles.")
-        elif cantidad_amarillo:
-            st.warning(f"🟡 {cantidad_amarillo} nodos en AMARILLO; preparar medidas y verificar accesos.")
-        elif cantidad_verde:
-            st.success("🟢 Los nodos con datos están en VERDE según las fuentes disponibles.")
-        else:
-            st.warning('⚪ No hay índices meteorológicos completos para interpretar el riesgo de esta consulta.')
-        st.caption("El color integra automáticamente meteorología y riesgo fluvial observado/previsto. Las capas de suelo, agua y relieve de esta sesión son complementarias. El índice 0–100 sigue siendo meteorológico; la cobertura fluvial se informa por separado.")
-        st.dataframe(df_alerta[["localidad", "nivel", "cobertura_territorial", "motivos_semaforo", "accion"]],
-                     hide_index=True, use_container_width=True,
-                     column_config={'accion':st.column_config.TextColumn('Acción recomendada',width='large')})
+        with st.expander('Índice meteorológico y evaluación completa de todas las localidades'):
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("🔴 Rojo", cantidad_rojo)
+            col2.metric("🟡 Amarillo", cantidad_amarillo)
+            col3.metric("🟢 Verde", cantidad_verde)
+            col4.metric("📊 Índice meteorológico máximo", f"{maximo:.1f}/100" if np.isfinite(maximo) else 'Sin datos')
+            if cantidad_rojo:
+                st.error(f"🔴 {cantidad_rojo} nodos en ROJO según las fuentes disponibles.")
+            elif cantidad_amarillo:
+                st.warning(f"🟡 {cantidad_amarillo} nodos en AMARILLO; preparar medidas y verificar accesos.")
+            elif cantidad_verde:
+                st.success("🟢 Los nodos con datos están en VERDE según las fuentes disponibles.")
+            else:
+                st.warning('⚪ No hay índices meteorológicos completos para interpretar el riesgo de esta consulta.')
+            st.caption("El color integra automáticamente meteorología y riesgo fluvial observado/previsto. Las capas de suelo, agua y relieve de esta sesión son complementarias. El índice 0–100 sigue siendo meteorológico; la cobertura fluvial se informa por separado.")
+            st.dataframe(df_alerta[["localidad", "nivel", "cobertura_territorial", "motivos_semaforo", "accion"]],
+                         hide_index=True, use_container_width=True,
+                         column_config={'accion':st.column_config.TextColumn('Acción recomendada',width='large')})
 
         # ============================================================
         # TELEGRAM VISIBLE
         # ============================================================
-
-        estado_telegram_ui()
-
 
         # ============================================================
         # MAPAS
@@ -7563,10 +7616,8 @@ def render_app():
             },
         )
 
-        st.caption('Pasá el cursor por un nodo para ver su resumen. En celular o con teclado, seleccioná la localidad para abrir su ficha y las fuentes.')
-        mapa_localidad = st.selectbox('Detalle del nodo del mapa', sorted(df_alerta.localidad.tolist()), key='mapa_localidad_detalle')
-        mapa_fila = df_alerta[df_alerta.localidad.eq(mapa_localidad)].iloc[0]
-        st.markdown(tarjeta_nodo_html(mapa_fila), unsafe_allow_html=True)
+        st.caption(f'La ficha y el pronóstico corresponden a {localidad_seleccionada or "la localidad elegida"}. Para cambiarla, usá el selector del inicio. El mapa permite consultar otras localidades sin cambiar esa selección.')
+        estado_telegram_ui()
 
 
         st.header(
@@ -8667,7 +8718,7 @@ def render_app():
         )
 
         st.write(
-            "Nodos procesados: "
+            "Localidades con índice meteorológico completo: "
             f"**{len(df_validos)} / {len(NODOS)}**"
         )
 
@@ -8683,13 +8734,13 @@ def render_app():
         if telegram_token and telegram_chat:
 
             st.write(
-                "Alertas Telegram: **🟢 configuradas**"
+                "Prueba manual de Telegram en esta página: **configurada**"
             )
 
         else:
 
             st.write(
-                "Alertas Telegram: **⚪ no configuradas**"
+                "Prueba manual de Telegram en esta página: **sin configurar**. El estado del monitor automático se informa por separado."
             )
 
         st.write(
@@ -8704,6 +8755,15 @@ def render_app():
 
     with tab_plan:
         mostrar_proyecto_ficha()
+    with tab_red:
+        try:
+            cargar_panel_red().mostrar_red_integrada(st, repository="FedericoIeraci-cell/Alerta-Litoral", app_actual="ala")
+        except Exception:
+            st.warning("No se pudo cargar la información compartida en esta consulta. Los paneles regionales siguen disponibles; no se confirma el estado de la red.")
+    with tab_radar:
+        mostrar_radar_smn()
+    with tab_smn:
+        mostrar_datos_smn()
     mostrar_paneles_ficha(tab_fuentes, tab_enos, tab_territorio, tab_historia)
 
 
