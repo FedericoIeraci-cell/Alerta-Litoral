@@ -20,6 +20,7 @@ import re
 import sqlite3
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote
@@ -221,11 +222,12 @@ class GitHubStateStore:
             os.environ.get("ALA_MONITOR_STATE_BRANCH", "ala-monitor-state"),
         )
 
-    def _request(self, method: str, endpoint: str, *, allow_missing: bool = False, **kwargs):
+    def _request(self, method: str, endpoint: str, *, allow_missing: bool = False, revalidate: bool = False, **kwargs):
+        headers = {**self._headers, "Cache-Control": "no-cache"} if revalidate else self._headers
         try:
             response = self.session.request(
                 method, "https://api.github.com/repos/" + self.repository + endpoint,
-                headers=self._headers, timeout=(10, 45), allow_redirects=False, **kwargs,
+                headers=headers, timeout=(10, 45), allow_redirects=False, **kwargs,
             )
         except requests.RequestException:
             raise StateStoreError("No se pudo contactar a GitHub; no se enviarán avisos sin guardar su registro.", code="conexion") from None
@@ -264,11 +266,11 @@ class GitHubStateStore:
             self._request("POST", "/git/refs", json={"ref": "refs/heads/" + self.branch, "sha": commit_sha})
         self._ready = True
 
-    def _read_file(self, filename: str, maximum: int) -> bytes | None:
+    def _read_file(self, filename: str, maximum: int, *, ref: str | None = None) -> bytes | None:
         self._ensure_branch()
         response = self._request(
             "GET", "/contents/" + quote(filename, safe=""),
-            params={"ref": self.branch}, allow_missing=True,
+            params={"ref": self.branch if ref is None else ref}, allow_missing=True,
         )
         if response is None:
             self._shas[filename] = None
@@ -330,7 +332,7 @@ class GitHubStateStore:
                 temporary.unlink(missing_ok=True)
         return True
 
-    def _write_file(self, filename: str, payload: bytes, message: str) -> None:
+    def _write_file(self, filename: str, payload: bytes, message: str) -> dict[str, Any]:
         self._ensure_branch()
         if filename not in self._shas:
             raise StateStoreError("El estado debe restaurarse antes de poder actualizarlo.")
@@ -348,6 +350,7 @@ class GitHubStateStore:
         if not isinstance(confirmed, dict):
             raise StateStoreError("GitHub no confirmó la actualización del estado.")
         self._shas[filename] = _sha(confirmed.get("sha"))
+        return result
 
     def save_db(self, path: str | Path) -> None:
         path = Path(path)
@@ -388,19 +391,48 @@ class GitHubStateStore:
         self._write_file(STATUS_REMOTE_PATH, payload, "ALA: actualizar estado del monitor")
 
     def save_red_integrada(self, value: dict[str, Any]) -> dict[str, Any]:
-        """Confirma por relectura el contenido y SHA, sin tocar el registro de avisos."""
+        """Verifica el commit escrito y la rama, sin tocar el registro de avisos."""
         document, payload = _serializar_red_integrada(value)
         stage = "lectura_previa"
         try:
             # El SHA del informe se lee por separado, sin reutilizar el del SQLite.
             self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
             stage = "escritura"
-            self._write_file(RED_REMOTE_PATH, payload, "ALA: actualizar datos de la red Litoral-Zárate-Campana")
+            written = self._write_file(RED_REMOTE_PATH, payload, "ALA: actualizar datos de la red Litoral-Zárate-Campana")
             written_sha = self._shas[RED_REMOTE_PATH]
             stage = "verificacion"
-            confirmed = self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES)
+            commit = written.get("commit")
+            if not isinstance(commit, dict):
+                raise StateStoreError("GitHub no identificó el commit que debe verificarse.")
+            commit_sha = _sha(commit.get("sha"))
+            # La URL inmutable no reutiliza la respuesta de la lectura previa
+            # a la escritura, que consultaba contents?ref=ala-monitor-state.
+            confirmed = self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES, ref=commit_sha)
             if confirmed != payload or self._shas[RED_REMOTE_PATH] != written_sha:
                 raise RedPublicationError(stage, "contenido_no_confirmado", size=len(payload))
+
+            def current_head() -> str:
+                reference = self._json(self._request(
+                    "GET", "/git/ref/heads/" + quote(self.branch, safe=""), revalidate=True,
+                ))
+                return _sha(reference.get("object", {}).get("sha"))
+
+            # Verificar sólo un commit histórico ocultaría una sustitución de
+            # la rama. Se confirma también su contenido actual. Las únicas
+            # repeticiones son lecturas: tres intentos y dos pausas breves.
+            for attempt in range(3):
+                head_sha = current_head()
+                if head_sha == commit_sha:
+                    break
+                current = self._read_file(RED_REMOTE_PATH, MAX_RED_BYTES, ref=head_sha)
+                if (current == payload and self._shas[RED_REMOTE_PATH] == written_sha
+                        and current_head() == head_sha):
+                    break
+                if attempt < 2:
+                    time.sleep(attempt + 1)
+            else:
+                raise RedPublicationError(stage, "contenido_no_confirmado", size=len(payload))
+            self._shas[RED_REMOTE_PATH] = written_sha
             # Una escritura tardía tampoco acredita un informe vigente.
             _serializar_red_integrada(json.loads(confirmed))
         except RedPublicationError:
@@ -410,7 +442,7 @@ class GitHubStateStore:
             raise RedPublicationError(stage, code, size=len(payload)) from None
         except Exception:
             raise RedPublicationError(stage, "error_interno", size=len(payload)) from None
-        return {"sha": written_sha, "bytes": len(payload),
+        return {"sha": written_sha, "commit_sha": commit_sha, "bytes": len(payload),
                 "generated_at": document["generated_at"],
                 "verified_at": datetime.now(timezone.utc).isoformat()}
 
