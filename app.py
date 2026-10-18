@@ -108,11 +108,11 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
         page_title="Alerta Litoral Agro",
         page_icon="🌧️",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="auto",
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.9.0"
+VERSION = "V4.10.0"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -7175,7 +7175,7 @@ def mostrar_proyecto_ficha():
 
 def cargar_panel_red():
     import red_integrada as red
-    if getattr(red, 'VERSION_RED', None) != '2026-10-17.2':
+    if getattr(red, 'VERSION_RED', None) != '2026-10-18.1':
         import importlib
         red = importlib.reload(red)
     return red
@@ -7222,49 +7222,42 @@ def mostrar_hero_litoral():
     fondo = cargar_banner_tormenta()
     logo = cargar_logo_ala()
     estilo_fondo = f"background-image:url('{fondo}');" if fondo else "background-image:linear-gradient(125deg,#071d2e,#0a5265 55%,#17253b);"
-    html_hero = f''' 
+    html_hero = f'''
     <div class="ala-hero" role="banner" aria-label="Alerta Litoral Agro">
       <div class="ala-hero-fondo" style="{estilo_fondo}"></div>
       <div class="ala-hero-velo"></div>
       <div class="ala-hero-contenido">
-        <div class="ala-hero-kicker">MONITOREO METEOROLÓGICO · LITORAL ARGENTINO</div>
-        <h1 class="ala-hero-titulo">Alerta Litoral Agro</h1>
         <div class="ala-hero-marca" aria-hidden="true">
           <div class="ala-hero-logo-encuadre">
             <img class="ala-hero-logo" src="{logo}" alt="" />
           </div>
+          <div class="ala-hero-version">{html.escape(VERSION)}</div>
         </div>
-        <p class="ala-hero-descripcion">Semáforo hídrico para preparar decisiones ante lluvias intensas, exceso de agua en el suelo y crecidas.</p>
-        <div class="ala-hero-datos">{''.join('<span>'+html.escape(p)+'</span>' for p in PROVINCIAS_LITORAL)}<span>ECMWF IFS HRES 9 km</span></div>
+        <div class="ala-hero-texto">
+          <h1 class="ala-hero-titulo">Alerta Litoral Agro</h1>
+          <p class="ala-hero-descripcion">Lluvia, río y avisos para cuidar tu hogar y tu producción.</p>
+          <div class="ala-hero-kicker">Herramienta experimental · Santa Fe, Corrientes, Entre Ríos, Chaco, Formosa y Misiones</div>
+        </div>
       </div>
-      <div class="ala-hero-version">{html.escape(VERSION)}</div>
     </div>
     <style>
       .ala-hero, .ala-hero *{{box-sizing:border-box}}
-      .ala-hero{{position:relative;overflow:hidden;border-radius:22px;margin:2px 0 16px;background:#081c2c;color:#fff;box-shadow:0 14px 38px rgba(4,22,37,.23);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
+      [data-testid="stMainBlockContainer"]{{padding-top:3.5rem}}
+      .ala-hero{{position:relative;overflow:hidden;border-radius:16px;margin:0 0 4px;background:#081c2c;color:#fff;box-shadow:0 6px 20px rgba(4,22,37,.16);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
       .ala-hero .ala-hero-fondo{{position:absolute;inset:0;background-position:center;background-size:cover;transform:scale(1.015)}}
-      .ala-hero .ala-hero-velo{{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,13,27,.56) 0%,rgba(4,24,40,.28) 45%,rgba(2,12,22,.72) 100%)}}
-      .ala-hero .ala-hero-contenido{{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;padding:34px 42px 54px;max-width:960px;margin:0 auto}}
-      .ala-hero .ala-hero-kicker{{display:flex;align-items:center;justify-content:center;gap:8px;color:#a9edf0;font-size:11px;font-weight:800;letter-spacing:.14em;line-height:1.5;margin-bottom:16px}}
-      .ala-hero .ala-hero-kicker:before{{content:"";flex:0 0 26px;height:2px;background:#49d3d2;border-radius:2px}}
-      .ala-hero .ala-hero-titulo{{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}}
-      .ala-hero .ala-hero-marca{{width:min(100%,520px);padding:12px 16px;margin:0 auto 22px;border-radius:16px;background:#f8fcff;border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 26px rgba(0,0,0,.16)}}
-      .ala-hero .ala-hero-logo-encuadre{{position:relative;width:100%;aspect-ratio:2.7;overflow:hidden}}
+      .ala-hero .ala-hero-velo{{position:absolute;inset:0;background:linear-gradient(100deg,rgba(2,13,27,.82),rgba(4,24,40,.58))}}
+      .ala-hero .ala-hero-contenido{{position:relative;z-index:1;display:flex;align-items:center;gap:20px;min-height:124px;width:100%;padding:16px 24px}}
+      .ala-hero .ala-hero-texto{{min-width:0}}
+      .ala-hero .ala-hero-kicker{{color:#bcecf0;font-size:11px;line-height:1.4;margin-top:7px}}
+      .ala-hero .ala-hero-titulo{{font-size:clamp(23px,2.5vw,30px);line-height:1.15;margin:0 0 6px;padding:0;color:#fff;font-weight:800}}
+      .ala-hero .ala-hero-marca{{flex:0 0 116px;text-align:center}}
+      .ala-hero .ala-hero-logo-encuadre{{position:relative;width:100%;aspect-ratio:2.7;overflow:hidden;border-radius:8px;background:#f8fcff;border:1px solid rgba(255,255,255,.7)}}
       .ala-hero img.ala-hero-logo{{position:absolute;left:0;top:50%;width:100%;max-width:none;height:auto;display:block;transform:translateY(-50%);margin:0}}
-      .ala-hero p.ala-hero-descripcion{{max-width:690px;font-size:clamp(16px,2vw,21px);line-height:1.45;margin:0;color:#effbff;text-shadow:0 2px 12px rgba(0,0,0,.55)}}
-      .ala-hero .ala-hero-datos{{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}}
-      .ala-hero .ala-hero-datos span{{font-size:12px;font-weight:700;line-height:1.3;color:#dffbff;border:1px solid rgba(182,245,246,.4);background:rgba(4,33,49,.52);padding:7px 11px;border-radius:999px;backdrop-filter:blur(4px)}}
-      .ala-hero .ala-hero-version{{position:absolute;right:18px;bottom:14px;z-index:2;font-size:11px;font-weight:800;color:#d9fbff;background:rgba(1,18,30,.68);border:1px solid rgba(184,244,244,.35);padding:6px 9px;border-radius:999px}}
-      .ala-hero .ala-hero-contenido{{display:grid;grid-template-columns:minmax(180px,280px) 1fr;align-items:center;text-align:left;gap:8px 26px;max-width:1200px;padding:22px 30px 30px}}
-      .ala-hero .ala-hero-marca{{grid-column:1;grid-row:1 / 4;width:100%;padding:8px 12px;margin:0}}
-      .ala-hero .ala-hero-kicker{{grid-column:2;justify-content:flex-start;margin:0;font-size:10px;letter-spacing:.08em}}
-      .ala-hero p.ala-hero-descripcion{{grid-column:2;font-size:17px;max-width:720px}}
-      .ala-hero .ala-hero-datos{{grid-column:2;justify-content:flex-start;gap:6px;margin:2px 0 0}}
-      .ala-hero .ala-hero-datos span{{font-size:10px;padding:4px 7px}}
-      @media(max-width:620px){{.ala-hero .ala-hero-contenido{{display:flex;gap:8px;text-align:center}}.ala-hero .ala-hero-marca{{max-width:250px}}.ala-hero .ala-hero-datos{{justify-content:center}}.ala-hero{{border-radius:16px}}.ala-hero .ala-hero-contenido{{padding:24px 18px 52px}}.ala-hero .ala-hero-kicker{{font-size:9px;letter-spacing:.08em;margin-bottom:14px}}.ala-hero .ala-hero-kicker:before{{flex-basis:18px}}.ala-hero .ala-hero-marca{{padding:10px 8px;margin-bottom:18px;border-radius:12px}}.ala-hero .ala-hero-datos{{margin-top:18px;gap:6px}}.ala-hero .ala-hero-datos span{{font-size:11px;padding:6px 9px}}}}
+      .ala-hero p.ala-hero-descripcion{{font-size:15px;line-height:1.4;margin:0;color:#effbff}}
+      .ala-hero .ala-hero-version{{font-size:10px;font-weight:700;color:#d9fbff;line-height:1.4;margin-top:7px}}
+      @media(max-width:620px){{.ala-hero .ala-hero-contenido{{min-height:118px;padding:14px;gap:12px}}.ala-hero .ala-hero-marca{{flex-basis:70px}}.ala-hero .ala-hero-titulo{{font-size:21px}}.ala-hero p.ala-hero-descripcion{{font-size:14px}}.ala-hero .ala-hero-kicker{{font-size:10px;margin-top:5px}}}}
     </style>
     '''
-    # Altura natural, sin iframe fijo que recorte la cabecera en celulares.
     st.html(html_hero)
 
 
@@ -7275,7 +7268,6 @@ def mostrar_hero_litoral():
 
 def render_app():
     mostrar_hero_litoral()
-    st.caption(f"Herramienta experimental de apoyo a decisiones · Versión {VERSION} · Fuentes y límites documentados en Caso histórico y ficha")
     firma_actual=firma_cobertura()
     if st.session_state.get('firma_cobertura')!=firma_actual:
         for clave in ('df_alerta','raw_ecmwf','df_operativo','firma_historial_operativo','ficha_localidad','localidad_seleccionada'):
@@ -7471,6 +7463,18 @@ def render_app():
         panorama_hidro = obtener_panorama_hidrologico()
         df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
+        st.header('🗺️ Mapa de riesgo del Litoral')
+        st.caption('Evaluación: '+fecha_publica(ahora())+' · Cada fuente conserva su propia fecha. Tocá un punto para ver qué explica su estado.')
+        conteo_mapa=df_alerta['nivel'].value_counts()
+        st.markdown(f"**🔴 Atención prioritaria: {int(conteo_mapa.get('ROJO',0))}** · "
+                    f"**🟡 Prepararse: {int(conteo_mapa.get('AMARILLO',0))}** · "
+                    f"🟢 Seguimiento: {int(conteo_mapa.get('VERDE',0))} · "
+                    f"⚪ Sin datos suficientes: {int(conteo_mapa.get('SIN DATOS',0))}")
+        fig_mapa=crear_mapa(df_alerta)
+        fig_mapa.update_layout(height=540)
+        st.plotly_chart(fig_mapa,use_container_width=True,
+                        config={'scrollZoom':True,'displaylogo':False},key='mapa_riesgo_litoral_principal')
+        st.caption('El mapa reúne las seis provincias del Litoral. Gris significa que faltan datos. El color expresa una evaluación experimental de los datos disponibles; no es un aviso oficial. Debajo podés elegir tu localidad o usar tu ubicación.')
         st.subheader('Tu localidad · qué ocurre y qué hacer')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
@@ -7592,29 +7596,6 @@ def render_app():
         # MAPAS
         # ============================================================
 
-        st.header(
-            "🗺️ Mapa de riesgo del Litoral"
-        )
-
-        st.caption(
-            "El encuadre inicial abarca las seis provincias del Litoral argentino. "
-            "Los puntos grises indican información insuficiente; no son riesgo bajo."
-        )
-
-        fig_mapa = crear_mapa(
-            df_alerta
-        )
-
-        st.plotly_chart(
-            fig_mapa,
-            use_container_width=True,
-            config={
-                "scrollZoom": True,
-                "displaylogo": False,
-            },
-        )
-
-        st.caption(f'La ficha y el pronóstico corresponden a {localidad_seleccionada or "la localidad elegida"}. Para cambiarla, usá el selector del inicio. El mapa permite consultar otras localidades sin cambiar esa selección.')
         estado_telegram_ui()
 
 

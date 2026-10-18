@@ -21,23 +21,29 @@ from zoneinfo import ZoneInfo
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 SCHEMA_VERSION = 1
 CATALOGO_VERSION = 1
-VERSION_RED = "2026-10-17.2"
+VERSION_RED = "2026-10-18.1"
 REPOSITORY = "FedericoIeraci-cell/Alerta-Litoral"
 STATE_BRANCH = "ala-monitor-state"
 SNAPSHOT_PATH = "red_integrada.json"
 SNAPSHOT_MAX_AGE_HOURS = 3
+MONITOR_STATUS_PATH = "monitor_status.json"
+MONITOR_MAX_BYTES = 500_000
+# Se conserva el límite de tres horas que ya usaba el lector para el control.
+MONITOR_MAX_AGE_HOURS = 3
 API_METEO = "https://api.open-meteo.com/v1/ecmwf"
 INA_WFS = "https://alerta.ina.gob.ar/geoserver/ows"
 MAX_BYTES = 2_000_000
 PRIVATE_KEYS = {"token", "chat_id", "destino", "mensaje", "telegram_bot_token", "telegram_chat_id", "github_token", "authorization", "password", "secret"}
 _CACHE_RED = {}
+_CACHE_MONITOR = {}
 _CACHE_LOCK = threading.Lock()
 LIMITES = [
     "La vista común es evidencia de vigilancia; no es un modelo hidráulico calibrado ni una orden de evacuación.",
     "Una señal del Litoral no se transforma automáticamente en una alerta local de Zárate–Campana.",
     "Los aportes de represas y estaciones sucesivas no se suman; no se calcula una velocidad fija de llegada.",
     "Paraná y Uruguay mantienen ramas distintas antes del estuario; marea y viento también condicionan el Delta.",
-    "Las escalas observadas 40/41 y las series de pronóstico 29534/3405 no tienen equivalencia documentada: sus umbrales no se cruzan.",
+    "Las escalas de puerto 40/41 y las series de pronóstico 29534/3405 no tienen equivalencia documentada: sus umbrales no se cruzan.",
+    "La automática de Zárate (29437) es una referencia RHN distinta del puerto. Se muestra con su propia fecha y escala, sin trasladar los umbrales del puerto ni extenderla a Campana.",
     "Los datos del área vecina se incorporan al informe común; no amplían los candidatos ni los destinatarios del canal Telegram ALA.",
 ]
 
@@ -256,6 +262,34 @@ def _rio_vacio(nombre, serie, prono):
             "error": "Sin observación consultada", "error_pronostico": "Sin pronóstico consultado"}
 
 
+
+def _rio_automatico_zarate(observacion, referencia=None):
+    """Referencia RHN independiente: nunca hereda alturas o umbrales del puerto."""
+    from hidrometria_local import revalidar_altura_zarate
+    dato = revalidar_altura_zarate(observacion, referencia)
+    rio = _rio_vacio("Paraná Las Palmas - Zárate", 29437, None)
+    rio.update(altura_m=dato.get("altura_m"), fecha_observada=dato.get("fecha_observada"),
+               fecha_consulta=dato.get("consulta"), fuente=dato.get("fuente") or "https://alerta.ina.gob.ar/",
+               cero_ign_m=dato.get("cero_ign_m"), error=dato.get("error") or "",
+               error_pronostico="La previsión local se muestra por separado; esta fila identifica la medición automática.",
+               observacion_automatica=dato, zona_horaria_verificada=bool(dato.get("fecha_observada")),
+               tipo_observacion="Estación automática RHN / INA")
+    return rio
+
+
+def altura_automatica_zarate_de_red(datos, referencia=None):
+    """Extrae sólo la referencia verificada del informe común, sin una consulta paralela."""
+    try:
+        informe = validar_red_integrada(datos, referencia)
+    except (ValueError, TypeError):
+        return None
+    if not informe.get("snapshot_vigente"):
+        return None
+    filas = [r for r in informe["rios"] if r.get("red") == "Zárate–Campana"
+             and r.get("serie_observada") == 29437]
+    return deepcopy(filas[0]["observacion_automatica"]) if len(filas) == 1 else None
+
+
 def parsear_alturas_zc(payload, fuente, consultado, referencia=None):
     ref = _ahora(referencia)
     rios = [_rio_vacio("Zárate", 40, 29534), _rio_vacio("Campana", 41, 3405)]
@@ -384,6 +418,18 @@ def consultar_zc_red(referencia=None, session=None):
                          "consultado": consulta, "fecha_documento": rio["fecha_observada"], "error": rio["error"]},
                         {"red": "Zárate–Campana", "organismo": "INA · pronóstico " + rio["estacion"], "url": url,
                          "consultado": consulta, "fecha_documento": rio["fecha_emision"], "error": rio["error_pronostico"]}])
+    # La automática es otra estación: se agrega después de las dos escalas de puerto.
+    # Su lectura no cambia el índice, los candidatos ni los destinatarios de ALA.
+    from hidrometria_local import consultar_altura_zarate
+    try:
+        automatica = consultar_altura_zarate(referencia=ref, session=session)
+    except Exception:
+        automatica = {}
+    rio_automatico = _rio_automatico_zarate(automatica, ref)
+    rios.append(rio_automatico)
+    fuentes.append({"red": "Zárate–Campana", "organismo": "INA / RHN · estación automática de Zárate",
+                    "url": rio_automatico["fuente"], "consultado": rio_automatico["fecha_consulta"],
+                    "fecha_documento": rio_automatico["fecha_observada"], "error": rio_automatico["error"]})
     return {"nodos": nodos, "rios": rios, "fuentes": fuentes, "consultado": consulta}
 
 
@@ -603,9 +649,20 @@ def validar_red_integrada(payload, referencia=None):
             else "Trazabilidad disponible" if node.get("explicacion_version") == 1 else "Informe anterior sin desencadenante estructurado")
     if found != set(expected):
         raise ValueError("El informe no conserva los 58 puntos del catálogo")
+    automatica_vista = False
     for rio in out["rios"]:
         if not isinstance(rio, dict):
             raise ValueError("Estación no válida")
+        es_automatica = rio.get("red") == "Zárate–Campana" and rio.get("serie_observada") == 29437
+        if es_automatica:
+            if automatica_vista or rio.get("estacion") != "Paraná Las Palmas - Zárate" or rio.get("serie_pronostico") is not None:
+                raise ValueError("Identidad de estación automática incompatible o repetida")
+            automatica_vista = True
+            # Reconstruye los campos visibles desde el contrato validado, sin
+            # aceptar umbrales ni una curva remota agregados a esta medición.
+            dato = deepcopy(rio.get("observacion_automatica"))
+            rio.clear()
+            rio.update(_rio_automatico_zarate(dato, ref))
         if rio.get("red") == "Litoral" and "/diario/reporte_diario" in _url(rio.get("fuente")):
             rio["fecha_observada_original"] = _texto(rio.get("fecha_observada_original") or rio.get("fecha_observada"))[:10]
             rio["fecha_observada"] = None
@@ -615,9 +672,11 @@ def validar_red_integrada(payload, referencia=None):
         temporal = _estado_fecha(rio.get("fecha_observada"), ref, 6 if rio.get("red") == "Zárate–Campana" else 48)
         rio.update(edad_observada_horas=temporal["edad_horas"], observacion_estado=temporal["estado_tiempo"],
                    observacion_vigente=temporal["vigente"] and out["snapshot_vigente"] and rio["altura_m"] is not None)
+        if es_automatica:
+            rio["observacion_vigente"] = bool(rio["observacion_vigente"] and rio["observacion_automatica"].get("vigente"))
         if rio.get("red") == "Zárate–Campana":
             identity = (rio.get("estacion"), rio.get("serie_observada"), rio.get("serie_pronostico"))
-            if identity not in {("Zárate", 40, 29534), ("Campana", 41, 3405)}:
+            if identity not in {("Zárate", 40, 29534), ("Campana", 41, 3405), ("Paraná Las Palmas - Zárate", 29437, None)}:
                 raise ValueError("Identidad de estación local incompatible")
             rio["escala_equivalente"] = False
         emitted = _fecha(rio.get("fecha_emision"))
@@ -689,6 +748,7 @@ def validar_red_integrada(payload, referencia=None):
 def limpiar_cache_red_integrada():
     with _CACHE_LOCK:
         _CACHE_RED.clear()
+        _CACHE_MONITOR.clear()
 
 
 def consultar_red_integrada(repository=REPOSITORY, session=None, referencia=None, actualizar=False):
@@ -717,6 +777,180 @@ def consultar_red_integrada(repository=REPOSITORY, session=None, referencia=None
     except Exception as exc:
         return {"error": "El informe común no está disponible o no es compatible: " + type(exc).__name__,
                 "snapshot_vigente": False, "snapshot_url": url, "actions_url": f"https://github.com/{repository}/actions"}
+
+
+_ALCANCE_MONITOR = "Meteorología + hidrología + represas"
+_SALUD_MONITOR = frozenset({"ok", "datos_parciales", "dry_run", "sin_datos", "error_registro",
+                          "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida", "error_red_integrada"})
+_COBERTURAS_MONITOR = {
+    "meteorologia": "Meteorología", "hidrologia_observada": "Observaciones de ríos",
+    "hidrologia_prevista": "Previsión de ríos", "represas": "Información de represas",
+    "avisos_smn": "Consulta de avisos oficiales",
+}
+
+
+def _registro_publico_monitor(payload):
+    """Contrato mínimo del registro horario; excluye historial, envíos y texto libre."""
+    if not isinstance(payload, dict) or type(payload.get("schema_version")) is not int or payload["schema_version"] != 1:
+        raise ValueError("Registro de control incompatible")
+    if _fecha(payload.get("checked_at")) is None:
+        raise ValueError("Control sin fecha y zona horaria verificadas")
+    frequency = payload.get("frequency_minutes")
+    if type(frequency) is not int or not 5 <= frequency <= 1440:
+        raise ValueError("Frecuencia del control incompatible")
+    if payload.get("scope") not in {_ALCANCE_MONITOR, "ECMWF / índice meteorológico"}:
+        raise ValueError("Alcance del control incompatible")
+    if not isinstance(payload.get("health"), str) or payload["health"] not in _SALUD_MONITOR:
+        raise ValueError("Resultado del control no reconocido")
+    for flag in ("dry_run", "publication_only", "red_integrada_publicada"):
+        if type(payload.get(flag)) is not bool:
+            raise ValueError("Modo del control sin confirmar")
+    for key in ("nodes_total", "nodes_valid", "nodes_red"):
+        if type(payload.get(key)) is not int or payload[key] < 0:
+            raise ValueError("Cobertura del control incompatible")
+    if not payload["nodes_red"] <= payload["nodes_valid"] <= payload["nodes_total"]:
+        raise ValueError("Cobertura del control inconsistente")
+    salida = {key: payload[key] for key in ("schema_version", "checked_at", "frequency_minutes", "scope", "health",
+              "dry_run", "publication_only", "red_integrada_publicada", "nodes_total", "nodes_valid", "nodes_red")}
+    publication = payload.get("red_integrada_estado")
+    if publication not in {"pendiente", "verificada", "error", "no_solicitada"}:
+        raise ValueError("Publicación del control sin confirmar")
+    salida["red_integrada_estado"] = publication
+    coverage = payload.get("coverage", {})
+    if not isinstance(coverage, dict):
+        raise ValueError("Cobertura del control incompatible")
+    salida["coverage"] = {}
+    for key in _COBERTURAS_MONITOR:
+        if key not in coverage:
+            continue
+        record = coverage[key]
+        if (not isinstance(record, dict) or type(record.get("vigentes")) is not int
+                or type(record.get("aplicables")) is not int
+                or not 0 <= record["vigentes"] <= record["aplicables"] <= payload["nodes_total"]):
+            raise ValueError("Cobertura aplicable inconsistente")
+        salida["coverage"][key] = {field: record[field] for field in ("vigentes", "aplicables")}
+    receipt = payload.get("red_integrada_confirmacion")
+    if receipt is not None:
+        if not isinstance(receipt, dict):
+            raise ValueError("Confirmación de publicación incompatible")
+        fields = ("generated_at", "verified_at")
+        if any(_fecha(receipt.get(key)) is None for key in fields):
+            raise ValueError("Publicación sin fechas verificadas")
+        if (not isinstance(receipt.get("sha"), str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", receipt["sha"])
+                or type(receipt.get("bytes")) is not int or not 0 < receipt["bytes"] <= MAX_BYTES):
+            raise ValueError("Confirmación de publicación incompatible")
+        generated, verified = (_fecha(receipt[key]) for key in fields)
+        checked = _fecha(payload["checked_at"])
+        if generated < checked - timedelta(minutes=5) or verified < generated or verified < checked:
+            raise ValueError("Fechas de publicación inconsistentes")
+        salida["red_integrada_confirmacion"] = {key: receipt[key] for key in (*fields, "sha", "bytes")}
+    return salida
+
+
+def consultar_estado_monitor(repository=REPOSITORY, session=None, referencia=None, actualizar=False):
+    """Lee sólo monitor_status.json; nunca ejecuta controles ni consulta el registro de envíos."""
+    if not isinstance(repository, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+        return {"error": "Repositorio del control no válido"}
+    url = f"https://raw.githubusercontent.com/{repository}/{STATE_BRANCH}/{MONITOR_STATUS_PATH}"
+    try:
+        payload = None
+        if session is None and not actualizar:
+            with _CACHE_LOCK:
+                cached = _CACHE_MONITOR.get(repository)
+                if cached and time.monotonic() - cached[0] <= 300:
+                    payload = deepcopy(cached[1])
+        if payload is None:
+            params = {"revision": str(time.time_ns())} if actualizar else None
+            raw, _ = _request_json(session, url, params=params, max_bytes=MONITOR_MAX_BYTES)
+            payload = _registro_publico_monitor(raw)
+            # Una lectura intermedia puede preceder por segundos a la confirmación.
+            if session is None and payload["red_integrada_estado"] != "pendiente":
+                with _CACHE_LOCK:
+                    _CACHE_MONITOR[repository] = (time.monotonic(), deepcopy(payload))
+        return {**deepcopy(payload), "error": "", "monitor_url": url,
+                "actions_url": f"https://github.com/{repository}/actions"}
+    except Exception:
+        return {"error": "No se pudo verificar el registro del control automático.", "monitor_url": url,
+                "actions_url": f"https://github.com/{repository}/actions"}
+
+
+def resumen_publico_monitor(estado_monitor, referencia=None):
+    """Describe el último registro normal; una publicación de prueba nunca lo acredita."""
+    fuente = f"https://raw.githubusercontent.com/{REPOSITORY}/{STATE_BRANCH}/{MONITOR_STATUS_PATH}"
+    resumen = {"estado": "sin_verificacion", "fecha": None, "alcance": _ALCANCE_MONITOR, "faltantes": [],
+               "fuente": fuente, "control_reciente": False, "publicacion_confirmada": False,
+               "motivo": "No se pudo verificar el último control automático.", "etiqueta": "Control sin verificar",
+               "frequency_minutes": None, "edad_horas": None, "limite_antiguedad_horas": MONITOR_MAX_AGE_HOURS}
+    if not isinstance(estado_monitor, dict) or estado_monitor.get("error"):
+        return resumen
+    try:
+        registro = _registro_publico_monitor(estado_monitor)
+    except (ValueError, TypeError):
+        return resumen
+    ref = _ahora(referencia)
+    temporal = _estado_fecha(registro["checked_at"], ref, MONITOR_MAX_AGE_HOURS)
+    faltantes = []
+    if registro["nodes_valid"] < registro["nodes_total"]:
+        faltantes.append(f"Clasificación integrada: {registro['nodes_valid']} de {registro['nodes_total']} localidades interpretables.")
+    for key, record in registro["coverage"].items():
+        if record["vigentes"] < record["aplicables"]:
+            faltantes.append(f"{_COBERTURAS_MONITOR[key]}: {record['vigentes']} de {record['aplicables']} localidades aplicables con información vigente.")
+    resumen.update(fecha=registro["checked_at"], alcance=registro["scope"], faltantes=faltantes,
+                   fuente=_url(estado_monitor.get("monitor_url")) or fuente, frequency_minutes=registro["frequency_minutes"],
+                   edad_horas=temporal["edad_horas"], health=registro["health"], nodes_total=registro["nodes_total"],
+                   nodes_valid=registro["nodes_valid"], nodes_invalid=registro["nodes_total"] - registro["nodes_valid"])
+    if temporal["estado_tiempo"] == "FECHA_FUTURA":
+        resumen["motivo"] = "El registro tiene una fecha futura; el último control no se puede verificar."
+        return resumen
+    if not temporal["vigente"]:
+        resumen.update(estado="vencido", etiqueta="Control anterior", motivo="El último registro tiene más de tres horas; falta confirmar un control reciente.")
+        return resumen
+    if registro["dry_run"] or registro["publication_only"] or registro["health"] == "dry_run":
+        resumen.update(estado="comprobacion", etiqueta="Comprobación de datos", motivo="El registro corresponde a una comprobación, no a un control normal del canal.")
+        return resumen
+    if registro["scope"] != _ALCANCE_MONITOR:
+        resumen["motivo"] = "El registro tiene un alcance anterior; no confirma el control conjunto de lluvia, ríos y represas."
+        return resumen
+    problemas = {
+        "sin_datos": "El control no pudo interpretar ninguna localidad.",
+        "error_registro": "El control requiere revisar su registro de avisos.",
+        "envio_sin_confirmacion": "El control registró avisos cuya entrega no quedó confirmada.",
+        "envio_rechazado": "El control registró un problema al entregar avisos.",
+        "configuracion_invalida": "El control requiere revisar la configuración del canal.",
+        "error_red_integrada": "El control guardó la evaluación, pero no confirmó el informe compartido.",
+    }
+    if registro["health"] in problemas or registro["red_integrada_estado"] == "error":
+        resumen.update(estado="con_error", etiqueta="Control con un problema", motivo=problemas.get(registro["health"], problemas["error_red_integrada"]))
+        return resumen
+    receipt = registro.get("red_integrada_confirmacion")
+    if (registro["red_integrada_publicada"] is not True or registro["red_integrada_estado"] != "verificada"
+            or receipt is None or _fecha(receipt["verified_at"]) > ref + timedelta(minutes=5)):
+        resumen["motivo"] = "El registro aún no permite confirmar que el control terminó y publicó sus datos."
+        return resumen
+    parcial = registro["health"] == "datos_parciales" or bool(faltantes)
+    resumen.update(estado="datos_parciales" if parcial else "normal_reciente", control_reciente=True,
+                   etiqueta="Control normal con datos parciales" if parcial else "Control normal confirmado",
+                   publicacion_confirmada=True, publicacion_fecha=receipt["generated_at"], confirmacion_fecha=receipt["verified_at"],
+                   motivo=f"{registro['nodes_valid']} de {registro['nodes_total']} localidades con clasificación integrada.")
+    return resumen
+
+
+def resumen_estado_operativo(datos, estado_monitor, referencia=None):
+    """Interfaz de portada: fechas, alcance, faltantes y fuentes separados de datos/control."""
+    red = resumen_publico_red(datos, referencia)
+    fuente = _url(datos.get("snapshot_url")) if isinstance(datos, dict) else ""
+    informe = {"estado": red["estado"], "fecha": red.get("generated_at"),
+               "fuente": fuente or f"https://raw.githubusercontent.com/{REPOSITORY}/{STATE_BRANCH}/{SNAPSHOT_PATH}",
+               "alcance": "Red Litoral–Zárate–Campana", "faltantes": [], "comprobacion": red.get("prueba", False)}
+    if red["estado"] == "sin_confirmar":
+        informe["motivo"] = "No se pudo verificar el informe compartido."
+    else:
+        informe.update(nodos=red["nodos"], localidades_sin_clasificacion=red["sin_clasificacion_litoral"],
+                       motivo=f"{red['nodos']} referencias comparten el mismo informe; cada fuente conserva su fecha.")
+        for campo, etiqueta in (("alturas_recientes", "Alturas vigentes"), ("pronosticos_rio_recientes", "Pronósticos fluviales vigentes")):
+            if red[campo] < red["estaciones"]:
+                informe["faltantes"].append(f"{etiqueta}: {red[campo]} de {red['estaciones']} estaciones.")
+    return {"datos": informe, "control": resumen_publico_monitor(estado_monitor, referencia)}
 
 
 def _mostrar_fecha(valor):
@@ -787,11 +1021,42 @@ def resumen_publico_red(datos, referencia=None):
             "datos": verificado}
 
 
-def mostrar_estado_conexion(st, app_actual="ala", datos=None):
-    datos = consultar_red_integrada() if datos is None else datos
-    resumen = resumen_publico_red(datos)
+def _mostrar_control_publico(st, control, *, comprobacion_datos=False):
+    fecha = " · " + fecha_publica(control["fecha"]) if control["fecha"] else ""
+    texto = control["etiqueta"] + fecha + ". " + control["motivo"]
+    if control["control_reciente"]:
+        st.caption(texto)
+    elif control["estado"] in {"con_error", "vencido"}:
+        st.warning(texto)
+    else:
+        st.info(texto)
+    with st.expander("Detalles del control y datos pendientes"):
+        st.write("El informe compartido y el registro del control normal se consultan por separado. "
+                 "Una comprobación de datos no acredita vigilancia ni entrega de avisos.")
+        if comprobacion_datos:
+            st.write("El informe de datos mostrado se publicó en modo de comprobación. El control indicado arriba procede de su propio registro.")
+        st.write("Alcance del control: " + control["alcance"] + ".")
+        if control["frequency_minutes"] is not None:
+            st.write(f"Frecuencia configurada: cada {control['frequency_minutes']} minutos. "
+                     f"El lector considera reciente el último registro durante {MONITOR_MAX_AGE_HOURS} horas; su fecha no garantiza una ejecución posterior.")
+        for faltante in control["faltantes"]:
+            st.write(faltante)
+        if control.get("confirmacion_fecha"):
+            st.write("Publicación confirmada por ese control: " + fecha_publica(control["confirmacion_fecha"]) + ".")
+        st.markdown("[Ver el registro público del control](" + control["fuente"] + ")")
+
+
+def mostrar_estado_conexion(st, app_actual="ala", datos=None, *, estado_monitor=None, repository=REPOSITORY, referencia=None):
+    consultar = datos is None
+    datos = consultar_red_integrada(repository, referencia=referencia) if consultar else datos
+    if estado_monitor is None and consultar:
+        estado_monitor = consultar_estado_monitor(repository, referencia=referencia)
+    resumen = resumen_publico_red(datos, referencia)
+    operativo = resumen_estado_operativo(datos, estado_monitor, referencia)
+    resumen["estado_operativo"] = operativo
     if resumen["estado"] == "sin_confirmar":
         st.warning("Conexión entre las páginas sin confirmar. Revisá la fecha de cada dato antes de usarlo.")
+        _mostrar_control_publico(st, operativo["control"])
         return resumen
     edad = resumen["edad_horas"]
     minutos = max(0, round(edad * 60)) if edad is not None else None
@@ -799,10 +1064,7 @@ def mostrar_estado_conexion(st, app_actual="ala", datos=None):
     st.caption("Red Litoral–Zárate–Campana · informe común: " + fecha_publica(resumen["generated_at"]) + antiguedad)
     if resumen["estado"] == "antiguo":
         st.warning("El informe compartido tiene más de 3 horas. La actualización entre las páginas necesita revisión.")
-    elif resumen["prueba"]:
-        st.info("Informe de comprobación de datos. Por sí solo no confirma que el control horario automático esté activo.")
-    elif not resumen["control_reciente"]:
-        st.warning("El informe es reciente, pero no se pudo confirmar un control horario automático reciente.")
+    _mostrar_control_publico(st, operativo["control"], comprobacion_datos=resumen["prueba"])
     otra = "Zárate–Campana" if str(app_actual).lower() == "ala" else "Litoral"
     url = "https://alerta-zarate-campana.streamlit.app/" if otra == "Zárate–Campana" else "https://alerta-litoral-agro.streamlit.app/"
     st.caption(f"48 localidades del Litoral + 10 referencias de Zárate–Campana. [Ver {otra}]({url}). "
@@ -831,18 +1093,23 @@ def filas_publicas_nodos(datos, region="Ambas regiones"):
     return filas
 
 
-def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None):
+def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, *, estado_monitor=None, referencia=None):
     """La misma evidencia, las mismas edades y el mismo lenguaje en ambas páginas."""
     st.subheader("🌐 Red integrada · Litoral y Zárate–Campana")
     st.write("Seguimiento compartido de lluvia, ríos y represas. Cada dato conserva su lugar, su fecha y su fuente.")
     left, right = st.columns(2)
     left.link_button("Abrir Alerta Litoral Agro", "https://alerta-litoral-agro.streamlit.app/", key="red_integrada_ala")
     right.link_button("Abrir Alerta Zárate–Campana", "https://alerta-zarate-campana.streamlit.app/", key="red_integrada_zc")
-    actualizar = datos is None and st.button("Actualizar informe compartido", key="red_integrada_actualizar")
-    datos = consultar_red_integrada(repository, actualizar=actualizar) if datos is None else datos
-    resumen = resumen_publico_red(datos)
+    consultar = datos is None
+    actualizar = consultar and st.button("Actualizar informe compartido", key="red_integrada_actualizar")
+    datos = consultar_red_integrada(repository, actualizar=actualizar, referencia=referencia) if consultar else datos
+    if estado_monitor is None and consultar:
+        estado_monitor = consultar_estado_monitor(repository, actualizar=actualizar, referencia=referencia)
+    resumen = resumen_publico_red(datos, referencia)
+    control = resumen_publico_monitor(estado_monitor, referencia)
     if resumen["estado"] == "sin_confirmar":
         st.warning(resumen["error"] + " La conexión actual entre las páginas no está confirmada.")
+        _mostrar_control_publico(st, control)
         st.link_button("Ver controles del informe compartido", f"https://github.com/{repository}/actions", key="red_integrada_actions_error")
         return datos if isinstance(datos, dict) else {"error": resumen["error"], "snapshot_vigente": False}
     snapshot_url = datos.get("snapshot_url", "")
@@ -850,12 +1117,7 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None):
     st.caption("Informe generado: " + fecha_publica(datos["generated_at"]) + " · actualización prevista: cada hora")
     if resumen["estado"] == "antiguo":
         st.warning("Informe antiguo. Se conserva como referencia; sus colores no describen la situación actual.")
-    elif resumen["prueba"]:
-        st.info("Este informe procede de una comprobación de datos; no acredita por sí solo un control horario automático.")
-    elif not resumen["control_reciente"]:
-        st.warning("No se confirma un control horario automático reciente.")
-    else:
-        st.caption("Control horario reciente confirmado. Hay fuentes pendientes o parciales: revisá las fechas de cada sección.")
+    _mostrar_control_publico(st, control, comprobacion_datos=resumen["prueba"])
     a, b, c = st.columns(3)
     a.metric("Localidades con lluvia reciente", f"{resumen['lluvia_72_reciente']}/{resumen['nodos']}")
     b.metric("Estaciones con altura reciente", f"{resumen['alturas_recientes']}/{resumen['estaciones']}")
@@ -900,7 +1162,8 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None):
         "Hasta cuándo hay previsión": fecha_publica(max((p.get("fecha") for p in r.get("pronostico", []) if p.get("fecha")), default=None))
         } for r in rivers], hide_index=True, use_container_width=True)
     st.caption("El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
-               "No se confirmó la equivalencia de escala entre sus series observadas y de pronóstico; por eso no se comparan directamente con los umbrales observados. "
+               "Las escalas de los puertos (40/41) no se comparan con los pronósticos (29534/3405) sin equivalencia documentada. "
+               "La automática de Zárate (29437) conserva su propia referencia y no usa los umbrales del puerto. "
                "Las alturas de estaciones diferentes tampoco se suman ni indican profundidad en un barrio.")
     with st.expander("Fuentes, referencias de alerta y puntos del pronóstico de los ríos"):
         st.dataframe([{"Estación": r.get("estacion"), "Serie observada": r.get("serie_observada"),
