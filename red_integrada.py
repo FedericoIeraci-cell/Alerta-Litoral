@@ -527,13 +527,14 @@ def _normalizar_represa(key, item):
               "fecha": doc_date, "fecha_original": original,
               "precision_fecha": _texto(item.get("precision_fecha")), "precision_hasta": _texto(item.get("precision_hasta")),
               "hasta": _iso(item.get("hasta")), "fuente": _url(item.get("fuente")),
-              "tipo": _texto(item.get("tipo")), "texto": _texto(item.get("texto"), 5000)}
+              "tipo": _texto(item.get("tipo")), "texto": _texto(item.get("texto"), 5000),
+              "consulta": _iso(item.get("consulta"))}
     for field in ("afluente_tipo", "afluente_previsto_interpretacion"):
         campos[field] = _texto(item.get(field), 1200)
     extremos = item.get("afluente_previsto_extremos_publicados_m3s")
     if isinstance(extremos, (tuple, list)):
         campos["afluente_previsto_extremos_publicados_m3s"] = [_numero(v, 0) for v in extremos[:2]]
-    for k in ("afluente_m3s", "erogado_m3s", "afluente_previsto_min_m3s", "afluente_previsto_max_m3s", "cota_embalse_m"):
+    for k in ("afluente_m3s", "erogado_m3s", "afluente_previsto_min_m3s", "afluente_previsto_max_m3s", "cota_embalse_m", "turbinas_m3s", "vertedero_m3s", "cota_restitucion_m"):
         campos[k] = _numero(item.get(k), 0)
     return campos
 
@@ -708,7 +709,7 @@ def validar_red_integrada(payload, referencia=None):
             if "/diario/reporte_diario" in _url(item.get("fuente")):
                 item["fecha_original"] = _texto(item.get("fecha_original") or item.get("fecha"))[:10]
                 item["fecha"] = None
-            temporal = _estado_fecha(item.get("fecha"), ref, 48)
+            temporal = _estado_fecha(item.get("fecha"), ref, 2 if item.get("tipo") == "observacion_horaria_ctm" else 48)
             hasta = _fecha(item.get("hasta"))
             if hasta is not None and ref > hasta:
                 temporal.update(vigente=False, estado_tiempo="VENCIDO")
@@ -1047,6 +1048,9 @@ def _mostrar_control_publico(st, control, *, comprobacion_datos=False):
 
 
 def mostrar_estado_conexion(st, app_actual="ala", datos=None, *, estado_monitor=None, repository=REPOSITORY, referencia=None):
+    if datos is None and referencia is None:
+        from panel_hidro_actual import mostrar_panel_hidrologia_actual
+        mostrar_panel_hidrologia_actual(st)
     consultar = datos is None
     datos = consultar_red_integrada(repository, referencia=referencia) if consultar else datos
     if estado_monitor is None and consultar:
@@ -1184,6 +1188,8 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
         "Agua entrante informada": valor_publico(d.get("afluente_m3s"), "m³/s"),
         "Tipo del dato entrante": "Previsión para el día del parte" if d.get("afluente_tipo") == "prevision_del_dia" else "Ver el parte original",
         "Descarga informada": valor_publico(d.get("erogado_m3s"), "m³/s"),
+        "Frecuencia del dato": "Horario CTM" if d.get("tipo") == "observacion_horaria_ctm" else "Parte / boletín",
+        "Cota del embalse": valor_publico(d.get("cota_embalse_m"), "m"),
         "Evolución de aportes publicada": " → ".join(valor_publico(v, "m³/s") for v in d.get("afluente_previsto_extremos_publicados_m3s", [])) or "Sin secuencia publicada",
         "Hasta": fecha_publica(d.get("hasta"), d.get("precision_hasta")),
         "Vigencia": estado_publico(d.get("estado_tiempo"), d.get("vigente"), datos["snapshot_vigente"]),

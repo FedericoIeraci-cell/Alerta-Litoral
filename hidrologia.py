@@ -696,6 +696,17 @@ def obtener_panorama(referencia=None, session=None):
     except Exception as exc:
         panorama["fuentes"].append(_estado_fuente("ctm_salto_grande", "https://www.saltogrande.org/", None, ahora,
             error=f"No se obtuvo un documento CTM verificable ({type(exc).__name__})."))
+    # La observación horaria se publica por separado del parte diario y sus
+    # previsiones. No reemplaza señales usadas por el motor de avisos.
+    from hidro_actual import consultar_salto_grande, CTM_HORARIOS
+    try:
+        horario = consultar_salto_grande(ahora, session)
+        panorama["represas"]["salto_grande_horario"] = horario
+        panorama["fuentes"].append({**_estado_fuente("ctm_horarios", CTM_HORARIOS,
+            horario["fecha"], ahora, horario["hasta"]), "precision_fecha_documento": "fecha_hora_publicada"})
+    except Exception as exc:
+        panorama["fuentes"].append(_estado_fuente("ctm_horarios", CTM_HORARIOS, None, ahora,
+            error=f"No se obtuvo la observación horaria CTM ({type(exc).__name__})."))
     # Enriquecer rangos oficiales sólo con el umbral de la escala local.
     # Un límite superior aislado nunca demuestra que se alcanzará evacuación.
     for p in panorama["pronosticos"]:
