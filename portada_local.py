@@ -66,6 +66,8 @@ def fecha_publica(value, precision="fecha_hora_publicada"):
     dt = _fecha(value)
     if dt is None:
         return "Sin fecha publicada"
+    if precision == "fecha_registro_fuente":
+        return dt.strftime("%d/%m/%Y %H:%M") + " ART · registro de la fuente; hora de medición no confirmada"
     if precision in ("fecha_sin_hora", "hora_no_verificada_en_reporte_diario") or (isinstance(value, str) and len(value.strip()) == 10):
         return dt.strftime("%d/%m/%Y") + " · hora no publicada"
     return dt.strftime("%d/%m/%Y %H:%M") + " ART"

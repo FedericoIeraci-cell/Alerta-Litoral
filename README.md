@@ -132,7 +132,11 @@ Para recuperar y verificar **sólo la publicación**, con permisos de GitHub y s
 python monitor.py --publish-red-only
 ```
 
-Este modo consulta fuentes actuales, publica y relee `red_integrada.json`, pero no lee ni escribe el SQLite de avisos ni `monitor_status.json`. El informe indica `dry_run: true` para no atribuirle una evaluación de envíos. La siguiente ejecución horaria normal lo reemplaza. El workflow de validación ejecuta este modo después de superar las pruebas en un push a la rama principal, con la misma exclusión de concurrencia que el monitor horario. En ramas y pull requests sólo valida, sin publicaciones ni envíos.
+Este modo consulta fuentes actuales, publica y relee `red_integrada.json`, pero no lee ni escribe el SQLite de avisos ni `monitor_status.json`. El informe indica `dry_run: true` para no atribuirle una evaluación de envíos. El workflow de validación ejecuta este modo después de superar las pruebas en un push a la rama principal. En ramas y pull requests sólo valida, sin publicaciones ni envíos.
+
+El workflow `.github/workflows/ala-red-integrada.yml` también ejecuta esta publicación con una **cadencia objetivo de 10 minutos**, a los minutos 3, 13, 23, 33, 43 y 53 de cada hora. No recibe secretos de Telegram. El monitor con evaluación de envíos conserva su programación horaria, su registro y sus reservas. Los tres publicadores comparten el grupo de concurrencia con `queue: max`: se ejecuta un solo escritor y los pendientes esperan sin reemplazar la vigilancia horaria.
+
+GitHub Actions puede demorar las ejecuciones programadas; esta frecuencia no es una garantía de telemetría en tiempo real. Cada ejecución consulta las fuentes disponibles, recalcula la evaluación y confirma la publicación; conserva las fechas originales de medición, emisión y validez. Una fuente que no publicó un dato nuevo seguirá mostrando su lectura anterior y su antigüedad. El último control de Telegram se obtiene de `monitor_status.json` y no se adelanta por una publicación sin envíos.
 
 Diagnóstico y regresiones de la incidencia: [Publicación de la red, 15/10/2026](docs/PUBLICACION_RED_20261015.md).
 

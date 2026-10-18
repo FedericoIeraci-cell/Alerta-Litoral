@@ -1,3 +1,4 @@
 -r requirements_monitor.txt
 plotly>=6.0,<8
 streamlit>=1.40,<2
+PyYAML>=6.0,<7

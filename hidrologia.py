@@ -76,6 +76,8 @@ def _vigente(fecha, ahora, hasta=None):
 
 def decimal_es(value):
     """Admite coma decimal y miles españoles; NaN/inf no son datos."""
+    if isinstance(value, bool):
+        return None
     if isinstance(value, (int, float)):
         return float(value) if math.isfinite(float(value)) else None
     s = str(value or "").strip().replace("\xa0", "")
@@ -510,12 +512,14 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
         raise ValueError("El nombre de estación no coincide con la vinculación de la serie")
     if str(series_id) == "65" and est.get("provincia") and normalizar(est["provincia"]) != "misiones":
         raise ValueError("San Javier no corresponde a la estación de Misiones")
+    if est.get("tabla") is not None and est["tabla"] != "alturas_prefe":
+        raise ValueError("La serie no pertenece a la escala de alturas de Prefectura vinculada")
     obs_validas = []
     for item in payload.get("observaciones", []):
         if not isinstance(item, (list, tuple)) or len(item) < 3:
             continue
         dt, valor = _fecha(item[0]), decimal_es(item[2])
-        if dt is not None and dt <= ahora + timedelta(minutes=15) and valor is not None and valor >= -10:
+        if dt is not None and dt <= ahora and valor is not None and valor >= -10:
             obs_validas.append((dt, valor))
     ultimo = max(obs_validas, default=(None, None), key=lambda x: x[0])
     estacion = {"nombre": nombre, "rio": est.get("rio", ""), "altura_m": ultimo[1],
@@ -523,6 +527,14 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
         "fecha": _iso(ultimo[0]), "fuente": url, "series_id": series_id,
         "representatividad": "Escala oficial de estación, sin cota de inundación por barrio.",
         "observaciones": [{"fecha": dt.isoformat(), "valor": valor} for dt, valor in sorted(obs_validas)]}
+    # INA publica también series manuales con registros diarios a medianoche.
+    # Conservar ese timestamp no demuestra la hora física de la medición.
+    automatica = est.get("automatica") if isinstance(est.get("automatica"), bool) else None
+    estacion.update(tabla=est.get("tabla"), var_id=2, unidad="m", automatica=automatica,
+        propietario=est.get("propietario"), fecha_registro=_iso(ultimo[0]),
+        precision_fecha="fecha_hora_publicada" if automatica is True else "fecha_registro_fuente",
+        nota_fecha=("Fecha y hora del registro INA; la hora de medición no está confirmada."
+                    if automatica is not True else "Fecha y hora publicadas por la estación automática INA."))
     pronosticos, curvas, candidatos = [], [], []
     for p in payload.get("pronosticos", []):
         corrida = p.get("corrida")
@@ -588,9 +600,80 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
                         "fuente": url, "tipo": "banda_superior_incierta", "probabilidad": "banda superior; incertidumbre elevada"})
     estacion["pronostico_numerico"] = [{"fecha": c["fecha"], "valor": c["central_m"], "inferior": c["inferior_m"],
             "superior": c["superior_m"], "emision": c["fecha_emision"], "modelo": c["modelo"], "fuente": c["fuente"]} for c in curvas]
+    if curvas:
+        estacion["fuente_pronostico"] = url
     fuente_fecha = max([_fecha(p["fecha_emision"]) for p in pronosticos] + ([ultimo[0]] if ultimo[0] else []), default=None)
     return {"fuente": _estado_fuente(f"ina_serie_{series_id}", url, _iso(fuente_fecha), ahora),
             "estaciones": {station_key: estacion}, "pronosticos": pronosticos, "curvas": curvas}
+
+
+def _integrar_lecturas_actuales_ina(panorama, ahora, session, estaciones_series):
+    """Actualiza la observación con la misma escala; no renueva su fecha.
+
+    WFS identifica la serie, tabla y variable y publica umbrales de esa misma
+    feature. Las previsiones conservan su corrida, fecha y fuente originales.
+    """
+    url = "https://alerta.ina.gob.ar/geoserver/ows"
+    try:
+        import hidro_actual
+        # Streamlit puede conservar el módulo anterior tras actualizar archivos.
+        # Recargar sólo si falta la interfaz nueva; un fallo queda diagnosticado.
+        if not callable(getattr(hidro_actual, "consultar_rios", None)):
+            from importlib import reload
+            hidro_actual = reload(hidro_actual)
+        url = hidro_actual.url_rios()
+        lecturas = hidro_actual.consultar_rios(ahora, session)
+        panorama["lecturas_actuales_ina"] = lecturas
+        validas = [d for d in lecturas if not d.get("error") and _fecha(d.get("fecha"))
+                   and d.get("altura_m") is not None]
+        if not validas:
+            raise ValueError("Ninguna observación INA con identidad y fecha verificadas")
+        integradas = 0
+        for key, sid in SERIES_ALTURA.items():
+            lectura = next((d for d in validas if d.get("serie") == sid), None)
+            if not lectura:
+                continue
+            nombre = normalizar(lectura.get("nombre"))
+            nombre = "puerto ituzaingo" if nombre == "ituzaingo" else nombre
+            if (nombre != key or lectura.get("tabla") != "alturas_prefe"
+                    or lectura.get("var_id") != 2 or lectura.get("unidad") != "m"):
+                continue
+            vieja = panorama["estaciones"].get(key, {})
+            # Una respuesta atrasada o repetida no sustituye la última lectura.
+            if _fecha(vieja.get("fecha")) and _fecha(lectura["fecha"]) <= _fecha(vieja["fecha"]):
+                continue
+            serie = estaciones_series.get(key, {})
+            misma_serie = (serie.get("series_id") == sid and serie.get("tabla") == "alturas_prefe"
+                           and serie.get("var_id") == 2 and serie.get("unidad") == "m")
+            # Una serie de otra red (p. ej. RHN 29437) nunca aporta umbrales.
+            base = dict(serie) if misma_serie else {}
+            alerta, evacuacion = lectura.get("alerta_m"), lectura.get("evacuacion_m")
+            fuente_umbrales = url
+            if alerta is None and evacuacion is None and not lectura.get("umbral_invalido") and misma_serie:
+                alerta, evacuacion = serie.get("alerta_m"), serie.get("evacuacion_m")
+                fuente_umbrales = serie.get("fuente_umbrales", serie.get("fuente"))
+            observaciones = list(base.get("observaciones", []))
+            observaciones.append({"fecha": lectura["fecha"], "valor": lectura["altura_m"], "fuente": url})
+            base.update(nombre="Puerto Ituzaingó" if key == "puerto ituzaingo" else lectura["nombre"],
+                series_id=sid, tabla="alturas_prefe", var_id=2, unidad="m", altura_m=lectura["altura_m"],
+                alerta_m=alerta, evacuacion_m=evacuacion, umbral_invalido=lectura.get("umbral_invalido", False),
+                fecha=lectura["fecha"], fecha_registro=lectura.get("fecha_registro", lectura["fecha"]),
+                fuente=url, fuente_umbrales=fuente_umbrales, consultado=lectura["consulta"],
+                precision_fecha="fecha_registro_fuente", nota_fecha=lectura.get("nota_fecha"),
+                estado_lectura=lectura.get("estado"), edad_horas=lectura.get("edad_horas"),
+                automatica=serie.get("automatica") if misma_serie else None,
+                observaciones=observaciones,
+                representatividad="Escala oficial de estación, sin cota de inundación por barrio.")
+            panorama["estaciones"][key] = base
+            integradas += 1
+        fecha = max(_fecha(d["fecha"]) for d in validas).isoformat()
+        panorama["fuentes"].append({**_estado_fuente("ina_ultimas_alturas", url, fecha, ahora),
+            "precision_fecha_documento": "fecha_registro_fuente", "lecturas_verificadas": len(validas),
+            "lecturas_sin_verificar": len(lecturas) - len(validas), "observaciones_integradas": integradas,
+            "nota": "Fecha del registro INA más reciente del conjunto; cada estación conserva su fecha y vigencia propias."})
+    except Exception as exc:
+        panorama["fuentes"].append(_estado_fuente("ina_ultimas_alturas", url, None, ahora,
+            error=f"No se obtuvieron últimas alturas INA verificables ({type(exc).__name__})."))
 
 
 def obtener_panorama(referencia=None, session=None):
@@ -657,12 +740,14 @@ def obtener_panorama(referencia=None, session=None):
             return {"fuente": _estado_fuente(f"ina_serie_{series_id}", url, None, ahora,
                     error=f"Serie {key}: no se obtuvo altura/previsión verificable ({type(exc).__name__})."),
                     "estaciones": {}, "pronosticos": [], "curvas": []}
+    estaciones_series = {}
     with ThreadPoolExecutor(max_workers=4) as pool:
         for parsed in pool.map(leer_serie, SERIES_ALTURA.items()):
             panorama["fuentes"].append(parsed["fuente"])
             panorama["pronosticos"].extend(parsed["pronosticos"])
             panorama["curvas"].extend(parsed["curvas"])
             for key, nueva in parsed["estaciones"].items():
+                estaciones_series[key] = nueva
                 vieja = panorama["estaciones"].get(key)
                 if _fecha(nueva.get("fecha")) and (not vieja or not _fecha(vieja.get("fecha")) or _fecha(nueva["fecha"]) >= _fecha(vieja["fecha"])):
                     panorama["estaciones"][key] = nueva
@@ -670,6 +755,8 @@ def obtener_panorama(referencia=None, session=None):
                     # Una lectura más antigua no reemplaza la altura; puede
                     # aportar una corrida pronosticada válida de esa estación.
                     vieja["pronostico_numerico"] = nueva["pronostico_numerico"]
+                    vieja["fuente_pronostico"] = nueva.get("fuente_pronostico", nueva.get("fuente"))
+    _integrar_lecturas_actuales_ina(panorama, ahora, session, estaciones_series)
     try:
         from ctm import obtener_ctm
         ctm = obtener_ctm(ahora, session)
@@ -732,7 +819,7 @@ def obtener_panorama(referencia=None, session=None):
 
 
 VERSION_EVIDENCIAS = 1
-VERSION_MOTOR = "2026-10-17.2"
+VERSION_MOTOR = "2026-10-18.1"
 
 
 def _fuente_verificable(url, panorama):
@@ -778,7 +865,9 @@ def _upstream(localidad, station_key, sistema, panorama, ahora):
     result = []
     for key in anteriores:
         obs = panorama.get("estaciones", {}).get(key)
-        if not obs or not _vigente(obs.get("fecha"), ahora) or not _fuente_verificable(obs.get("fuente"), panorama):
+        if (not obs or not _vigente(obs.get("fecha"), ahora) or obs.get("umbral_invalido")
+                or not _fuente_verificable(obs.get("fuente"), panorama)
+                or not _fuente_verificable(obs.get("fuente_umbrales", obs.get("fuente")), panorama)):
             continue
         if obs.get("fecha_documento") and not _vigente(obs["fecha_documento"], ahora):
             continue
@@ -786,6 +875,9 @@ def _upstream(localidad, station_key, sistema, panorama, ahora):
         if nivel in ("ALERTA", "EVACUACION"):
             result.append({"estacion": obs.get("nombre", key), "nivel": nivel, "fecha": obs.get("fecha"), "fuente": obs.get("fuente"),
                 "altura_m": obs.get("altura_m"), "alerta_m": obs.get("alerta_m"), "evacuacion_m": obs.get("evacuacion_m"),
+                "precision_fecha": obs.get("precision_fecha", "fecha_hora_publicada"),
+                "fecha_registro": obs.get("fecha_registro"), "fuente_umbrales": obs.get("fuente_umbrales", obs.get("fuente")),
+                "consultado": obs.get("consultado"),
                 "nota": "Señal aguas arriba para vigilancia; no demuestra ese nivel ni un tiempo de llegada en la localidad."})
     return result
 
@@ -836,6 +928,9 @@ def evaluar_localidad(localidad, panorama, referencia=None):
                 nivel=nivel, altura_m=estacion.get("altura_m"), alerta_m=estacion.get("alerta_m"),
                 evacuacion_m=estacion.get("evacuacion_m"), fecha_observada=estacion["fecha"],
                 precision_fecha=estacion.get("precision_fecha", "fecha_hora_publicada"),
+                fecha_registro=estacion.get("fecha_registro"), nota_fecha=estacion.get("nota_fecha"),
+                automatica=estacion.get("automatica"), series_id=estacion.get("series_id"),
+                tabla=estacion.get("tabla"), consultado=estacion.get("consultado"),
                 fecha_documento=estacion.get("fecha_documento"),
                 fuente_umbrales=estacion.get("fuente_umbrales", estacion.get("fuente"))))
             motivos.append(f"{estacion_nombre}: {estacion.get('altura_m')} m; nivel {nivel}, lectura {estacion.get('fecha')}.")
@@ -928,6 +1023,9 @@ def evaluar_localidad(localidad, panorama, referencia=None):
         result["hidrologia_evidencias"].append(_evidencia(
             "aguas_arriba", senal["estacion"], senal["fuente"], senal["fecha"], ahora, 1,
             fecha_observada=senal["fecha"], nivel=senal["nivel"], altura_m=senal.get("altura_m"),
+            precision_fecha=senal.get("precision_fecha"), fecha_registro=senal.get("fecha_registro"),
+            consultado=senal.get("consultado"),
+            fuente_umbrales=senal.get("fuente_umbrales"),
             alerta_m=senal.get("alerta_m"), evacuacion_m=senal.get("evacuacion_m"), texto=senal["nota"]))
     if upstream:
         motivos.append("Estaciones aguas arriba en alerta o sobre umbral de evacuación: " + ", ".join(s["estacion"] for s in upstream) + ". Reforzar vigilancia; sin tiempo de llegada calculado.")

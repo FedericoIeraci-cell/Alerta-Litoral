@@ -586,6 +586,23 @@ class PublicSourceAcquisition(unittest.TestCase):
                     red.parsear_pronostico_zc(payload, 29534, NOW, referencia=NOW)
 
 
+class RiverTimestampProvenance(unittest.TestCase):
+    def test_latest_record_keeps_date_and_distinct_forecast_source(self):
+        station = panorama()["estaciones"]["corrientes"]
+        station.update(precision_fecha="fecha_registro_fuente",
+            fecha_registro=station["fecha"],
+            fuente="https://alerta.ina.gob.ar/geoserver/ows",
+            fuente_pronostico="https://alerta.ina.gob.ar/a5/serie/19",
+            fuente_umbrales="https://alerta.ina.gob.ar/geoserver/ows")
+        river = red._normalizar_rio_ala("corrientes", station)
+        self.assertEqual(river["fecha_registro"], river["fecha_observada"])
+        self.assertEqual(red._fecha(river["fecha_registro"]), red._fecha(station["fecha"]))
+        self.assertFalse(river["fecha_medicion_confirmada"])
+        self.assertNotEqual(river["fuente"], river["fuente_pronostico"])
+        self.assertIn("hora de medición no confirmada",
+            red.fecha_publica(river["fecha_observada"], river["precision_observada"]))
+
+
 class ConsumerBehavior(unittest.TestCase):
     def test_feed_failure_returns_unknown_without_private_error_or_exception(self):
         session = Session(lambda url, kwargs: (_ for _ in ()).throw(

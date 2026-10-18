@@ -3,9 +3,12 @@ from datetime import datetime, timezone
 from hidro_actual import ART, _fecha, consultar_hidrologia_actual
 
 
-def hora(value):
+def hora(value, precision=None):
     fecha = _fecha(value)
-    return fecha.astimezone(ART).strftime('%d/%m/%Y %H:%M ART') if fecha else 'Sin fecha confirmada'
+    texto = fecha.astimezone(ART).strftime('%d/%m/%Y %H:%M ART') if fecha else 'Sin fecha confirmada'
+    if fecha and precision == 'fecha_registro_fuente':
+        texto += ' · registro de la fuente; hora de medición no confirmada'
+    return texto
 
 
 def valor(value, unidad):
@@ -29,7 +32,7 @@ def dibujar_panel(st, lecturas, informe=None):
             col.warning(d.get('error') or 'No hay una lectura reciente confirmada.')
     with st.expander('Ver todas las lecturas de ríos y las fuentes',expanded=False):
         st.dataframe([{'Estación':d.get('nombre'),'Serie INA':d.get('serie'),
-            'Última altura':valor(d.get('altura_m'),'m'),'Fecha registrada por la fuente':hora(d.get('fecha')),
+            'Última altura':valor(d.get('altura_m'),'m'),'Fecha registrada por la fuente':hora(d.get('fecha'),d.get('precision_fecha')),
             'Estado':d.get('estado'),'Última consulta':hora(d.get('consulta')),
             'Detalle':d.get('error',''),'Fuente':d.get('fuente','')}
             for d in lecturas if d.get('nombre')!='Salto Grande'],hide_index=True,use_container_width=True)
@@ -42,7 +45,7 @@ def dibujar_panel(st, lecturas, informe=None):
         st.caption('Datos horarios CTM. Más de 2 horas se indica como lectura atrasada. La cota del embalse no es la altura de un puerto.')
         st.markdown('[Fuente horaria de Salto Grande](https://www.saltogrande.org/datos_horarios.php)')
         st.write('Yacyretá · boletín oficial, sin telemetría en vivo verificada')
-        st.caption('Se recibe del informe compartido, cuyo monitor está programado cada hora. Conserva la fecha original del boletín.')
+        st.caption('Se recibe del informe compartido, cuya actualización está programada aproximadamente cada 10 minutos. Conserva la fecha original del boletín.')
         partes = [d for d in (informe or {}).get('represas',[]) if d.get('nombre')=='Yacyretá']
         if partes:
             from red_integrada import fecha_publica, estado_publico

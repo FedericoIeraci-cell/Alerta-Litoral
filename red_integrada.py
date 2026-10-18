@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 SCHEMA_VERSION = 1
 CATALOGO_VERSION = 1
-VERSION_RED = "2026-10-18.1"
+VERSION_RED = "2026-10-18.2"
 REPOSITORY = "FedericoIeraci-cell/Alerta-Litoral"
 STATE_BRANCH = "ala-monitor-state"
 SNAPSHOT_PATH = "red_integrada.json"
@@ -320,7 +320,9 @@ def parsear_alturas_zc(payload, fuente, consultado, referencia=None):
         if obs:
             dt, value = max(obs, key=lambda item: item[0])
             rio.update(altura_m=value, fecha_observada=dt.isoformat(), fecha_consulta=_iso(consultado),
-                       fuente=fuente, error="", zona_horaria_verificada=True)
+                       fuente=fuente, error="", zona_horaria_verificada=True,
+                       precision_observada="fecha_registro_fuente", fecha_registro=dt.isoformat(),
+                       fecha_medicion_confirmada=False)
         alerta, evacuacion, cero = _numero(p.get("nivel_de_alerta"), 0), _numero(p.get("nivel_de_evacuacion"), 0), _numero(p.get("cero_ign"))
         if alerta is not None and evacuacion is not None and cero is not None and evacuacion > alerta:
             rio.update(alerta_m=alerta, evacuacion_m=evacuacion, cero_ign_m=cero,
@@ -503,17 +505,20 @@ def _normalizar_rio_ala(key, item):
     observada = _iso(item.get("fecha"))
     # El lector anterior del reporte diario puede normalizar sólo una fecha a
     # medianoche ART. Esa normalización no acredita hora observada publicada.
-    precision = "fecha_hora_publicada"
+    precision = item.get("precision_fecha") or "fecha_hora_publicada"
     if "/diario/reporte_diario" in fuente:
         precision = "hora_no_verificada_en_reporte_diario"
     return {"red": "Litoral", "estacion": _texto(item.get("nombre") or key), "serie_observada": item.get("series_id"),
             "serie_pronostico": item.get("series_id"), "altura_m": _numero(item.get("altura_m")),
             "alerta_m": _numero(item.get("alerta_m")), "evacuacion_m": _numero(item.get("evacuacion_m")),
-            "fecha_observada": observada if precision == "fecha_hora_publicada" else None,
-            "fecha_observada_original": _texto(item.get("fecha"))[:10] if precision != "fecha_hora_publicada" else _texto(item.get("fecha")),
+            "fecha_observada": observada if precision in ("fecha_hora_publicada", "fecha_registro_fuente") else None,
+            "fecha_observada_original": _texto(item.get("fecha")) if precision in ("fecha_hora_publicada", "fecha_registro_fuente") else _texto(item.get("fecha"))[:10],
+            "fecha_registro": _iso(item.get("fecha_registro") or item.get("fecha")),
+            "fecha_medicion_confirmada": precision == "fecha_hora_publicada",
             "precision_observada": precision, "fecha_documento_original": _texto(item.get("fecha_documento")),
             "fecha_emision": max(emisiones) if emisiones else None, "pronostico": curves,
-            "fuente": fuente, "fuente_pronostico": fuente,
+            "fuente": fuente, "fuente_pronostico": _url(item.get("fuente_pronostico")) or fuente,
+            "fuente_umbrales": _url(item.get("fuente_umbrales")) or fuente,
             "representatividad": _texto(item.get("representatividad")), "escala_equivalente": True,
             "error": "", "error_pronostico": "" if curves else "Sin puntos numéricos publicados"}
 
@@ -668,6 +673,12 @@ def validar_red_integrada(payload, referencia=None):
             rio["fecha_observada_original"] = _texto(rio.get("fecha_observada_original") or rio.get("fecha_observada"))[:10]
             rio["fecha_observada"] = None
             rio["precision_observada"] = "hora_no_verificada_en_reporte_diario"
+        if rio.get("red") == "Zárate–Campana" and rio.get("serie_observada") in (40, 41):
+            # La hora de la serie portuaria identifica el registro, no acredita
+            # una medición a esa hora. La automática RHN se valida por separado.
+            rio["precision_observada"] = "fecha_registro_fuente"
+            rio["fecha_registro"] = _iso(rio.get("fecha_observada"))
+            rio["fecha_medicion_confirmada"] = False
         for field in ("altura_m", "alerta_m", "evacuacion_m", "cero_ign_m"):
             rio[field] = _numero(rio.get(field), -10, 100)
         temporal = _estado_fecha(rio.get("fecha_observada"), ref, 6 if rio.get("red") == "Zárate–Campana" else 48)
@@ -962,6 +973,8 @@ def _mostrar_fecha(valor):
 def fecha_publica(valor, precision="fecha_hora_publicada"):
     """Fecha legible sin agregar una hora que la fuente no publicó."""
     texto = _texto(valor, 100)
+    if precision == "fecha_registro_fuente" and _fecha(valor) is not None:
+        return _mostrar_fecha(valor) + " · registro de la fuente; hora de medición no confirmada"
     if precision in {"fecha_sin_hora", "hora_no_verificada_en_reporte_diario"}:
         fecha = _fecha(valor)
         if fecha is not None:
@@ -1159,7 +1172,7 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
     rivers = datos["rios"]
     st.dataframe([{"Estación": r.get("estacion"), "Región": r.get("red"),
         "Última altura publicada": valor_publico(r.get("altura_m"), "m"),
-        "Fecha de esa lectura": fecha_publica(r.get("fecha_observada") or r.get("fecha_observada_original")),
+        "Fecha de esa lectura": fecha_publica(r.get("fecha_observada") or r.get("fecha_observada_original"), r.get("precision_observada")),
         "¿Sirve como lectura actual?": estado_publico(r.get("observacion_estado"), r.get("observacion_vigente"), datos["snapshot_vigente"], r.get("error")),
         "Emisión del pronóstico": fecha_publica(r.get("fecha_emision")),
         "¿Pronóstico vigente?": "Sí" if r.get("pronostico_vigente") else "No confirmado",

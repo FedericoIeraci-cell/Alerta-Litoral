@@ -62,7 +62,7 @@ def cargar_motor_hidrologico():
     import hidrologia
     def motor_vigente():
         return (getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) == 1 and
-                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-17.2')
+                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-18.1')
     if not motor_vigente():
         import importlib
         hidrologia = importlib.reload(hidrologia)
@@ -5993,7 +5993,7 @@ def componentes_localidad(nodo):
     return agua, suelo, baja, rio
 
 
-@st.cache_data(ttl=900, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def obtener_panorama_hidrologico():
     """Mismas fuentes públicas en el tablero y en el proceso horario."""
     panorama = obtener_panorama()
@@ -7215,7 +7215,7 @@ def mostrar_proyecto_ficha():
 
 def cargar_panel_red():
     import red_integrada as red
-    if getattr(red, 'VERSION_RED', None) != '2026-10-18.1':
+    if getattr(red, 'VERSION_RED', None) != '2026-10-18.2':
         import importlib
         red = importlib.reload(red)
     return red
@@ -8744,4 +8744,6 @@ def render_app():
 
 
 if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
+    from actualizacion_publica import activar_actualizacion
+    activar_actualizacion(st)
     render_app()

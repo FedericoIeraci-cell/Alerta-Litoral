@@ -105,6 +105,49 @@ class RedHidrometriaTests(unittest.TestCase):
         self.assertFalse(added["permite_orden_evacuacion"])
         self.assertEqual(automatic(added)["altura_m"], 1.12)
 
+    def test_precision_del_registro_litoral_cruza_el_informe_sin_inventar_medicion(self):
+        fecha=(NOW-timedelta(hours=2)).isoformat()
+        fuente="https://alerta.ina.gob.ar/geoserver/ows"
+        data=red.construir_red_integrada([], {"estaciones":{"corrientes":{
+            "nombre":"Corrientes", "series_id":19, "altura_m":5.1,
+            "fecha":fecha, "fecha_registro":fecha, "precision_fecha":"fecha_registro_fuente",
+            "fuente":fuente, "fuente_pronostico":"https://alerta.ina.gob.ar/a5/pronosticos"}}}, referencia=NOW)
+        rio=next(r for r in red.validar_red_integrada(data,NOW)["rios"] if r["serie_observada"]==19)
+        self.assertEqual(rio["fecha_observada"],fecha)
+        self.assertEqual(rio["fecha_registro"],fecha)
+        self.assertFalse(rio["fecha_medicion_confirmada"])
+        self.assertEqual(rio["precision_observada"],"fecha_registro_fuente")
+        self.assertIn("hora de medición no confirmada",red.fecha_publica(rio["fecha_observada"],rio["precision_observada"]))
+        self.assertEqual(rio["fuente_pronostico"],"https://alerta.ina.gob.ar/a5/pronosticos")
+
+    def test_puertos_wfs_tienen_fecha_registro_y_automatica_conserva_medicion(self):
+        data=document()
+        for rio in data["rios"]:
+            if rio["serie_observada"] in (40,41):
+                self.assertEqual(rio["precision_observada"],"fecha_registro_fuente")
+                self.assertFalse(rio["fecha_medicion_confirmada"])
+                self.assertEqual(rio["fecha_observada"],rio["fecha_registro"])
+        auto=automatic(data)
+        self.assertNotEqual(auto.get("precision_observada"),"fecha_registro_fuente")
+        self.assertNotIn("no confirmada",red.fecha_publica(auto["fecha_observada"],auto.get("precision_observada")))
+
+    def test_tabla_publica_muestra_precision_del_registro_sin_ocultarla(self):
+        from streamlit.testing.v1 import AppTest
+
+        def app(data,referencia):
+            import streamlit as st
+            from red_integrada import mostrar_red_integrada
+            mostrar_red_integrada(st,datos=data,estado_monitor={},referencia=referencia)
+
+        at=AppTest.from_function(app,args=(document(),NOW)).run(timeout=20)
+        self.assertFalse(at.exception)
+        tabla=next(d.value for d in at.dataframe if "Fecha de esa lectura" in d.value.columns)
+        puertos=tabla[tabla["Estación"].isin(["Zárate","Campana"])]
+        self.assertEqual(len(puertos),2)
+        self.assertTrue(puertos["Fecha de esa lectura"].str.contains("hora de medición no confirmada").all())
+        auto=tabla[tabla["Estación"]=="Paraná Las Palmas - Zárate"].iloc[0]
+        self.assertNotIn("no confirmada",auto["Fecha de esa lectura"])
+
     def test_fila_remota_no_importa_umbral_curva_ni_orden(self):
         data = document()
         row = automatic(data)
