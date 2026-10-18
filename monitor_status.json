@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-18T02:29:24.421614+00:00",
-  "checked_at_art": "2026-10-17T23:29:24.421614-03:00",
+  "checked_at": "2026-10-18T03:28:50.630545+00:00",
+  "checked_at_art": "2026-10-18T00:28:50.630545-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 43,
-  "nodes_red": 8,
-  "nodes_invalid": 5,
-  "nodes_yellow": 13,
+  "nodes_valid": 42,
+  "nodes_red": 5,
+  "nodes_invalid": 6,
+  "nodes_yellow": 15,
   "nodes_green": 22,
   "configured_nodes": 48,
   "coverage": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 17,
+      "vigentes": 5,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 18,
+      "vigentes": 4,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -37,10 +37,10 @@
     "configurado": true,
     "enviadas": 0,
     "fallidas": 0,
-    "pendientes": 8,
-    "omitidas": 8,
+    "pendientes": 5,
+    "omitidas": 5,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 9,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -337,22 +337,12 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "17/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
+    "5/29 puntos aplicables con pronóstico fluvial vigente.",
+    "4/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "red_integrada_bytes": 456293,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "6532f36a46593257bf8976bb18858a46a1019da6",
-    "commit_sha": "d7bdee0df12420995c3edcc1205aacaca7c685de",
-    "bytes": 456293,
-    "generated_at": "2026-10-18T02:29:26.857245+00:00",
-    "verified_at": "2026-10-18T02:29:33.417720+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente"
 }
