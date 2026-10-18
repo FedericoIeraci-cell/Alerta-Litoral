@@ -71,12 +71,12 @@ class TrazabilidadTests(unittest.TestCase):
                 _, evaluar = app.cargar_motor_hidrologico()
                 lectura = evaluar('Reconquista', panorama_archivado(), referencia=NOW)
                 self.assertEqual(h.VERSION_EVIDENCIAS, 1)
-                self.assertEqual(h.VERSION_MOTOR, '2026-10-17.1')
+                self.assertEqual(h.VERSION_MOTOR, '2026-10-17.2')
                 self.assertTrue(lectura['hidrologia_evidencias'])
 
     def test_despliegue_motor_actual_no_necesita_recarga(self):
         with patch.object(h, 'VERSION_EVIDENCIAS', 1), \
-             patch.object(h, 'VERSION_MOTOR', '2026-10-17.1'), \
+             patch.object(h, 'VERSION_MOTOR', '2026-10-17.2'), \
              patch('importlib.reload', side_effect=AssertionError('Motor vigente no se recarga')):
             panorama, evaluar = app.cargar_motor_hidrologico()
             self.assertIs(panorama, h.obtener_panorama)
