@@ -3072,21 +3072,21 @@ WINDY_ZOOM = 5
 
 
 def construir_windy_url(
-    overlay="wind"
+    overlay="wind", *, lat=None, lon=None
 ):
 
     parametros = {
         "type": "map",
         "location": "coordinates",
-        "metricRain": "default",
-        "metricTemp": "default",
-        "metricWind": "default",
-        "zoom": WINDY_ZOOM,
+        "metricRain": "mm",
+        "metricTemp": "°C",
+        "metricWind": "km/h",
+        "zoom": 7 if lat is not None and lon is not None else WINDY_ZOOM,
         "overlay": overlay,
         "product": "ecmwf",
         "level": "surface",
-        "lat": WINDY_CENTER_LAT,
-        "lon": WINDY_CENTER_LON,
+        "lat": WINDY_CENTER_LAT if lat is None else lat,
+        "lon": WINDY_CENTER_LON if lon is None else lon,
     }
 
     return (
@@ -3096,11 +3096,11 @@ def construir_windy_url(
 
 
 def mostrar_windy(
-    overlay="wind"
+    overlay="wind", *, lat=None, lon=None
 ):
 
     windy_url = construir_windy_url(
-        overlay
+        overlay, lat=lat, lon=lon
     )
 
     iframe = f'''
@@ -3156,6 +3156,46 @@ def mostrar_goes19():
 # ============================================================
 # PRONÓSTICO EXTENDIDO
 # ============================================================
+
+def mostrar_explorar_tiempo(localidad=None):
+    """Visores opcionales: no se construyen hasta que el usuario elige uno."""
+    with st.expander('Explorar el tiempo', expanded=False):
+        vista = st.radio(
+            'Elegí un mapa para consultar',
+            ['Lluvia y viento previstos', 'Nubes recientes'],
+            index=None, horizontal=True, key='explorar_tiempo_vista',
+        )
+        if vista == 'Lluvia y viento previstos':
+            nodo = next((n for n in NODOS if n['localidad'] == localidad), None)
+            coordenadas = {'lat': nodo['lat'], 'lon': nodo['lon']} if nodo else {}
+            st.caption(
+                'Pronóstico ECMWF en Windy. Elegí la fecha y la hora en la barra del mapa. '
+                'La lluvia y el viento mostrados son previstos. '
+                + (f'Vista centrada en {localidad}.' if nodo else 'Vista del Litoral.')
+            )
+            variable = st.selectbox(
+                'Qué querés ver', ['rain', 'wind', 'temp', 'clouds', 'pressure'],
+                format_func=lambda x: {
+                    'rain': 'Lluvia prevista', 'wind': 'Viento previsto',
+                    'temp': 'Temperatura prevista', 'clouds': 'Nubosidad prevista',
+                    'pressure': 'Presión prevista',
+                }[x], key='windy_overlay',
+            )
+            mostrar_windy(variable, **coordenadas)
+            st.link_button('Abrir pronóstico en Windy',
+                           construir_windy_url(variable, **coordenadas), use_container_width=True)
+        elif vista == 'Nubes recientes':
+            st.caption(
+                'Nubosidad observada por GOES-19 / NOAA sobre Sudamérica Sur. '
+                'Consultá la fecha y la hora impresas en la imagen; si dice UTC, '
+                'restá 3 horas para obtener la hora argentina. '
+                'Esta imagen ayuda a seguir las nubes y no determina por sí sola el riesgo de inundación.'
+            )
+            mostrar_goes19()
+            st.link_button('Abrir imágenes en NOAA', GOES19_URL, use_container_width=True)
+        if vista:
+            st.caption('El estado de tu localidad reúne también los datos del río, del suelo y los avisos oficiales disponibles.')
+
 
 def seleccionar_horizonte_pronostico(dias_disponibles):
     """Mantiene visible un pronóstico corto sin crear un slider inválido."""
@@ -7493,6 +7533,7 @@ def render_app():
         except Exception:
             st.warning('No se pudo confirmar la actualización del informe compartido. Revisá Red integrada y las fuentes de cada localidad.')
         mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
+        mostrar_explorar_tiempo(localidad_seleccionada)
         with st.expander('Cobertura por provincia y localidades monitoreadas'):
             st.subheader(f'Cobertura regional · {len(NODOS)} puntos en seis provincias')
             cobertura_regional=pd.DataFrame([{'Provincia':p,'Puntos de monitoreo':sum(n['provincia']==p for n in NODOS),
@@ -7596,68 +7637,6 @@ def render_app():
         # ============================================================
 
         estado_telegram_ui()
-
-
-        st.header(
-            "🌐 Windy — pronóstico meteorológico interactivo"
-        )
-
-        st.caption(
-            "Windy se muestra como herramienta complementaria "
-            "de visualización. El mapa arranca centrado sobre "
-            "las seis provincias del Litoral argentino."
-        )
-
-        windy_overlay = st.selectbox(
-            "Variable de Windy",
-            options=[
-                "wind",
-                "rain",
-                "temp",
-                "clouds",
-                "pressure",
-            ],
-            format_func=lambda x: {
-                "wind": "💨 Viento",
-                "rain": "🌧️ Lluvia",
-                "temp": "🌡️ Temperatura",
-                "clouds": "☁️ Nubosidad",
-                "pressure": "🌀 Presión",
-            }[x],
-            key="windy_overlay",
-        )
-
-        mostrar_windy(
-            windy_overlay
-        )
-
-        st.link_button(
-            "Abrir Windy",
-            construir_windy_url(
-                windy_overlay
-            ),
-            use_container_width=True,
-        )
-
-
-        st.header(
-            "🛰️ GOES-19 — vigilancia satelital del Litoral"
-        )
-
-        st.caption(
-            "Imagen GeoColor del GOES-19 / ABI. Sector oficial "
-            "de NOAA para Sudamérica Sur. La imagen es una "
-            "herramienta de observación y no alimenta directamente "
-            "el índice de riesgo."
-        )
-
-        mostrar_goes19()
-
-        st.link_button(
-            "Abrir GOES-19 en NOAA",
-            GOES19_URL,
-            use_container_width=True,
-        )
 
 
         # ============================================================
