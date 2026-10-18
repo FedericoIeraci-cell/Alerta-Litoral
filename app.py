@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.9.0
+# Versión: V4.10.1
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.0"
+VERSION = "V4.10.1"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -7470,10 +7470,9 @@ def render_app():
                     f"**🟡 Prepararse: {int(conteo_mapa.get('AMARILLO',0))}** · "
                     f"🟢 Seguimiento: {int(conteo_mapa.get('VERDE',0))} · "
                     f"⚪ Sin datos suficientes: {int(conteo_mapa.get('SIN DATOS',0))}")
-        fig_mapa=crear_mapa(df_alerta)
-        fig_mapa.update_layout(height=540)
-        st.plotly_chart(fig_mapa,use_container_width=True,
-                        config={'scrollZoom':True,'displaylogo':False},key='mapa_riesgo_litoral_principal')
+        from mapa_litoral import html_mapa_litoral
+        components.html(html_mapa_litoral(df_alerta, GEOMETRIAS_LITORAL,
+                        tarjeta_nodo=hover_nodo, altura=540), height=540, scrolling=False)
         st.caption('El mapa reúne las seis provincias del Litoral. Gris significa que faltan datos. El color expresa una evaluación experimental de los datos disponibles; no es un aviso oficial. Debajo podés elegir tu localidad o usar tu ubicación.')
         st.subheader('Tu localidad · qué ocurre y qué hacer')
         localidades=sorted(df_alerta.localidad.tolist())

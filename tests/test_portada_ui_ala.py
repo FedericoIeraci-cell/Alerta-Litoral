@@ -7,7 +7,6 @@ Sólo se sustituyen consultas/paneles externos, historial y funciones de envío.
 from contextlib import ExitStack
 from copy import deepcopy
 import importlib.util
-import json
 import os
 from pathlib import Path
 import sys
@@ -16,6 +15,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from streamlit.testing.v1 import AppTest
+from test_mapa_litoral import datos_html
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -99,18 +99,19 @@ class PortadaPrincipalStreamlitTests(unittest.TestCase):
         elementos=list(at.main)
         mapas=[]
         for posicion,elemento in enumerate(elementos):
-            if elemento.type=='plotly_chart':
-                figura=json.loads(elemento.proto.spec)
-                if figura.get('layout',{}).get('legend',{}).get('title',{}).get('text')=='Riesgo integrado':
-                    mapas.append((posicion,figura))
+            if elemento.type=='iframe' and 'id="mapa-litoral-datos"' in elemento.proto.srcdoc:
+                mapas.append((posicion,datos_html(elemento.proto.srcdoc)))
         self.assertEqual(len(mapas),1,'El mapa integrado debe aparecer una sola vez')
-        posicion_mapa,figura=mapas[0]
+        posicion_mapa,datos_mapa=mapas[0]
         posicion_selector=next(i for i,e in enumerate(elementos) if e.type=='selectbox' and e.key=='localidad_detalle')
         posicion_ficha=next(i for i,e in enumerate(elementos) if e.type=='markdown' and '<section class="ala-local"' in e.value)
         self.assertLess(posicion_mapa,posicion_selector,'El mapa debe ser visible antes de elegir o localizar un punto')
         self.assertLess(posicion_selector,posicion_ficha)
-        niveles={traza.get('name') for traza in figura.get('data',[]) if traza.get('mode')=='markers'}
+        niveles={punto['nivel'] for punto in datos_mapa['puntos']}
         self.assertTrue({'ROJO','SIN DATOS'}.issubset(niveles),'El mapa inicial conserva el rojo fluvial y los puntos sin datos')
+        self.assertEqual({p['nombre'] for p in datos_mapa['puntos']},{'Corrientes','Rafaela'})
+        self.assertEqual(len(datos_mapa['geometrias']['features']),6)
+        self.assertEqual(datos_mapa['omitidos'],0)
         return fichas[0]
 
     def test_render_y_cambio_de_localidad_con_riesgo_fluvial_y_datos_ausentes(self):
