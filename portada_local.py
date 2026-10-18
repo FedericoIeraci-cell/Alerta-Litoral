@@ -126,11 +126,18 @@ def construir_portada_local(row, panorama=None, referencia=None):
 
     met_ok = _si(row.get("cobertura_meteorologica"))
     lluvias = []
+    cifras = []
     for campo, plazo in (("lluvia_futura_24", "Próximas 24 h"), ("lluvia_futura_72", "Próximas 72 h"), ("lluvia_futura_7d", "Próximos 7 días")):
         value = _numero(row.get(campo))
         completo = met_ok and (campo != "lluvia_futura_7d" or _si(row.get("cobertura_pronostico_7d")))
         valido = completo and value is not None and value >= 0
         lluvias.append(plazo + ": " + (numero(value, 1) + " mm" if valido else "sin dato completo vigente"))
+        if campo != "lluvia_futura_7d":
+            cifras.append({"id": "lluvia24" if campo == "lluvia_futura_24" else "lluvia72",
+                "titulo": "Lluvia prevista · " + ("24 h" if campo == "lluvia_futura_24" else "72 h"),
+                "valor": numero(value, 1) + " mm" if valido else "Sin dato completo vigente",
+                "fecha": "Período desde: " + fecha_publica(row.get("referencia_pronostico")),
+                "fuentes": [("ECMWF / Open-Meteo", "https://open-meteo.com/en/docs/ecmwf-api")]})
         if not valido:
             faltantes.append("Lluvia prevista de " + plazo.lower().replace("próximas ", "").replace("próximos ", "") + ": sin dato completo vigente.")
     faltantes.append("Hora de emisión del modelo meteorológico: no informada en esta consulta.")
@@ -178,6 +185,14 @@ def construir_portada_local(row, panorama=None, referencia=None):
         rio_estado = "Sin estación local vinculada"
         rio_datos.append("El río principal no se evalúa para esta localidad. Los arroyos y desagües requieren información local.")
     rio = _bloque("Río · observación y previsión", rio_estado, rio_datos, rio_fechas, _fuentes(observadas + previsiones[:1]))
+    altura = _numero(obs.get("altura_m")) if aplica and _si(row.get("hidrologia_vigente")) and obs else None
+    fecha_altura = obs.get("fecha_observada") if altura is not None else row.get("hidrologia_fecha")
+    cifras.append({"id": "rio", "titulo": "Río observado · " + str(row.get("hidrologia_estacion") or "referencia local"),
+        "valor": numero(altura) + " m" if altura is not None else "Sin lectura vigente" if aplica else "Sin estación vinculada",
+        "fecha": (("Lectura: " if altura is not None else "Último dato disponible: ") +
+                  fecha_publica(fecha_altura, precision_observada(row, panorama))) if aplica else
+                 "Los arroyos y desagües requieren información local.",
+        "fuentes": _fuentes(observadas) if aplica else []})
 
     mapping = LOCALIDADES.get(normalizar(row.get("localidad", "")))
     represa = (panorama.get("represas") or {}).get(mapping[3], {}) if mapping and mapping[3] else {}
@@ -255,7 +270,7 @@ def construir_portada_local(row, panorama=None, referencia=None):
     return {"localidad": str(row.get("localidad") or "Sin localidad"), "provincia": str(row.get("provincia") or ""),
             "nivel": nivel, "fase": FASES[nivel], "motivo": motivo_publico(row).replace("Previsión fluvial", "Previsión del río").replace("escenario central", "valor central estimado").replace("bandas ", "rango de incertidumbre "),
             "evaluacion": fecha_publica(row.get("fecha_evaluacion_integrada")),
-            "bloques": [met, rio, rep, smn], "ciudadanos": ciudadanos, "productores": productores,
+            "cifras": cifras, "bloques": [met, rio, rep, smn], "ciudadanos": ciudadanos, "productores": productores,
             "faltantes": list(dict.fromkeys(faltantes)), "fuentes_motivo": _fuentes(causas_verificadas(row))}
 
 
@@ -267,25 +282,33 @@ def html_portada_local(datos):
     def lista(items):
         return "<ul>" + "".join("<li>" + esc(item) + "</li>" for item in items) + "</ul>"
     color = COLORES.get(datos["nivel"], COLORES["SIN DATOS"])
-    bloques = "".join('<article class="ala-local-dato"><h3>' + esc(b["titulo"]) + '</h3><p class="ala-local-estado">' + esc(b["estado"]) + '</p>'
+    cifras = ''.join('<article class="ala-local-cifra'+(' ala-local-cifra-rio' if c['id']=='rio' else '')+'" data-cifra="'+esc(c['id'])+'">'
+        '<h3>'+esc(c['titulo'])+'</h3><p class="ala-local-valor">'+esc(c['valor'])+'</p>'
+        '<p class="ala-local-fecha">'+esc(c['fecha'])+'</p><p class="ala-local-links">'+links(c['fuentes'])+'</p></article>'
+        for c in datos.get('cifras',[]))
+    bloques = ''.join('<details class="ala-local-dato"><summary><span>'+esc(b['titulo'])+'</span><strong>'+esc(b['estado'])+'</strong></summary>'
         + "".join("<p>" + esc(t) + "</p>" for t in b["datos"]) + '<div class="ala-local-fechas">'
-        + "".join("<p>" + esc(t) + "</p>" for t in b["fechas"]) + '</div><p class="ala-local-links">' + links(b["fuentes"]) + "</p></article>" for b in datos["bloques"])
-    faltantes = '<aside class="ala-local-faltantes"><strong>Información que falta o requiere confirmación</strong>' + lista(datos["faltantes"]) + '</aside>' if datos["faltantes"] else ''
+        + "".join("<p>" + esc(t) + "</p>" for t in b["fechas"]) + '</div><p class="ala-local-links">' + links(b["fuentes"]) + "</p></details>" for b in datos["bloques"])
+    roles = ''.join('<article><h3>'+esc(titulo)+'</h3><p>'+esc(acciones[0])+'</p>'
+        +('<details><summary>Más acciones de preparación</summary>'+lista(acciones[1:])+'</details>' if len(acciones)>1 else '')+'</article>'
+        for titulo,acciones in (("Qué hacer · hogar y comunidad",datos['ciudadanos']),("Qué hacer · trabajo rural",datos['productores'])) if acciones)
+    faltantes = '<details class="ala-local-faltantes"><summary><strong>Información por confirmar · '+str(len(datos['faltantes']))+' puntos</strong></summary>' + lista(datos["faltantes"]) + '</details>' if datos["faltantes"] else ''
     return f'''<style>
-.ala-local{{font-family:system-ui,sans-serif;background:#fff;color:#183448;border:1px solid #d9e3eb;border-top:5px solid {color};border-radius:16px;padding:22px;margin:10px 0 20px}}
-.ala-local *{{box-sizing:border-box}}.ala-local h2{{font-size:25px;margin:0 0 4px;line-height:1.2}}.ala-local h3{{font-size:16px;margin:0 0 8px;line-height:1.3}}.ala-local p,.ala-local li{{font-size:14px;line-height:1.5;overflow-wrap:anywhere}}
-.ala-local p{{margin:7px 0}}.ala-local header{{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}}.ala-local header small{{color:#536879}}
-.ala-local-badge{{border:1px solid {color};border-radius:8px;padding:8px 12px;color:{color};font-weight:800;white-space:nowrap}}.ala-local-motivo{{margin:14px 0 16px!important;font-size:16px!important}}
-.ala-local-grid{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}}.ala-local-dato{{border:1px solid #dfe7ef;border-radius:10px;padding:14px;background:#f8fafc}}.ala-local-estado{{font-weight:750}}
-.ala-local .ala-local-fechas p,.ala-local .ala-local-links,.ala-local .ala-local-meta{{font-size:12px;color:#516779}}.ala-local-fechas{{border-top:1px solid #dfe7ef;padding-top:6px;margin-top:10px}}
-.ala-local a{{color:#075985;text-decoration:underline}}.ala-local-roles{{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0 10px}}.ala-local ul{{margin:8px 0;padding-left:20px}}.ala-local li{{margin:6px 0}}
-.ala-local-faltantes{{background:#fff7e6;border:1px solid #eed6a3;border-radius:10px;padding:12px 14px;font-size:14px}}.ala-local-faltantes ul{{columns:2;column-gap:30px}}.ala-local-faltantes li{{break-inside:avoid}}
-@media(max-width:1100px){{.ala-local-grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}@media(max-width:600px){{.ala-local{{padding:16px}}.ala-local header{{flex-direction:column;gap:10px}}.ala-local-grid,.ala-local-roles{{grid-template-columns:1fr}}.ala-local-faltantes ul{{columns:1}}}}
+.ala-local{{font-family:system-ui,sans-serif;background:#fff;color:#183448;border:1px solid #d9e3eb;border-top:4px solid {color};border-radius:12px;padding:16px 18px;margin:2px 0 16px}}
+.ala-local *{{box-sizing:border-box}}.ala-local h2{{font-size:24px;margin:0 0 3px;padding:0;line-height:1.2}}.ala-local h3{{font-size:14px;margin:0 0 5px;line-height:1.35;padding:0}}.ala-local p,.ala-local li{{font-size:14px;line-height:1.45;overflow-wrap:anywhere}}
+.ala-local p{{margin:5px 0}}.ala-local header{{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}}.ala-local header small{{color:#536879;font-size:12px}}
+.ala-local-badge{{border:1px solid {color};border-radius:7px;padding:6px 9px;color:{color};font-weight:800;font-size:12px;white-space:nowrap}}.ala-local-motivo{{margin:10px 0 12px!important;font-size:15px!important}}
+.ala-local-cifras{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:9px}}.ala-local-cifra{{border:1px solid #dfe7ef;border-radius:9px;padding:11px 12px;background:#f4f8fb;min-width:0}}.ala-local .ala-local-valor{{font-size:28px;font-weight:800;line-height:1.15;margin:6px 0 8px;letter-spacing:-.02em}}
+.ala-local-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}.ala-local-dato{{border:1px solid #dfe7ef;border-radius:9px;padding:11px 12px;background:#f8fafc;align-self:start}}.ala-local summary{{cursor:pointer;font-size:14px;line-height:1.4}}.ala-local summary::marker{{color:{color}}}.ala-local summary span{{font-weight:700}}.ala-local summary strong{{display:block;font-weight:500;margin:4px 0 0;color:#405a70}}.ala-local details[open]>summary{{margin-bottom:9px}}
+.ala-local .ala-local-fechas p,.ala-local .ala-local-fecha,.ala-local .ala-local-links,.ala-local .ala-local-meta{{font-size:12px;color:#516779}}.ala-local-fechas{{border-top:1px solid #dfe7ef;padding-top:6px;margin-top:9px}}
+.ala-local a{{color:#075985;text-decoration:underline}}.ala-local-roles{{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:13px 0 15px;padding:11px 0;border-top:1px solid #dfe7ef;border-bottom:1px solid #dfe7ef}}.ala-local-roles details{{margin-top:8px}}.ala-local-roles summary{{font-size:12px;color:#31566f}}.ala-local ul{{margin:7px 0;padding-left:18px}}.ala-local li{{margin:5px 0}}
+.ala-local-faltantes{{background:#fff7e6;border:1px solid #eed6a3;border-radius:9px;padding:10px 12px;margin:10px 0;font-size:14px}}.ala-local-faltantes ul{{columns:2;column-gap:24px}}.ala-local-faltantes li{{break-inside:avoid}}
+@media(max-width:620px){{.ala-local{{padding:12px;border-radius:10px}}.ala-local h2{{font-size:21px}}.ala-local header{{flex-wrap:wrap;gap:7px}}.ala-local-cifras{{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}}.ala-local-cifra{{padding:9px}}.ala-local .ala-local-valor{{font-size:25px}}.ala-local-cifra-rio{{grid-column:1/-1}}.ala-local-grid,.ala-local-roles{{grid-template-columns:1fr}}.ala-local-roles{{gap:12px}}.ala-local-faltantes ul{{columns:1}}}}
 </style><section class="ala-local" aria-label="Situación y acciones de {esc(datos['localidad'])}"><header><div><h2>{esc(datos['localidad'])}</h2><small>{esc(datos['provincia'])} · {esc(datos['fase'])}</small></div><span class="ala-local-badge">{esc(datos['nivel'])} · ALA experimental</span></header>
-<p class="ala-local-motivo"><strong>Qué ocurre y por qué:</strong> {esc(datos['motivo'])}</p><p class="ala-local-links">{links(datos['fuentes_motivo'])}</p>
-<div class="ala-local-grid">{bloques}</div><div class="ala-local-roles"><article><h3>Qué hacer · vecinos y familias</h3>{lista(datos['ciudadanos'])}</article><article><h3>Qué hacer · productores</h3>{lista(datos['productores'])}</article></div>{faltantes}
-<p class="ala-local-meta">Evaluación del panel: {esc(datos['evaluacion'])}. Cada bloque conserva la fecha de su fuente; una consulta nueva no renueva la medición.</p>
-<p class="ala-local-meta">El color integra las evidencias disponibles. Un nivel de referencia del río no es una orden de evacuación; la autoridad local indica los traslados. Caminos, refugios y recursos deben confirmarse con sus responsables.</p>
+<p class="ala-local-meta">Evaluación: {esc(datos['evaluacion'])}</p><p class="ala-local-motivo">{esc(datos['motivo'])}</p><p class="ala-local-links">{links(datos['fuentes_motivo'])}</p>
+<div class="ala-local-cifras">{cifras}</div><p class="ala-local-meta">Lluvia estimada por un modelo; emisión de la corrida no informada. La altura del río pertenece a la escala de su estación, no a una calle o lote.</p>
+<div class="ala-local-roles">{roles}</div><div class="ala-local-grid">{bloques}</div>{faltantes}
+<p class="ala-local-meta">Cada fuente conserva su fecha: una consulta nueva no renueva la medición. El color integra las evidencias disponibles; un nivel de referencia del río no es una orden de evacuación. La autoridad local indica traslados y confirma caminos, refugios y recursos.</p>
 <p class="ala-local-links"><a href="https://www.argentina.gob.ar/sinagir/riesgos-frecuentes/inundacion/prevencion" target="_blank" rel="noopener noreferrer">Prevención · SINAGIR</a> · <a href="https://www.argentina.gob.ar/noticias/recomendaciones-para-prevenir-riesgos-y-reducir-el-impacto-del-fenomeno-del-nino-0" target="_blank" rel="noopener noreferrer">Preparación rural · INTA</a></p></section>'''
 
 

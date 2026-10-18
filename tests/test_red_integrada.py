@@ -13,6 +13,7 @@ import math
 from pathlib import Path
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -131,6 +132,17 @@ def forecast_payload(series=29534):
                                             ("error_band_99", 1.8)]]}
 
 
+def automatic_payload(series=29437):
+    """Metadatos INA congelados; fecha y valor de prueba explícitos para NOW."""
+    name = ("ina_zarate_observada_29437_20261017.json" if series == 29437
+            else "ina_zarate_simulada_29534_metadatos_20261017.json")
+    payload = json.loads((Path(__file__).parent / "fixtures" / name).read_text())
+    if series == 29437:
+        fecha = (NOW - timedelta(hours=1)).isoformat()
+        payload["observaciones"] = [[fecha, fecha, 1.12, "observacion-sintetica"]]
+    return payload
+
+
 def source_session(wfs=None, forecast=None, meteo_missing_soil=False, fail_urls=()):
     def handler(url, kwargs):
         if any(fragment in url for fragment in fail_urls):
@@ -151,6 +163,11 @@ def source_session(wfs=None, forecast=None, meteo_missing_soil=False, fail_urls=
         if "calibrados/489/corridas/last" in url:
             series = 29534 if "series_id=29534" in url else 3405
             return Response(copy.deepcopy(forecast if forecast is not None else forecast_payload(series)))
+        if url.startswith("https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?"):
+            series = int(parse_qs(urlsplit(url).query)["series_id"][0])
+            if series not in {29437, 29534}:
+                raise AssertionError("Unexpected automatic-station series: " + str(series))
+            return Response(automatic_payload(series))
         raise AssertionError("Unexpected HTTP request: " + url)
     return Session(handler)
 
@@ -191,6 +208,7 @@ class Response:
         self.text = text if text is not None else json.dumps(payload)
         self.content = self.text.encode("utf-8")
         self.headers = {"Content-Type": "application/json"}
+        self.closed = False
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -199,6 +217,13 @@ class Response:
 
     def json(self):
         return copy.deepcopy(self._payload)
+
+    def iter_content(self, chunk_size):
+        for start in range(0, len(self.content), chunk_size):
+            yield self.content[start:start + chunk_size]
+
+    def close(self):
+        self.closed = True
 
 
 class Session:
@@ -209,7 +234,10 @@ class Session:
 
     def get(self, url, **kwargs):
         self.calls.append((url, kwargs))
-        return self.handler(url, kwargs)
+        response = self.handler(url, kwargs)
+        if not getattr(response, "url", None):
+            response.url = url
+        return response
 
 
 class FakeStreamlit:
@@ -465,11 +493,20 @@ class PublicSourceAcquisition(unittest.TestCase):
         session = source_session()
         zc = red.consultar_zc_red(referencia=NOW, session=session)
         self.assertEqual(len(zc["nodos"]), 10)
-        self.assertEqual([r["serie_observada"] for r in zc["rios"]], [40, 41])
-        self.assertEqual([r["serie_pronostico"] for r in zc["rios"]], [29534, 3405])
+        self.assertEqual([r["serie_observada"] for r in zc["rios"]], [40, 41, 29437])
+        self.assertEqual([r["serie_pronostico"] for r in zc["rios"]], [29534, 3405, None])
         self.assertTrue(all(r["escala_equivalente"] is False for r in zc["rios"]))
-        self.assertTrue(all(len(r["pronostico"]) == 2 for r in zc["rios"]))
-        self.assertEqual(len(session.calls), 5)
+        self.assertTrue(all(len(r["pronostico"]) == 2 for r in zc["rios"][:2]))
+        automatic = zc["rios"][2]
+        self.assertEqual(automatic["altura_m"], 1.12)
+        self.assertTrue(automatic["observacion_automatica"]["coincidencia_documental_pronostico"])
+        self.assertEqual(automatic["pronostico"], [])
+        self.assertIsNone(automatic["alerta_m"])
+        self.assertIsNone(automatic["evacuacion_m"])
+        self.assertEqual(len(session.calls), 7)
+        automatic_sources = [f for f in zc["fuentes"] if "estación automática" in f["organismo"]]
+        self.assertEqual(len(automatic_sources), 1)
+        self.assertEqual(automatic_sources[0]["fecha_documento"], automatic["fecha_observada"])
         assert_json_finite(self, zc)
 
     def test_failed_weather_source_keeps_known_heights_and_missing_rain(self):
@@ -479,11 +516,11 @@ class PublicSourceAcquisition(unittest.TestCase):
         self.assertTrue(zc["rios"][0]["pronostico"])
         assert_json_finite(self, zc)
 
-    def test_every_source_failed_keeps_10_unknown_nodes_and_two_unknown_rivers(self):
+    def test_every_source_failed_keeps_10_unknown_nodes_and_three_unknown_rivers(self):
         zc = zc_fixture(fail_urls=("https://",))
         document = build_fixture(zc=zc)
         self.assertEqual(len(zc["nodos"]), 10)
-        self.assertEqual(len(zc["rios"]), 2)
+        self.assertEqual([r["serie_observada"] for r in zc["rios"]], [40, 41, 29437])
         self.assertTrue(all(n["lluvia_prevista_72_mm"] is None for n in zc["nodos"]))
         self.assertTrue(all(r["altura_m"] is None and not r["pronostico"] for r in zc["rios"]))
         self.assertTrue(all(n["nivel_vigente"] == "SIN DATOS" for n in document["nodos"] if n["red"] == "Zárate–Campana"))

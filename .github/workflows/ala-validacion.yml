@@ -42,7 +42,7 @@ jobs:
         run: node tests/test_ubicacion_js.cjs
       - name: Verificar reglas y continuidad sin envios
         run: |
-          python -m py_compile app.py hidrologia.py ctm.py monitor.py red_integrada.py portada_local.py ubicacion_local.py explicaciones_alerta.py siga_inta.py ficha_proyecto.py panel_proyecto.py decisiones_agro.py
+          python -m py_compile app.py hidrometria_local.py hidrologia.py ctm.py monitor.py red_integrada.py portada_local.py ubicacion_local.py explicaciones_alerta.py siga_inta.py ficha_proyecto.py panel_proyecto.py decisiones_agro.py
           python -m unittest discover -s tests -v
       - name: Consultar fuentes actuales sin Telegram ni escritura remota
         env:

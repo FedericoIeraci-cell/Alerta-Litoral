@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.9.0
+# Alerta Litoral Agro · V4.10.0
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -16,6 +16,14 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
+
+## Cambios de la versión V4.10.0
+
+El **mapa de riesgo del Litoral es el primer bloque de la portada**, con las 48 referencias, fecha de evaluación, leyenda y cantidad de localidades por estado. Debajo aparecen el selector manual, la geolocalización, el estado local, la lluvia prevista para 24 y 72 horas y la altura observada. Las cifras mantienen su fecha, fuente y vigencia a la vista; las explicaciones completas y las referencias quedan en detalles desplegables. La cabecera ocupa menos espacio y el título es visible.
+
+La conexión común separa la fecha del informe de datos y la del último control automático normal. La publicación de comprobación de una actualización no borra la evidencia de un control normal reciente; una lectura fallida o antigua tampoco se presenta como control activo. La cobertura incompleta se informa por separado.
+
+Se incorpora como referencia adicional la estación automática **Paraná Las Palmas - Zárate**, serie observada INA **29437**. Tiene su propio identificador, fecha y escala y se comparte en las dos páginas. Los puertos de Zárate (serie 40) y Campana (41) conservan sus lecturas y referencias por separado. Ver [evidencia hidrométrica](docs/HIDROMETRIA_ZARATE_20261018.md).
 
 ## Cómo leer el color y el índice
 
@@ -57,7 +65,7 @@ regresión se ejecutan sin envíos reales.
 
 Subí juntos a la rama utilizada por Streamlit:
 
-- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py`, `portada_local.py` y `explicaciones_alerta.py` en la raíz.
+- `app.py`, `hidrologia.py`, `ctm.py`, `monitor.py`, `red_integrada.py`, `hidrometria_local.py`, `portada_local.py` y `explicaciones_alerta.py` en la raíz.
 - `ubicacion_local.py` en la raíz y la carpeta completa `ubicacion_local_frontend/`, incluidos su catálogo, HTML, JavaScript y CSS locales.
 - `siga_inta.py`, `ficha_proyecto.py`, `decisiones_agro.py` y `panel_proyecto.py` en la raíz.
 - `requirements.txt` y `requirements_monitor.txt` en la raíz.

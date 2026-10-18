@@ -1,6 +1,7 @@
 """La portada explica la evidencia sin modificar niveles ni ocultar faltantes."""
 import copy
 from datetime import datetime, timedelta
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import sys
@@ -14,6 +15,29 @@ from portada_local import construir_portada_local, fecha_publica, html_portada_l
 
 NOW = datetime.fromisoformat("2026-10-14T12:00:00-03:00")
 FIX = Path(__file__).parent / "fixtures"
+
+
+class CifrasHTML(HTMLParser):
+    def __init__(self, markup):
+        super().__init__()
+        self.cifras, self.actual = {}, None
+        self.feed(markup)
+
+    def handle_starttag(self, tag, attrs):
+        atributos = dict(attrs)
+        if tag == 'article' and atributos.get('data-cifra'):
+            self.actual = atributos['data-cifra']
+            self.cifras[self.actual] = {'texto': [], 'fuentes': []}
+        if self.actual and tag == 'a':
+            self.cifras[self.actual]['fuentes'].append(atributos.get('href'))
+
+    def handle_data(self, data):
+        if self.actual and data.strip():
+            self.cifras[self.actual]['texto'].append(data.strip())
+
+    def handle_endtag(self, tag):
+        if tag == 'article':
+            self.actual = None
 
 
 def datos():
@@ -49,6 +73,34 @@ class PortadaLocalTests(unittest.TestCase):
         self.assertTrue(panel["ciudadanos"])
         self.assertTrue(panel["productores"])
         self.assertIn("no es una orden de evacuación", html_portada_local(panel))
+
+    def test_cifras_iniciales_tienen_fuente_fecha_y_cero_real(self):
+        row,p=datos()
+        panel=construir_portada_local(row,p,NOW)
+        cifras=CifrasHTML(html_portada_local(panel)).cifras
+        self.assertEqual(set(cifras),{'lluvia24','lluvia72','rio'})
+        self.assertIn('0,0 mm',cifras['lluvia24']['texto'])
+        self.assertIn('Período desde: 14/10/2026 11:00 ART',cifras['lluvia24']['texto'])
+        self.assertTrue(cifras['lluvia24']['fuentes'])
+        self.assertIn('5,32 m',cifras['rio']['texto'])
+        self.assertIn('Lectura: 13/10/2026 · hora no publicada',cifras['rio']['texto'])
+        self.assertTrue(cifras['rio']['fuentes'])
+        self.assertNotIn('00:00',' '.join(cifras['rio']['texto']))
+        # La causa roja sigue fuera de los detalles cerrados, aunque la lluvia sea baja.
+        inicio=html_portada_local(panel).split('<details',1)[0]
+        self.assertIn('ROJO · ALA experimental',inicio)
+        self.assertIn('Previsión',inicio)
+
+    def test_cifras_iniciales_no_promueven_lectura_sin_vigencia(self):
+        row,p=datos()
+        row.update(cobertura_meteorologica=False,hidrologia_vigente=False)
+        panel=construir_portada_local(row,p,NOW)
+        cifras=CifrasHTML(html_portada_local(panel)).cifras
+        self.assertIn('Sin dato completo vigente',cifras['lluvia24']['texto'])
+        self.assertNotIn('0,0 mm',cifras['lluvia24']['texto'])
+        self.assertIn('Sin lectura vigente',cifras['rio']['texto'])
+        self.assertNotIn('5,32 m',cifras['rio']['texto'])
+        self.assertTrue(any('Último dato disponible:' in t for t in cifras['rio']['texto']))
 
     def test_no_reemplaza_faltantes_por_cero_ni_presume_ausencia_de_avisos(self):
         row, p = datos()

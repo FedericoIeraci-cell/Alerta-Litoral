@@ -1,0 +1,256 @@
+{
+  "descripcion": "Respuestas oficiales congeladas; no constituyen datos actuales al ejecutar las pruebas.",
+  "consulta_observada": {
+    "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=29437&tipo=puntual&timestart=2026-10-16&timeend=2026-10-18T02%3A57%3A18.583440%2B00%3A00&includeProno=false",
+    "status": 200,
+    "consulted_at_utc": "2026-10-18T02:57:19.606404+00:00",
+    "bytes": 5034,
+    "sha256": "19addd957f7dc49b486d9cb317ec353ab9853c38409cf1c2db6e1bd8728e144b",
+    "identity": {
+      "id": 29437,
+      "estacion": {
+        "id": 5907,
+        "nombre": "Paraná Las Palmas - Zárate",
+        "id_externo": "313",
+        "geom": {
+          "type": "Point",
+          "coordinates": [
+            -59.0088888888889,
+            -34.1019444444444
+          ]
+        },
+        "tabla": "sat2",
+        "provincia": "Buenos Aires",
+        "pais": "Argentina",
+        "rio": "Paraná de las Palmas",
+        "has_obs": true,
+        "tipo": "A",
+        "automatica": true,
+        "habilitar": true,
+        "propietario": "RHN",
+        "abreviatura": "ZARA",
+        "localidad": "Zárate",
+        "real": true,
+        "nivel_alerta": 2,
+        "nivel_evacuacion": 2.2,
+        "nivel_aguas_bajas": 0.3,
+        "altitud": null,
+        "public": true,
+        "cero_ign": 0.243,
+        "red": {
+          "id": 27,
+          "tabla_id": "sat2",
+          "nombre": "RHN - SAT",
+          "public": false,
+          "public_his_plata": false,
+          "access_level": "write"
+        }
+      },
+      "var": {
+        "id": 2,
+        "var": "H",
+        "nombre": "Altura hidrométrica",
+        "abrev": "altura",
+        "type": "num",
+        "datatype": "Continuous",
+        "valuetype": "Field Observation",
+        "GeneralCategory": "Hydrology",
+        "VariableName": "Gage height",
+        "SampleMedium": "Surface Water",
+        "def_unit_id": "11",
+        "timeSupport": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 0,
+          "minutes": 0,
+          "seconds": 0,
+          "milliseconds": 0
+        },
+        "def_hora_corte": null
+      },
+      "procedimiento": {
+        "id": 1,
+        "nombre": "medición directa",
+        "abrev": "medicion",
+        "descripcion": "Medición directa"
+      },
+      "unidades": {
+        "id": 11,
+        "nombre": "metros",
+        "abrev": "m",
+        "UnitsID": 52,
+        "UnitsType": "Length"
+      },
+      "date_range": {
+        "timestart": "2020-06-01T17:00:00.000Z",
+        "timeend": "2026-10-18T00:00:00.000Z",
+        "count": "48486"
+      }
+    },
+    "observation_count": 49,
+    "last_observations": [
+      [
+        "2026-10-17T17:00:00.000Z",
+        "2026-10-17T17:00:00.000Z",
+        1.29,
+        "29471443245"
+      ],
+      [
+        "2026-10-17T18:00:00.000Z",
+        "2026-10-17T18:00:00.000Z",
+        1.29,
+        "29471873407"
+      ],
+      [
+        "2026-10-17T19:00:00.000Z",
+        "2026-10-17T19:00:00.000Z",
+        1.27,
+        "29472318459"
+      ],
+      [
+        "2026-10-17T20:00:00.000Z",
+        "2026-10-17T20:00:00.000Z",
+        1.25,
+        "29472749244"
+      ],
+      [
+        "2026-10-17T21:00:00.000Z",
+        "2026-10-17T21:00:00.000Z",
+        1.23,
+        "29473182439"
+      ],
+      [
+        "2026-10-17T22:00:00.000Z",
+        "2026-10-17T22:00:00.000Z",
+        1.19,
+        "29473612669"
+      ],
+      [
+        "2026-10-17T23:00:00.000Z",
+        "2026-10-17T23:00:00.000Z",
+        1.16,
+        "29474044999"
+      ],
+      [
+        "2026-10-18T00:00:00.000Z",
+        "2026-10-18T00:00:00.000Z",
+        1.12,
+        "29474475393"
+      ]
+    ],
+    "latest_valid": [
+      "2026-10-18T00:00:00.000Z",
+      "2026-10-18T00:00:00.000Z",
+      1.12,
+      "29474475393"
+    ],
+    "latest_age_hours": 2.9554462233333334
+  },
+  "consulta_metadatos_pronostico": {
+    "url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=29534&tipo=puntual&timestart=2026-10-16&timeend=2026-10-18&includeProno=false",
+    "final_url": "https://alerta.ina.gob.ar/a5/getSeriesBySiteAndVar?series_id=29534&tipo=puntual&timestart=2026-10-16&timeend=2026-10-18&includeProno=false",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "consulted_at_utc": "2026-10-18T02:52:13.150328+00:00",
+    "bytes": 1313,
+    "sha256": "d036bdb0dbf3800a47d340e64aa46a17770bfa9905cbe9c75db9527305d61c09",
+    "keys": [
+      "tipo",
+      "id",
+      "estacion",
+      "var",
+      "procedimiento",
+      "unidades",
+      "fuente",
+      "date_range",
+      "observaciones",
+      "percentiles_ref"
+    ],
+    "meta": {
+      "id": 29534,
+      "var": {
+        "id": 2,
+        "var": "H",
+        "nombre": "Altura hidrométrica",
+        "abrev": "altura",
+        "type": "num",
+        "datatype": "Continuous",
+        "valuetype": "Field Observation",
+        "GeneralCategory": "Hydrology",
+        "VariableName": "Gage height",
+        "SampleMedium": "Surface Water",
+        "def_unit_id": "11",
+        "timeSupport": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 0,
+          "minutes": 0,
+          "seconds": 0,
+          "milliseconds": 0
+        },
+        "def_hora_corte": null
+      },
+      "unidades": {
+        "id": 11,
+        "nombre": "metros",
+        "abrev": "m",
+        "UnitsID": 52,
+        "UnitsType": "Length"
+      },
+      "proc": null,
+      "estacion": {
+        "id": 5907,
+        "nombre": "Paraná Las Palmas - Zárate",
+        "id_externo": "313",
+        "geom": {
+          "type": "Point",
+          "coordinates": [
+            -59.0088888888889,
+            -34.1019444444444
+          ]
+        },
+        "tabla": "sat2",
+        "provincia": "Buenos Aires",
+        "pais": "Argentina",
+        "rio": "Paraná de las Palmas",
+        "has_obs": true,
+        "tipo": "A",
+        "automatica": true,
+        "habilitar": true,
+        "propietario": "RHN",
+        "abreviatura": "ZARA",
+        "localidad": "Zárate",
+        "real": true,
+        "nivel_alerta": 2,
+        "nivel_evacuacion": 2.2,
+        "nivel_aguas_bajas": 0.3,
+        "altitud": null,
+        "public": true,
+        "cero_ign": 0.243,
+        "red": {
+          "id": 27,
+          "tabla_id": "sat2",
+          "nombre": "RHN - SAT",
+          "public": false,
+          "public_his_plata": false,
+          "access_level": "write"
+        }
+      },
+      "data_availability": null
+    },
+    "last_observations": [],
+    "observation_count": 0
+  },
+  "archivos": {
+    "ina_zarate_observada_29437_20261017.json": {
+      "sha256": "19addd957f7dc49b486d9cb317ec353ab9853c38409cf1c2db6e1bd8728e144b",
+      "bytes": 5034
+    },
+    "ina_zarate_simulada_29534_metadatos_20261017.json": {
+      "sha256": "d036bdb0dbf3800a47d340e64aa46a17770bfa9905cbe9c75db9527305d61c09",
+      "bytes": 1313
+    }
+  }
+}

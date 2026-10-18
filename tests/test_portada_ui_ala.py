@@ -7,6 +7,7 @@ Sólo se sustituyen consultas/paneles externos, historial y funciones de envío.
 from contextlib import ExitStack
 from copy import deepcopy
 import importlib.util
+import json
 import os
 from pathlib import Path
 import sys
@@ -95,6 +96,21 @@ class PortadaPrincipalStreamlitTests(unittest.TestCase):
         self.urlopen.assert_not_called()
         fichas=[m.value for m in at.markdown if '<section class="ala-local"' in m.value]
         self.assertEqual(len(fichas),1,'Debe haber una única ficha de la localidad seleccionada')
+        elementos=list(at.main)
+        mapas=[]
+        for posicion,elemento in enumerate(elementos):
+            if elemento.type=='plotly_chart':
+                figura=json.loads(elemento.proto.spec)
+                if figura.get('layout',{}).get('legend',{}).get('title',{}).get('text')=='Riesgo integrado':
+                    mapas.append((posicion,figura))
+        self.assertEqual(len(mapas),1,'El mapa integrado debe aparecer una sola vez')
+        posicion_mapa,figura=mapas[0]
+        posicion_selector=next(i for i,e in enumerate(elementos) if e.type=='selectbox' and e.key=='localidad_detalle')
+        posicion_ficha=next(i for i,e in enumerate(elementos) if e.type=='markdown' and '<section class="ala-local"' in e.value)
+        self.assertLess(posicion_mapa,posicion_selector,'El mapa debe ser visible antes de elegir o localizar un punto')
+        self.assertLess(posicion_selector,posicion_ficha)
+        niveles={traza.get('name') for traza in figura.get('data',[]) if traza.get('mode')=='markers'}
+        self.assertTrue({'ROJO','SIN DATOS'}.issubset(niveles),'El mapa inicial conserva el rojo fluvial y los puntos sin datos')
         return fichas[0]
 
     def test_render_y_cambio_de_localidad_con_riesgo_fluvial_y_datos_ausentes(self):
