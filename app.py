@@ -7988,8 +7988,31 @@ def render_app():
         # Meteorología actual
         # ------------------------------------------------------------
 
+        def numero_detalle_meteo(campo, factor=1.0):
+            """Valor finito para presentar; no modifica la fila del modelo."""
+            valor = row.get(campo)
+            if isinstance(valor, (bool, np.bool_)):
+                return None
+            try:
+                numero = float(valor) * factor
+            except (TypeError, ValueError, OverflowError):
+                return None
+            return numero if np.isfinite(numero) else None
+
+        def formato_detalle_meteo(campo, decimales=1, unidad="", factor=1.0):
+            numero = numero_detalle_meteo(campo, factor)
+            if numero is None:
+                return "Sin dato"
+            sufijo = f" {unidad}" if unidad else ""
+            return f"{numero:.{decimales}f}{sufijo}"
+
         st.subheader(
-            "🌡️ Condiciones meteorológicas actuales"
+            "🌡️ Condiciones meteorológicas del modelo"
+        )
+
+        st.caption(
+            "Último valor horario disponible de cada variable. "
+            "Sin dato indica un valor ausente o no válido; cero es un valor recibido."
         )
 
         m1, m2, m3, m4, m5 = st.columns(5)
@@ -7997,65 +8020,68 @@ def render_app():
         with m1:
             st.metric(
                 "Temperatura",
-                f'{row["temperatura"]:.1f} °C',
+                formato_detalle_meteo("temperatura", unidad="°C"),
             )
 
         with m2:
             st.metric(
                 "Sensación",
-                f'{row["sensacion"]:.1f} °C',
+                formato_detalle_meteo("sensacion", unidad="°C"),
             )
 
         with m3:
             st.metric(
                 "Humedad relativa",
-                f'{row["humedad_relativa"]:.0f}%',
+                formato_detalle_meteo("humedad_relativa", 0, "%"),
             )
 
         with m4:
             st.metric(
                 "Viento",
-                f'{row["viento"]:.1f} km/h',
+                formato_detalle_meteo("viento", unidad="km/h"),
             )
 
         with m5:
             st.metric(
                 "Ráfaga",
-                f'{row["rafaga"]:.1f} km/h',
+                formato_detalle_meteo("rafaga", unidad="km/h"),
             )
 
 
         m6, m7, m8, m9, m10 = st.columns(5)
 
         with m6:
+            direccion_detalle = formato_detalle_meteo("direccion_viento", 0, "°")
+            punto_cardinal = row.get("direccion_viento_texto")
+            if direccion_detalle != "Sin dato" and isinstance(punto_cardinal, str) and punto_cardinal.strip():
+                direccion_detalle += f" {punto_cardinal.strip()}"
             st.metric(
-                "Dirección",
-                f'{row["direccion_viento"]:.0f}° '
-                f'{row["direccion_viento_texto"]}',
+                "Dirección del viento",
+                direccion_detalle,
             )
 
         with m7:
             st.metric(
                 "Punto de rocío",
-                f'{row["punto_rocio"]:.1f} °C',
+                formato_detalle_meteo("punto_rocio", unidad="°C"),
             )
 
         with m8:
             st.metric(
-                "Presión MSL",
-                f'{row["presion_msl"]:.1f} hPa',
+                "Presión a nivel del mar",
+                formato_detalle_meteo("presion_msl", unidad="hPa"),
             )
 
         with m9:
             st.metric(
                 "Nubosidad",
-                f'{row["nubosidad"]:.0f}%',
+                formato_detalle_meteo("nubosidad", 0, "%"),
             )
 
         with m10:
             st.metric(
                 "CAPE",
-                f'{row["cape"]:.0f} J/kg',
+                formato_detalle_meteo("cape", 0, "J/kg"),
             )
 
 
@@ -8064,19 +8090,19 @@ def render_app():
         with m11:
             st.metric(
                 "VPD",
-                f'{row["vpd"]:.2f} kPa',
+                formato_detalle_meteo("vpd", 2, "kPa"),
             )
 
         with m12:
             st.metric(
-                "ET",
-                f'{row["evapotranspiracion"]:.2f} mm',
+                "ET horaria",
+                formato_detalle_meteo("evapotranspiracion", 2, "mm"),
             )
 
         with m13:
             st.metric(
-                "ET₀",
-                f'{row["et0"]:.2f} mm',
+                "ET₀ horaria",
+                formato_detalle_meteo("et0", 2, "mm"),
             )
 
         with m14:
@@ -8084,6 +8110,13 @@ def render_app():
                 "Tiempo",
                 row["descripcion_tiempo"],
             )
+
+        st.caption(
+            "ET: agua transferida a la atmósfera por evaporación y transpiración, estimada por el modelo. "
+            "ET₀: evapotranspiración de una superficie de referencia. Ambas corresponden al intervalo horario disponible. "
+            "VPD: déficit de presión de vapor; valores mayores indican aire más seco. "
+            "CAPE: energía potencial disponible para la convección, un indicador de inestabilidad atmosférica."
+        )
 
 
         # ------------------------------------------------------------
@@ -8106,65 +8139,35 @@ def render_app():
 
             st.metric(
                 "0–7 cm",
-                (
-                    f'{row["humedad_0_7"] * 100:.1f}%'
-                    if pd.notna(
-                        row["humedad_0_7"]
-                    )
-                    else "Sin dato"
-                ),
+                formato_detalle_meteo("humedad_0_7", 1, "%", factor=100),
             )
 
         with s2:
 
             st.metric(
                 "7–28 cm",
-                (
-                    f'{row["humedad_7_28"] * 100:.1f}%'
-                    if pd.notna(
-                        row["humedad_7_28"]
-                    )
-                    else "Sin dato"
-                ),
+                formato_detalle_meteo("humedad_7_28", 1, "%", factor=100),
             )
 
         with s3:
 
             st.metric(
                 "28–100 cm",
-                (
-                    f'{row["humedad_28_100"] * 100:.1f}%'
-                    if pd.notna(
-                        row["humedad_28_100"]
-                    )
-                    else "Sin dato"
-                ),
+                formato_detalle_meteo("humedad_28_100", 1, "%", factor=100),
             )
 
         with s4:
 
             st.metric(
                 "100–255 cm",
-                (
-                    f'{row["humedad_100_255"] * 100:.1f}%'
-                    if pd.notna(
-                        row["humedad_100_255"]
-                    )
-                    else "Sin dato"
-                ),
+                formato_detalle_meteo("humedad_100_255", 1, "%", factor=100),
             )
 
         with s5:
 
             st.metric(
                 "Promedio",
-                (
-                    f'{row["humedad_suelo_promedio"] * 100:.1f}%'
-                    if pd.notna(
-                        row["humedad_suelo_promedio"]
-                    )
-                    else "Sin dato"
-                ),
+                formato_detalle_meteo("humedad_suelo_promedio", 1, "%", factor=100),
             )
 
 
@@ -8178,25 +8181,31 @@ def render_app():
             ],
 
             "Temperatura °C": [
-                row["temp_suelo_0_7"],
-                row["temp_suelo_7_28"],
-                row["temp_suelo_28_100"],
-                row["temp_suelo_100_255"],
+                numero_detalle_meteo("temp_suelo_0_7"),
+                numero_detalle_meteo("temp_suelo_7_28"),
+                numero_detalle_meteo("temp_suelo_28_100"),
+                numero_detalle_meteo("temp_suelo_100_255"),
             ],
         })
 
 
-        fig_temp_suelo = px.bar(
-            temp_suelo_df,
-            x="Profundidad",
-            y="Temperatura °C",
-            title="Temperatura del suelo por profundidad",
-        )
-
-        st.plotly_chart(
-            fig_temp_suelo,
-            use_container_width=True,
-        )
+        temperaturas_disponibles = temp_suelo_df["Temperatura °C"].notna()
+        if temperaturas_disponibles.any():
+            fig_temp_suelo = px.bar(
+                temp_suelo_df,
+                x="Profundidad",
+                y="Temperatura °C",
+                title="Temperatura del suelo por profundidad",
+            )
+            st.plotly_chart(
+                fig_temp_suelo,
+                use_container_width=True,
+            )
+            capas_sin_temperatura = temp_suelo_df.loc[~temperaturas_disponibles, "Profundidad"].tolist()
+            if capas_sin_temperatura:
+                st.caption("Sin dato de temperatura en las capas: " + ", ".join(capas_sin_temperatura) + ".")
+        else:
+            st.info("Sin dato de temperatura del suelo para las cuatro profundidades.")
 
 
         # ------------------------------------------------------------
@@ -8288,47 +8297,57 @@ def render_app():
         convectiva_df = pd.DataFrame({
 
             "Variable": [
-                "CAPE actual",
-                "CAPE máximo próximo 24h",
-                "Prob. precipitación 24h",
-                "Prob. precipitación 72h",
-                "Viento máximo 24h",
-                "Ráfaga máxima 24h",
+                "CAPE",
+                "CAPE máximo",
+                "Probabilidad horaria de precipitación",
+                "Probabilidad horaria de precipitación",
+                "Viento máximo",
+                "Ráfaga máxima",
                 "Nubosidad total",
                 "Nubosidad baja",
                 "Nubosidad media",
                 "Nubosidad alta",
             ],
 
-            "Valor": [
-                row["cape"],
-                row["cape_max_24"],
-                row["prob_lluvia_24"],
-                row["prob_lluvia_72"],
-                row["viento_max_24"],
-                row["rafaga_max_24"],
-                row["nubosidad"],
-                row["nubosidad_baja"],
-                row["nubosidad_media"],
-                row["nubosidad_alta"],
+            "Período": [
+                "Último valor disponible",
+                "Próximas 24 h",
+                "Media de las próximas 24 h",
+                "Media de las próximas 72 h",
+                "Próximas 24 h",
+                "Próximas 24 h",
+                "Último valor disponible",
+                "Último valor disponible",
+                "Último valor disponible",
+                "Último valor disponible",
             ],
+
+            "Valor": [
+                formato_detalle_meteo("cape", 0),
+                formato_detalle_meteo("cape_max_24", 0),
+                formato_detalle_meteo("prob_lluvia_24", 1),
+                formato_detalle_meteo("prob_lluvia_72", 1),
+                formato_detalle_meteo("viento_max_24", 1),
+                formato_detalle_meteo("rafaga_max_24", 1),
+                formato_detalle_meteo("nubosidad", 0),
+                formato_detalle_meteo("nubosidad_baja", 0),
+                formato_detalle_meteo("nubosidad_media", 0),
+                formato_detalle_meteo("nubosidad_alta", 0),
+            ],
+
+            "Unidad": ["J/kg", "J/kg", "%", "%", "km/h", "km/h", "%", "%", "%", "%"],
         })
 
 
-        fig_conv = px.bar(
+        st.dataframe(
             convectiva_df,
-            x="Variable",
-            y="Valor",
-            title="Variables meteorológicas destacadas",
-        )
-
-        fig_conv.update_xaxes(
-            tickangle=-35
-        )
-
-        st.plotly_chart(
-            fig_conv,
             use_container_width=True,
+            hide_index=True,
+            height=390,
+        )
+        st.caption(
+            "La probabilidad de precipitación corresponde a la media de los valores horarios "
+            "del horizonte indicado. Cada variable conserva su unidad."
         )
 
 

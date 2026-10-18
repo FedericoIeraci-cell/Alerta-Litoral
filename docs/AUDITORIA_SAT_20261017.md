@@ -3,7 +3,7 @@
 **Aplicaciones:** Alerta Litoral Agro y Alerta Zárate–Campana.  
 **Corte de referencia:** informe común del 17/10/2026 a las 19:25:44 ART.  
 **Revisión pública de pantallas:** aproximadamente 20:02–20:10 ART del mismo día.  
-**Actualización asociada:** ALA V4.8.0 y ZC 1.7.0.
+**Actualización asociada:** ALA V4.8.0 y ZC 1.7.1.
 
 Las cifras de este documento describen ese corte. No constituyen un parte de emergencia permanente. Para una decisión actual se debe volver a consultar la portada, la fecha de cada fuente y los avisos oficiales.
 
