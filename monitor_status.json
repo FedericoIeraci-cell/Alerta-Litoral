@@ -343,6 +343,16 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente"
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "red_integrada_bytes": 426482,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "3ab6b9e8cba17ddd2e3f2e8a0bcf763691ffc9c9",
+    "commit_sha": "10055f55ab3e55a2f3946573fa49514e80bc264c",
+    "bytes": 426482,
+    "generated_at": "2026-10-19T12:41:59.140488+00:00",
+    "verified_at": "2026-10-19T12:42:08.091969+00:00"
+  },
+  "health_evaluacion": "datos_parciales"
 }
