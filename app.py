@@ -2520,37 +2520,8 @@ def guardar_historial(df):
         columnas_validas
     ].copy()
 
-    try:
-
-        if HISTORY_FILE.exists():
-
-            anterior = pd.read_csv(
-                HISTORY_FILE
-            )
-
-            combinado = pd.concat(
-                [
-                    anterior,
-                    nuevo,
-                ],
-                ignore_index=True,
-            )
-
-        else:
-            combinado = nuevo
-
-        if len(combinado) > 50000:
-            combinado = combinado.tail(
-                50000
-            ).copy()
-
-        combinado.to_csv(
-            HISTORY_FILE,
-            index=False,
-        )
-
-    except Exception:
-        pass
+    from historial_local import guardar_registros
+    return guardar_registros(HISTORY_FILE, nuevo)
 
 
 # ============================================================
@@ -7632,8 +7603,11 @@ def render_app():
 
         firma_historial = hashlib.sha256(df_alerta.to_csv(index=False).encode()).hexdigest()
         if st.session_state.get("firma_historial_operativo") != firma_historial:
-            guardar_historial(df_alerta)
-            st.session_state["firma_historial_operativo"] = firma_historial
+            guardado_historial = guardar_historial(df_alerta)
+            if isinstance(guardado_historial, dict) and not guardado_historial.get('ok'):
+                st.warning(guardado_historial['error'])
+            else:
+                st.session_state["firma_historial_operativo"] = firma_historial
 
         # ============================================================
         # TELEGRAM AUTOMÁTICO
@@ -8489,122 +8463,8 @@ def render_app():
         # HISTORIAL
         # ============================================================
 
-        st.header(
-            "📈 Historial"
-        )
-        st.caption("Desde V4.1 el historial conserva el semáforo integrado y sus motivos. Los registros anteriores corresponden al índice meteorológico de aquella versión. La historia del servidor puede reiniciarse al desplegar; descargá el CSV para conservarla.")
-
-        if HISTORY_FILE.exists():
-
-            try:
-
-                historial = pd.read_csv(
-                    HISTORY_FILE
-                )
-
-                if (
-                    not historial.empty
-                    and "localidad"
-                    in historial.columns
-                ):
-
-                    localidades_historial = sorted(
-                        historial[
-                            "localidad"
-                        ]
-                        .dropna()
-                        .unique()
-                        .tolist()
-                    )
-
-                    localidad_hist = st.selectbox(
-                        "Localidad para historial",
-                        localidades_historial,
-                        key="hist_localidad",
-                    )
-
-                    hist_local = historial[
-                        historial["localidad"]
-                        == localidad_hist
-                    ].copy()
-
-                    if (
-                        not hist_local.empty
-                        and "indice"
-                        in hist_local.columns
-                    ):
-
-                        hist_local[
-                            "actualizado"
-                        ] = pd.to_datetime(
-                            hist_local[
-                                "actualizado"
-                            ],
-                            dayfirst=True,
-                            errors="coerce",
-                        )
-
-                        hist_local = (
-                            hist_local
-                            .dropna(
-                                subset=[
-                                    "actualizado"
-                                ]
-                            )
-                            .sort_values(
-                                "actualizado"
-                            )
-                        )
-
-                        if not hist_local.empty:
-
-                            fig_hist = px.line(
-                                hist_local,
-                                x="actualizado",
-                                y="indice",
-                                markers=True,
-                                title=(
-                                    f"Evolución del índice meteorológico — "
-                                    f"{localidad_hist}"
-                                ),
-                            )
-
-                            fig_hist.update_yaxes(
-                                range=[0, 100]
-                            )
-
-                            st.plotly_chart(
-                                fig_hist,
-                                use_container_width=True,
-                            )
-
-                        csv_hist = (
-                            hist_local
-                            .to_csv(index=False)
-                            .encode("utf-8")
-                        )
-
-                        st.download_button(
-                            "⬇️ Descargar historial CSV",
-                            csv_hist,
-                            file_name=(
-                                "historial_alerta_litoral.csv"
-                            ),
-                            mime="text/csv",
-                        )
-
-            except Exception as error:
-
-                st.warning(
-                    f"No se pudo cargar el historial: {error}"
-                )
-
-        else:
-
-            st.info(
-                "El historial comenzará a generarse cuando "
-                "la aplicación procese datos."
-            )
+        from historial_local import mostrar_historial
+        mostrar_historial(st, px, HISTORY_FILE)
 
 
         # ============================================================

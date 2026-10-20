@@ -105,6 +105,17 @@ Ver [FICHA_DEL_PROYECTO.md](FICHA_DEL_PROYECTO.md) para la correspondencia con l
 
 ## Verificación
 
+El historial local tolera registros CSV con bytes inválidos sin bloquear los
+registros legibles. Antes de guardar una recuperación conserva el original exacto
+en `historial_alerta_litoral.csv.respaldo-<hash>.bin` y deja un aviso permanente en
+el panel con el detalle y la descarga del respaldo. No se adivinan codificaciones
+ni se inventan registros; una cabecera dañada impide reemplazar el archivo. Las
+escrituras son atómicas y los fallos de guardado se muestran en pantalla.
+Estos archivos siguen siendo locales a Streamlit y pueden perderse al reiniciar
+o desplegar: el respaldo permite descargarlos, pero no constituye almacenamiento
+durable del histórico. Los registros sin fecha o índice válido se conservan en
+el CSV y se excluyen del gráfico.
+
 ```bash
 python -m pip install -r requirements_test.txt
 python -m unittest discover -s tests -v
