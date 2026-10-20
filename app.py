@@ -6174,17 +6174,20 @@ def mostrar_pronostico_fluvial_local(row, panorama):
     obs=pd.DataFrame(estacion.get('observaciones',[]))
     previsto=pd.DataFrame(estacion.get('pronostico_numerico',[]))
     precision = precision_observada(row, panorama)
+    sin_hora_medida = precision in ('fecha_sin_hora', 'hora_no_verificada_en_reporte_diario', 'fecha_registro_fuente')
     st.caption('Lectura utilizada: ' + fecha_publica(estacion.get('fecha'), precision) +
                '. Fecha del parte: ' + fecha_publica(estacion.get('fecha_documento'), 'fecha_sin_hora' if '/diario/reporte_diario' in str(estacion.get('fuente','')) else estacion.get('precision_fecha_documento', 'fecha_hora_publicada')) + '.')
-    if precision == 'fecha_sin_hora':
-        st.caption('El parte diario informa el día, sin una hora de medición verificable. Los puntos se ubican por día; no representan una lectura tomada a medianoche.')
+    if sin_hora_medida:
+        st.caption('La hora de medición no está confirmada. Los puntos se ubican por día; no representan una lectura tomada a medianoche.')
     if obs.empty and _numero_telegram(estacion.get('altura_m')) is not None and estacion.get('fecha'):
         obs = pd.DataFrame([{'fecha':estacion['fecha'],'valor':estacion['altura_m']}])
     fig=go.Figure()
     if not obs.empty and {'fecha','valor'}<=set(obs):
         obs['fecha_ART']=pd.to_datetime(obs.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
+        if sin_hora_medida:
+            obs['fecha_ART'] = obs['fecha_ART'].dt.normalize()
         obs['fecha_publicada'] = obs.fecha.map(lambda valor: fecha_publica(valor,precision))
-        fig.add_trace(go.Scatter(x=obs.fecha_ART,y=obs.valor,mode='markers' if precision=='fecha_sin_hora' else 'lines+markers',name='Observado',
+        fig.add_trace(go.Scatter(x=obs.fecha_ART,y=obs.valor,mode='markers' if sin_hora_medida else 'lines+markers',name='Observado',
             customdata=obs[['fecha_publicada']],hovertemplate='%{customdata[0]}<br>Altura: %{y:.2f} m<extra>Observado</extra>'))
     if not previsto.empty and {'fecha','valor'}<=set(previsto):
         previsto['fecha_ART']=pd.to_datetime(previsto.fecha,utc=True,errors='coerce',format='mixed').dt.tz_convert(TZ)
@@ -6201,7 +6204,7 @@ def mostrar_pronostico_fluvial_local(row, panorama):
             fig.add_hline(y=limite,line_dash='dash',line_color=color,annotation_text=nombre_umbral)
     if not obs.empty or not previsto.empty:
         fig.update_layout(height=370,xaxis_title='Fecha publicada · ART cuando la fuente informa hora',yaxis_title='Metros sobre la escala de esta estación',margin={'t':20,'b':35,'l':30,'r':20})
-        if precision == 'fecha_sin_hora':
+        if sin_hora_medida:
             fig.update_xaxes(tickformat='%d/%m/%Y')
         st.plotly_chart(fig,use_container_width=True,key='hidro_curva_local')
     if row.get('hidrologia_pronostico_texto'):

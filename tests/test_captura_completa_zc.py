@@ -52,15 +52,15 @@ class CompleteCaptureTests(unittest.TestCase):
         self.assertEqual(len(capture["datos"]), 10)
         self.assertEqual(capture["nodos"], met._catalogo(NODOS_ZC))
         self.assertEqual(datetime.fromisoformat(capture["consultado"]), NOW)
-        self.assertEqual(len(session.calls), 5)
+        self.assertEqual(len(session.calls), 10)
         for url, kw in session.calls:
             self.assertEqual(url, met.FUENTE)
-            self.assertEqual(kw["timeout"], (20, 45))
+            self.assertEqual(kw["timeout"], (5, 30))
             self.assertIn("temperature_2m", kw["params"]["hourly"])
             self.assertIn("wind_speed_10m", kw["params"]["hourly"])
             self.assertIn("temperature_2m_max", kw["params"]["daily"])
             self.assertEqual(list(kw["params"])[:2], ["latitude", "longitude"])
-            self.assertEqual(len(kw["params"]["latitude"].split(",")), 2)
+            self.assertEqual(len(kw["params"]["latitude"].split(",")), 1)
             self.assertEqual(kw["headers"], {"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
         self.assertTrue(all(r.closed for r in session.responses))
         encoded = met.serializar_captura(capture)
@@ -86,7 +86,7 @@ class CompleteCaptureTests(unittest.TestCase):
                         return super().get(url, **kwargs)
                 session = TransientSession()
                 capture = met.crear_captura_zc(referencia=NOW, session=session)
-                self.assertEqual(sorted(session.attempts.values()), [2] * 5)
+                self.assertEqual(sorted(session.attempts.values()), [2] * 10)
                 self.assertEqual(datetime.fromisoformat(capture["consultado"]), NOW)
                 self.assertEqual(len(capture["datos"]), 10)
 
@@ -96,7 +96,7 @@ class CompleteCaptureTests(unittest.TestCase):
         with patch.object(Response, "raise_for_status", side_effect=error):
             with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_429"):
                 met.crear_captura_zc(referencia=NOW, session=session)
-        self.assertTrue(1 <= len(session.calls) <= 5)
+        self.assertTrue(1 <= len(session.calls) <= 10)
         self.assertEqual(len({kw["params"]["latitude"] for _, kw in session.calls}), len(session.calls))
         self.assertTrue(all(r.closed for r in session.responses))
 

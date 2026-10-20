@@ -134,7 +134,7 @@ class EstadoOperativoTests(unittest.TestCase):
         out = red.resumen_publico_monitor(registro, NOW)
         self.assertEqual(out["estado"], "normal_reciente")
         self.assertEqual(out["faltantes"], [])
-        for health in ("error_red_integrada", "error_registro", "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida", "sin_datos"):
+        for health in ("error_red_integrada", "error_meteorologia", "error_meteorologia_zc", "error_registro", "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida", "sin_datos"):
             with self.subTest(health=health):
                 failed = status(health=health)
                 out = red.resumen_publico_monitor(failed, NOW)

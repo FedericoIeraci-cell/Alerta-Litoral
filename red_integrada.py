@@ -887,7 +887,8 @@ def consultar_red_integrada(repository=REPOSITORY, session=None, referencia=None
 
 _ALCANCE_MONITOR = "Meteorología + hidrología + represas"
 _SALUD_MONITOR = frozenset({"ok", "datos_parciales", "dry_run", "sin_datos", "error_registro",
-                          "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida", "error_red_integrada"})
+                          "envio_sin_confirmacion", "envio_rechazado", "configuracion_invalida", "error_red_integrada",
+                          "error_meteorologia", "error_meteorologia_zc"})
 _COBERTURAS_MONITOR = {
     "meteorologia": "Meteorología", "hidrologia_observada": "Observaciones de ríos",
     "hidrologia_prevista": "Previsión de ríos", "represas": "Información de represas",
@@ -1024,6 +1025,8 @@ def resumen_publico_monitor(estado_monitor, referencia=None):
         "envio_rechazado": "El control registró un problema al entregar avisos.",
         "configuracion_invalida": "El control requiere revisar la configuración del canal.",
         "error_red_integrada": "El control guardó la evaluación, pero no confirmó el informe compartido.",
+        "error_meteorologia": "El control no confirmó la publicación de la captura meteorológica de ALA.",
+        "error_meteorologia_zc": "El control no confirmó la captura meteorológica completa de Zárate–Campana; el respaldo conserva su fecha original.",
     }
     if registro["health"] in problemas or registro["red_integrada_estado"] == "error":
         resumen.update(estado="con_error", etiqueta="Control con un problema", motivo=problemas.get(registro["health"], problemas["error_red_integrada"]))
@@ -1068,7 +1071,7 @@ def fecha_publica(valor, precision="fecha_hora_publicada"):
     """Fecha legible sin agregar una hora que la fuente no publicó."""
     texto = _texto(valor, 100)
     if precision == "fecha_registro_fuente" and _fecha(valor) is not None:
-        return _mostrar_fecha(valor) + " · registro de la fuente; hora de medición no confirmada"
+        return _fecha(valor).astimezone(TZ).strftime("%d/%m/%Y") + " · hora de medición no confirmada"
     if precision in {"fecha_sin_hora", "hora_no_verificada_en_reporte_diario"}:
         fecha = _fecha(valor)
         if fecha is not None:
@@ -1281,7 +1284,9 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
         "¿Pronóstico vigente?": "Sí" if r.get("pronostico_vigente") else "No confirmado",
         "Hasta cuándo hay previsión": fecha_publica(max((p.get("fecha") for p in r.get("pronostico", []) if p.get("fecha")), default=None))
         } for r in rivers], hide_index=True, use_container_width=True)
-    st.caption("El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
+    st.caption("Si la fuente sólo permite confirmar el día del registro, se indica que la hora de medición no está confirmada. "
+               "Dentro del plazo de uso no significa medición en tiempo real. "
+               "El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
                "Las escalas de los puertos (40/41) no se comparan con los pronósticos (29534/3405) sin equivalencia documentada. "
                "La automática de Zárate (29437) conserva su propia referencia y no usa los umbrales del puerto. "
                "Las alturas de estaciones diferentes tampoco se suman ni indican profundidad en un barrio.")

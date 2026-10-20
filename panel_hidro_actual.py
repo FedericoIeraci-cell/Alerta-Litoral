@@ -7,7 +7,9 @@ def hora(value, precision=None):
     fecha = _fecha(value)
     texto = fecha.astimezone(ART).strftime('%d/%m/%Y %H:%M ART') if fecha else 'Sin fecha confirmada'
     if fecha and precision == 'fecha_registro_fuente':
-        texto += ' · registro de la fuente; hora de medición no confirmada'
+        return fecha.astimezone(ART).strftime('%d/%m/%Y') + ' · hora de medición no confirmada'
+    if fecha and precision in ('fecha_sin_hora', 'hora_no_verificada_en_reporte_diario'):
+        return fecha.astimezone(ART).strftime('%d/%m/%Y') + ' · hora no publicada'
     return texto
 
 
