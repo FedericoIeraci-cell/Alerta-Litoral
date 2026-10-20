@@ -373,8 +373,28 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente",
-  "meteorologia_publicada": false,
-  "meteorologia_estado": "pendiente"
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "meteorologia_publicada": true,
+  "meteorologia_estado": "verificada",
+  "red_integrada_bytes": 732306,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "07c185fa06c51ee81f493814c868ace77dc6e309",
+    "commit_sha": "4f1b7736238f17e3824843046a682701e082351a",
+    "bytes": 732306,
+    "generated_at": "2026-10-20T23:27:54.196451+00:00",
+    "verified_at": "2026-10-20T23:28:07.347007+00:00"
+  },
+  "meteorologia_confirmacion": {
+    "sha": "d8833d3dcee1501208ba36542b44de6af56577b5",
+    "commit_sha": "24fb3d4a3f27fb90d489f73613cf8eb31cdd994b",
+    "bytes": 1187018,
+    "consultado": "2026-10-20T23:27:49.645458+00:00",
+    "verified_at": "2026-10-20T23:28:10.932444+00:00"
+  },
+  "meteorologia_zc_publicada": false,
+  "meteorologia_zc_estado": "error",
+  "meteorologia_zc_error": "Consulta meteorológica ZC: lote de 2 nodos, timeout_lectura.",
+  "health_evaluacion": "datos_parciales"
 }
