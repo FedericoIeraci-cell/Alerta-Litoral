@@ -5,23 +5,47 @@ referencia; una fila ausente permanece gris y no recibe valores inventados.
 """
 from html import escape
 from datetime import datetime, timedelta
+from functools import lru_cache
+from pathlib import Path
+import base64
 
 from mapa_litoral import html_mapa_litoral
 
 
+@lru_cache(maxsize=1)
+def _fondo_cabecera_ala():
+    """Carga una imagen ilustrativa local; no depende de servicios externos."""
+    try:
+        imagen = Path(__file__).resolve().parent / 'assets' / 'ala_tormenta_crecida.webp'
+        return 'data:image/webp;base64,' + base64.b64encode(imagen.read_bytes()).decode('ascii')
+    except OSError:
+        return ''
+
+
 def mostrar_logotipo_ala(st, logotipo):
-    """Presenta la marca existente sobre el mapa, sin consultas externas."""
+    """Presenta el logo original sobre un fondo decorativo de tormenta y crecida."""
+    fondo = _fondo_cabecera_ala()
     estilo = (
-        '.ala-marca-inicio{display:flex;justify-content:center;margin:0 0 .65rem}'
+        '.ala-marca-inicio{display:flex;align-items:center;justify-content:center;box-sizing:border-box;'
+        'width:100%;height:150px;padding:16px;margin:0 0 .65rem;border-radius:12px;overflow:hidden;'
+        'background-color:#18364a;background-size:cover;background-position:center 60%}'
+        '.ala-marca-inicio-placa{box-sizing:border-box;max-width:100%;padding:9px 16px;'
+        'border:1px solid rgba(255,255,255,.75);border-radius:12px;background:rgba(255,255,255,.94);'
+        'box-shadow:0 3px 18px rgba(0,0,0,.18)}'
         '.ala-marca-inicio-encuadre{position:relative;width:264px;max-width:100%;aspect-ratio:2.7;overflow:hidden}'
-        '.ala-marca-inicio img{position:absolute;left:0;top:50%;width:100%;max-width:none;height:auto;transform:translateY(-50%);display:block}'
-        '@media(max-width:600px){.ala-marca-inicio-encuadre{width:232px}.ala-marca-inicio{margin-bottom:.45rem}}'
+        '.ala-marca-inicio-encuadre img{position:absolute;left:0;top:50%;width:100%;max-width:none;'
+        'height:auto;transform:translateY(-50%);display:block}'
+        '@media(max-width:600px){.ala-marca-inicio{height:130px;padding:12px;margin-bottom:.45rem}'
+        '.ala-marca-inicio-encuadre{width:232px}.ala-marca-inicio-placa{padding:8px 12px}}'
     )
+    fondo_html = (' style="background-image:linear-gradient(rgba(9,28,43,.08),rgba(9,28,43,.08)),url('
+                  + escape(fondo, quote=True) + ')"') if fondo else ''
     cabecera = ('<style>' + estilo + '</style>'
-                '<header class="ala-marca-inicio" aria-label="A.L.A. · Alerta Litoral Agro">'
-                '<div class="ala-marca-inicio-encuadre"><img src="'
+                '<header class="ala-marca-inicio" aria-label="A.L.A. · Alerta Litoral Agro"'
+                + fondo_html + '>'
+                '<div class="ala-marca-inicio-placa"><div class="ala-marca-inicio-encuadre"><img src="'
                 + escape(str(logotipo), quote=True)
-                + '" alt="A.L.A. · Alerta Litoral Agro"></div></header>')
+                + '" alt="A.L.A. · Alerta Litoral Agro"></div></div></header>')
     st.markdown(cabecera, unsafe_allow_html=True)
 
 
