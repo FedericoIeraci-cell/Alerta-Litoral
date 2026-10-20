@@ -141,6 +141,15 @@ class HistorialLocalTests(unittest.TestCase):
         self.assertEqual(_fecha_local('2026-10-02T11:00:00-03:00'), esperado)
         self.assertEqual(_fecha_local('02/10/2026 11:00'), esperado)
 
+    def test_fila_desplazada_no_se_presenta_como_localidad_numerica(self):
+        self.ruta.write_bytes(CABECERA + BUENO + b'roto,0.0,50,columnas desplazadas\n')
+        at = self.pantalla()
+        self.assertEqual(len(at.exception), 0)
+        self.assertEqual(at.selectbox(key='hist_localidad').options, ['Chajarí'])
+        self.assertEqual(len(at.get('plotly_chart')), 1)
+        self.assertTrue(any('1 registro(s) sin nombre de localidad' in x.value for x in at.warning))
+        self.assertEqual(len(leer_historial(self.ruta).datos), 2, 'La fila original no se elimina')
+
 
 if __name__ == '__main__':
     unittest.main()
