@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.4"
+VERSION = "V4.10.5"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -7361,7 +7361,8 @@ def mostrar_hero_litoral():
 
 
 def render_app():
-    from mapa_inicio import mostrar_mapa_principal, crear_tarjeta_mapa
+    from mapa_inicio import mostrar_mapa_principal, crear_tarjeta_mapa, mostrar_logotipo_ala
+    mostrar_logotipo_ala(st, cargar_logo_ala())
     mapa_principal = st.empty()
     with mapa_principal.container():
         mostrar_mapa_principal(st, NODOS, componentes=components,

@@ -9,6 +9,20 @@ from datetime import datetime, timedelta
 from mapa_litoral import html_mapa_litoral
 
 
+def mostrar_logotipo_ala(st, logotipo):
+    """Presenta la marca existente sobre el mapa, sin consultas externas."""
+    st.markdown('''<style>
+    .ala-marca-inicio{display:flex;justify-content:center;margin:0 0 .65rem}
+    .ala-marca-inicio-encuadre{position:relative;width:264px;max-width:100%;aspect-ratio:2.7;overflow:hidden}
+    .ala-marca-inicio img{position:absolute;left:0;top:50%;width:100%;max-width:none;height:auto;transform:translateY(-50%);display:block}
+    @media(max-width:600px){.ala-marca-inicio-encuadre{width:232px}.ala-marca-inicio{margin-bottom:.45rem}}
+    </style><header class="ala-marca-inicio" aria-label="A.L.A. · Alerta Litoral Agro">
+    <div class="ala-marca-inicio-encuadre"><img src="'''
+                + escape(str(logotipo), quote=True)
+                + '''" alt="A.L.A. · Alerta Litoral Agro"></div></header>''',
+                unsafe_allow_html=True)
+
+
 def crear_tarjeta_mapa(tarjeta_nodo=None, referencia=None, panorama=None):
     """Añade cifras fechadas de ALA al detalle existente, sin reclasificar nodos.
 
