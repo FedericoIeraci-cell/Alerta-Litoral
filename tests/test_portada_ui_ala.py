@@ -106,6 +106,9 @@ class PortadaPrincipalStreamlitTests(unittest.TestCase):
         posicion_selector=next(i for i,e in enumerate(elementos) if e.type=='selectbox' and e.key=='localidad_detalle')
         posicion_ficha=next(i for i,e in enumerate(elementos) if e.type=='markdown' and '<section class="ala-local"' in e.value)
         self.assertLess(posicion_mapa,posicion_selector,'El mapa debe ser visible antes de elegir o localizar un punto')
+        for posicion,elemento in enumerate(elementos):
+            if elemento.type=='tab_container' or (elemento.type=='markdown' and 'class="hero"' in elemento.value):
+                self.assertLess(posicion_mapa,posicion,'El mapa debe preceder a las solapas y la presentación')
         self.assertLess(posicion_selector,posicion_ficha)
         niveles={punto['nivel'] for punto in datos_mapa['puntos']}
         self.assertTrue({'ROJO','SIN DATOS'}.issubset(niveles),'El mapa inicial conserva el rojo fluvial y los puntos sin datos')

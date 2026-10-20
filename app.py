@@ -108,11 +108,11 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
         page_title="Alerta Litoral Agro",
         page_icon="🌧️",
         layout="wide",
-        initial_sidebar_state="auto",
+        initial_sidebar_state="collapsed",
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.3"
+VERSION = "V4.10.4"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1730,6 +1730,21 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         futuro_72,
     )
 
+    # Cada acumulado se acredita por su propia grilla, sin depender del índice.
+    def lluvia_completa(mascara, cantidad):
+        marcas = pd.DatetimeIndex(horas[mascara])
+        esperadas = pd.date_range(referencia + pd.Timedelta(hours=1), periods=cantidad, freq='h')
+        valores = precipitacion[mascara]
+        return bool(datos.get('hourly_units', {}).get('precipitation') == 'mm'
+                    and len(marcas) == cantidad and marcas.is_unique and marcas.equals(esperadas)
+                    and np.isfinite(valores).all() and (valores >= 0).all())
+    cobertura_lluvia_futura_24 = lluvia_completa(futuro_24, 24)
+    cobertura_lluvia_futura_72 = lluvia_completa(futuro_72, 72)
+    if not cobertura_lluvia_futura_24:
+        lluvia_futura_24 = np.nan
+    if not cobertura_lluvia_futura_72:
+        lluvia_futura_72 = np.nan
+
     # La cobertura de 72 h necesaria para el índice no acredita siete días.
     # También se rechazan duplicados, huecos y marcas fuera de la secuencia
     # horaria: una suma parcial no puede presentarse como acumulado de 7 días.
@@ -2066,7 +2081,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     )
 
     cobertura_completa = bool(
-        len(pd.DatetimeIndex(horas[pasado_7d & np.isfinite(precipitacion) & (precipitacion>=0)]).unique()) >= 168
+        cobertura_lluvia_futura_72
+        and len(pd.DatetimeIndex(horas[pasado_7d & np.isfinite(precipitacion) & (precipitacion>=0)]).unique()) >= 168
         and len(pd.DatetimeIndex(horas[futuro_72 & np.isfinite(precipitacion) & (precipitacion>=0)]).unique()) >= 72
         and len(pd.DatetimeIndex(horas[pasado_72 & np.isfinite(runoff) & (runoff>=0)]).unique()) >= 72
         and len(humedad_validas) >= 3
@@ -2084,6 +2100,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         "indice_parcial": indice_parcial,
         "nivel": nivel,
         "cobertura_meteorologica": cobertura_completa,
+        "cobertura_lluvia_futura_24": cobertura_lluvia_futura_24,
+        "cobertura_lluvia_futura_72": cobertura_lluvia_futura_72,
         "cobertura_pronostico_7d": cobertura_pronostico_7d,
         "lluvia_futura_extendida": lluvia_futura_extendida,
         "cobertura_pronostico_extendido": cobertura_pronostico_extendido,
@@ -7343,7 +7361,11 @@ def mostrar_hero_litoral():
 
 
 def render_app():
-    mostrar_hero_litoral()
+    from mapa_inicio import mostrar_mapa_principal, crear_tarjeta_mapa
+    mapa_principal = st.empty()
+    with mapa_principal.container():
+        mostrar_mapa_principal(st, NODOS, componentes=components,
+                              geometrias=GEOMETRIAS_LITORAL, tarjeta_nodo=hover_nodo)
     firma_actual=firma_cobertura()
     if st.session_state.get('firma_cobertura')!=firma_actual:
         for clave in ('df_alerta','raw_ecmwf','df_operativo','firma_historial_operativo','ficha_localidad','localidad_seleccionada'):
@@ -7551,22 +7573,14 @@ def render_app():
         panorama_hidro = obtener_panorama_hidrologico()
         df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
-        st.header('🗺️ Mapa de riesgo del Litoral')
-        st.caption('Evaluación: '+fecha_publica(ahora())+' · Actualización automática cada 5 minutos mientras la página está abierta. Cada fuente conserva su propia fecha.')
+        with mapa_principal.container():
+            mostrar_mapa_principal(st, NODOS, df_alerta, componentes=components,
+                                  geometrias=GEOMETRIAS_LITORAL,
+                                  tarjeta_nodo=crear_tarjeta_mapa(hover_nodo, referencia=ahora(), panorama=panorama_hidro))
         meteo_info = st.session_state.get('meteorologia_origen', {})
         if meteo_info.get('consultado'):
-            canal = 'Consulta compartida' if meteo_info.get('origen') == 'compartida' else 'Consulta directa'
-            st.caption(canal+' de ECMWF / Open-Meteo: '+fecha_publica(meteo_info['consultado'])+
-                       ' · Es la fecha de descarga, no la emisión del modelo ni una medición en vivo.')
-        conteo_mapa=df_alerta['nivel'].value_counts()
-        st.markdown(f"**🔴 Atención prioritaria: {int(conteo_mapa.get('ROJO',0))}** · "
-                    f"**🟡 Prepararse: {int(conteo_mapa.get('AMARILLO',0))}** · "
-                    f"🟢 Seguimiento: {int(conteo_mapa.get('VERDE',0))} · "
-                    f"⚪ Sin datos suficientes: {int(conteo_mapa.get('SIN DATOS',0))}")
-        from mapa_litoral import html_mapa_litoral
-        components.html(html_mapa_litoral(df_alerta, GEOMETRIAS_LITORAL,
-                        tarjeta_nodo=hover_nodo, altura=540), height=540, scrolling=False)
-        st.caption('El mapa reúne las seis provincias del Litoral. Gris significa que faltan datos. El color expresa una evaluación experimental de los datos disponibles; no es un aviso oficial. Debajo podés elegir tu localidad o usar tu ubicación.')
+            st.caption('Meteorología consultada: '+fecha_publica(meteo_info['consultado'])+
+                       ' · Las lecturas del río conservan la fecha de su fuente.')
         st.subheader('Tu localidad · qué ocurre y qué hacer')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
@@ -8683,6 +8697,8 @@ def render_app():
     with tab_smn:
         mostrar_datos_smn()
     mostrar_paneles_ficha(tab_fuentes, tab_enos, tab_territorio, tab_historia)
+    with st.expander('Acerca de '+APP_NAME):
+        mostrar_hero_litoral()
 
 
 if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:

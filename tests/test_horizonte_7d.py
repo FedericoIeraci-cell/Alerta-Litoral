@@ -22,7 +22,11 @@ def datos_horarios(futuras):
     for nombre in ('soil_moisture_0_to_7cm','soil_moisture_7_to_28cm',
                    'soil_moisture_28_to_100cm','soil_moisture_100_to_255cm'):
         h[nombre] = [.3]*len(horas)
-    return {'hourly':h}
+    # La respuesta de Open-Meteo identifica las unidades; los acumulados
+    # verificables requieren precipitación explícitamente expresada en mm.
+    unidades = {nombre: 'm³/m³' for nombre in h if nombre.startswith('soil_moisture_')}
+    unidades.update(time='iso8601', precipitation='mm', runoff='mm')
+    return {'hourly':h, 'hourly_units':unidades}
 
 
 class Horizonte7DiasTests(unittest.TestCase):

@@ -113,6 +113,22 @@ def _bloque(titulo, estado, datos=None, fechas=None, fuentes=None):
     return {"titulo": titulo, "estado": estado, "datos": datos or [], "fechas": fechas or [], "fuentes": fuentes or []}
 
 
+def _fecha_meteorologica_vigente(row, referencia):
+    consulta = row.get('consulta_meteorologica')
+    fecha = _fecha(consulta) if consulta is not None else _fecha(row.get('actualizado'))
+    return fecha is not None and -timedelta(minutes=5) <= referencia - fecha <= timedelta(hours=12)
+
+
+def _lluvia_vigente(row, campo, referencia):
+    """La cobertura de lluvia es independiente del índice de suelo/escurrimiento."""
+    if not _fecha_meteorologica_vigente(row, referencia):
+        return False
+    if campo == 'lluvia_futura_7d':
+        return _si(row.get('cobertura_pronostico_7d'))
+    bandera = 'cobertura_' + campo
+    return _si(row.get(bandera)) if bandera in row else _si(row.get('cobertura_meteorologica'))
+
+
 def construir_portada_local(row, panorama=None, referencia=None):
     row = dict(row)
     panorama = panorama if isinstance(panorama, dict) else {}
@@ -131,7 +147,7 @@ def construir_portada_local(row, panorama=None, referencia=None):
     cifras = []
     for campo, plazo in (("lluvia_futura_24", "Próximas 24 h"), ("lluvia_futura_72", "Próximas 72 h"), ("lluvia_futura_7d", "Próximos 7 días")):
         value = _numero(row.get(campo))
-        completo = met_ok and (campo != "lluvia_futura_7d" or _si(row.get("cobertura_pronostico_7d")))
+        completo = _lluvia_vigente(row, campo, ref)
         valido = completo and value is not None and value >= 0
         lluvias.append(plazo + ": " + (numero(value, 1) + " mm" if valido else "sin dato completo vigente"))
         if campo != "lluvia_futura_7d":
@@ -143,7 +159,12 @@ def construir_portada_local(row, panorama=None, referencia=None):
         if not valido:
             faltantes.append("Lluvia prevista de " + plazo.lower().replace("próximas ", "").replace("próximos ", "") + ": sin dato completo vigente.")
     faltantes.append("Hora de emisión del modelo meteorológico: no informada en esta consulta.")
-    met = _bloque("Lluvia prevista", "Pronóstico de modelo" if met_ok else "Información meteorológica incompleta", lluvias,
+    lluvia_disponible = any(_lluvia_vigente(row, campo, ref) and _numero(row.get(campo)) is not None
+                           and _numero(row.get(campo)) >= 0
+                           for campo in ('lluvia_futura_24', 'lluvia_futura_72', 'lluvia_futura_7d'))
+    met = _bloque("Lluvia prevista", "Pronóstico de modelo" if met_ok else
+                 "Lluvia disponible · índice meteorológico incompleto" if lluvia_disponible else
+                 "Información meteorológica incompleta", lluvias,
         ["Períodos de lluvia contados desde: " + fecha_publica(row.get("referencia_pronostico")),
          _fechada("Cálculo meteorológico", row.get("actualizado"), ref), "Emisión del modelo: no informada"],
         [("ECMWF vía Open-Meteo", "https://open-meteo.com/en/docs/ecmwf-api")])
@@ -151,7 +172,8 @@ def construir_portada_local(row, panorama=None, referencia=None):
     met["datos"].insert(0, "Índice meteorológico: " + (numero(indice, 1) + "/100 · " + str(row.get("nivel_meteorologico") or "sin nivel")
                                                      if met_ok and indice is not None else "sin dato completo vigente"))
     extendida = _numero(row.get("lluvia_futura_extendida"))
-    if _si(row.get("cobertura_pronostico_extendido")) and extendida is not None and row.get("pronostico_extendido_hasta"):
+    if (_fecha_meteorologica_vigente(row, ref) and
+            _si(row.get("cobertura_pronostico_extendido")) and extendida is not None and row.get("pronostico_extendido_hasta")):
         met["datos"].append("Horizonte disponible: " + numero(extendida, 1) + " mm hasta " + fecha_publica(row["pronostico_extendido_hasta"]))
 
     observadas = [e for e in utiles if e.get("tipo") == "observacion_fluvial"]
