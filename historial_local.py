@@ -202,7 +202,13 @@ def mostrar_historial(st, px, ruta):
     except (OSError, ValueError):
         st.warning('No se pudo leer el detalle de los respaldos; el historial legible se muestra debajo.')
     historial = lectura.datos
-    localidades = sorted({x for x in historial['localidad'].dropna().astype(str) if x.strip()})
+    # Un registro estructuralmente legible puede contener columnas desplazadas.
+    # Conservamos la fila, pero un número como «0.0» no es una localidad elegible.
+    localidad_identificable = historial['localidad'].map(lambda x: any(c.isalpha() for c in str(x)))
+    if (~localidad_identificable).any():
+        st.warning(f'{int((~localidad_identificable).sum())} registro(s) sin nombre de localidad '
+                   'identificable se conservan en el archivo, fuera del selector.')
+    localidades = sorted(set(historial.loc[localidad_identificable, 'localidad']))
     if not localidades:
         st.info('Todavía no hay registros históricos legibles por localidad.')
         return
