@@ -6,6 +6,7 @@ import sys
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
+import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import meteorologia_compartida as met
@@ -67,6 +68,51 @@ class CompleteCaptureTests(unittest.TestCase):
         with self.assertRaises(met.CapturaMeteorologicaError):
             met.crear_captura_zc(referencia=NOW, session=Session(fail=True))
 
+    def test_reintenta_una_vez_timeout_o_conexion_y_conserva_fecha(self):
+        for error in (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            with self.subTest(error=error.__name__):
+                class TransientSession(Session):
+                    def __init__(self): super().__init__(); self.attempts = {}
+                    def get(self, url, **kwargs):
+                        key = kwargs["params"]["latitude"]
+                        self.attempts[key] = self.attempts.get(key, 0) + 1
+                        if self.attempts[key] == 1:
+                            raise error("Detalle privado")
+                        return super().get(url, **kwargs)
+                session = TransientSession()
+                capture = met.crear_captura_zc(referencia=NOW, session=session)
+                self.assertEqual(sorted(session.attempts.values()), [2, 2])
+                self.assertEqual(datetime.fromisoformat(capture["consultado"]), NOW)
+                self.assertEqual(len(capture["datos"]), 10)
+
+    def test_no_reintenta_http_429_y_cierra_respuestas(self):
+        session = Session()
+        with patch.object(Response, "raise_for_status", side_effect=requests.exceptions.HTTPError("429 privado")):
+            with self.assertRaises(met.CapturaMeteorologicaError):
+                met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(len(session.calls), 2)
+        self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_lote_fallido_tras_dos_intentos_no_sustituye_captura_completa(self):
+        class PartialSession(Session):
+            def __init__(self): super().__init__(); self.failed_attempts = 0
+            def get(self, url, **kwargs):
+                if len(kwargs["params"]["latitude"].split(",")) == 2:
+                    self.failed_attempts += 1
+                    raise requests.exceptions.Timeout("Detalle privado")
+                return super().get(url, **kwargs)
+        session = PartialSession()
+        store = SimpleNamespace(save_meteorologia_zc=Mock())
+        status = {"red_integrada_publicada": True}
+        original = met.crear_captura_zc
+        with patch.object(met, "crear_captura_zc", side_effect=lambda: original(referencia=NOW, session=session)):
+            monitor._publicar_meteorologia_zc(status, store)
+        self.assertEqual(session.failed_attempts, 2)
+        store.save_meteorologia_zc.assert_not_called()
+        self.assertTrue(status["red_integrada_publicada"])
+        self.assertFalse(status["meteorologia_zc_publicada"])
+        self.assertNotIn("Detalle privado", status["meteorologia_zc_error"])
+
     def test_archivo_zc_separado_reutiliza_verificacion_existente(self):
         store = object.__new__(monitor.GitHubStateStore)
         store._save_meteorologia = Mock(return_value={"sha": "confirmed"})
@@ -99,6 +145,18 @@ class CompleteCaptureTests(unittest.TestCase):
     def test_store_antiguo_sin_metodo_no_dispara_nuevas_consultas(self):
         with patch.object(met, "crear_captura_zc", side_effect=AssertionError("No consultar")):
             monitor._publicar_meteorologia_zc({}, SimpleNamespace())
+
+    def test_resumen_cli_incluye_confirmacion_publica_zc(self):
+        status = {"checked_at_art": NOW.isoformat(), "health": "datos_parciales", "nodes_total": 48,
+                  "nodes_valid": 48, "nodes_red": 0, "scope": monitor.MONITOR_SCOPE,
+                  "coverage": {}, "result": {}, "dry_run": True, "publication_only": True,
+                  "meteorologia_zc_publicada": True, "meteorologia_zc_error": None,
+                  "meteorologia_zc_confirmacion": {"consultado": NOW.isoformat(), "sha": "confirmed"}}
+        with patch.object(monitor, "run_monitor", return_value=status), patch("builtins.print") as output:
+            self.assertEqual(monitor.main(["--publish-red-only"]), 0)
+        summary = json.loads(output.call_args.args[0])
+        for key in ("meteorologia_zc_publicada", "meteorologia_zc_error", "meteorologia_zc_confirmacion"):
+            self.assertEqual(summary[key], status[key])
 
 
 if __name__ == "__main__": unittest.main()

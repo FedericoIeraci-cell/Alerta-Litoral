@@ -948,6 +948,9 @@ def main(argv=None) -> int:
             "meteorologia_publicada": status.get("meteorologia_publicada", False),
             "meteorologia_error": status.get("meteorologia_error"),
             "meteorologia_confirmacion": status.get("meteorologia_confirmacion"),
+            "meteorologia_zc_publicada": status.get("meteorologia_zc_publicada", False),
+            "meteorologia_zc_error": status.get("meteorologia_zc_error"),
+            "meteorologia_zc_confirmacion": status.get("meteorologia_zc_confirmacion"),
             "publication_only": status["publication_only"],
         }, ensure_ascii=False, allow_nan=False))
         return 0

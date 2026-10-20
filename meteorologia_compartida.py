@@ -345,13 +345,13 @@ def crear_captura_zc(referencia=None, session=None):
     """Consulta las variables completas fuera de Streamlit, sin enviar avisos.
 
     El reloj se fija antes de comenzar las dos descargas: publicar o leer el
-    archivo después no renueva la fecha de sus datos. Un fallo total no reemplaza
-    la captura anterior; las grillas reducidas del informe común son independientes.
+    archivo después no renueva la fecha de sus datos. Una consulta incompleta no
+    reemplaza la captura anterior; las grillas reducidas son independientes.
     """
     from concurrent.futures import ThreadPoolExecutor
     from red_integrada import NODOS_ZC
+    import requests
     if session is None:
-        import requests
         session = requests
     consulta = _fecha(referencia) if referencia is not None else datetime.now(timezone.utc)
     base = {"hourly": ",".join(sorted(VARIABLES_HORARIAS)),
@@ -365,8 +365,14 @@ def crear_captura_zc(referencia=None, session=None):
                       longitude=",".join(f'{n["lon"]:.6f}' for n in lote))
         respuesta = None
         try:
-            respuesta = session.get(FUENTE, params=params, timeout=(20, 45),
-                                    headers={"User-Agent": "ALA-ZC-CapturaCompleta/1.0"})
+            for intento in range(2):
+                try:
+                    respuesta = session.get(FUENTE, params=params, timeout=(20, 45),
+                                            headers={"User-Agent": "ALA-ZC-CapturaCompleta/1.0"})
+                    break
+                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+                    if intento:
+                        raise
             respuesta.raise_for_status()
             datos = respuesta.json()
             datos = datos if isinstance(datos, list) else [datos]
@@ -395,4 +401,6 @@ def crear_captura_zc(referencia=None, session=None):
     lotes = [NODOS_ZC[:8], NODOS_ZC[8:]]
     with ThreadPoolExecutor(max_workers=2) as pool:
         datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
+    if any(not _con_datos(dato) for dato in datos):
+        _error("La captura meteorológica completa de Zárate–Campana no cubre todos los nodos.")
     return crear_captura(NODOS_ZC, datos, consulta)
