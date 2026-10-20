@@ -645,9 +645,11 @@ def _coverage_errors(coverage: dict[str, Any]) -> list[str]:
 def _preparar_red_integrada(frame, panorama, status, app) -> dict[str, Any] | None:
     """La consulta regional adicional nunca cambia candidatos ni envíos ALA."""
     try:
-        from red_integrada import consultar_zc_red, construir_red_integrada
+        from red_integrada import consultar_zc_red, construir_red_integrada, consultar_red_integrada
         referencia = datetime.now(timezone.utc)
-        zc = consultar_zc_red(referencia=referencia)
+        # Lectura pública independiente: no requiere acceso al registro Telegram.
+        anterior = consultar_red_integrada(referencia=referencia, actualizar=True)
+        zc = consultar_zc_red(referencia=referencia, anterior=anterior)
         document = construir_red_integrada(
             frame, panorama or {}, zc=zc, monitor=status,
             referencia=referencia, version_ala=str(getattr(app, "VERSION", "")),

@@ -7280,7 +7280,7 @@ def mostrar_proyecto_ficha():
 
 def cargar_panel_red():
     import red_integrada as red
-    if getattr(red, 'VERSION_RED', None) != '2026-10-18.2':
+    if getattr(red, 'VERSION_RED', None) != '2026-10-20.1':
         import importlib
         red = importlib.reload(red)
     return red

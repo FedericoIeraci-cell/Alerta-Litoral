@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 SCHEMA_VERSION = 1
 CATALOGO_VERSION = 1
-VERSION_RED = "2026-10-18.2"
+VERSION_RED = "2026-10-20.1"
 REPOSITORY = "FedericoIeraci-cell/Alerta-Litoral"
 STATE_BRANCH = "ala-monitor-state"
 SNAPSHOT_PATH = "red_integrada.json"
@@ -368,29 +368,123 @@ def parsear_pronostico_zc(payload, serie, consultado, referencia=None):
             "corrida_id": payload.get("id"), "pronostico": out, "error_pronostico": ""}
 
 
-def consultar_zc_red(referencia=None, session=None):
+def _meteo_transitorio(exc):
+    import requests
+    if isinstance(exc, (requests.Timeout, requests.ConnectionError)):
+        return True
+    response = getattr(exc, "response", None)
+    return getattr(response, "status_code", None) in {429, 500, 502, 503, 504}
+
+
+def _guardar_grilla_zc(nodo, payload):
+    # Sólo variables públicas acotadas; no se guarda la respuesta HTTP completa.
+    if nodo.get("lluvia_prevista_72_mm") is not None:
+        keys = ("latitude", "longitude", "timezone", "utc_offset_seconds", "hourly_units", "hourly")
+        nodo["grilla_verificada"] = {k: deepcopy(payload.get(k)) for k in keys[:4]}
+        variables = ("time", "precipitation", "runoff", "soil_moisture_0_to_7cm")
+        for campo in ("hourly", "hourly_units"):
+            nodo["grilla_verificada"][campo] = {k: deepcopy(v) for k, v in payload[campo].items() if k in variables}
+        nodo["grilla_version"] = 1
+    return nodo
+
+
+def _recuperar_meteo_zc(nodo, anterior, referencia, error):
+    if not isinstance(anterior, dict) or anterior.get("grilla_version") != 1:
+        return None
+    if any(anterior.get(k) != nodo.get(k) for k in ("localidad", "lat", "lon")) or anterior.get("fuente") != API_METEO:
+        return None
+    fecha = _fecha(anterior.get("fecha_consulta"))
+    # No se renueva esta fecha en fallos sucesivos ni se aceptan fechas futuras.
+    if fecha is None or fecha > referencia:
+        return None
+    payload = anterior.get("grilla_verificada")
+    try:
+        vigente = (referencia - fecha).total_seconds() <= 3 * 3600
+        recuperado = parsear_meteorologia_zc(nodo, payload, fecha, referencia if vigente else fecha)
+    except (ValueError, TypeError, KeyError, AttributeError, OverflowError):
+        return None
+    if recuperado.get("lluvia_prevista_72_mm") is None:
+        return None
+    if not vigente:
+        recuperado["estado_datos"] = "VENCIDO"
+    recuperado.update(recuperacion="GRILLA_PREVIA_VIGENTE" if vigente else "GRILLA_PREVIA_VENCIDA", fecha_ultimo_intento=referencia.isoformat(),
+                      error_actualizacion=error)
+    return _guardar_grilla_zc(recuperado, payload)
+
+
+def consultar_meteorologia_zc(referencia=None, session=None, anterior=None):
+    """Diez consultas aisladas; tres intentos como máximo por punto.
+
+    Dos intentos completos y, ante fallos transitorios, uno reducido de lluvia.
+    Como máximo tres solicitudes simultáneas, sin reintentos de HTTP 4xx salvo 429.
+    Una grilla anterior sólo cuenta como actual hasta tres horas desde su consulta real.
+    Después se conserva exclusivamente como referencia vencida.
+    """
+    ref = _ahora(referencia)
+    previos = {}
+    if isinstance(anterior, dict):
+        try:
+            validado = validar_red_integrada(anterior, ref)
+            previos = {n["localidad"]: n for n in validado["nodos"] if n["red"] == "Zárate–Campana"}
+        except (ValueError, TypeError, KeyError):
+            pass
+
+    def consultar(nodo):
+        params = {"latitude": str(nodo["lat"]), "longitude": str(nodo["lon"]),
+                  "hourly": "precipitation,runoff,soil_moisture_0_to_7cm", "past_days": 8, "forecast_days": 15,
+                  "timezone": "America/Argentina/Buenos_Aires", "precipitation_unit": "mm", "cell_selection": "land"}
+        intentos = []
+        for intento in range(3):
+            if intento:
+                time.sleep(1)
+            if intento == 2:
+                params.update(hourly="precipitation", past_days=0, forecast_days=4)
+            inicio = time.monotonic()
+            try:
+                payload, _ = _request_json(session, API_METEO, params, timeout=(5, 20))
+                records = payload if isinstance(payload, list) else [payload]
+                if len(records) != 1:
+                    raise ValueError("Cantidad de coordenadas incompatible")
+                resultado = parsear_meteorologia_zc(nodo, records[0], ref, ref)
+                if resultado["lluvia_prevista_72_mm"] is None:
+                    raise ValueError("Lluvia de 72 horas no verificable")
+                intentos.append({"modo": "lluvia_4d" if intento == 2 else "completo",
+                                 "resultado": "verificado", "segundos": round(time.monotonic() - inicio, 2)})
+                resultado.update(recuperacion="CONSULTA_REDUCIDA" if intento == 2 else "CONSULTA_DIRECTA",
+                                 fecha_ultimo_intento=ref.isoformat(), intentos_meteorologia=intentos)
+                return _guardar_grilla_zc(resultado, records[0])
+            except Exception as exc:
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                codigo = type(exc).__name__ + (f" HTTP {status}" if status is not None else "")
+                intentos.append({"modo": "lluvia_4d" if intento == 2 else "completo",
+                                 "resultado": codigo, "segundos": round(time.monotonic() - inicio, 2)})
+                if not _meteo_transitorio(exc):
+                    break
+        error = "Consulta meteorológica no verificada: " + intentos[-1]["resultado"]
+        resultado = _recuperar_meteo_zc(nodo, previos.get(nodo["localidad"]), ref, error)
+        if resultado is None:
+            resultado = _nodo_vacio(nodo, error=error)
+            resultado["fecha_ultimo_intento"] = ref.isoformat()
+        resultado["intentos_meteorologia"] = intentos
+        return resultado
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        return list(pool.map(consultar, NODOS_ZC))
+
+
+def consultar_zc_red(referencia=None, session=None, anterior=None):
     """Consulta diez coordenadas y fuentes INA locales; toda ausencia queda explícita."""
     ref = _ahora(referencia)
     consulta = ref.isoformat()
-    nodos = [_nodo_vacio(n) for n in NODOS_ZC]
+    nodos = consultar_meteorologia_zc(ref, session, anterior)
     fuentes = []
-    def meteo_lote(lote):
-        params = {"latitude": ",".join(str(n["lat"]) for n in lote), "longitude": ",".join(str(n["lon"]) for n in lote),
-                  "hourly": "precipitation,runoff,soil_moisture_0_to_7cm", "past_days": 8, "forecast_days": 15,
-                  "timezone": "America/Argentina/Buenos_Aires", "precipitation_unit": "mm", "cell_selection": "land"}
-        try:
-            payload, url = _request_json(session, API_METEO, params, timeout=(5, 45))
-            records = payload if isinstance(payload, list) else [payload]
-            if len(records) != len(lote):
-                raise ValueError("Cantidad de coordenadas incompatible")
-            return [parsear_meteorologia_zc(n, p, consulta, ref) for n, p in zip(lote, records)]
-        except Exception as exc:
-            return [_nodo_vacio(n, error="Consulta meteorológica no verificada: " + type(exc).__name__) for n in lote]
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        nodos = [n for lote in pool.map(meteo_lote, [NODOS_ZC[:8], NODOS_ZC[8:]]) for n in lote]
+    actuales = sum(n.get("lluvia_prevista_72_mm") is not None and
+                   _estado_fecha(n.get("fecha_calculo"), ref, 3)["vigente"] for n in nodos)
+    fallos = sum(bool(n.get("error_actualizacion")) or n.get("lluvia_prevista_72_mm") is None for n in nodos)
     fuentes.append({"red": "Zárate–Campana", "organismo": "Open-Meteo / ECMWF", "url": API_METEO,
                     "consultado": consulta, "fecha_documento": None, "estado_publicado": "CONSULTA",
-                    "error": "" if any(n["lluvia_prevista_72_mm"] is not None for n in nodos) else "Sin lluvia de 72 horas verificable"})
+                    "error": "" if actuales == len(NODOS_ZC) and not fallos else
+                    f"{actuales}/{len(NODOS_ZC)} referencias con lluvia de 72 h dentro del plazo; {fallos} sin actualización directa"})
     params = {"service": "WFS", "version": "1.0.0", "request": "GetFeature", "typeName": "public2:ultimas_alturas_con_timeseries",
               "outputFormat": "application/json", "CQL_FILTER": "series_id IN (40,41)",
               "propertyName": "series_id,nombre,var_id,tabla,nivel_de_alerta,nivel_de_evacuacion,cero_ign,fecha,valor,timeseries"}
@@ -999,6 +1093,8 @@ def valor_publico(valor, unidad=""):
 def estado_publico(estado, vigente, informe_vigente=True, error=""):
     if not informe_vigente:
         return "Informe antiguo: revisar actualización"
+    if estado == "VENCIDO":
+        return "Dato antiguo: no confirma la situación actual"
     if error:
         return "Datos incompletos: revisar fuente"
     if vigente:
@@ -1106,6 +1202,10 @@ def filas_publicas_nodos(datos, region="Ambas regiones"):
                       "Lluvia prevista 24 h": valor_publico(n.get("lluvia_prevista_24_mm"), "mm"),
                       "Lluvia prevista 72 h": valor_publico(n.get("lluvia_prevista_72_mm"), "mm"),
                       "Consulta / cálculo de lluvia": fecha_publica(n.get("fecha_calculo")),
+                      "Origen de la lluvia": {"GRILLA_PREVIA_VIGENTE": "Grilla anterior aún vigente; falló la actualización",
+                          "GRILLA_PREVIA_VENCIDA": "Grilla anterior vencida; sólo referencia histórica",
+                          "CONSULTA_REDUCIDA": "Consulta reducida: lluvia hasta 4 días",
+                          "CONSULTA_DIRECTA": "Consulta completa verificada"}.get(n.get("recuperacion"), "Consulta original"),
                       "Vigencia de la lluvia": estado_publico(n.get("estado_tiempo"), n.get("vigente"), datos["snapshot_vigente"], n.get("error"))})
     return filas
 
@@ -1150,7 +1250,7 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
     st.markdown("### Situación y lluvia por localidad")
     st.dataframe(filas_publicas_nodos(datos, seleccion), hide_index=True, use_container_width=True)
     st.caption("0 mm significa que no se prevé lluvia en esa ventana. Sin dato significa información ausente. "
-               "La hora de consulta no es la hora de emisión del modelo. Los avisos oficiales y las acciones locales se muestran en la portada de cada región.")
+               "Una grilla previa vigente conserva su consulta original y recalcula las ventanas; una consulta reducida sólo aporta lluvia hasta cuatro días. La hora de consulta no es la hora de emisión del modelo. Los avisos oficiales y las acciones locales se muestran en la portada de cada región.")
     with st.expander("Ubicación de las localidades de la red"):
         st.map([{"lat": n["lat"], "lon": n["lon"]} for n in nodes])
         st.caption("Este mapa ubica los puntos de consulta; sus marcadores no representan niveles de alerta.")
@@ -1165,6 +1265,9 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
             "Agua que podría escurrir en 72 h": valor_publico(n.get("escurrimiento_previsto_72_mm"), "mm"),
             "Índice meteorológico /100": valor_publico(n.get("indice_experimental")),
             "Nivel sólo meteorológico": n.get("nivel_meteorologico") if n.get("vigente") else "Sin evaluación vigente",
+            "Recuperación meteorológica": n.get("recuperacion") or "Consulta original",
+            "Último intento": fecha_publica(n.get("fecha_ultimo_intento")),
+            "Fallo de actualización": n.get("error_actualizacion") or "",
             "Información pendiente": n.get("error") or "Sin faltantes registrados en estas variables"} for n in nodes], hide_index=True, use_container_width=True)
         st.caption("El horizonte puede terminar antes de 15 días. La humedad y el escurrimiento son estimaciones del modelo; "
                    "no acreditan suelo transitable ni profundidad de inundación. El índice no es un porcentaje de probabilidad.")

@@ -7,6 +7,7 @@ on:
       - 'requirements_monitor.txt'
       - 'requirements_test.txt'
       - 'tests/**'
+      - 'scripts/**'
       - 'ubicacion_local_frontend/**'
       - 'assets/leaflet/**'
       - '.github/workflows/*.yml'
@@ -16,6 +17,7 @@ on:
       - 'requirements_monitor.txt'
       - 'requirements_test.txt'
       - 'tests/**'
+      - 'scripts/**'
       - 'ubicacion_local_frontend/**'
       - 'assets/leaflet/**'
       - '.github/workflows/*.yml'
@@ -46,12 +48,16 @@ jobs:
         run: |
           python -m py_compile app.py mapa_litoral.py hidrometria_local.py hidrologia.py ctm.py monitor.py red_integrada.py portada_local.py ubicacion_local.py explicaciones_alerta.py siga_inta.py ficha_proyecto.py panel_proyecto.py decisiones_agro.py
           python -m unittest discover -s tests -v
+      - name: Comparar consultas ECMWF sin escrituras ni Telegram
+        run: python scripts/diagnosticar_meteo_zc.py
       - name: Consultar fuentes actuales sin Telegram ni escritura remota
         env:
           ALA_MONITOR_STATE_DIR: ${{ runner.temp }}/ala-validacion
           PYTHONUNBUFFERED: '1'
           TZ: America/Argentina/Buenos_Aires
-        run: python monitor.py --dry-run
+        run: |
+          python monitor.py --dry-run --export-red "${{ runner.temp }}/red-integrada-prueba.json"
+          python scripts/diagnosticar_meteo_zc.py "${{ runner.temp }}/red-integrada-prueba.json"
 
   publicar-red:
     # Al integrar una corrección, comprobar también la escritura real del informe.
