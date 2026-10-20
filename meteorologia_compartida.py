@@ -168,9 +168,19 @@ def _dato(raw, estricto):
                 _error()
             limpio = {}
             for clave in bloque.keys() & permitidas:
-                if not isinstance(bloque[clave], str) or bloque[clave] not in _UNIDADES:
-                    _error()
-                limpio[clave] = bloque[clave]
+                unidad = bloque[clave]
+                if unidad == "undefined":
+                    # Open-Meteo publica esta unidad para variables no disponibles
+                    # en un modelo, acompañada por una serie completamente nula.
+                    # Conservarla evita perder el resto del pronóstico válido;
+                    # nunca se interpreta una magnitud numérica sin unidad.
+                    valores = salida.get(campo, {}).get(clave)
+                    if (clave == "time" or not isinstance(valores, list) or
+                            any(valor is not None for valor in valores)):
+                        _error(f"La unidad no disponible de {campo}.{clave} no corresponde a una serie nula.")
+                elif not isinstance(unidad, str) or unidad not in _UNIDADES:
+                    _error(f"La unidad de {campo}.{clave} no está admitida en la captura meteorológica.")
+                limpio[clave] = unidad
             salida[unidades] = limpio
     return salida
 

@@ -99,6 +99,39 @@ class CapturasMeteorologicasTests(unittest.TestCase):
         cero = [{"hourly": {"time": ["2026-10-19T20:00"], "precipitation": [0]}}, {}]
         self.assertEqual(meteo.crear_captura(NODOS, cero, AHORA)["datos"], cero)
 
+    def test_variable_ecmwf_no_disponible_preserva_undefined_nulos_y_resto_del_pronostico(self):
+        # Respuesta real ECMWF: evapotranspiration no disponible, aunque
+        # precipitación, temperatura y demás variables sí contienen datos.
+        raw = datos()
+        raw[0]["hourly"]["evapotranspiration"] = [None, None]
+        raw[0]["hourly_units"]["evapotranspiration"] = "undefined"
+        original = meteo.crear_captura(NODOS, raw, AHORA)
+        recibido = meteo.deserializar_captura(meteo.serializar_captura(original), NODOS, AHORA)
+        self.assertEqual(recibido["datos"][0], raw[0])
+        self.assertEqual(recibido["datos"][0]["hourly"]["precipitation"], [0, None])
+        self.assertEqual(recibido["datos"][0]["hourly"]["temperature_2m"], [23.7, 23.3])
+
+    def test_unidad_undefined_solo_admite_series_presentes_y_completamente_nulas(self):
+        for campo, variable in (("hourly", "evapotranspiration"), ("daily", "cape_max")):
+            raw = datos()
+            count = len(raw[0][campo]["time"])
+            raw[0][campo][variable] = [None] * count
+            raw[0][campo + "_units"][variable] = "undefined"
+            original = meteo.crear_captura(NODOS, raw, AHORA)
+            self.assertEqual(original["datos"][0][campo][variable], [None] * count)
+            for numero in (0, 1.5):
+                invalida = copy.deepcopy(original)
+                invalida["datos"][0][campo][variable][0] = numero
+                with self.subTest(campo=campo, numero=numero), self.assertRaises(meteo.CapturaMeteorologicaError):
+                    meteo.validar_captura(invalida, NODOS, AHORA)
+            del raw[0][campo][variable]
+            with self.assertRaises(meteo.CapturaMeteorologicaError):
+                meteo.crear_captura(NODOS, raw, AHORA)
+        raw = datos()
+        raw[0]["hourly_units"]["time"] = "undefined"
+        with self.assertRaises(meteo.CapturaMeteorologicaError):
+            meteo.crear_captura(NODOS, raw, AHORA)
+
     def test_limites_edad_y_futuro_con_zona_verificada(self):
         for diferencia, valido in ((timedelta(hours=3), True),
                                    (timedelta(hours=3, seconds=1), False),

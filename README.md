@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.10.2
+# Alerta Litoral Agro · V4.10.3
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -17,7 +17,9 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
 
-## Actualización de datos V4.10.2
+## Actualización de datos V4.10.3
+
+La verificación en producción detectó que Open-Meteo entrega `evapotranspiration` sin valores y con unidad `undefined`. Esa ausencia se conserva como tal y no invalida las demás variables. Una unidad sin definir con valores numéricos continúa rechazada. Si la captura no puede prepararse, la validación y la publicación informan el fallo en vez de finalizar como si la captura estuviera disponible.
 
 La página reutiliza la consulta completa de ECMWF que ya realiza el monitor, conservada en `meteorologia_ecmwf.json` de la rama `ala-monitor-state`. Esto evita multiplicar consultas de Open-Meteo desde Streamlit, donde se detectó HTTP 429. El archivo incluye los valores horarios y diarios originales, unidades, faltantes, catálogo de puntos y fecha de consulta; no incluye credenciales ni registros de Telegram.
 

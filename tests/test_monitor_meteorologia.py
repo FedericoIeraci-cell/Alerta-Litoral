@@ -114,6 +114,7 @@ class MonitorMeteorologiaTests(unittest.TestCase):
         self.app = SimpleNamespace(
             VERSION="test", NODOS=NODOS,
             _captura_meteorologica_monitor=captura(),
+            _captura_meteorologica_error=None,
             obtener_secrets_telegram=lambda: ("secret", "channel"),
             obtener_panorama_hidrologico=lambda: {},
             obtener_riesgo_automatico=lambda **kwargs: self.frame,
@@ -188,11 +189,46 @@ class MonitorMeteorologiaTests(unittest.TestCase):
 
     def test_app_sin_captura_conserva_compatibilidad_sin_acreditar_publicacion(self):
         del self.app._captura_meteorologica_monitor
+        del self.app._captura_meteorologica_error
         del self.store.save_meteorologia
         status = self.run_monitor()
         self.assertTrue(status["ok"])
         self.assertFalse(status["meteorologia_publicada"])
         self.assertEqual(status["meteorologia_estado"], "no_disponible")
+
+    def test_preparacion_fallida_no_se_confunde_con_captura_no_disponible(self):
+        self.app._captura_meteorologica_monitor = None
+        self.app._captura_meteorologica_error = "captura_no_valida"
+        with self.assertRaisesRegex(monitor.MonitorError, "preparacion.*captura_no_valida"):
+            self.run_monitor()
+        status = self.statuses[-1]
+        self.assertTrue(status["red_integrada_publicada"])
+        self.assertFalse(status["meteorologia_publicada"])
+        self.assertEqual(status["meteorologia_estado"], "error")
+        self.assertEqual(status["meteorologia_error_codigo"], "captura_no_valida")
+        self.assertEqual(status["health"], "error_meteorologia")
+        self.assertFalse(status["ok"])
+        self.assertNotIn("meteorologia", self.calls)
+        self.assertEqual(self.calls.count("telegram"), 1)
+
+    def test_preparacion_fallida_detiene_publicacion_sola(self):
+        self.app._captura_meteorologica_monitor = None
+        self.app._captura_meteorologica_error = "captura_no_valida"
+        with self.assertRaisesRegex(monitor.MonitorError, "preparacion.*captura_no_valida"):
+            self.run_monitor(publish_red_only=True)
+        self.assertEqual(self.calls, ["red"])
+        self.assertEqual(self.statuses, [])
+
+    def test_dry_run_rechaza_preparacion_fallida_sin_filtrar_detalles(self):
+        self.app._captura_meteorologica_error = "private credential"
+        with self.assertRaises(monitor.MeteorologiaPublicationError) as caught:
+            self.run_monitor(dry_run=True)
+        self.assertEqual(caught.exception.stage, "preparacion")
+        self.assertEqual(caught.exception.code, "captura_no_valida")
+        self.assertNotIn("private", str(caught.exception))
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.statuses, [])
+        monitor._preparar_red_integrada.assert_not_called()
 
     def test_red_no_confirmada_no_publica_captura(self):
         self.store.save_red_integrada = lambda value: (_ for _ in ()).throw(ValueError("private"))
