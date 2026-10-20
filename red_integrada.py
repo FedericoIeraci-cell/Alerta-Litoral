@@ -1068,7 +1068,7 @@ def fecha_publica(valor, precision="fecha_hora_publicada"):
     """Fecha legible sin agregar una hora que la fuente no publicó."""
     texto = _texto(valor, 100)
     if precision == "fecha_registro_fuente" and _fecha(valor) is not None:
-        return _mostrar_fecha(valor) + " · registro de la fuente; hora de medición no confirmada"
+        return _fecha(valor).astimezone(TZ).strftime("%d/%m/%Y") + " · hora de medición no confirmada"
     if precision in {"fecha_sin_hora", "hora_no_verificada_en_reporte_diario"}:
         fecha = _fecha(valor)
         if fecha is not None:
@@ -1281,7 +1281,9 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
         "¿Pronóstico vigente?": "Sí" if r.get("pronostico_vigente") else "No confirmado",
         "Hasta cuándo hay previsión": fecha_publica(max((p.get("fecha") for p in r.get("pronostico", []) if p.get("fecha")), default=None))
         } for r in rivers], hide_index=True, use_container_width=True)
-    st.caption("El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
+    st.caption("Si la fuente sólo permite confirmar el día del registro, se indica que la hora de medición no está confirmada. "
+               "Dentro del plazo de uso no significa medición en tiempo real. "
+               "El informe admite hasta 48 horas para las fuentes fluviales del Litoral. En Zárate y Campana, una lectura o emisión de más de 6 horas deja de considerarse actual. "
                "Las escalas de los puertos (40/41) no se comparan con los pronósticos (29534/3405) sin equivalencia documentada. "
                "La automática de Zárate (29437) conserva su propia referencia y no usa los umbrales del puerto. "
                "Las alturas de estaciones diferentes tampoco se suman ni indican profundidad en un barrio.")

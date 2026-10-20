@@ -67,7 +67,7 @@ def fecha_publica(value, precision="fecha_hora_publicada"):
     if dt is None:
         return "Sin fecha publicada"
     if precision == "fecha_registro_fuente":
-        return dt.strftime("%d/%m/%Y %H:%M") + " ART · registro de la fuente; hora de medición no confirmada"
+        return dt.strftime("%d/%m/%Y") + " · hora de medición no confirmada"
     if precision in ("fecha_sin_hora", "hora_no_verificada_en_reporte_diario") or (isinstance(value, str) and len(value.strip()) == 10):
         return dt.strftime("%d/%m/%Y") + " · hora no publicada"
     return dt.strftime("%d/%m/%Y %H:%M") + " ART"
@@ -76,7 +76,7 @@ def fecha_publica(value, precision="fecha_hora_publicada"):
 def _fechada(titulo, value, referencia, precision="fecha_hora_publicada"):
     texto = titulo + ": " + fecha_publica(value, precision)
     dt = _fecha(value)
-    if dt and precision not in ("fecha_sin_hora", "hora_no_verificada_en_reporte_diario") and not (isinstance(value, str) and len(value.strip()) == 10):
+    if dt and precision not in ("fecha_sin_hora", "hora_no_verificada_en_reporte_diario", "fecha_registro_fuente") and not (isinstance(value, str) and len(value.strip()) == 10):
         minutos = (referencia - dt).total_seconds() / 60
         if minutos >= 0:
             edad = "menos de 1 min" if minutos < 1 else f"{int(minutos)} min" if minutos < 60 else f"{minutos / 60:.1f} h".replace(".", ",")

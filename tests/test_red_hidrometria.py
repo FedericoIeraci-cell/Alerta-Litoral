@@ -145,8 +145,10 @@ class RedHidrometriaTests(unittest.TestCase):
         puertos=tabla[tabla["Estación"].isin(["Zárate","Campana"])]
         self.assertEqual(len(puertos),2)
         self.assertTrue(puertos["Fecha de esa lectura"].str.contains("hora de medición no confirmada").all())
+        self.assertFalse(puertos["Fecha de esa lectura"].str.contains(r"\d{2}:\d{2}").any())
         auto=tabla[tabla["Estación"]=="Paraná Las Palmas - Zárate"].iloc[0]
         self.assertNotIn("no confirmada",auto["Fecha de esa lectura"])
+        self.assertRegex(auto["Fecha de esa lectura"], r"\d{2}:\d{2} ART")
 
     def test_fila_remota_no_importa_umbral_curva_ni_orden(self):
         data = document()
