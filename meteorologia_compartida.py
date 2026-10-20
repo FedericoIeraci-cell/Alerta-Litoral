@@ -34,7 +34,7 @@ MAX_UNCOMPRESSED_BYTES = 20_000_000
 MAX_AGE_HOURS = 3
 ERROR_PUBLICO = "La fuente meteorológica no devolvió datos utilizables para este nodo."
 
-VARIABLES_HORARIAS = frozenset({
+_ORDEN_HORARIAS = (
     "temperature_2m", "apparent_temperature", "dew_point_2m", "relative_humidity_2m",
     "pressure_msl", "surface_pressure", "cloud_cover", "cloud_cover_low", "cloud_cover_mid",
     "cloud_cover_high", "wind_speed_10m", "wind_gusts_10m", "wind_direction_10m",
@@ -44,14 +44,16 @@ VARIABLES_HORARIAS = frozenset({
     "soil_temperature_7_to_28cm", "soil_temperature_28_to_100cm", "soil_temperature_100_to_255cm",
     "soil_moisture_0_to_7cm", "soil_moisture_7_to_28cm", "soil_moisture_28_to_100cm",
     "soil_moisture_100_to_255cm", "weather_code",
-})
-VARIABLES_DIARIAS = frozenset({
+)
+VARIABLES_HORARIAS = frozenset(_ORDEN_HORARIAS)
+_ORDEN_DIARIAS = (
     "weather_code", "temperature_2m_min", "temperature_2m_max", "apparent_temperature_min",
     "apparent_temperature_max", "precipitation_sum", "rain_sum", "showers_sum",
     "precipitation_probability_max", "precipitation_hours", "wind_speed_10m_max",
     "wind_gusts_10m_max", "wind_direction_10m_dominant", "cape_max",
     "shortwave_radiation_sum", "sunshine_duration", "et0_fao_evapotranspiration",
-})
+)
+VARIABLES_DIARIAS = frozenset(_ORDEN_DIARIAS)
 _CAMPOS = frozenset({"hourly", "daily", "hourly_units", "daily_units", "latitude", "longitude",
                      "elevation", "timezone", "timezone_abbreviation", "utc_offset_seconds",
                      "generationtime_ms", "error"})
@@ -354,21 +356,22 @@ def crear_captura_zc(referencia=None, session=None):
     if session is None:
         session = requests
     consulta = _fecha(referencia) if referencia is not None else datetime.now(timezone.utc)
-    base = {"hourly": ",".join(sorted(VARIABLES_HORARIAS)),
-            "daily": ",".join(sorted(VARIABLES_DIARIAS)),
+    # Misma petición del getter ALA: orden de claves, variables y User-Agent.
+    base = {"hourly": ",".join(_ORDEN_HORARIAS),
+            "daily": ",".join(_ORDEN_DIARIAS),
             "past_days": 8, "forecast_days": 15,
             "timezone": "America/Argentina/Buenos_Aires", "temperature_unit": "celsius",
             "wind_speed_unit": "kmh", "precipitation_unit": "mm", "cell_selection": "land"}
 
     def descargar(lote):
-        params = dict(base, latitude=",".join(f'{n["lat"]:.6f}' for n in lote),
-                      longitude=",".join(f'{n["lon"]:.6f}' for n in lote))
+        params = dict(latitude=",".join(f'{n["lat"]:.6f}' for n in lote),
+                      longitude=",".join(f'{n["lon"]:.6f}' for n in lote), **base)
         respuesta = None
         try:
             for intento in range(2):
                 try:
                     respuesta = session.get(FUENTE, params=params, timeout=(20, 45),
-                                            headers={"User-Agent": "ALA-ZC-CapturaCompleta/1.0"})
+                                            headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
                     break
                 except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
                     if intento:
@@ -391,8 +394,20 @@ def crear_captura_zc(referencia=None, session=None):
                     raise ValueError("Celda incompatible")
                 salida.append(limpio)
             return salida
+        except requests.exceptions.Timeout as exc:
+            clase = ("timeout_conexion" if isinstance(exc, requests.exceptions.ConnectTimeout) else
+                     "timeout_lectura" if isinstance(exc, requests.exceptions.ReadTimeout) else "timeout")
+            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, {clase}.")
+        except requests.exceptions.ConnectionError:
+            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, conexion.")
+        except requests.exceptions.HTTPError as exc:
+            estado = getattr(getattr(exc, "response", None), "status_code", None)
+            codigo = f"http_{estado}" if isinstance(estado, int) and 100 <= estado <= 599 else "http"
+            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, {codigo}.")
+        except (ValueError, TypeError):
+            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, respuesta_invalida.")
         except Exception:
-            return [{"error": ERROR_PUBLICO} for _ in lote]
+            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, error_interno.")
         finally:
             if respuesta is not None:
                 with suppress(Exception):

@@ -1,5 +1,7 @@
 """Producción completa ZC fuera de Streamlit, sin avisos ni fechas renovadas."""
 from datetime import datetime, timedelta, timezone
+import ast
+from collections import Counter
 import json
 from pathlib import Path
 import sys
@@ -57,6 +59,8 @@ class CompleteCaptureTests(unittest.TestCase):
             self.assertIn("temperature_2m", kw["params"]["hourly"])
             self.assertIn("wind_speed_10m", kw["params"]["hourly"])
             self.assertIn("temperature_2m_max", kw["params"]["daily"])
+            self.assertEqual(list(kw["params"])[:2], ["latitude", "longitude"])
+            self.assertEqual(kw["headers"], {"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
         self.assertTrue(all(r.closed for r in session.responses))
         encoded = met.serializar_captura(capture)
         decoded = met.deserializar_captura(encoded, NODOS_ZC, referencia=NOW)
@@ -87,11 +91,44 @@ class CompleteCaptureTests(unittest.TestCase):
 
     def test_no_reintenta_http_429_y_cierra_respuestas(self):
         session = Session()
-        with patch.object(Response, "raise_for_status", side_effect=requests.exceptions.HTTPError("429 privado")):
-            with self.assertRaises(met.CapturaMeteorologicaError):
+        error = requests.exceptions.HTTPError("429 privado", response=SimpleNamespace(status_code=429))
+        with patch.object(Response, "raise_for_status", side_effect=error):
+            with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_429"):
                 met.crear_captura_zc(referencia=NOW, session=session)
-        self.assertEqual(len(session.calls), 2)
+        self.assertTrue(1 <= len(session.calls) <= 2)
+        self.assertEqual(len({kw["params"]["latitude"] for _, kw in session.calls}), len(session.calls))
         self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_orden_variables_identico_al_getter_ala(self):
+        tree = ast.parse((Path(__file__).resolve().parents[1] / "app.py").read_text())
+        getter = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "obtener_datos_ecmwf")
+        variables = {n.targets[0].id: ast.literal_eval(n.value) for n in getter.body
+                     if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name)
+                     and n.targets[0].id in {"variables_horarias", "variables_diarias"}}
+        self.assertEqual(tuple(variables["variables_horarias"]), met._ORDEN_HORARIAS)
+        self.assertEqual(tuple(variables["variables_diarias"]), met._ORDEN_DIARIAS)
+
+    def test_diagnostico_de_transporte_es_acotado_sin_detalles_privados(self):
+        for error, expected in [(requests.exceptions.ConnectTimeout, "timeout_conexion"),
+                                (requests.exceptions.ReadTimeout, "timeout_lectura"),
+                                (requests.exceptions.ConnectionError, "conexion")]:
+            with self.subTest(error=error.__name__):
+                session = SimpleNamespace(get=Mock(side_effect=error("Detalle privado")))
+                with self.assertRaises(met.CapturaMeteorologicaError) as raised:
+                    met.crear_captura_zc(referencia=NOW, session=session)
+                self.assertIn(expected, str(raised.exception))
+                self.assertNotIn("Detalle privado", str(raised.exception))
+                attempts = Counter(call.kwargs["params"]["latitude"] for call in session.get.call_args_list)
+                self.assertTrue(attempts)
+                self.assertTrue(all(count == 2 for count in attempts.values()))
+
+    def test_monitor_conserva_solo_diagnostico_publico(self):
+        status = {"red_integrada_publicada": True}
+        store = SimpleNamespace(save_meteorologia_zc=Mock())
+        with patch.object(met, "crear_captura_zc", side_effect=met.CapturaMeteorologicaError("lote de 8 nodos, timeout_lectura")):
+            monitor._publicar_meteorologia_zc(status, store)
+        self.assertEqual(status["meteorologia_zc_error"], "lote de 8 nodos, timeout_lectura")
+        store.save_meteorologia_zc.assert_not_called()
 
     def test_lote_fallido_tras_dos_intentos_no_sustituye_captura_completa(self):
         class PartialSession(Session):

@@ -740,11 +740,14 @@ def _publicar_meteorologia_zc(status, store):
         receipt = guardar(captura)
         status.update(meteorologia_zc_publicada=True, meteorologia_zc_estado="verificada",
                       meteorologia_zc_confirmacion=receipt)
-    except Exception:
+    except Exception as error:
         # Una captura fallida conserva el archivo previo y su fecha. No afecta
         # al informe de grillas reducidas ya publicado ni al registro del canal.
+        from meteorologia_compartida import CapturaMeteorologicaError
+        diagnostico = (str(error) if isinstance(error, CapturaMeteorologicaError) else
+                       "No se confirmó la captura meteorológica completa de Zárate–Campana.")
         status.update(meteorologia_zc_publicada=False, meteorologia_zc_estado="error",
-                      meteorologia_zc_error="No se confirmó la captura meteorológica completa de Zárate–Campana.")
+                      meteorologia_zc_error=diagnostico)
 
 
 def _guardar_resultado_publicacion(status, store):
