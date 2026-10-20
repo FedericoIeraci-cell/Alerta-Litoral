@@ -49,6 +49,7 @@ class TestRedMonitor(unittest.TestCase):
         )
         self.module = types.ModuleType("red_integrada")
         self.module.consultar_zc_red = lambda **kwargs: self.calls.append("query_zc") or {"nodes": "ZC"}
+        self.module.consultar_red_integrada = lambda **kwargs: {}
         self.module.construir_red_integrada = self.build
         self.module.validar_red_integrada = lambda value, **kwargs: copy.deepcopy(value)
         self.addCleanup(patch.stopall)

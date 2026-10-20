@@ -503,7 +503,7 @@ class PublicSourceAcquisition(unittest.TestCase):
         self.assertEqual(automatic["pronostico"], [])
         self.assertIsNone(automatic["alerta_m"])
         self.assertIsNone(automatic["evacuacion_m"])
-        self.assertEqual(len(session.calls), 7)
+        self.assertEqual(len(session.calls), 15)
         automatic_sources = [f for f in zc["fuentes"] if "estación automática" in f["organismo"]]
         self.assertEqual(len(automatic_sources), 1)
         self.assertEqual(automatic_sources[0]["fecha_documento"], automatic["fecha_observada"])
