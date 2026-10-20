@@ -36,6 +36,7 @@ DB_REMOTE_PATH = "telegram_alerts.sqlite3"
 STATUS_REMOTE_PATH = "monitor_status.json"
 RED_REMOTE_PATH = "red_integrada.json"
 METEOROLOGIA_REMOTE_PATH = "meteorologia_ecmwf.json"
+METEOROLOGIA_ZC_REMOTE_PATH = "meteorologia_zc_ecmwf.json"
 MAX_DB_BYTES = 20_000_000
 MAX_STATUS_BYTES = 500_000
 MONITOR_SCOPE = "Meteorología + hidrología + represas"
@@ -465,6 +466,14 @@ class GitHubStateStore:
 
 
     def save_meteorologia(self, captura: dict[str, Any]) -> dict[str, Any]:
+        return self._save_meteorologia(captura, METEOROLOGIA_REMOTE_PATH,
+                                      "ALA: actualizar captura meteorológica ECMWF")
+
+    def save_meteorologia_zc(self, captura: dict[str, Any]) -> dict[str, Any]:
+        return self._save_meteorologia(captura, METEOROLOGIA_ZC_REMOTE_PATH,
+                                      "ZC: actualizar captura meteorológica completa ECMWF")
+
+    def _save_meteorologia(self, captura: dict[str, Any], remote_path: str, message: str) -> dict[str, Any]:
         """Publica datos ya consultados; verifica el commit y la rama sin SQLite."""
         document = _validar_meteorologia(captura)
         stage = "serializacion"
@@ -474,18 +483,18 @@ class GitHubStateStore:
             if not isinstance(payload, bytes) or not 0 < len(payload) <= MAX_BYTES:
                 raise MeteorologiaPublicationError(stage, "tamano_o_formato_invalido")
             stage = "lectura_previa"
-            self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES)
+            self._read_file(remote_path, MAX_BYTES)
             stage = "escritura"
-            written = self._write_file(METEOROLOGIA_REMOTE_PATH, payload,
-                                       "ALA: actualizar captura meteorológica ECMWF")
-            written_sha = self._shas[METEOROLOGIA_REMOTE_PATH]
+            written = self._write_file(remote_path, payload,
+                                       message)
+            written_sha = self._shas[remote_path]
             stage = "verificacion"
             commit = written.get("commit")
             if not isinstance(commit, dict):
                 raise StateStoreError("GitHub no identificó el commit que debe verificarse.")
             commit_sha = _sha(commit.get("sha"))
-            confirmed = self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES, ref=commit_sha)
-            if confirmed != payload or self._shas[METEOROLOGIA_REMOTE_PATH] != written_sha:
+            confirmed = self._read_file(remote_path, MAX_BYTES, ref=commit_sha)
+            if confirmed != payload or self._shas[remote_path] != written_sha:
                 raise MeteorologiaPublicationError(stage, "contenido_no_confirmado")
 
             def current_head() -> str:
@@ -498,15 +507,15 @@ class GitHubStateStore:
                 head_sha = current_head()
                 if head_sha == commit_sha:
                     break
-                current = self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES, ref=head_sha)
-                if (current == payload and self._shas[METEOROLOGIA_REMOTE_PATH] == written_sha
+                current = self._read_file(remote_path, MAX_BYTES, ref=head_sha)
+                if (current == payload and self._shas[remote_path] == written_sha
                         and current_head() == head_sha):
                     break
                 if attempt < 2:
                     time.sleep(attempt + 1)
             else:
                 raise MeteorologiaPublicationError(stage, "contenido_no_confirmado")
-            self._shas[METEOROLOGIA_REMOTE_PATH] = written_sha
+            self._shas[remote_path] = written_sha
             # El reloj de consulta original no se cambia durante la publicación.
             _validar_meteorologia(document)
         except MeteorologiaPublicationError:
@@ -694,6 +703,7 @@ def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
         _error_red_integrada(status, RedPublicationError("publicacion", "error_interno"))
     if status["red_integrada_publicada"]:
         _publicar_meteorologia(status, app, store)
+        _publicar_meteorologia_zc(status, store)
 
 
 def _publicar_meteorologia(status, app, store):
@@ -715,6 +725,26 @@ def _publicar_meteorologia(status, app, store):
         status.update(meteorologia_publicada=False, meteorologia_estado="error",
                       meteorologia_error=str(public_error), meteorologia_etapa=public_error.stage,
                       meteorologia_error_codigo=public_error.code)
+
+
+
+def _publicar_meteorologia_zc(status, store):
+    """Archivo de datos completo; separado de la grilla y de los envíos."""
+    guardar = getattr(store, "save_meteorologia_zc", None)
+    if not callable(guardar):
+        return
+    status.update(meteorologia_zc_publicada=False, meteorologia_zc_estado="pendiente")
+    try:
+        from meteorologia_compartida import crear_captura_zc
+        captura = crear_captura_zc()
+        receipt = guardar(captura)
+        status.update(meteorologia_zc_publicada=True, meteorologia_zc_estado="verificada",
+                      meteorologia_zc_confirmacion=receipt)
+    except Exception:
+        # Una captura fallida conserva el archivo previo y su fecha. No afecta
+        # al informe de grillas reducidas ya publicado ni al registro del canal.
+        status.update(meteorologia_zc_publicada=False, meteorologia_zc_estado="error",
+                      meteorologia_zc_error="No se confirmó la captura meteorológica completa de Zárate–Campana.")
 
 
 def _guardar_resultado_publicacion(status, store):

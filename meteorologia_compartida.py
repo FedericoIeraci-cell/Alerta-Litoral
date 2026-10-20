@@ -24,6 +24,11 @@ SNAPSHOT_URL = (
     "https://raw.githubusercontent.com/FedericoIeraci-cell/Alerta-Litoral/"
     "ala-monitor-state/" + SNAPSHOT_PATH
 )
+SNAPSHOT_ZC_PATH = "meteorologia_zc_ecmwf.json"
+SNAPSHOT_ZC_URL = (
+    "https://raw.githubusercontent.com/FedericoIeraci-cell/Alerta-Litoral/"
+    "ala-monitor-state/" + SNAPSHOT_ZC_PATH
+)
 MAX_BYTES = 2_000_000
 MAX_UNCOMPRESSED_BYTES = 20_000_000
 MAX_AGE_HOURS = 3
@@ -290,6 +295,15 @@ def deserializar_captura(contenido, nodos, referencia=None):
 
 
 def consultar_captura(nodos, referencia=None, session=None):
+    return _consultar_captura_url(SNAPSHOT_URL, nodos, referencia, session)
+
+
+def consultar_captura_zc(nodos, referencia=None, session=None):
+    """La captura ZC completa tiene un archivo propio y el mismo contrato."""
+    return _consultar_captura_url(SNAPSHOT_ZC_URL, nodos, referencia, session)
+
+
+def _consultar_captura_url(url, nodos, referencia=None, session=None):
     """Descarga pública acotada, sin redirecciones, credenciales ni reintentos."""
     propia = session is None
     if propia:
@@ -299,10 +313,10 @@ def consultar_captura(nodos, referencia=None, session=None):
     respuesta = None
     try:
         inicio = time.monotonic()
-        respuesta = session.get(SNAPSHOT_URL, timeout=(5, 15), stream=True, allow_redirects=False,
+        respuesta = session.get(url, timeout=(5, 15), stream=True, allow_redirects=False,
                                 headers={"Accept": "application/json", "Cache-Control": "no-cache",
                                          "User-Agent": "ALA-MeteorologiaCompartida/1.0"})
-        if respuesta.status_code != 200 or getattr(respuesta, "url", SNAPSHOT_URL) != SNAPSHOT_URL:
+        if respuesta.status_code != 200 or getattr(respuesta, "url", url) != url:
             _error("No se pudo consultar la captura meteorológica pública.")
         largo = respuesta.headers.get("Content-Length")
         if largo is not None and (not str(largo).isdigit() or int(largo) > MAX_BYTES):
@@ -325,3 +339,60 @@ def consultar_captura(nodos, referencia=None, session=None):
         if propia:
             with suppress(Exception):
                 session.close()
+
+
+def crear_captura_zc(referencia=None, session=None):
+    """Consulta las variables completas fuera de Streamlit, sin enviar avisos.
+
+    El reloj se fija antes de comenzar las dos descargas: publicar o leer el
+    archivo después no renueva la fecha de sus datos. Un fallo total no reemplaza
+    la captura anterior; las grillas reducidas del informe común son independientes.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+    from red_integrada import NODOS_ZC
+    if session is None:
+        import requests
+        session = requests
+    consulta = _fecha(referencia) if referencia is not None else datetime.now(timezone.utc)
+    base = {"hourly": ",".join(sorted(VARIABLES_HORARIAS)),
+            "daily": ",".join(sorted(VARIABLES_DIARIAS)),
+            "past_days": 8, "forecast_days": 15,
+            "timezone": "America/Argentina/Buenos_Aires", "temperature_unit": "celsius",
+            "wind_speed_unit": "kmh", "precipitation_unit": "mm", "cell_selection": "land"}
+
+    def descargar(lote):
+        params = dict(base, latitude=",".join(f'{n["lat"]:.6f}' for n in lote),
+                      longitude=",".join(f'{n["lon"]:.6f}' for n in lote))
+        respuesta = None
+        try:
+            respuesta = session.get(FUENTE, params=params, timeout=(20, 45),
+                                    headers={"User-Agent": "ALA-ZC-CapturaCompleta/1.0"})
+            respuesta.raise_for_status()
+            datos = respuesta.json()
+            datos = datos if isinstance(datos, list) else [datos]
+            if len(datos) != len(lote):
+                raise ValueError("Cantidad de coordenadas incompatible")
+            salida = []
+            for nodo, dato in zip(lote, datos):
+                limpio = _dato(dato, False)
+                lat, lon = limpio.get("latitude"), limpio.get("longitude")
+                if lat is None or lon is None:
+                    raise ValueError("Celda sin coordenadas")
+                p1, p2 = math.radians(nodo["lat"]), math.radians(lat)
+                dp, dl = math.radians(lat - nodo["lat"]), math.radians(lon - nodo["lon"])
+                h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+                if 6371 * 2 * math.asin(math.sqrt(min(1, max(0, h)))) > 40:
+                    raise ValueError("Celda incompatible")
+                salida.append(limpio)
+            return salida
+        except Exception:
+            return [{"error": ERROR_PUBLICO} for _ in lote]
+        finally:
+            if respuesta is not None:
+                with suppress(Exception):
+                    respuesta.close()
+
+    lotes = [NODOS_ZC[:8], NODOS_ZC[8:]]
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
+    return crear_captura(NODOS_ZC, datos, consulta)
