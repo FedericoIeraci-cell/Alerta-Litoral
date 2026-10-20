@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-20T02:30:38.915865+00:00",
-  "checked_at_art": "2026-10-19T23:30:38.915865-03:00",
+  "checked_at": "2026-10-20T03:32:48.131805+00:00",
+  "checked_at_art": "2026-10-20T00:32:48.131805-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 46,
-  "nodes_red": 6,
+  "nodes_red": 7,
   "nodes_invalid": 2,
-  "nodes_yellow": 26,
+  "nodes_yellow": 25,
   "nodes_green": 14,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
+    "pendientes": 7,
     "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 2,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "c8c1d82ed526",
+      "creado": "2026-10-20T03:32:48.132374+00:00",
+      "intento": "2026-10-20T03:32:48.132374+00:00",
+      "localidad": "Goya",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en Goya: posible superación del umbral de evacuación (5,70 m) a partir de 23/10/2026 · hora no publicada; previsión textual, sin altura numérica de cruce publicada. Entra en la ventana de preparación de 72 h según la fecha publicada. La previsión antes en prealerta ahora está dentro de la ventana de 72 h; esto no demuestra una subida observada del río. Índice meteorológico: 18,0 → 18,1/100; se evalúa por separado.",
+      "indice_anterior": 18.0,
+      "indice": 18.1,
+      "estado": "enviado",
+      "message_id": 61,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "3dc204f7b951",
       "creado": "2026-10-19T13:47:45.871146+00:00",
@@ -358,25 +373,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 467750,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "398e02cd5bb8700343038696e981682737fd99b5",
-    "commit_sha": "c3ed707eb0f41014e6312332056c583987f5d8d0",
-    "bytes": 467751,
-    "generated_at": "2026-10-20T02:30:41.223333+00:00",
-    "verified_at": "2026-10-20T02:30:50.957154+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "fb051decfc557143286674190f1709bef0c60e9b",
-    "commit_sha": "cf257a7ed9de2636bfe8432f737f41aaa9841333",
-    "bytes": 1192062,
-    "consultado": "2026-10-20T02:30:38.185391+00:00",
-    "verified_at": "2026-10-20T02:30:54.945577+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
