@@ -762,6 +762,11 @@ def _guardar_resultado_publicacion(status, store):
         status["errors"].append(status["meteorologia_error"])
         if status["health"] in {"ok", "datos_parciales"}:
             status["health"] = "error_meteorologia"
+    if status.get("meteorologia_zc_error"):
+        status["ok"] = False
+        status["errors"].append(status["meteorologia_zc_error"])
+        if status["health"] in {"ok", "datos_parciales"}:
+            status["health"] = "error_meteorologia_zc"
     # El snapshot grande tiene su propio archivo; sólo el diagnóstico va al estado.
     store.save_status({k: v for k, v in status.items() if k != "red_integrada"})
 
@@ -868,6 +873,8 @@ def run_monitor(
                 raise MonitorError(status["red_integrada_error"])
             if status.get("meteorologia_error"):
                 raise MonitorError(status["meteorologia_error"])
+            if status.get("meteorologia_zc_error"):
+                raise MonitorError(status["meteorologia_zc_error"])
         else:
             document = _preparar_red_integrada(frame, panorama, status, app)
             if document is None:
@@ -923,6 +930,8 @@ def run_monitor(
         raise MonitorError(status["red_integrada_error"] + " La evaluación regional quedó guardada, pero el informe compartido no se confirmó.")
     if status.get("meteorologia_error"):
         raise MonitorError(status["meteorologia_error"] + " La red integrada se publicó, pero la captura meteorológica no se confirmó.")
+    if status.get("meteorologia_zc_error"):
+        raise MonitorError(status["meteorologia_zc_error"] + " La captura completa de Zárate–Campana no se confirmó; se conserva la anterior con su fecha original.")
     return status
 
 

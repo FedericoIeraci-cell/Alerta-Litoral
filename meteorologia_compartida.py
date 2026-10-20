@@ -370,7 +370,7 @@ def crear_captura_zc(referencia=None, session=None):
         try:
             for intento in range(2):
                 try:
-                    respuesta = session.get(FUENTE, params=params, timeout=(20, 45),
+                    respuesta = session.get(FUENTE, params=params, timeout=(5, 30),
                                             headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
                     break
                 except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
@@ -413,7 +413,10 @@ def crear_captura_zc(referencia=None, session=None):
                 with suppress(Exception):
                     respuesta.close()
 
-    lotes = [NODOS_ZC[i:i + 2] for i in range(0, len(NODOS_ZC), 2)]
+    # La respuesta completa por coordenada es grande: agrupar localidades
+    # multiplica el trabajo del proveedor antes de devolver el primer byte.
+    # Aislarlas también limita cada reintento a la localidad que falló.
+    lotes = [[nodo] for nodo in NODOS_ZC]
     with ThreadPoolExecutor(max_workers=3) as pool:
         datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
     if any(not _con_datos(dato) for dato in datos):
