@@ -106,7 +106,8 @@ def construir_explicacion(row, fusion, amarillo, rojo):
     if row.get('cobertura_meteorologica') and met in RANGOS:
         evidencias.append(dict(tipo='meteorologia', rango=RANGOS[met], nivel=met,
                                indice=row.get('indice'), amarillo=amarillo, rojo=rojo,
-                               verificada=True, vigente=True, fecha_consulta=row.get('actualizado'),
+                               verificada=True, vigente=True,
+                               fecha_consulta=row.get('consulta_meteorologica') or row.get('actualizado'),
                                fuente='https://open-meteo.com/en/docs/ecmwf-api'))
     if RANGOS.get(fusion.get('semaforo'), -1) > RANGOS.get(met, -1):
         evidencias.append(dict(tipo='territorial', rango=RANGOS[fusion['semaforo']],

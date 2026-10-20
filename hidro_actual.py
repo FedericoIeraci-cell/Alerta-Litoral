@@ -232,6 +232,14 @@ def _con_cache(nombre, referencia):
         return datos
 
 
+def solicitar_actualizacion():
+    """Fuerza una consulta sin perder la última lectura si la fuente falla."""
+    for nombre, lock in _LOCKS.items():
+        with lock:
+            if nombre in _CACHE:
+                _CACHE[nombre]['tick'] = -float('inf')
+
+
 def consultar_hidrologia_actual(referencia=None):
     ref = _ahora(referencia)
     with ThreadPoolExecutor(max_workers=3) as pool:

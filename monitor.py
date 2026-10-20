@@ -35,6 +35,7 @@ ART = ZoneInfo("America/Argentina/Buenos_Aires")
 DB_REMOTE_PATH = "telegram_alerts.sqlite3"
 STATUS_REMOTE_PATH = "monitor_status.json"
 RED_REMOTE_PATH = "red_integrada.json"
+METEOROLOGIA_REMOTE_PATH = "meteorologia_ecmwf.json"
 MAX_DB_BYTES = 20_000_000
 MAX_STATUS_BYTES = 500_000
 MONITOR_SCOPE = "Meteorología + hidrología + represas"
@@ -78,6 +79,22 @@ class RedPublicationError(StateStoreError):
         super().__init__(f"Red integrada: fallo en {stage} ({code}).", code=code)
         self.stage = stage
         self.size = size
+
+
+class MeteorologiaPublicationError(StateStoreError):
+    """Diagnóstico público acotado de la captura meteorológica compartida."""
+
+    def __init__(self, stage: str, code: str):
+        super().__init__(f"Meteorología compartida: fallo en {stage} ({code}).", code=code)
+        self.stage = stage
+
+
+def _validar_meteorologia(value, nodos=None):
+    try:
+        from meteorologia_compartida import validar_captura
+        return validar_captura(value, value["nodos"] if nodos is None else nodos)
+    except Exception:
+        raise MeteorologiaPublicationError("validacion", "captura_invalida_o_vencida") from None
 
 
 def _serializar_red_integrada(value):
@@ -447,6 +464,63 @@ class GitHubStateStore:
                 "verified_at": datetime.now(timezone.utc).isoformat()}
 
 
+    def save_meteorologia(self, captura: dict[str, Any]) -> dict[str, Any]:
+        """Publica datos ya consultados; verifica el commit y la rama sin SQLite."""
+        document = _validar_meteorologia(captura)
+        stage = "serializacion"
+        try:
+            from meteorologia_compartida import MAX_BYTES, serializar_captura
+            payload = serializar_captura(document)
+            if not isinstance(payload, bytes) or not 0 < len(payload) <= MAX_BYTES:
+                raise MeteorologiaPublicationError(stage, "tamano_o_formato_invalido")
+            stage = "lectura_previa"
+            self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES)
+            stage = "escritura"
+            written = self._write_file(METEOROLOGIA_REMOTE_PATH, payload,
+                                       "ALA: actualizar captura meteorológica ECMWF")
+            written_sha = self._shas[METEOROLOGIA_REMOTE_PATH]
+            stage = "verificacion"
+            commit = written.get("commit")
+            if not isinstance(commit, dict):
+                raise StateStoreError("GitHub no identificó el commit que debe verificarse.")
+            commit_sha = _sha(commit.get("sha"))
+            confirmed = self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES, ref=commit_sha)
+            if confirmed != payload or self._shas[METEOROLOGIA_REMOTE_PATH] != written_sha:
+                raise MeteorologiaPublicationError(stage, "contenido_no_confirmado")
+
+            def current_head() -> str:
+                reference = self._json(self._request(
+                    "GET", "/git/ref/heads/" + quote(self.branch, safe=""), revalidate=True,
+                ))
+                return _sha(reference.get("object", {}).get("sha"))
+
+            for attempt in range(3):
+                head_sha = current_head()
+                if head_sha == commit_sha:
+                    break
+                current = self._read_file(METEOROLOGIA_REMOTE_PATH, MAX_BYTES, ref=head_sha)
+                if (current == payload and self._shas[METEOROLOGIA_REMOTE_PATH] == written_sha
+                        and current_head() == head_sha):
+                    break
+                if attempt < 2:
+                    time.sleep(attempt + 1)
+            else:
+                raise MeteorologiaPublicationError(stage, "contenido_no_confirmado")
+            self._shas[METEOROLOGIA_REMOTE_PATH] = written_sha
+            # El reloj de consulta original no se cambia durante la publicación.
+            _validar_meteorologia(document)
+        except MeteorologiaPublicationError:
+            raise
+        except StateStoreError as error:
+            code = error.code if re.fullmatch(r"http_[1-5][0-9]{2}|conexion|estado_no_confirmado", error.code) else "estado_no_confirmado"
+            raise MeteorologiaPublicationError(stage, code) from None
+        except Exception:
+            raise MeteorologiaPublicationError(stage, "error_interno") from None
+        return {"sha": written_sha, "commit_sha": commit_sha, "bytes": len(payload),
+                "consultado": document["consultado"],
+                "verified_at": datetime.now(timezone.utc).isoformat()}
+
+
 def load_app(path: str | Path):
     path = Path(path).resolve()
     if not path.is_file():
@@ -616,6 +690,27 @@ def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
         _error_red_integrada(status, error)
     except Exception:
         _error_red_integrada(status, RedPublicationError("publicacion", "error_interno"))
+    if status["red_integrada_publicada"]:
+        _publicar_meteorologia(status, app, store)
+
+
+def _publicar_meteorologia(status, app, store):
+    """Comparte la consulta completa del monitor sin repetir peticiones ECMWF."""
+    captura = getattr(app, "_captura_meteorologica_monitor", None)
+    if captura is None:
+        status.update(meteorologia_publicada=False, meteorologia_estado="no_disponible")
+        return
+    status.update(meteorologia_publicada=False, meteorologia_estado="pendiente")
+    try:
+        document = _validar_meteorologia(captura, app.NODOS)
+        receipt = store.save_meteorologia(document)
+        status.update(meteorologia_publicada=True, meteorologia_estado="verificada",
+                      meteorologia_confirmacion=receipt)
+    except Exception as error:
+        public_error = error if isinstance(error, MeteorologiaPublicationError) else MeteorologiaPublicationError("publicacion", "error_interno")
+        status.update(meteorologia_publicada=False, meteorologia_estado="error",
+                      meteorologia_error=str(public_error), meteorologia_etapa=public_error.stage,
+                      meteorologia_error_codigo=public_error.code)
 
 
 def _guardar_resultado_publicacion(status, store):
@@ -625,6 +720,11 @@ def _guardar_resultado_publicacion(status, store):
         status["errors"].append(status["red_integrada_error"])
         if status["health"] in {"ok", "datos_parciales"}:
             status["health"] = "error_red_integrada"
+    if status.get("meteorologia_error"):
+        status["ok"] = False
+        status["errors"].append(status["meteorologia_error"])
+        if status["health"] in {"ok", "datos_parciales"}:
+            status["health"] = "error_meteorologia"
     # El snapshot grande tiene su propio archivo; sólo el diagnóstico va al estado.
     store.save_status({k: v for k, v in status.items() if k != "red_integrada"})
 
@@ -716,6 +816,8 @@ def run_monitor(
         "publication_only": bool(publish_red_only),
         "red_integrada_publicada": False,
         "red_integrada_estado": "pendiente" if not dry_run else "no_solicitada",
+        "meteorologia_publicada": False,
+        "meteorologia_estado": "pendiente" if not dry_run else "no_solicitada",
     }
     if no_telegram:
         if valid == 0:
@@ -725,6 +827,8 @@ def run_monitor(
             _publicar_red_integrada(frame, panorama, status, app, store)
             if not status["red_integrada_publicada"]:
                 raise MonitorError(status["red_integrada_error"])
+            if status.get("meteorologia_error"):
+                raise MonitorError(status["meteorologia_error"])
         else:
             document = _preparar_red_integrada(frame, panorama, status, app)
             if document is None:
@@ -778,6 +882,8 @@ def run_monitor(
         raise MonitorError("El monitor registró un problema de envío o persistencia; revisá el historial y el workflow.")
     if not status["red_integrada_publicada"]:
         raise MonitorError(status["red_integrada_error"] + " La evaluación regional quedó guardada, pero el informe compartido no se confirmó.")
+    if status.get("meteorologia_error"):
+        raise MonitorError(status["meteorologia_error"] + " La red integrada se publicó, pero la captura meteorológica no se confirmó.")
     return status
 
 
@@ -786,7 +892,7 @@ def main(argv=None) -> int:
     parser.add_argument("--app", default="app.py", help="Ruta del archivo principal de Alerta Litoral Agro.")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--dry-run", action="store_true", help="Consulta datos sin enviar ni modificar el registro remoto.")
-    modes.add_argument("--publish-red-only", action="store_true", help="Evalúa y publica sólo la red; no lee secretos de Telegram ni modifica su registro o monitor_status.")
+    modes.add_argument("--publish-red-only", action="store_true", help="Evalúa y publica la red y su captura meteorológica; no lee secretos de Telegram ni modifica su registro o monitor_status.")
     parser.add_argument("--export-red", help="Guarda el resumen de la red integrada en este archivo local.")
     args = parser.parse_args(argv)
     try:
@@ -803,6 +909,9 @@ def main(argv=None) -> int:
             "red_integrada_publicada": status.get("red_integrada_publicada", False),
             "red_integrada_error": status.get("red_integrada_error"),
             "red_integrada_confirmacion": status.get("red_integrada_confirmacion"),
+            "meteorologia_publicada": status.get("meteorologia_publicada", False),
+            "meteorologia_error": status.get("meteorologia_error"),
+            "meteorologia_confirmacion": status.get("meteorologia_confirmacion"),
             "publication_only": status["publication_only"],
         }, ensure_ascii=False, allow_nan=False))
         return 0

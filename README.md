@@ -1,4 +1,4 @@
-# Alerta Litoral Agro · V4.10.1
+# Alerta Litoral Agro · V4.10.2
 
 Herramienta experimental de apoyo a decisiones para el Litoral argentino. Integra meteorología local, observaciones y pronósticos fluviales, represas y avisos oficiales para preparar acciones ante anegamientos y crecidas.
 
@@ -16,6 +16,14 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
+
+## Actualización de datos V4.10.2
+
+La página reutiliza la consulta completa de ECMWF que ya realiza el monitor, conservada en `meteorologia_ecmwf.json` de la rama `ala-monitor-state`. Esto evita multiplicar consultas de Open-Meteo desde Streamlit, donde se detectó HTTP 429. El archivo incluye los valores horarios y diarios originales, unidades, faltantes, catálogo de puntos y fecha de consulta; no incluye credenciales ni registros de Telegram.
+
+La sesión abierta revisa los datos cada cinco minutos. Primero descarga la captura compartida; si no puede validarla, utiliza la consulta directa con su caché existente. La captura se rechaza si supera tres horas, tiene una fecha futura inválida o no corresponde a los puntos solicitados. La hora de descarga del modelo queda separada de la evaluación local y de la hora de medición de cada organismo. El botón **Actualizar datos** renueva las consultas guardadas de Streamlit y del informe común.
+
+El monitor publica la captura a partir de la misma respuesta que evaluó, sin una segunda consulta meteorológica. Verifica escritura y relectura; una falla de publicación se informa. La publicación de datos no cambia el último control de Telegram ni envía mensajes. La programación compartida continúa con objetivo de diez minutos, sujeto a las demoras de GitHub Actions y a la disponibilidad de cada fuente; no representa telemetría instantánea.
 
 ## Corrección visual V4.10.1
 
