@@ -17,6 +17,16 @@ El panel y GitHub Actions comparten la integración automática. Observación y 
 Las conexiones de cuenca permiten vigilar aportes aguas arriba. La anticipación utiliza puntos y ventanas publicados; no calcula horas de llegada a partir de un caudal ni dibuja profundidad por barrio. **Preparar y coordinar evacuación** exige confirmar fuente, umbral de estación, plazo, autoridad, destino y acceso local; no es una orden oficial.
 
 
+## Interfaz para celulares
+
+La portada se adapta al ancho del dispositivo. En celulares muestra accesos inferiores a **Mapa**, **Mi localidad**, **Alertas** y **Estado datos**, con espacio para el área segura del teléfono. Las pestañas, selectores y botones tienen controles táctiles amplios; las fichas aumentan el tamaño de texto y mantienen las fechas visibles.
+
+El mapa permite buscar localidad o provincia sin distinguir tildes, filtrar por nivel y alternar entre **Mapa** y **Lista**. La lista es una alternativa accesible a tocar marcadores cercanos. Al tocar una localidad en un celular se abre una ficha amplia con motivo, altura disponible, acciones, fechas y evidencias desplegables. **Cerrar** o Escape devuelve el foco; **Ver todo** limpia los filtros. Abrir esta ficha no cambia la localidad seleccionada en el panel inferior.
+
+Los filtros son sólo visuales: no recalculan el riesgo ni eliminan referencias de la red. Se conservan los estados sin datos y la distinción entre consulta, observación y pronóstico. No se cambian fuentes, umbrales, programación ni envíos. El color continúa siendo una evaluación experimental, no una orden oficial.
+
+Validación reproducible sin red: `python -m unittest discover -s tests -v` y `node tests/test_ubicacion_js.cjs`. Incluye búsqueda, filtros, mapa/lista, apertura/cierre y foco de la ficha, datos ausentes y ejecución completa de Streamlit con fuentes congeladas. La revisión visual en Safari/iOS y Android queda pendiente antes de integrar esta versión: las pruebas automatizadas no certifican el diseño en dispositivos reales.
+
 ## Actualización de datos V4.10.3
 
 La verificación en producción detectó que Open-Meteo entrega `evapotranspiration` sin valores y con unidad `undefined`. Esa ausencia se conserva como tal y no invalida las demás variables. Una unidad sin definir con valores numéricos continúa rechazada. Si la captura no puede prepararse, la validación y la publicación informan el fallo en vez de finalizar como si la captura estuviera disponible.

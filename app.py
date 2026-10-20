@@ -7373,6 +7373,8 @@ def mostrar_hero_litoral():
 
 def render_app():
     mostrar_hero_litoral()
+    from interfaz_movil import estilos_responsive, accesos_principales
+    st.html(estilos_responsive())
     firma_actual=firma_cobertura()
     if st.session_state.get('firma_cobertura')!=firma_actual:
         for clave in ('df_alerta','raw_ecmwf','df_operativo','firma_historial_operativo','ficha_localidad','localidad_seleccionada'):
@@ -7580,7 +7582,8 @@ def render_app():
         panorama_hidro = obtener_panorama_hidrologico()
         df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
-        st.header('🗺️ Mapa de riesgo del Litoral')
+        st.html(accesos_principales())
+        st.header('🗺️ Mapa de riesgo del Litoral', anchor='ala-mapa')
         st.caption('Evaluación: '+fecha_publica(ahora())+' · Actualización automática cada 5 minutos mientras la página está abierta. Cada fuente conserva su propia fecha.')
         meteo_info = st.session_state.get('meteorologia_origen', {})
         if meteo_info.get('consultado'):
@@ -7594,9 +7597,9 @@ def render_app():
                     f"⚪ Sin datos suficientes: {int(conteo_mapa.get('SIN DATOS',0))}")
         from mapa_litoral import html_mapa_litoral
         components.html(html_mapa_litoral(df_alerta, GEOMETRIAS_LITORAL,
-                        tarjeta_nodo=hover_nodo, altura=540), height=540, scrolling=False)
+                        tarjeta_nodo=tarjeta_nodo_html, altura=600), height=600, scrolling=False)
         st.caption('El mapa reúne las seis provincias del Litoral. Gris significa que faltan datos. El color expresa una evaluación experimental de los datos disponibles; no es un aviso oficial. Debajo podés elegir tu localidad o usar tu ubicación.')
-        st.subheader('Tu localidad · qué ocurre y qué hacer')
+        st.subheader('Tu localidad · qué ocurre y qué hacer', anchor='ala-localidad')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
             from ubicacion_local import seleccionar_localidad
@@ -7610,10 +7613,12 @@ def render_app():
                 mostrar_pronostico_fluvial_local(row_acciones,panorama_hidro)
         else:
             localidad_seleccionada=None
+        st.html('<div id="ala-estado" class="ala-ancla" tabindex="-1"></div>')
         try:
             cargar_panel_red().mostrar_estado_conexion(st, app_actual='ala')
         except Exception:
             st.warning('No se pudo confirmar la actualización del informe compartido. Revisá Red integrada y las fuentes de cada localidad.')
+        st.html('<div id="ala-alertas" class="ala-ancla" tabindex="-1"></div>')
         mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
         mostrar_explorar_tiempo(localidad_seleccionada)
         with st.expander('Cobertura por provincia y localidades monitoreadas'):
