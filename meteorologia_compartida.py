@@ -346,7 +346,7 @@ def _consultar_captura_url(url, nodos, referencia=None, session=None):
 def crear_captura_zc(referencia=None, session=None):
     """Consulta las variables completas fuera de Streamlit, sin enviar avisos.
 
-    El reloj se fija antes de comenzar las dos descargas: publicar o leer el
+    El reloj se fija antes de comenzar las descargas: publicar o leer el
     archivo después no renueva la fecha de sus datos. Una consulta incompleta no
     reemplaza la captura anterior; las grillas reducidas son independientes.
     """
@@ -413,8 +413,8 @@ def crear_captura_zc(referencia=None, session=None):
                 with suppress(Exception):
                     respuesta.close()
 
-    lotes = [NODOS_ZC[:8], NODOS_ZC[8:]]
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    lotes = [NODOS_ZC[i:i + 2] for i in range(0, len(NODOS_ZC), 2)]
+    with ThreadPoolExecutor(max_workers=3) as pool:
         datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
     if any(not _con_datos(dato) for dato in datos):
         _error("La captura meteorológica completa de Zárate–Campana no cubre todos los nodos.")

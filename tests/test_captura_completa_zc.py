@@ -52,7 +52,7 @@ class CompleteCaptureTests(unittest.TestCase):
         self.assertEqual(len(capture["datos"]), 10)
         self.assertEqual(capture["nodos"], met._catalogo(NODOS_ZC))
         self.assertEqual(datetime.fromisoformat(capture["consultado"]), NOW)
-        self.assertEqual(len(session.calls), 2)
+        self.assertEqual(len(session.calls), 5)
         for url, kw in session.calls:
             self.assertEqual(url, met.FUENTE)
             self.assertEqual(kw["timeout"], (20, 45))
@@ -60,6 +60,7 @@ class CompleteCaptureTests(unittest.TestCase):
             self.assertIn("wind_speed_10m", kw["params"]["hourly"])
             self.assertIn("temperature_2m_max", kw["params"]["daily"])
             self.assertEqual(list(kw["params"])[:2], ["latitude", "longitude"])
+            self.assertEqual(len(kw["params"]["latitude"].split(",")), 2)
             self.assertEqual(kw["headers"], {"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
         self.assertTrue(all(r.closed for r in session.responses))
         encoded = met.serializar_captura(capture)
@@ -85,7 +86,7 @@ class CompleteCaptureTests(unittest.TestCase):
                         return super().get(url, **kwargs)
                 session = TransientSession()
                 capture = met.crear_captura_zc(referencia=NOW, session=session)
-                self.assertEqual(sorted(session.attempts.values()), [2, 2])
+                self.assertEqual(sorted(session.attempts.values()), [2] * 5)
                 self.assertEqual(datetime.fromisoformat(capture["consultado"]), NOW)
                 self.assertEqual(len(capture["datos"]), 10)
 
@@ -95,7 +96,7 @@ class CompleteCaptureTests(unittest.TestCase):
         with patch.object(Response, "raise_for_status", side_effect=error):
             with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_429"):
                 met.crear_captura_zc(referencia=NOW, session=session)
-        self.assertTrue(1 <= len(session.calls) <= 2)
+        self.assertTrue(1 <= len(session.calls) <= 5)
         self.assertEqual(len({kw["params"]["latitude"] for _, kw in session.calls}), len(session.calls))
         self.assertTrue(all(r.closed for r in session.responses))
 
@@ -134,7 +135,7 @@ class CompleteCaptureTests(unittest.TestCase):
         class PartialSession(Session):
             def __init__(self): super().__init__(); self.failed_attempts = 0
             def get(self, url, **kwargs):
-                if len(kwargs["params"]["latitude"].split(",")) == 2:
+                if kwargs["params"]["latitude"].split(",")[0] == f'{NODOS_ZC[8]["lat"]:.6f}':
                     self.failed_attempts += 1
                     raise requests.exceptions.Timeout("Detalle privado")
                 return super().get(url, **kwargs)
