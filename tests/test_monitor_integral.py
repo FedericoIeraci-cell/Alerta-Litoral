@@ -110,6 +110,13 @@ class IntegralMonitorTests(unittest.TestCase):
                              side_effect=AssertionError("Red prohibida en las pruebas"))
         self.network.start()
         self.addCleanup(self.network.stop)
+        # Esta suite verifica el circuito regional y las reservas, no la
+        # descarga vecina (que tiene sus propias pruebas de contrato).
+        # Sustituirla también evita que un transporte urllib escape al guard.
+        self.zc = patch('red_integrada.consultar_zc_red',
+                        return_value={'nodos': [], 'rios': [], 'fuentes': []})
+        self.zc.start()
+        self.addCleanup(self.zc.stop)
 
     def run_fake(self, rows, dry_run=False, simulate_event=False):
         app = FakeApp(rows)

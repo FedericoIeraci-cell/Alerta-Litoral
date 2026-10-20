@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.10.1
+# Versión: V4.10.2
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.1"
+VERSION = "V4.10.2"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1265,7 +1265,41 @@ def obtener_datos_ecmwf():
                 return [{'error':'No se pudo completar la consulta meteorológica del lote'} for _ in lote]
     lotes=[NODOS[i:i+8] for i in range(0,len(NODOS),8)]
     with ThreadPoolExecutor(max_workers=3) as pool:
-        return [fila for lote in pool.map(consultar_lote,lotes) for fila in lote]
+        datos = [fila for lote in pool.map(consultar_lote,lotes) for fila in lote]
+    consultado = ahora().isoformat()
+    # El publicador reutiliza esta misma descarga; nunca repite la consulta.
+    if ALA_MONITOR_HEADLESS:
+        global _captura_meteorologica_monitor
+        _captura_meteorologica_monitor = None
+        try:
+            from meteorologia_compartida import crear_captura
+            _captura_meteorologica_monitor = crear_captura(NODOS, datos, consultado)
+        except ValueError:
+            pass
+    return [dict(fila, _ala_consultado=consultado, _ala_origen='directa')
+            if isinstance(fila.get('hourly'), dict) and not fila.get('error') else fila
+            for fila in datos]
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def obtener_captura_meteorologica_publica():
+    from meteorologia_compartida import consultar_captura
+    return consultar_captura(NODOS)
+
+
+def obtener_meteorologia_publica():
+    """Reutiliza la consulta común vigente; la alternativa directa tiene caché."""
+    try:
+        from meteorologia_compartida import validar_captura
+        captura = validar_captura(obtener_captura_meteorologica_publica(), NODOS, referencia=ahora())
+        datos = [dict(fila, _ala_consultado=captura['consultado'], _ala_origen='compartida')
+                 for fila in captura['datos']]
+        return datos, {'origen': 'compartida', 'consultado': captura['consultado']}
+    except (ValueError, requests.exceptions.RequestException):
+        # No se insiste sobre una API que respondió 429 ni se cambia de proveedor.
+        datos = obtener_datos_ecmwf()
+        fechas = [fila.get('_ala_consultado') for fila in datos if fila.get('_ala_consultado')]
+        return datos, {'origen': 'directa', 'consultado': min(fechas) if fechas else None}
 
 
 # ============================================================
@@ -1379,6 +1413,17 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         )
 
         return resultado_sin_datos(nodo, error)
+
+    consulta_original = datos.get('_ala_consultado')
+    if consulta_original is not None:
+        try:
+            consulta_fecha = datetime.fromisoformat(str(consulta_original).replace('Z', '+00:00'))
+            edad = ((ahora().astimezone(timezone.utc) - consulta_fecha).total_seconds()
+                    if consulta_fecha.tzinfo is not None else None)
+        except (TypeError, ValueError):
+            edad = None
+        if edad is None or edad < -300 or edad > 3 * 3600:
+            return resultado_sin_datos(nodo, 'La consulta meteorológica está vencida o no tiene una fecha válida')
 
     hourly = datos.get("hourly", {}) or {}
     tiempos = hourly.get("time", [])
@@ -2364,6 +2409,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
                 "%d/%m/%Y %H:%M"
             ),
 
+        "consulta_meteorologica": consulta_original,
+        "origen_meteorologia": datos.get('_ala_origen', 'directa'),
         "horas_disponibles":
             int(n),
     }
@@ -5913,18 +5960,34 @@ def accion_desde_nivel(nivel):
     return ACCIONES_FICHA.get(nivel, ACCIONES_FICHA['SIN DATOS'])
 
 
+def _consulta_meteorologica_vigente(modelo):
+    """Una fila cacheada conserva la caducidad de su descarga original."""
+    consulta = modelo.get('consulta_meteorologica')
+    if consulta is None:
+        return True  # Las filas legadas mantienen el control de cálculo de 12 h.
+    try:
+        fecha = datetime.fromisoformat(str(consulta).replace('Z', '+00:00'))
+        if fecha.tzinfo is None or fecha.utcoffset() is None:
+            return False
+        edad = (ahora().astimezone(timezone.utc) - fecha).total_seconds()
+        return -300 <= edad <= 3 * 3600
+    except (TypeError, ValueError):
+        return False
+
+
 def fusion_territorial(modelo, agua=None, suelo=None, cota_baja=None, rio=None):
     amarillo, rojo = umbrales_semaforo()
     indice = float(modelo.get('indice', np.nan))
     lluvia = float(modelo.get('lluvia_futura_72', np.nan))
-    valido = bool(np.isfinite(indice) and modelo.get('cobertura_meteorologica', True))
+    valido = bool(np.isfinite(indice) and modelo.get('cobertura_meteorologica', True)
+                  and _consulta_meteorologica_vigente(modelo))
     if modelo.get('actualizado'):
         try:
             valido &= dato_vigente(datetime.strptime(modelo['actualizado'], '%d/%m/%Y %H:%M'), 12)
         except (ValueError,TypeError):
             valido = False
     rank = (2 if indice>=rojo else 1 if indice>=amarillo else 0) if valido else None
-    motivos = [f'Índice meteorológico {indice:.1f}/100; amarillo ≥ {amarillo:g}, rojo ≥ {rojo:g}'] if valido else ['Meteorología ausente, incompleta o de más de 12 horas']
+    motivos = [f'Índice meteorológico {indice:.1f}/100; amarillo ≥ {amarillo:g}, rojo ≥ {rojo:g}'] if valido else ['Meteorología ausente, incompleta o vencida; no acredita riesgo bajo']
     cobertura = int(valido)
     if agua and dato_vigente(agua.get('fecha'),72) and np.isfinite(agua.get('NDWI',np.nan)):
         cobertura += 1
@@ -6172,13 +6235,14 @@ def integrar_semaforo(df, panorama=None):
         nodo = next((n for n in NODOS if n['localidad'] == row['localidad']), row)
         # La estación manual de una sesión no sustituye la vigilancia automática.
         agua, suelo, baja, _rio_manual = componentes_localidad(nodo)
-        fusion = fusion_territorial(row, agua, suelo, baja)
         try:
             met_fecha = datetime.strptime(str(row.get('actualizado','')), '%d/%m/%Y %H:%M')
             row['cobertura_meteorologica'] = bool(row.get('cobertura_meteorologica',True) and
-                np.isfinite(float(row.get('indice',np.nan))) and dato_vigente(met_fecha,12))
+                np.isfinite(float(row.get('indice',np.nan))) and dato_vigente(met_fecha,12)
+                and _consulta_meteorologica_vigente(row))
         except (ValueError,TypeError):
             row['cobertura_meteorologica'] = False
+        fusion = fusion_territorial(row, agua, suelo, baja)
         row['nivel_meteorologico'] = nivel_desde_indice(float(row.get('indice', np.nan))) if row['cobertura_meteorologica'] else 'SIN DATOS'
         row['nivel'] = fusion['semaforo']
         hidro = evaluar_localidad(row['localidad'], panorama, referencia=referencia_integrada)
@@ -7340,8 +7404,18 @@ def render_app():
 
         if actualizar:
 
+            from red_integrada import limpiar_cache_red_integrada
+            from hidro_actual import solicitar_actualizacion
+            limpiar_cache_red_integrada()
+            solicitar_actualizacion()
+            # Todos los lectores Streamlit vuelven a consultar su fuente.
+            st.cache_data.clear()
+            obtener_captura_meteorologica_publica.clear()
             obtener_datos_ecmwf.clear()
             obtener_panorama_hidrologico.clear()
+            obtener_cap_litoral.clear()
+            obtener_observaciones_smn.clear()
+            obtener_archivo_observaciones_smn.clear()
             consultar_siga_proyecto.clear()
             st.session_state.pop('tp_siga', None)
             for consulta_ficha in (consultar_ina, estaciones_ina_publicas, catalogo_inta,
@@ -7417,14 +7491,15 @@ def render_app():
         if (
             actualizar
             or "df_alerta" not in st.session_state
-            or edad_fuente(st.session_state.get('meteorologia_consultada'), ahora()) >= .25
+            or edad_fuente(st.session_state.get('meteorologia_consultada'), ahora()) >= (5 / 60)
         ):
 
             with st.spinner(
-                "Consultando datos meteorológicos de ECMWF..."
+                "Actualizando la información meteorológica disponible..."
             ):
 
-                raw_ecmwf = obtener_datos_ecmwf()
+                raw_ecmwf, meteo_info = obtener_meteorologia_publica()
+                st.session_state['meteorologia_origen'] = meteo_info
 
                 raw_ecmwf = (
                     list(raw_ecmwf)
@@ -7493,7 +7568,8 @@ def render_app():
 
                 st.session_state[
                     "raw_ecmwf"
-                ] = obtener_datos_ecmwf()
+                ], meteo_info = obtener_meteorologia_publica()
+                st.session_state['meteorologia_origen'] = meteo_info
 
             raw_ecmwf = st.session_state[
                 "raw_ecmwf"
@@ -7504,7 +7580,12 @@ def render_app():
         df_alerta = integrar_semaforo(df_alerta, panorama=panorama_hidro)
         st.session_state["df_operativo"] = df_alerta
         st.header('🗺️ Mapa de riesgo del Litoral')
-        st.caption('Evaluación: '+fecha_publica(ahora())+' · Cada fuente conserva su propia fecha. Tocá un punto para ver qué explica su estado.')
+        st.caption('Evaluación: '+fecha_publica(ahora())+' · Actualización automática cada 5 minutos mientras la página está abierta. Cada fuente conserva su propia fecha.')
+        meteo_info = st.session_state.get('meteorologia_origen', {})
+        if meteo_info.get('consultado'):
+            canal = 'Consulta compartida' if meteo_info.get('origen') == 'compartida' else 'Consulta directa'
+            st.caption(canal+' de ECMWF / Open-Meteo: '+fecha_publica(meteo_info['consultado'])+
+                       ' · Es la fecha de descarga, no la emisión del modelo ni una medición en vivo.')
         conteo_mapa=df_alerta['nivel'].value_counts()
         st.markdown(f"**🔴 Atención prioritaria: {int(conteo_mapa.get('ROJO',0))}** · "
                     f"**🟡 Prepararse: {int(conteo_mapa.get('AMARILLO',0))}** · "
