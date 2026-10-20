@@ -696,12 +696,14 @@ def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
 
 def _publicar_meteorologia(status, app, store):
     """Comparte la consulta completa del monitor sin repetir peticiones ECMWF."""
-    captura = getattr(app, "_captura_meteorologica_monitor", None)
-    if captura is None:
-        status.update(meteorologia_publicada=False, meteorologia_estado="no_disponible")
-        return
     status.update(meteorologia_publicada=False, meteorologia_estado="pendiente")
     try:
+        if getattr(app, "_captura_meteorologica_error", None):
+            raise MeteorologiaPublicationError("preparacion", "captura_no_valida")
+        captura = getattr(app, "_captura_meteorologica_monitor", None)
+        if captura is None:
+            status.update(meteorologia_publicada=False, meteorologia_estado="no_disponible")
+            return
         document = _validar_meteorologia(captura, app.NODOS)
         receipt = store.save_meteorologia(document)
         status.update(meteorologia_publicada=True, meteorologia_estado="verificada",
@@ -785,6 +787,8 @@ def run_monitor(
             "No se pudo completar la evaluación automática de meteorología, hidrología y represas. "
             f"Diagnóstico: {_safe_exception_type(error)} en {evaluation_stage}."
         ) from None
+    if dry_run and getattr(app, "_captura_meteorologica_error", None):
+        raise MeteorologiaPublicationError("preparacion", "captura_no_valida")
     total = len(frame)
     levels = frame["nivel"].astype(str).str.upper() if "nivel" in frame else None
     if levels is None:

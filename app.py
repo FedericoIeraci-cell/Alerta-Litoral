@@ -19,7 +19,7 @@
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.10.2
+# Versión: V4.10.3
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.2"
+VERSION = "V4.10.3"
 MODELO = "ECMWF IFS HRES 9 km"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1269,13 +1269,14 @@ def obtener_datos_ecmwf():
     consultado = ahora().isoformat()
     # El publicador reutiliza esta misma descarga; nunca repite la consulta.
     if ALA_MONITOR_HEADLESS:
-        global _captura_meteorologica_monitor
+        global _captura_meteorologica_monitor, _captura_meteorologica_error
         _captura_meteorologica_monitor = None
+        _captura_meteorologica_error = None
         try:
             from meteorologia_compartida import crear_captura
             _captura_meteorologica_monitor = crear_captura(NODOS, datos, consultado)
         except ValueError:
-            pass
+            _captura_meteorologica_error = 'captura_no_valida'
     return [dict(fila, _ala_consultado=consultado, _ala_origen='directa')
             if isinstance(fila.get('hourly'), dict) and not fila.get('error') else fila
             for fila in datos]
