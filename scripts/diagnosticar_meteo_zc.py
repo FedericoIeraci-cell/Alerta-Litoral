@@ -35,4 +35,15 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) == 2:
+        informe = red.validar_red_integrada(json.loads(Path(sys.argv[1]).read_text()))
+        nodos = [n for n in informe['nodos'] if n['red'] == 'Zárate–Campana']
+        print(json.dumps({'generated_at': informe['generated_at'], 'referencias': len(nodos),
+                          'lluvia_72_vigentes': sum(n['vigente'] and n['lluvia_prevista_72_mm'] is not None for n in nodos)}))
+        for n in nodos:
+            print(json.dumps({k: n.get(k) for k in ('localidad', 'fecha_consulta', 'fecha_calculo',
+                'referencia_pronostico', 'vigente', 'estado_datos', 'recuperacion',
+                'lluvia_prevista_24_mm', 'lluvia_prevista_72_mm', 'error', 'error_actualizacion',
+                'intentos_meteorologia')}, ensure_ascii=False))
+    else:
+        main()
