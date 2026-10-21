@@ -32,6 +32,7 @@ SNAPSHOT_ZC_URL = (
 MAX_BYTES = 2_000_000
 MAX_UNCOMPRESSED_BYTES = 20_000_000
 MAX_AGE_HOURS = 3
+PRESUPUESTO_CAPTURA_ZC_SEGUNDOS = 180
 ERROR_PUBLICO = "La fuente meteorológica no devolvió datos utilizables para este nodo."
 
 _ORDEN_HORARIAS = (
@@ -64,6 +65,10 @@ _ZONAS = frozenset({"America/Argentina/Buenos_Aires", "America/Buenos_Aires"})
 
 class CapturaMeteorologicaError(ValueError):
     """Error público: nunca contiene cuerpos HTTP, URLs privadas ni excepciones."""
+
+
+class _PresupuestoCapturaError(CapturaMeteorologicaError):
+    """Distingue el límite del colector de un error de formato de la fuente."""
 
 
 def _error(mensaje="La captura meteorológica tiene un formato no válido."):
@@ -351,12 +356,29 @@ def crear_captura_zc(referencia=None, session=None):
     reemplaza la captura anterior; las grillas reducidas son independientes.
     """
     from concurrent.futures import ThreadPoolExecutor
+    from threading import local
     import time
     from red_integrada import NODOS_ZC
     import requests
-    if session is None:
-        session = requests
     consulta = _fecha(referencia) if referencia is not None else datetime.now(timezone.utc)
+    limite = time.monotonic() + PRESUPUESTO_CAPTURA_ZC_SEGUNDOS
+    # Una sesión por trabajador conserva las conexiones sin compartir entre
+    # hilos cookies, sockets o estado de requests.Session.
+    transporte_local, sesiones = local(), []
+
+    def transporte():
+        if session is not None:
+            return session
+        if not hasattr(transporte_local, 'session'):
+            transporte_local.session = requests.Session()
+            sesiones.append(transporte_local.session)
+        return transporte_local.session
+
+    def restante():
+        segundos = limite - time.monotonic()
+        if segundos <= 0:
+            raise _PresupuestoCapturaError('La captura completa de Zárate–Campana agotó su presupuesto de consulta; se conserva el respaldo con su fecha original.')
+        return segundos
     # Misma petición del getter ALA: orden de claves, variables y User-Agent.
     base = {"hourly": ",".join(_ORDEN_HORARIAS),
             "daily": ",".join(_ORDEN_DIARIAS),
@@ -367,7 +389,9 @@ def crear_captura_zc(referencia=None, session=None):
     def consultar(lote, params):
         respuesta = None
         try:
-            respuesta = session.get(FUENTE, params=params, timeout=(5, 30),
+            segundos = restante()
+            respuesta = transporte().get(FUENTE, params=params,
+                                    timeout=(min(5, segundos), min(30, segundos)),
                                     headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
             respuesta.raise_for_status()
             datos = respuesta.json()
@@ -399,12 +423,24 @@ def crear_captura_zc(referencia=None, session=None):
                 with suppress(Exception):
                     respuesta.close()
 
-    def consultar_por_partes(lote, params):
+    def consultar_por_partes(lote, params, profundidad=0):
         # Tras dos fallos transitorios: reduce el trabajo por petición, no
         # el conjunto de variables ni el horizonte. No reintenta HTTP 403/429.
-        grupos = [dict(params, hourly=",".join(_ORDEN_HORARIAS[i::2]),
-                       daily=",".join(_ORDEN_DIARIAS[i::2])) for i in range(2)]
-        primera, segunda = (consultar(lote, grupo) for grupo in grupos)
+        horarias, diarias = params['hourly'].split(','), params['daily'].split(',')
+        grupos = [dict(params, hourly=",".join(horarias[i::2]),
+                       daily=",".join(diarias[i::2])) for i in range(2)]
+        partes = []
+        for grupo in grupos:
+            try:
+                parte = consultar(lote, grupo)
+            except requests.exceptions.ReadTimeout:
+                # Sólo la mitad que falló se subdivide una vez más. No se
+                # repiten las partes obtenidas ni se cambia el horizonte.
+                if profundidad >= 1:
+                    raise
+                parte = consultar_por_partes(lote, grupo, profundidad + 1)
+            partes.append(parte)
+        primera, segunda = partes
         for destino, parte in zip(primera, segunda):
             for campo in ("latitude", "longitude", "timezone", "utc_offset_seconds"):
                 if campo not in destino or destino[campo] != parte.get(campo):
@@ -438,9 +474,14 @@ def crear_captura_zc(referencia=None, session=None):
                     espera = getattr(respuesta, "headers", {}).get("Retry-After")
                     if espera is not None and (not str(espera).isdigit() or int(espera) > 30):
                         raise
-                    time.sleep(max(1, int(espera or 1)))
+                    pausa = max(1, int(espera or 1))
+                    if restante() < pausa:
+                        raise _PresupuestoCapturaError('La espera solicitada por la fuente supera el presupuesto de consulta ZC; se conserva el respaldo con su fecha original.')
+                    time.sleep(pausa)
                     if intento:
                         return consultar_por_partes(lote, params)
+        except _PresupuestoCapturaError:
+            raise
         except requests.exceptions.Timeout as exc:
             clase = ("timeout_conexion" if isinstance(exc, requests.exceptions.ConnectTimeout) else
                      "timeout_lectura" if isinstance(exc, requests.exceptions.ReadTimeout) else "timeout")
@@ -460,8 +501,15 @@ def crear_captura_zc(referencia=None, session=None):
     # multiplica el trabajo del proveedor antes de devolver el primer byte.
     # Aislarlas también limita cada reintento a la localidad que falló.
     lotes = [[nodo] for nodo in NODOS_ZC]
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
+    finally:
+        # El pool ya esperó la finalización de los trabajadores, incluso si una
+        # referencia falló. Ninguna sesión queda abierta entre controles.
+        for conexion in sesiones:
+            with suppress(Exception):
+                conexion.close()
     if any(not _con_datos(dato) for dato in datos):
         _error("La captura meteorológica completa de Zárate–Campana no cubre todos los nodos.")
     return crear_captura(NODOS_ZC, datos, consulta)

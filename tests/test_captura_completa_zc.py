@@ -3,8 +3,10 @@ from datetime import datetime, timedelta, timezone
 import ast
 from collections import Counter
 import json
+import itertools
 from pathlib import Path
 import sys
+import threading
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
@@ -77,6 +79,80 @@ class CompleteCaptureTests(unittest.TestCase):
         for dato in capture["datos"]:
             self.assertEqual(set(dato["hourly"]) - {"time"}, set(met._ORDEN_HORARIAS))
             self.assertEqual(set(dato["daily"]) - {"time"}, set(met._ORDEN_DIARIAS))
+
+    def test_subdivide_solo_la_mitad_que_falla_y_conserva_la_captura_exacta(self):
+        class SubdivisionSession(Session):
+            def __init__(self): super().__init__(); self.attempts = []
+            def get(self, url, **kwargs):
+                params = kwargs['params']; self.attempts.append(params)
+                variables = params['hourly'].split(',')
+                if len(variables) == 32 or (len(variables) == 16 and variables[0] == met._ORDEN_HORARIAS[0]):
+                    raise requests.exceptions.ReadTimeout('Detalle privado')
+                return super().get(url, **kwargs)
+        session = SubdivisionSession()
+        capture = met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(capture, met.crear_captura_zc(referencia=NOW, session=Session()))
+        self.assertEqual(len(session.attempts), 60)
+        self.assertTrue(all(p['past_days'] == 8 and p['forecast_days'] == 15 for p in session.attempts))
+        self.assertTrue(all(r.closed for r in session.responses))
+        counts = Counter((p['latitude'], p['hourly']) for p in session.attempts)
+        self.assertTrue(all(count == (2 if len(variables.split(',')) == 32 else 1)
+                            for (_, variables), count in counts.items()))
+
+    def test_subpartes_de_celdas_distintas_no_reemplazan_captura(self):
+        class DifferentCell(Session):
+            def get(self, url, **kwargs):
+                if len(kwargs['params']['hourly'].split(',')) > 8:
+                    raise requests.exceptions.ReadTimeout('Detalle privado')
+                response = super().get(url, **kwargs)
+                if kwargs['params']['hourly'].split(',')[0] == met._ORDEN_HORARIAS[2]:
+                    response.data[0]['latitude'] += .02
+                return response
+        session = DifferentCell()
+        with self.assertRaisesRegex(met.CapturaMeteorologicaError, 'respuesta_invalida'):
+            met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_presupuesto_agotado_no_inicia_nuevas_consultas_ni_fabrica_fecha(self):
+        clock = [0.0]
+        class SlowSession(Session):
+            def get(self, url, **kwargs):
+                clock[0] = met.PRESUPUESTO_CAPTURA_ZC_SEGUNDOS + 1
+                return super().get(url, **kwargs)
+        session = SlowSession()
+        with patch.object(met.time, 'monotonic', side_effect=lambda: clock[0]):
+            with self.assertRaisesRegex(met.CapturaMeteorologicaError, 'presupuesto'):
+                met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertLessEqual(len(session.calls), 2)
+        self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_peticion_respeta_el_tiempo_restante_del_presupuesto(self):
+        clock = itertools.chain([0.0], itertools.repeat(175.0))
+        session = Session()
+        with patch.object(met.time, 'monotonic', side_effect=lambda: next(clock)):
+            capture = met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(capture['consultado'], NOW.isoformat())
+        self.assertTrue(all(kw['timeout'] == (5, 5) for _, kw in session.calls))
+
+    def test_sesiones_propias_se_reutilizan_por_hilo_y_se_cierran(self):
+        for fail in (False, True):
+            owned = []
+            class OwnedSession(Session):
+                def __init__(self): super().__init__(fail=fail); self.threads = set(); self.closed = False
+                def get(self, *args, **kwargs):
+                    self.threads.add(threading.get_ident())
+                    return super().get(*args, **kwargs)
+                def close(self): self.closed = True
+            def factory():
+                item = OwnedSession(); owned.append(item); return item
+            with self.subTest(fail=fail), patch.object(requests, 'Session', side_effect=factory), \
+                    patch.object(requests, 'get', side_effect=AssertionError('Sin requests.get global')):
+                if fail:
+                    with self.assertRaises(met.CapturaMeteorologicaError): met.crear_captura_zc(referencia=NOW)
+                else:
+                    self.assertEqual(len(met.crear_captura_zc(referencia=NOW)['datos']), 10)
+            self.assertTrue(1 <= len(owned) <= 2)
+            self.assertTrue(all(s.closed and len(s.threads) == 1 for s in owned))
 
     def test_no_mezcla_partes_de_celdas_o_periodos_distintos(self):
         def desplazar_tiempos(dato):
@@ -215,7 +291,7 @@ class CompleteCaptureTests(unittest.TestCase):
                 self.assertNotIn("Detalle privado", str(raised.exception))
                 attempts = Counter(call.kwargs["params"]["latitude"] for call in session.get.call_args_list)
                 self.assertTrue(attempts)
-                limite = 3 if error is requests.exceptions.ReadTimeout else 2
+                limite = 4 if error is requests.exceptions.ReadTimeout else 2
                 self.assertTrue(all(count == limite for count in attempts.values()))
 
     def test_monitor_conserva_solo_diagnostico_publico(self):

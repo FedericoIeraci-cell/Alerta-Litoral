@@ -14,6 +14,23 @@ El respaldo cuenta como actual durante las tres horas que ya admitía el lector.
 
 Ambos repositorios usan la misma versión del lector y muestran el origen de la lluvia (directo, reducido, respaldo vigente o vencido). Las portadas conservan sus evaluaciones locales: el contrato compartido no convierte estas variables en una orden de evacuación.
 
+## Captura completa para la página
+
+El productor completo consulta las diez referencias con dos trabajadores y
+reutiliza una conexión independiente por trabajador. Después de dos fallos
+transitorios intenta dos partes con todas las variables y el mismo horizonte.
+Si una parte vuelve a agotar el tiempo de lectura, sólo esa parte se divide una
+vez más. Una parte ya obtenida no se descarga de nuevo. Las uniones exigen la
+misma celda, zona horaria y ejes horarios/diarios; no se mezclan grillas distintas.
+
+El conjunto de descargas tiene un presupuesto de 180 segundos, comprobado antes
+de cada petición y de respetar una espera `Retry-After`. Los límites de conexión
+y lectura se reducen al tiempo restante. Esto acota los nuevos intentos; la
+transferencia de una respuesta ya iniciada puede prolongar la duración total.
+HTTP 403/429 y respuestas incompatibles no activan una subdivisión. Si falta una
+referencia o se agota el presupuesto no se reemplaza la captura completa ni se
+renueva su fecha. Esta recuperación no convierte escurrimiento nulo en disponible.
+
 ## Comprobación reproducible
 
 `python scripts/diagnosticar_meteo_zc.py` compara una sola vez el lote original de ocho, una coordenada con parámetros completos y una coordenada con lluvia a cuatro días. Registra hora, parámetros, duración, tipo de error o cobertura obtenida. Es una muestra puntual, no una prueba causal ni una medición de disponibilidad sostenida.
