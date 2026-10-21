@@ -161,7 +161,11 @@ _SCRIPT_MAPA = r"""
   let ultimoFoco = null;
   const cerrarDetalle = () => { dialogo.close(); };
   cerrar.addEventListener('click', cerrarDetalle);
-  dialogo.addEventListener('close', () => { if (ultimoFoco && ultimoFoco.isConnected) ultimoFoco.focus(); });
+  dialogo.addEventListener('close', () => {
+    // Quitar también los estilos de la ficha evita colorear otro popup abierto.
+    detalle.replaceChildren();
+    if (ultimoFoco && ultimoFoco.isConnected) ultimoFoco.focus();
+  });
   dialogo.addEventListener('click', evento => { if (evento.target === dialogo) cerrarDetalle(); });
   const abrirDetalle = (punto, origen = document.activeElement) => {
     ultimoFoco = origen;

@@ -9,7 +9,7 @@ function escenario(movil) {
       this.style = {}; this.attrs = {}; this.value = ''; this.hidden = false; this.isConnected = true; }
     append(...nodes) { this.children.push(...nodes); }
     appendChild(node) { this.append(node); return node; }
-    replaceChildren() { this.children = []; }
+    replaceChildren() { this.children = []; this.innerHTML = ''; }
     setAttribute(k, v) { this.attrs[k] = v; }
     addEventListener(k, f) { (this.listeners[k] ||= []).push(f); }
     fire(k, extras = {}) { for(const f of this.listeners[k] || []) f({target: this, ...extras}); }
@@ -69,6 +69,7 @@ function escenario(movil) {
   assert.equal(ids['mapa-detalle-contenido'].innerHTML, '<p>Sin datos no es cero</p>');
   ids['mapa-cerrar'].fire('click');
   assert.equal(ids['mapa-detalle'].open, false);
+  assert.equal(ids['mapa-detalle-contenido'].innerHTML, '', 'Cerrar retira contenido y estilos de la ficha');
   assert.equal(document.activeElement, fila, 'Cerrar devuelve el foco a la lista');
   ids['mapa-buscar'].value = ''; ids['mapa-nivel'].value = 'ROJO'; ids['mapa-nivel'].fire('change');
   assert.equal(layers.size, 1);
