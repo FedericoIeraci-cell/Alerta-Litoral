@@ -1,7 +1,7 @@
 :root { color-scheme: light dark; --text: #213748; --background: #ffffff; --border: #73828f; }
 * { box-sizing: border-box; }
 body { margin: 0; padding: 1px 1px 3px; color: var(--text); background: transparent; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-button { display: block; width: 100%; min-height: 39px; border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; color: var(--text); background: var(--background); font: 600 14px/1.45 system-ui, sans-serif; cursor: pointer; }
+button { display: block; width: 100%; min-height: 48px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); background: var(--background); font: 600 16px/1.45 system-ui, sans-serif; cursor: pointer; }
 button:hover:not(:disabled) { border-color: #19758a; color: #167487; }
 button:focus-visible { outline: 3px solid #56b8cc; outline-offset: 1px; }
 button:disabled { cursor: progress; opacity: .7; }

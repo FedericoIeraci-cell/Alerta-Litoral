@@ -119,6 +119,10 @@ def crear_tarjeta_mapa(tarjeta_nodo=None, referencia=None, panorama=None):
         detalle = (str(tarjeta_nodo(dict(original))) if tarjeta_nodo is not None else
                    '<b>' + escape(str(original.get('localidad') or 'Referencia')) + '</b>')
         # El nombre sigue primero; las cifras preceden al motivo y las acciones.
+        # La ficha completa lleva su título en h3; sus <br> pertenecen al pie.
+        cabecera, separador, resto = detalle.partition('</h3>')
+        if separador:
+            return cabecera + separador + '<p class="ala-mapa-cifras">' + datos + '</p>' + resto
         cabecera, separador, resto = detalle.partition('<br>')
         if separador:
             return cabecera + '<br>' + datos + '<hr>' + resto

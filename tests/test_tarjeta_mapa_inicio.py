@@ -32,6 +32,18 @@ def tarjeta(row, panorama=None):
 
 
 class TarjetaMapaInicioTest(unittest.TestCase):
+    def test_ficha_completa_conserva_evidencias_y_ubica_cifras_despues_del_titulo(self):
+        from explicaciones_alerta import tarjeta_nodo_html
+        row = fila()
+        original = tarjeta_nodo_html(row)
+        result = crear_tarjeta_mapa(tarjeta_nodo_html, AHORA)(row)
+        self.assertIn('Evidencias, vigencia y fuentes consultables', result)
+        self.assertLess(result.index('</h3>'), result.index('12,3 mm'))
+        self.assertLess(result.index('12,3 mm'), result.index('Por qué tiene este color'))
+        # Quitar sólo el bloque nuevo debe recuperar la ficha completa byte a byte.
+        import re
+        self.assertEqual(re.sub(r'<p class="ala-mapa-cifras">.*?</p>', '', result, count=1), original)
+
     def test_lluvia_independiente_y_altura_cero_validas_visibles_antes_del_detalle(self):
         row = fila()
         original = deepcopy(row)
