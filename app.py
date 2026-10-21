@@ -4774,17 +4774,23 @@ def fase_roni(df):
 
 
 def mostrar_enos_ficha():
+    from enos_visual import tarjeta_roni, grafico_roni
     st.subheader('El Niño / La Niña · contexto estacional')
-    d, origen = obtener_roni(); ultimo = d.iloc[-1]
-    st.metric('RONI · anomalía relativa Niño 3.4', f'{ultimo.RONI:+.1f} °C')
+    d, origen = obtener_roni()
+    if d.empty:
+        st.warning('No hay una serie RONI verificable para mostrar.')
+        st.link_button('Fuente y criterio NOAA CPC', RONI_URL)
+        return
+    ultimo = d.iloc[-1]
+    st.markdown(tarjeta_roni(ultimo.RONI), unsafe_allow_html=True)
     st.caption(f'{origen} · trimestre {ultimo.trimestre} {int(ultimo["año"])} · {fase_roni(d)}')
     st.write('El RONI resume el Pacífico tropical. No determina por sí solo una inundación local: se contrasta con lluvia, suelo, ríos y territorio. Las tendencias trimestrales del SMN están en Datos oficiales SMN.')
     desde = st.slider('Año inicial de la serie ENOS', 1950, ahora().year-1, 2014, key='ficha_roni_inicio')
     vista = d[d['año']>=desde].copy()
     vista['fecha'] = pd.to_datetime(dict(year=vista['año'],month=vista.mes_central,day=15))
-    fig = px.line(vista,x='fecha',y='RONI',hover_data=['trimestre'])
-    fig.add_hline(y=.5,line_color='red'); fig.add_hline(y=-.5,line_color='blue')
+    fig = grafico_roni(vista)
     st.plotly_chart(fig,use_container_width=True,key='ficha_roni_chart')
+    st.caption('Rojo: anomalía positiva · Azul: anomalía negativa · Gris: cero. El signo y el color por sí solos no confirman una fase El Niño o La Niña. Las líneas punteadas marcan ±0,5 °C.')
     st.caption('NOAA publica medias móviles de tres meses. Cinco trimestres consecutivos por encima de +0,5 °C o debajo de −0,5 °C delimitan episodios históricos; la confirmación operacional también considera la atmósfera. Los valores recientes pueden revisarse. RONI y ONI no son intercambiables.')
     st.download_button('Descargar serie RONI',d.to_csv(index=False).encode('utf-8-sig'),'NOAA_RONI.csv','text/csv',key='ficha_roni_csv')
     st.link_button('Fuente y criterio NOAA CPC',RONI_URL)

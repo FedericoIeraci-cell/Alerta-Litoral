@@ -130,6 +130,11 @@ def _leer_leaflet():
     return css, js
 
 
+@lru_cache(maxsize=1)
+def _leer_viirs():
+    return (_ASSETS.parent / 'viirs' / 'viirs.js').read_text(encoding='utf-8')
+
+
 _SCRIPT_MAPA = r"""
 (function () {
   'use strict';
@@ -253,6 +258,11 @@ _SCRIPT_MAPA = r"""
       });
       fondo.addTo(mapa);
     }
+    if (datos.capa_viirs) {
+      // La consulta sólo comienza al activar la capa; sus fallos no ocultan nodos.
+      try { window.AlaViirs.attach(mapa, L); }
+      catch (error) { mostrarAviso('La capa VIIRS no está disponible; los nodos conservan su evaluación.'); }
+    }
     // Reencuadrar al cambiar el ancho también cubre iframes inicialmente ocultos
     // dentro de una pestaña. No hay temporizador, geolocalización ni seguimiento.
     if (typeof ResizeObserver !== 'undefined') {
@@ -278,7 +288,7 @@ _SCRIPT_MAPA = r"""
 
 def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
                       ajustar_a='geometrias', titulo='Mapa de riesgo del Litoral',
-                      leyenda='Evaluación integrada', fondo_osm=True):
+                      leyenda='Evaluación integrada', fondo_osm=True, capa_viirs=False):
     """Devuelve un documento para ``components.html(..., height=altura)``.
 
     En Zárate–Campana se pasa ``geometrias={}``, ``ajustar_a='puntos'`` y el
@@ -290,10 +300,14 @@ def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
     datos = construir_datos_mapa(df, geometrias, tarjeta_nodo, ajustar_a=ajustar_a,
                                 titulo=titulo, leyenda=leyenda)
     datos['fondo_osm'] = bool(fondo_osm)
+    datos['capa_viirs'] = bool(capa_viirs)
     css, js = _leer_leaflet()
+    viirs_js = _leer_viirs() if capa_viirs else ''
+    fuente_viirs = ' https://floods.ssec.wisc.edu' if capa_viirs else ''
+    conexiones = 'https://floods.ssec.wisc.edu' if capa_viirs else "'none'"
     return f'''<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: https://tile.openstreetmap.org; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: https://tile.openstreetmap.org{fuente_viirs}; connect-src {conexiones}; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>{escape(str(titulo))}</title><style>{css}</style><style>
 html,body{{margin:0;padding:0;width:100%;height:{altura}px;overflow:hidden;font-family:system-ui,sans-serif;color:#17324d}}
 #mapa-litoral{{width:100%;height:100%;background:#edf3f5;border-radius:10px}}
@@ -309,6 +323,21 @@ html,body{{margin:0;padding:0;width:100%;height:{altura}px;overflow:hidden;font-
 .mapa-encuadre button{{border:0;padding:7px;background:white;color:#17324d;cursor:pointer;font-size:11px;font-weight:650}}
 .mapa-aviso{{position:absolute;left:80px;right:12px;top:10px;z-index:1000;background:#fff9e6;border:1px solid #c89d2b;border-radius:6px;padding:7px 10px;font-size:12px;line-height:1.4}}
 #mapa-fondo{{position:absolute;left:12px;bottom:38px;z-index:900;max-width:230px;background:#fffffff0;border-radius:5px;padding:5px 7px;font-size:11px;pointer-events:none}}
+.viirs-control{{box-sizing:border-box;width:270px;max-width:calc(100vw - 88px);background:#fff;color:#17324d;border:1px solid #cad5df;border-radius:8px;box-shadow:0 1px 5px #0002;font-size:12px}}
+.viirs-control>summary{{box-sizing:border-box;min-height:44px;padding:12px;cursor:pointer;font-weight:700}}
+.viirs-panel{{padding:0 12px 10px;max-height:{altura-100}px;overflow-y:auto;overscroll-behavior:contain}}
+.viirs-panel label{{display:block;margin:6px 0;font-size:12px}}
+.viirs-panel .viirs-enabled{{display:flex;gap:7px;align-items:center;min-height:44px;font-weight:650}}
+.viirs-panel input[type=checkbox]{{width:20px;height:20px;flex:none}}
+.viirs-panel select,.viirs-panel button{{box-sizing:border-box;display:block;width:100%;min-height:44px;background:#f4f7fa;color:#17324d;border:1px solid #849bb0;border-radius:5px;padding:6px;font:inherit}}
+.viirs-panel input[type=range]{{display:block;width:100%;min-height:32px;margin:0}}
+.viirs-panel p{{line-height:1.4;margin:8px 0}}
+.viirs-panel a{{display:block;min-height:36px;color:#174da0;line-height:1.5}}
+.viirs-status{{font-weight:650}}.viirs-note,.viirs-dates{{font-size:11px}}
+.viirs-legend summary{{min-height:36px;cursor:pointer;padding-top:8px}}
+.viirs-legend img{{max-width:100%;height:auto;background:white}}
+.viirs-panel :focus-visible,.viirs-control>summary:focus-visible{{outline:3px solid #2563eb;outline-offset:2px}}
+body:has(.viirs-control[open]) .mapa-leyenda{{visibility:hidden}}
 @media(max-width:520px){{.mapa-leyenda{{font-size:10px;padding:6px 8px}}.mapa-leyenda strong{{font-size:10px;max-width:145px}}.mapa-provincia{{font-size:9px}}#mapa-fondo{{max-width:155px;font-size:10px}}}}
 </style></head><body>
 <div id="mapa-litoral" role="region" aria-label="{escape(str(titulo), quote=True)}" data-estado="cargando"></div>
@@ -316,5 +345,5 @@ html,body{{margin:0;padding:0;width:100%;height:{altura}px;overflow:hidden;font-
 <div id="mapa-fondo" role="status" hidden>Fondo de calles incompleto; los puntos y límites incluidos siguen visibles.</div>
 <noscript>Activá JavaScript para ver el mapa. El selector y los datos de las localidades están debajo.</noscript>
 <script id="mapa-litoral-datos" type="application/json">{_json_html(datos)}</script>
-<script>{js}</script><script>{_SCRIPT_MAPA}</script>
+<script>{js}</script><script>{viirs_js}</script><script>{_SCRIPT_MAPA}</script>
 </body></html>'''

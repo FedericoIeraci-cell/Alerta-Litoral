@@ -10,6 +10,7 @@ on:
       - 'scripts/**'
       - 'ubicacion_local_frontend/**'
       - 'assets/leaflet/**'
+      - 'assets/viirs/**'
       - '.github/workflows/*.yml'
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - 'scripts/**'
       - 'ubicacion_local_frontend/**'
       - 'assets/leaflet/**'
+      - 'assets/viirs/**'
       - '.github/workflows/*.yml'
   workflow_dispatch:
 
@@ -44,6 +46,8 @@ jobs:
           node-version: '24'
       - name: Verificar ubicación con coordenadas sintéticas, sin permisos reales
         run: node tests/test_ubicacion_js.cjs
+      - name: Verificar capa VIIRS sin consultas externas
+        run: node --test tests/test_viirs_js.cjs
       - name: Verificar reglas y continuidad sin envios
         run: |
           python -m py_compile app.py mapa_litoral.py hidrometria_local.py hidrologia.py ctm.py monitor.py red_integrada.py portada_local.py ubicacion_local.py explicaciones_alerta.py siga_inta.py ficha_proyecto.py panel_proyecto.py decisiones_agro.py

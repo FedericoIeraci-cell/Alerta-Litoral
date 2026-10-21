@@ -105,6 +105,35 @@ Ver [FICHA_DEL_PROYECTO.md](FICHA_DEL_PROYECTO.md) para la correspondencia con l
 
 ## Verificación
 
+### Agua detectada por satélite y colores ENOS
+
+En el mapa principal, **Agua por satélite → Mostrar agua detectada · VIIRS**
+activa una capa independiente de los nodos. Ofrece compuestos de 1 y 5 días,
+opacidad regulable, leyenda del proveedor, fecha nominal UTC y hora de consulta
+argentina. La fecha nominal identifica el producto, no la hora de observación
+de cada píxel. Las imágenes se fijan a esa fecha; si no se puede verificar el
+producto o faltan fechas no se muestra una imagen sin fechar. La consulta sólo
+se realiza al activar o actualizar la capa. Los fallos de imágenes o leyenda se
+informan sin alterar las evaluaciones de los nodos.
+
+Fuente: [VIIRS Flood / SSEC-CIMSS, NOAA y GMU](https://www.ssec.wisc.edu/flood-map-demo/flood-products/).
+Es una observación regional (~375 m), no un pronóstico ni una comprobación de
+cada calle. Una composición de varios días puede combinar observaciones de
+distintas fechas. Nubes, sombras, vegetación y faltantes limitan la detección;
+una zona sin color no confirma ausencia de agua. La disponibilidad del servicio
+externo no se garantiza. Se conserva su leyenda, incluida el agua permanente,
+para no confundirla con inundación nueva. La capa no modifica el semáforo ni
+los envíos del monitor.
+
+La solapa **El Niño / La Niña** colorea el valor y las barras RONI en rojo para
+anomalías positivas, azul para negativas y gris para cero. El signo no confirma
+una fase ENOS: se conservan la serie, los trimestres, la procedencia, los criterios
+de persistencia y las advertencias de NOAA. `enos_visual.py` y `assets/viirs/`
+deben desplegarse junto con `app.py`, `mapa_inicio.py` y `mapa_litoral.py`.
+
+Prueba de fechas, cargas tardías, desactivación y fallos de VIIRS:
+`node --test tests/test_viirs_js.cjs`.
+
 El historial local tolera registros CSV con bytes inválidos sin bloquear los
 registros legibles. Antes de guardar una recuperación conserva el original exacto
 en `historial_alerta_litoral.csv.respaldo-<hash>.bin` y deja un aviso permanente en

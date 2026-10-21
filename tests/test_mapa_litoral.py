@@ -168,6 +168,18 @@ class MapaLitoralTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256((ROOT / 'assets' / 'leaflet' / 'LICENSE').read_bytes()).hexdigest(),
                          '53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb')
 
+    def test_viirs_opcional_no_consulta_red_al_generar_y_limita_origenes(self):
+        filas = [{'localidad': 'Referencia', 'lat': -29, 'lon': -59, 'nivel': 'ROJO'}]
+        base = datos_html(html_mapa_litoral(filas, {}))
+        documento = html_mapa_litoral(filas, {}, capa_viirs=True)
+        parser = DocumentoMapa(documento)
+        datos = json.loads(parser.datos)
+        self.assertEqual(datos['puntos'], base['puntos'])
+        self.assertTrue(datos['capa_viirs'])
+        self.assertEqual(parser.scripts_remotos, [])
+        self.assertIn('connect-src https://floods.ssec.wisc.edu;', parser.csp)
+        self.assertNotIn('connect-src *', parser.csp)
+
     def test_importacion_no_depende_de_streamlit_plotly_ni_red(self):
         spec = importlib.util.spec_from_file_location('_mapa_sin_interfaz', ROOT / 'mapa_litoral.py')
         modulo = importlib.util.module_from_spec(spec)

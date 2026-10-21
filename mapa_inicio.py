@@ -180,7 +180,7 @@ def mostrar_mapa_principal(st, catalogo, frame=None, *, componentes=None,
 
     documento = html_mapa_litoral(filas, geometrias or {}, tarjeta_nodo=tarjeta,
                                  altura=altura, ajustar_a=ajustar_a, titulo=nombre,
-                                 leyenda=leyenda)
+                                 leyenda=leyenda, capa_viirs=True)
     componentes.html(documento, height=altura, scrolling=False)
     if consultando:
         st.caption('Consultando las fuentes. Los puntos grises todavía no tienen una evaluación disponible.')
