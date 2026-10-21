@@ -363,17 +363,38 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "datos_parciales",
+  "health": "error_meteorologia_zc",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "16/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas."
+    "18/20 puntos aplicables con información vigente de represas.",
+    "Consulta meteorológica ZC: Campana costanera, timeout_lectura."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente",
-  "meteorologia_publicada": false,
-  "meteorologia_estado": "pendiente"
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "meteorologia_publicada": true,
+  "meteorologia_estado": "verificada",
+  "red_integrada_bytes": 720477,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "2af617e93c6d1b12c2afd1d5cdb590bd003256c8",
+    "commit_sha": "ece3644663b01367bce53b5775841a727dda989c",
+    "bytes": 720476,
+    "generated_at": "2026-10-21T06:39:49.534351+00:00",
+    "verified_at": "2026-10-21T06:40:20.737633+00:00"
+  },
+  "meteorologia_confirmacion": {
+    "sha": "952d5951b6a0c7e1aabdb349de2fff4c44eda2e4",
+    "commit_sha": "256820c148a0918a38f0eb7ceb27ac22f57f7fde",
+    "bytes": 1186006,
+    "consultado": "2026-10-21T06:39:45.842076+00:00",
+    "verified_at": "2026-10-21T06:40:25.631315+00:00"
+  },
+  "meteorologia_zc_publicada": false,
+  "meteorologia_zc_estado": "error",
+  "meteorologia_zc_error": "Consulta meteorológica ZC: Campana costanera, timeout_lectura.",
+  "health_evaluacion": "datos_parciales"
 }
