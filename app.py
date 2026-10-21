@@ -7371,7 +7371,10 @@ def mostrar_hero_litoral():
 
 def render_app():
     from mapa_inicio import mostrar_mapa_principal, crear_tarjeta_mapa, mostrar_logotipo_ala
+    from interfaz_movil import estilos_responsive, accesos_principales
+    st.html(estilos_responsive())
     mostrar_logotipo_ala(st, cargar_logo_ala())
+    st.html('<div id="ala-mapa" class="ala-ancla" tabindex="-1"></div>')
     mapa_principal = st.empty()
     with mapa_principal.container():
         mostrar_mapa_principal(st, NODOS, componentes=components,
@@ -7586,12 +7589,13 @@ def render_app():
         with mapa_principal.container():
             mostrar_mapa_principal(st, NODOS, df_alerta, componentes=components,
                                   geometrias=GEOMETRIAS_LITORAL,
-                                  tarjeta_nodo=crear_tarjeta_mapa(hover_nodo, referencia=ahora(), panorama=panorama_hidro))
+                                  tarjeta_nodo=crear_tarjeta_mapa(tarjeta_nodo_html, referencia=ahora(), panorama=panorama_hidro))
         meteo_info = st.session_state.get('meteorologia_origen', {})
         if meteo_info.get('consultado'):
             st.caption('Meteorología consultada: '+fecha_publica(meteo_info['consultado'])+
                        ' · Las lecturas del río conservan la fecha de su fuente.')
-        st.subheader('Tu localidad · qué ocurre y qué hacer')
+        st.html(accesos_principales())
+        st.subheader('Tu localidad · qué ocurre y qué hacer', anchor='ala-localidad')
         localidades=sorted(df_alerta.localidad.tolist())
         if localidades:
             from ubicacion_local import seleccionar_localidad
@@ -7605,10 +7609,12 @@ def render_app():
                 mostrar_pronostico_fluvial_local(row_acciones,panorama_hidro)
         else:
             localidad_seleccionada=None
+        st.html('<div id="ala-estado" class="ala-ancla" tabindex="-1"></div>')
         try:
             cargar_panel_red().mostrar_estado_conexion(st, app_actual='ala')
         except Exception:
             st.warning('No se pudo confirmar la actualización del informe compartido. Revisá Red integrada y las fuentes de cada localidad.')
+        st.html('<div id="ala-alertas" class="ala-ancla" tabindex="-1"></div>')
         mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
         mostrar_explorar_tiempo(localidad_seleccionada)
         with st.expander('Cobertura por provincia y localidades monitoreadas'):

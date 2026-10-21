@@ -57,6 +57,14 @@
       const summary = document.createElement('summary');
       summary.textContent = 'Agua por satélite'; box.appendChild(summary);
       const panel = document.createElement('div'); panel.className = 'viirs-panel'; box.appendChild(panel);
+      // La barra de búsqueda reduce el mapa: el panel se ajusta a su alto real.
+      const fitPanel = () => {
+        const height = map.getSize().y;
+        if (height > 0) panel.style.maxHeight = Math.max(80, height - 78) + 'px';
+      };
+      box.addEventListener('toggle', fitPanel);
+      map.on('resize', fitPanel);
+      fitPanel();
       const add = (tag, text, parent = panel) => {
         const el = document.createElement(tag); if (text) el.textContent = text; parent.appendChild(el); return el;
       };

@@ -42,15 +42,17 @@ function frontend() {
   const elements = [], calls = [], layers = [], timers = new Map();
   let number = 0;
   class Element {
-    constructor(tag) {this.tag = tag; this.children = []; this.handlers = {}; this.value = ""; elements.push(this);}
+    constructor(tag) {this.tag = tag; this.children = []; this.handlers = {}; this.style = {}; this.value = ""; elements.push(this);}
     appendChild(el) {this.children.push(el); if (this.tag === "select" && this.children.length === 1) this.value = el.value; return el;}
     addEventListener(name, fn) {this.handlers[name] = fn;}
     setAttribute(name, value) {this[name] = value;}
     removeAttribute(name) {delete this[name];}
   }
   const panes = {};
-  const map = {removeLayer(layer) {layer.removed = true;}, getPane: id => panes[id],
-    createPane(id) {panes[id] = {style: {}};}, on() {}};
+  const mapEvents = {};
+  const map = {height: 270, getSize() {return {y: this.height};},
+    removeLayer(layer) {layer.removed = true;}, getPane: id => panes[id],
+    createPane(id) {panes[id] = {style: {}};}, on(name, fn) {mapEvents[name] = fn;}};
   const L = {control() {return {addTo(m) {this.box = this.onAdd(m);}};},
     DomUtil: {create: tag => new Element(tag)}, DomEvent: {disableClickPropagation() {}, disableScrollPropagation() {}},
     tileLayer(url, options) {
@@ -69,10 +71,21 @@ function frontend() {
   // El stub no implementa la selección automática del primer option al cambiar su value.
   one("select").value = ID;
   return {elements, calls, layers, checkbox, select: one("select"), status: elements.find(e => e.className === "viirs-status"),
-    dates: elements.find(e => e.className === "viirs-dates"), timers};
+    dates: elements.find(e => e.className === "viirs-dates"), timers, map, mapEvents};
 }
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const answer = (call, data = product(), ok = true) => call.resolve({ok, status: ok ? 200 : 503, text: async () => JSON.stringify(data)});
+
+test("el panel satelital cabe en el mapa reducido y redimensionar no consulta fuentes", () => {
+  const f = frontend();
+  const panel = f.elements.find(e => e.className === "viirs-panel");
+  assert.equal(panel.style.maxHeight, "192px");
+  f.map.height = 440; f.mapEvents.resize();
+  assert.equal(panel.style.maxHeight, "362px");
+  f.map.height = 0; f.mapEvents.resize();
+  assert.equal(panel.style.maxHeight, "362px", "Ocultar el mapa no invalida el límite anterior");
+  assert.equal(f.calls.length, 0);
+});
 
 test("la primera vista no consulta VIIRS; una respuesta válida incorpora imagen y fecha nominal", async () => {
   const f = frontend(); assert.equal(f.calls.length, 0);
