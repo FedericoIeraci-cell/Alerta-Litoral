@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-20T23:27:50.122372+00:00",
-  "checked_at_art": "2026-10-20T20:27:50.122372-03:00",
+  "checked_at": "2026-10-21T00:40:30.620505+00:00",
+  "checked_at_art": "2026-10-20T21:40:30.620505-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 48,
   "nodes_red": 7,
-  "nodes_invalid": 3,
-  "nodes_yellow": 18,
-  "nodes_green": 20,
+  "nodes_invalid": 0,
+  "nodes_yellow": 38,
+  "nodes_green": 3,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -39,8 +39,8 @@
     "fallidas": 0,
     "pendientes": 7,
     "omitidas": 7,
-    "inicializadas": 0,
-    "sin_datos": 3,
+    "inicializadas": 2,
+    "sin_datos": 0,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -368,33 +368,12 @@
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "17/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable."
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 732306,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "07c185fa06c51ee81f493814c868ace77dc6e309",
-    "commit_sha": "4f1b7736238f17e3824843046a682701e082351a",
-    "bytes": 732306,
-    "generated_at": "2026-10-20T23:27:54.196451+00:00",
-    "verified_at": "2026-10-20T23:28:07.347007+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "d8833d3dcee1501208ba36542b44de6af56577b5",
-    "commit_sha": "24fb3d4a3f27fb90d489f73613cf8eb31cdd994b",
-    "bytes": 1187018,
-    "consultado": "2026-10-20T23:27:49.645458+00:00",
-    "verified_at": "2026-10-20T23:28:10.932444+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: lote de 2 nodos, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
