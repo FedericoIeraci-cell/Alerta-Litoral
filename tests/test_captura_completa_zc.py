@@ -111,6 +111,35 @@ class CompleteCaptureTests(unittest.TestCase):
         self.assertTrue(all(count == 3 for count in counts.values()))
         self.assertTrue(all(r.closed for r in session.responses))
 
+    def test_503_transitorio_reintenta_y_recupera_sin_ignorar_retry_after(self):
+        session = Session()
+        original = session.get
+        attempts = []
+        def ocupado(url, **kwargs):
+            attempts.append(kwargs["params"])
+            if len(kwargs["params"]["hourly"].split(",")) == len(met._ORDEN_HORARIAS):
+                raise requests.exceptions.HTTPError("privado", response=SimpleNamespace(
+                    status_code=503, headers={"Retry-After": "2"}))
+            return original(url, **kwargs)
+        session.get = ocupado
+        with patch("time.sleep") as sleep:
+            capture = met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(len(capture["datos"]), 10)
+        self.assertEqual(len(attempts), 40)
+        self.assertEqual(sleep.call_count, 20)
+        self.assertTrue(all(call.args == (2,) for call in sleep.call_args_list))
+
+    def test_503_con_espera_larga_no_insiste(self):
+        for espera in ("120", "Wed, 21 Oct 2026 10:00:00 GMT"):
+            session = Session()
+            error = requests.exceptions.HTTPError("privado", response=SimpleNamespace(
+                status_code=503, headers={"Retry-After": espera}))
+            with patch.object(Response, "raise_for_status", side_effect=error), patch("time.sleep") as sleep:
+                with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_503"):
+                    met.crear_captura_zc(referencia=NOW, session=session)
+            self.assertEqual(len({kw["params"]["latitude"] for _, kw in session.calls}), len(session.calls))
+            sleep.assert_not_called()
+
     def test_colector_completo_timeout_catalogo_fecha_y_ceros(self):
         session = Session()
         capture = met.crear_captura_zc(referencia=NOW, session=session)

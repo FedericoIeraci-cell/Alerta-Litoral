@@ -351,6 +351,7 @@ def crear_captura_zc(referencia=None, session=None):
     reemplaza la captura anterior; las grillas reducidas son independientes.
     """
     from concurrent.futures import ThreadPoolExecutor
+    import time
     from red_integrada import NODOS_ZC
     import requests
     if session is None:
@@ -399,7 +400,7 @@ def crear_captura_zc(referencia=None, session=None):
                     respuesta.close()
 
     def consultar_por_partes(lote, params):
-        # Sólo tras dos esperas de lectura: reduce el trabajo por petición, no
+        # Tras dos fallos transitorios: reduce el trabajo por petición, no
         # el conjunto de variables ni el horizonte. No reintenta HTTP 403/429.
         grupos = [dict(params, hourly=",".join(_ORDEN_HORARIAS[i::2]),
                        daily=",".join(_ORDEN_DIARIAS[i::2])) for i in range(2)]
@@ -428,6 +429,18 @@ def crear_captura_zc(referencia=None, session=None):
                         if isinstance(exc, requests.exceptions.ReadTimeout):
                             return consultar_por_partes(lote, params)
                         raise
+                except requests.exceptions.HTTPError as exc:
+                    respuesta = exc.response
+                    if getattr(respuesta, "status_code", None) not in {502, 503, 504}:
+                        raise
+                    # Una espera explícita del proveedor no se ignora: si
+                    # supera el presupuesto, este control conserva el respaldo.
+                    espera = getattr(respuesta, "headers", {}).get("Retry-After")
+                    if espera is not None and (not str(espera).isdigit() or int(espera) > 30):
+                        raise
+                    time.sleep(max(1, int(espera or 1)))
+                    if intento:
+                        return consultar_por_partes(lote, params)
         except requests.exceptions.Timeout as exc:
             clase = ("timeout_conexion" if isinstance(exc, requests.exceptions.ConnectTimeout) else
                      "timeout_lectura" if isinstance(exc, requests.exceptions.ReadTimeout) else "timeout")
@@ -447,7 +460,7 @@ def crear_captura_zc(referencia=None, session=None):
     # multiplica el trabajo del proveedor antes de devolver el primer byte.
     # Aislarlas también limita cada reintento a la localidad que falló.
     lotes = [[nodo] for nodo in NODOS_ZC]
-    with ThreadPoolExecutor(max_workers=3) as pool:
+    with ThreadPoolExecutor(max_workers=2) as pool:
         datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
     if any(not _con_datos(dato) for dato in datos):
         _error("La captura meteorológica completa de Zárate–Campana no cubre todos los nodos.")
