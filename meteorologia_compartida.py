@@ -351,6 +351,7 @@ def crear_captura_zc(referencia=None, session=None):
     reemplaza la captura anterior; las grillas reducidas son independientes.
     """
     from concurrent.futures import ThreadPoolExecutor
+    import time
     from red_integrada import NODOS_ZC
     import requests
     if session is None:
@@ -363,19 +364,11 @@ def crear_captura_zc(referencia=None, session=None):
             "timezone": "America/Argentina/Buenos_Aires", "temperature_unit": "celsius",
             "wind_speed_unit": "kmh", "precipitation_unit": "mm", "cell_selection": "land"}
 
-    def descargar(lote):
-        params = dict(latitude=",".join(f'{n["lat"]:.6f}' for n in lote),
-                      longitude=",".join(f'{n["lon"]:.6f}' for n in lote), **base)
+    def consultar(lote, params):
         respuesta = None
         try:
-            for intento in range(2):
-                try:
-                    respuesta = session.get(FUENTE, params=params, timeout=(5, 30),
-                                            headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
-                    break
-                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-                    if intento:
-                        raise
+            respuesta = session.get(FUENTE, params=params, timeout=(5, 30),
+                                    headers={"User-Agent": "Alerta-Litoral-Agro/3.10.2"})
             respuesta.raise_for_status()
             datos = respuesta.json()
             datos = datos if isinstance(datos, list) else [datos]
@@ -392,32 +385,82 @@ def crear_captura_zc(referencia=None, session=None):
                 h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
                 if 6371 * 2 * math.asin(math.sqrt(min(1, max(0, h)))) > 40:
                     raise ValueError("Celda incompatible")
+                for campo in ("hourly", "daily"):
+                    bloque = limpio.get(campo, {})
+                    unidades = limpio.get(campo + "_units", {})
+                    solicitadas = set(params[campo].split(","))
+                    if (not bloque.get("time") or not solicitadas <= bloque.keys()
+                            or not solicitadas <= unidades.keys()):
+                        raise ValueError("Respuesta sin todas las variables solicitadas")
                 salida.append(limpio)
             return salida
-        except requests.exceptions.Timeout as exc:
-            clase = ("timeout_conexion" if isinstance(exc, requests.exceptions.ConnectTimeout) else
-                     "timeout_lectura" if isinstance(exc, requests.exceptions.ReadTimeout) else "timeout")
-            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, {clase}.")
-        except requests.exceptions.ConnectionError:
-            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, conexion.")
-        except requests.exceptions.HTTPError as exc:
-            estado = getattr(getattr(exc, "response", None), "status_code", None)
-            codigo = f"http_{estado}" if isinstance(estado, int) and 100 <= estado <= 599 else "http"
-            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, {codigo}.")
-        except (ValueError, TypeError):
-            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, respuesta_invalida.")
-        except Exception:
-            _error(f"Consulta meteorológica ZC: lote de {len(lote)} nodos, error_interno.")
         finally:
             if respuesta is not None:
                 with suppress(Exception):
                     respuesta.close()
 
+    def consultar_por_partes(lote, params):
+        # Tras dos fallos transitorios: reduce el trabajo por petición, no
+        # el conjunto de variables ni el horizonte. No reintenta HTTP 403/429.
+        grupos = [dict(params, hourly=",".join(_ORDEN_HORARIAS[i::2]),
+                       daily=",".join(_ORDEN_DIARIAS[i::2])) for i in range(2)]
+        primera, segunda = (consultar(lote, grupo) for grupo in grupos)
+        for destino, parte in zip(primera, segunda):
+            for campo in ("latitude", "longitude", "timezone", "utc_offset_seconds"):
+                if campo not in destino or destino[campo] != parte.get(campo):
+                    raise ValueError("Partes de celdas o zonas horarias diferentes")
+            for campo in ("hourly", "daily"):
+                if destino[campo]["time"] != parte[campo]["time"]:
+                    raise ValueError("Partes con ejes temporales diferentes")
+                destino[campo].update(parte[campo])
+                destino[campo + "_units"].update(parte[campo + "_units"])
+        return primera
+
+    def descargar(lote):
+        params = dict(latitude=",".join(f'{n["lat"]:.6f}' for n in lote),
+                      longitude=",".join(f'{n["lon"]:.6f}' for n in lote), **base)
+        contexto = f"Consulta meteorológica ZC: {lote[0]['localidad']}"
+        try:
+            for intento in range(2):
+                try:
+                    return consultar(lote, params)
+                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+                    if intento:
+                        if isinstance(exc, requests.exceptions.ReadTimeout):
+                            return consultar_por_partes(lote, params)
+                        raise
+                except requests.exceptions.HTTPError as exc:
+                    respuesta = exc.response
+                    if getattr(respuesta, "status_code", None) not in {502, 503, 504}:
+                        raise
+                    # Una espera explícita del proveedor no se ignora: si
+                    # supera el presupuesto, este control conserva el respaldo.
+                    espera = getattr(respuesta, "headers", {}).get("Retry-After")
+                    if espera is not None and (not str(espera).isdigit() or int(espera) > 30):
+                        raise
+                    time.sleep(max(1, int(espera or 1)))
+                    if intento:
+                        return consultar_por_partes(lote, params)
+        except requests.exceptions.Timeout as exc:
+            clase = ("timeout_conexion" if isinstance(exc, requests.exceptions.ConnectTimeout) else
+                     "timeout_lectura" if isinstance(exc, requests.exceptions.ReadTimeout) else "timeout")
+            _error(f"{contexto}, {clase}.")
+        except requests.exceptions.ConnectionError:
+            _error(f"{contexto}, conexion.")
+        except requests.exceptions.HTTPError as exc:
+            estado = getattr(getattr(exc, "response", None), "status_code", None)
+            codigo = f"http_{estado}" if isinstance(estado, int) and 100 <= estado <= 599 else "http"
+            _error(f"{contexto}, {codigo}.")
+        except (ValueError, TypeError):
+            _error(f"{contexto}, respuesta_invalida.")
+        except Exception:
+            _error(f"{contexto}, error_interno.")
+
     # La respuesta completa por coordenada es grande: agrupar localidades
     # multiplica el trabajo del proveedor antes de devolver el primer byte.
     # Aislarlas también limita cada reintento a la localidad que falló.
     lotes = [[nodo] for nodo in NODOS_ZC]
-    with ThreadPoolExecutor(max_workers=3) as pool:
+    with ThreadPoolExecutor(max_workers=2) as pool:
         datos = [dato for lote in pool.map(descargar, lotes) for dato in lote]
     if any(not _con_datos(dato) for dato in datos):
         _error("La captura meteorológica completa de Zárate–Campana no cubre todos los nodos.")

@@ -42,10 +42,104 @@ class Session:
                  "daily_units": {"time": "iso8601", "temperature_2m_max": "°C"},
                  "daily": {"time": daily, "temperature_2m_max": [24.0] * 23}}
                 for lat, lon in nodes]
+        for dato in data:
+            for campo, longitud in (("hourly", 552), ("daily", 23)):
+                variables = kwargs["params"][campo].split(",")
+                dato[campo] = {"time": dato[campo]["time"], **{
+                    v: dato[campo].get(v, [None] * longitud) for v in variables}}
+                dato[campo + "_units"] = {"time": "iso8601", **{
+                    v: dato[campo + "_units"].get(v, "undefined") for v in variables}}
         response = Response(data); self.responses.append(response); return response
 
 
 class CompleteCaptureTests(unittest.TestCase):
+    class PartitionSession(Session):
+        def __init__(self, alter=None):
+            super().__init__()
+            self.attempts = []
+            self.alter = alter
+
+        def get(self, url, **kwargs):
+            self.attempts.append(kwargs["params"])
+            if len(kwargs["params"]["hourly"].split(",")) == len(met._ORDEN_HORARIAS):
+                raise requests.exceptions.ReadTimeout("Detalle privado")
+            response = super().get(url, **kwargs)
+            if self.alter and kwargs["params"]["hourly"].split(",")[0] == met._ORDEN_HORARIAS[1]:
+                self.alter(response.data[0])
+            return response
+
+    def test_recupera_por_partes_sin_perder_variables_ceros_ni_fecha(self):
+        session = self.PartitionSession()
+        capture = met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(capture, met.crear_captura_zc(referencia=NOW, session=Session()))
+        self.assertEqual(len(session.attempts), 40)
+        self.assertTrue(all(r.closed for r in session.responses))
+        for dato in capture["datos"]:
+            self.assertEqual(set(dato["hourly"]) - {"time"}, set(met._ORDEN_HORARIAS))
+            self.assertEqual(set(dato["daily"]) - {"time"}, set(met._ORDEN_DIARIAS))
+
+    def test_no_mezcla_partes_de_celdas_o_periodos_distintos(self):
+        def desplazar_tiempos(dato):
+            dato["hourly"]["time"] = [(datetime.fromisoformat(t) + timedelta(days=1)).isoformat()
+                                      for t in dato["hourly"]["time"]]
+        for alter in (desplazar_tiempos, lambda d: d.update(latitude=d["latitude"] + .02)):
+            with self.subTest(alter=alter):
+                session = self.PartitionSession(alter)
+                with self.assertRaisesRegex(met.CapturaMeteorologicaError, "respuesta_invalida"):
+                    met.crear_captura_zc(referencia=NOW, session=session)
+                self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_variable_omitida_no_se_presenta_como_captura_completa(self):
+        session = Session()
+        original = session.get
+        def incompleta(*args, **kwargs):
+            response = original(*args, **kwargs)
+            response.data[0]["hourly"].pop("runoff")
+            return response
+        session.get = incompleta
+        with self.assertRaisesRegex(met.CapturaMeteorologicaError, "respuesta_invalida"):
+            met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_http_429_en_recuperacion_no_dispara_segunda_parte_ni_reintentos(self):
+        session = self.PartitionSession()
+        error = requests.exceptions.HTTPError("privado", response=SimpleNamespace(status_code=429))
+        with patch.object(Response, "raise_for_status", side_effect=error):
+            with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_429"):
+                met.crear_captura_zc(referencia=NOW, session=session)
+        counts = Counter(p["latitude"] for p in session.attempts)
+        self.assertTrue(all(count == 3 for count in counts.values()))
+        self.assertTrue(all(r.closed for r in session.responses))
+
+    def test_503_transitorio_reintenta_y_recupera_sin_ignorar_retry_after(self):
+        session = Session()
+        original = session.get
+        attempts = []
+        def ocupado(url, **kwargs):
+            attempts.append(kwargs["params"])
+            if len(kwargs["params"]["hourly"].split(",")) == len(met._ORDEN_HORARIAS):
+                raise requests.exceptions.HTTPError("privado", response=SimpleNamespace(
+                    status_code=503, headers={"Retry-After": "2"}))
+            return original(url, **kwargs)
+        session.get = ocupado
+        with patch("time.sleep") as sleep:
+            capture = met.crear_captura_zc(referencia=NOW, session=session)
+        self.assertEqual(len(capture["datos"]), 10)
+        self.assertEqual(len(attempts), 40)
+        self.assertEqual(sleep.call_count, 20)
+        self.assertTrue(all(call.args == (2,) for call in sleep.call_args_list))
+
+    def test_503_con_espera_larga_no_insiste(self):
+        for espera in ("120", "Wed, 21 Oct 2026 10:00:00 GMT"):
+            session = Session()
+            error = requests.exceptions.HTTPError("privado", response=SimpleNamespace(
+                status_code=503, headers={"Retry-After": espera}))
+            with patch.object(Response, "raise_for_status", side_effect=error), patch("time.sleep") as sleep:
+                with self.assertRaisesRegex(met.CapturaMeteorologicaError, "http_503"):
+                    met.crear_captura_zc(referencia=NOW, session=session)
+            self.assertEqual(len({kw["params"]["latitude"] for _, kw in session.calls}), len(session.calls))
+            sleep.assert_not_called()
+
     def test_colector_completo_timeout_catalogo_fecha_y_ceros(self):
         session = Session()
         capture = met.crear_captura_zc(referencia=NOW, session=session)
@@ -121,7 +215,8 @@ class CompleteCaptureTests(unittest.TestCase):
                 self.assertNotIn("Detalle privado", str(raised.exception))
                 attempts = Counter(call.kwargs["params"]["latitude"] for call in session.get.call_args_list)
                 self.assertTrue(attempts)
-                self.assertTrue(all(count == 2 for count in attempts.values()))
+                limite = 3 if error is requests.exceptions.ReadTimeout else 2
+                self.assertTrue(all(count == limite for count in attempts.values()))
 
     def test_monitor_conserva_solo_diagnostico_publico(self):
         status = {"red_integrada_publicada": True}
