@@ -32,6 +32,19 @@ def main():
             record.update(resultado=type(exc).__name__, http=getattr(getattr(exc, 'response', None), 'status_code', None))
         record['segundos'] = round(time.monotonic() - inicio, 2)
         print(json.dumps(record, ensure_ascii=False), flush=True)
+    # La prueba reducida no acredita que el archivo completo pueda renovarse.
+    # Este mismo paso de CI verifica el productor real, sin publicar ni enviar.
+    from meteorologia_compartida import crear_captura_zc, CapturaMeteorologicaError
+    inicio = time.monotonic()
+    try:
+        captura = crear_captura_zc()
+    except CapturaMeteorologicaError as exc:
+        print(json.dumps({'caso': 'captura_completa_zc', 'resultado': 'error',
+                          'error': str(exc)}, ensure_ascii=False), flush=True)
+        raise SystemExit(1) from None
+    print(json.dumps({'caso': 'captura_completa_zc', 'resultado': 'validada',
+                      'consultado': captura['consultado'], 'nodos': len(captura['datos']),
+                      'segundos': round(time.monotonic() - inicio, 2)}, ensure_ascii=False), flush=True)
 
 
 if __name__ == '__main__':
