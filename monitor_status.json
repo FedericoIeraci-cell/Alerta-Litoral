@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-21T19:34:20.772283+00:00",
-  "checked_at_art": "2026-10-21T16:34:20.772283-03:00",
+  "checked_at": "2026-10-21T20:32:23.327014+00:00",
+  "checked_at_art": "2026-10-21T17:32:23.327014-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 48,
-  "nodes_red": 6,
+  "nodes_red": 7,
   "nodes_invalid": 0,
-  "nodes_yellow": 39,
+  "nodes_yellow": 38,
   "nodes_green": 3,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
+    "pendientes": 7,
     "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 1,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "e18622aaac41",
+      "creado": "2026-10-21T20:32:23.327726+00:00",
+      "intento": "2026-10-21T20:32:23.327726+00:00",
+      "localidad": "Andresito",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 55,1/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,6 → 55,1/100; se evalúa por separado.",
+      "indice_anterior": 54.6,
+      "indice": 55.1,
+      "estado": "enviado",
+      "message_id": 62,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "c8c1d82ed526",
       "creado": "2026-10-20T03:32:48.132374+00:00",
@@ -363,38 +378,17 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 729617,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "332e77811b0bb5ce5cfc99511e225be324aec1d7",
-    "commit_sha": "21bfd8adecafb5c903157513444fdf9e73af664b",
-    "bytes": 729618,
-    "generated_at": "2026-10-21T19:34:23.209565+00:00",
-    "verified_at": "2026-10-21T19:34:33.676821+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "cb30945324adb99f3af158f91bb0bc6e43b82f71",
-    "commit_sha": "969b3f43e04eb2617b57a1384d802b2d52a8befa",
-    "bytes": 1210178,
-    "consultado": "2026-10-21T19:34:20.354464+00:00",
-    "verified_at": "2026-10-21T19:34:38.024801+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
