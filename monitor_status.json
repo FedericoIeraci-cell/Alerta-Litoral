@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-22T08:38:50.499164+00:00",
-  "checked_at_art": "2026-10-22T05:38:50.499164-03:00",
+  "checked_at": "2026-10-22T09:35:30.251956+00:00",
+  "checked_at_art": "2026-10-22T06:35:30.251956-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 6,
-    "omitidas": 6,
+    "omitidas": 5,
     "inicializadas": 0,
     "sin_datos": 1,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "1b1ab829f50a",
+      "creado": "2026-10-22T09:35:30.252597+00:00",
+      "intento": "2026-10-22T09:35:30.252597+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 10.6 puntos. Río observado en Puerto Ituzaingó: 4,61 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 34,0 → 44,6/100; se evalúa por separado.",
+      "indice_anterior": 34.0,
+      "indice": 44.6,
+      "estado": "enviado",
+      "message_id": 65,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "a574ca504f2e",
       "creado": "2026-10-22T06:40:44.159649+00:00",
@@ -408,38 +423,17 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 692212,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "1e5ae32ae6ff9536ad19afeb1b2636611c97b6bd",
-    "commit_sha": "424f4994bffafc2c58e18a7a601f130b203d6fb7",
-    "bytes": 692213,
-    "generated_at": "2026-10-22T08:38:55.177936+00:00",
-    "verified_at": "2026-10-22T08:39:05.999041+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "535f25e3084c5ad141740737e921a9a387d5e83d",
-    "commit_sha": "88eaf9e5ce3b238c68ac98f17cf35636f7186cf6",
-    "bytes": 1185450,
-    "consultado": "2026-10-22T08:38:49.858642+00:00",
-    "verified_at": "2026-10-22T08:39:09.772902+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
