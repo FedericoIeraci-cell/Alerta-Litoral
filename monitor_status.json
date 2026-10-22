@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-22T16:36:28.125066+00:00",
-  "checked_at_art": "2026-10-22T13:36:28.125066-03:00",
+  "checked_at": "2026-10-22T17:31:36.978836+00:00",
+  "checked_at_art": "2026-10-22T14:31:36.978836-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 7,
-    "omitidas": 7,
+    "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "2a2e39ce89e3",
+      "creado": "2026-10-22T17:31:36.979296+00:00",
+      "intento": "2026-10-22T17:31:36.979296+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 11.8 puntos. Río observado en Puerto Ituzaingó: 4,38 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 22/10/2026 · hora de medición no confirmada. Índice meteorológico: 59,2 → 47,4/100; se evalúa por separado.",
+      "indice_anterior": 59.2,
+      "indice": 47.4,
+      "estado": "enviado",
+      "message_id": 69,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "37fa1169ec7d",
       "creado": "2026-10-22T14:36:14.399501+00:00",
@@ -477,34 +492,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 702228,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "330e63250f8c28a5fd32d6ade3ed589f9d91c925",
-    "commit_sha": "b4a66b8abf783dbc477bfcbb81e08fb224c74e35",
-    "bytes": 702228,
-    "generated_at": "2026-10-22T16:36:32.276218+00:00",
-    "verified_at": "2026-10-22T16:37:02.172487+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "cffd0ac94faaf797735cfe83c8e6ab92b69989fe",
-    "commit_sha": "864ddf4c8af5f6f61ba9443462916e5927b3e7b7",
-    "bytes": 1215854,
-    "consultado": "2026-10-22T16:36:27.356994+00:00",
-    "verified_at": "2026-10-22T16:37:07.114982+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "1d98762e880e4d7e5eff598598ced1d4948b2ea9",
-    "commit_sha": "4f2a69fbd402514f7abcc38b3c1bbc436c0ec67d",
-    "bytes": 247558,
-    "consultado": "2026-10-22T16:37:07.121045+00:00",
-    "verified_at": "2026-10-22T16:37:20.079996+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
