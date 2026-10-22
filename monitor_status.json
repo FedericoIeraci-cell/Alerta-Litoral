@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-22T13:44:50.862033+00:00",
-  "checked_at_art": "2026-10-22T10:44:50.862033-03:00",
+  "checked_at": "2026-10-22T14:36:14.398992+00:00",
+  "checked_at_art": "2026-10-22T11:36:14.398992-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 48,
-  "nodes_red": 6,
-  "nodes_invalid": 0,
-  "nodes_yellow": 35,
-  "nodes_green": 7,
+  "nodes_valid": 45,
+  "nodes_red": 7,
+  "nodes_invalid": 3,
+  "nodes_yellow": 18,
+  "nodes_green": 20,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -37,16 +37,31 @@
     "configurado": true,
     "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
-    "omitidas": 5,
+    "pendientes": 7,
+    "omitidas": 6,
     "inicializadas": 0,
-    "sin_datos": 0,
+    "sin_datos": 3,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "37fa1169ec7d",
+      "creado": "2026-10-22T14:36:14.399501+00:00",
+      "intento": "2026-10-22T14:36:14.399501+00:00",
+      "localidad": "El Soberbio",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 58,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,1 → 58,0/100; se evalúa por separado.",
+      "indice_anterior": 54.1,
+      "indice": 58.0,
+      "estado": "enviado",
+      "message_id": 68,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "8a3ece93c97a",
       "creado": "2026-10-22T13:44:50.862313+00:00",
@@ -453,38 +468,18 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 701009,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "19c9e69a59423e411261de0761957ae4393d908d",
-    "commit_sha": "3bbbfd4e6adbdc6c7a79b7b142d012cfdcc5ac1e",
-    "bytes": 701008,
-    "generated_at": "2026-10-22T13:44:57.548175+00:00",
-    "verified_at": "2026-10-22T13:45:09.190538+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "4d4b3000c008dd68326fa6e3b1c56d08179d645a",
-    "commit_sha": "6dd15620e455abcce090770c71b8ccb3d963af2d",
-    "bytes": 1203762,
-    "consultado": "2026-10-22T13:44:50.454378+00:00",
-    "verified_at": "2026-10-22T13:45:13.045292+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
