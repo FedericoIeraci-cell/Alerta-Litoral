@@ -1,4 +1,4 @@
-name: Alerta Litoral Agro - actualizar red integrada
+name: Alerta Litoral Agro - actualizar datos del Litoral
 
 on:
   schedule:
@@ -38,7 +38,7 @@ jobs:
       - name: Instalar dependencias
         run: python -m pip install -r requirements_monitor.txt
 
-      - name: Recalcular, publicar y confirmar el informe compartido
+      - name: Recalcular, publicar y confirmar los datos del Litoral
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ALA_MONITOR_STATE_BRANCH: ala-monitor-state
