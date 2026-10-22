@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-22T12:41:30.992588+00:00",
-  "checked_at_art": "2026-10-22T09:41:30.992588-03:00",
+  "checked_at": "2026-10-22T13:44:50.862033+00:00",
+  "checked_at_art": "2026-10-22T10:44:50.862033-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 48,
-  "nodes_red": 5,
+  "nodes_red": 6,
   "nodes_invalid": 0,
-  "nodes_yellow": 36,
+  "nodes_yellow": 35,
   "nodes_green": 7,
   "configured_nodes": 48,
   "coverage": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 5,
+    "pendientes": 6,
     "omitidas": 5,
     "inicializadas": 0,
-    "sin_datos": 1,
+    "sin_datos": 0,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "8a3ece93c97a",
+      "creado": "2026-10-22T13:44:50.862313+00:00",
+      "intento": "2026-10-22T13:44:50.862313+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 14.6 puntos. Río observado en Puerto Ituzaingó: 4,38 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 22/10/2026 · hora de medición no confirmada. Índice meteorológico 59,2/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 44,6 → 59,2/100; se evalúa por separado.",
+      "indice_anterior": 44.6,
+      "indice": 59.2,
+      "estado": "enviado",
+      "message_id": 67,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "3c5ad13441f4",
       "creado": "2026-10-22T10:34:27.045312+00:00",
@@ -438,38 +453,17 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 695216,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "0b1eb984e5bbf65e4e380a2954385774d3c7564a",
-    "commit_sha": "4be36396a39343b7f287fa04c3805138715f047e",
-    "bytes": 695216,
-    "generated_at": "2026-10-22T12:41:33.871693+00:00",
-    "verified_at": "2026-10-22T12:42:05.321171+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "4c9c3c5e86354907e91a1e0b470e549701b73087",
-    "commit_sha": "52000672b9c7bdee7eda1523da936f265f66b9e5",
-    "bytes": 1202718,
-    "consultado": "2026-10-22T12:41:30.232129+00:00",
-    "verified_at": "2026-10-22T12:42:09.738328+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
