@@ -378,17 +378,38 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "datos_parciales",
+  "health": "error_meteorologia_zc",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas."
+    "18/20 puntos aplicables con información vigente de represas.",
+    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente",
-  "meteorologia_publicada": false,
-  "meteorologia_estado": "pendiente"
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "meteorologia_publicada": true,
+  "meteorologia_estado": "verificada",
+  "red_integrada_bytes": 693040,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "e57610c61dc75a87cb143ba7f0f62662f1645ffb",
+    "commit_sha": "495649cb432a6f4e049365a6b97295498be2d813",
+    "bytes": 693040,
+    "generated_at": "2026-10-22T03:32:57.043343+00:00",
+    "verified_at": "2026-10-22T03:33:26.634393+00:00"
+  },
+  "meteorologia_confirmacion": {
+    "sha": "93420eedf02b31dc4938bd3a213b19f4790d379a",
+    "commit_sha": "e76eab1a547010544243ba6d3184197b21d6617f",
+    "bytes": 1192230,
+    "consultado": "2026-10-22T03:32:53.426395+00:00",
+    "verified_at": "2026-10-22T03:33:31.178157+00:00"
+  },
+  "meteorologia_zc_publicada": false,
+  "meteorologia_zc_estado": "error",
+  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
+  "health_evaluacion": "datos_parciales"
 }
