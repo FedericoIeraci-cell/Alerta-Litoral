@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-22T05:32:28.903172+00:00",
-  "checked_at_art": "2026-10-22T02:32:28.903172-03:00",
+  "checked_at": "2026-10-22T06:40:44.159155+00:00",
+  "checked_at_art": "2026-10-22T03:40:44.159155-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 48,
+  "nodes_valid": 45,
   "nodes_red": 6,
-  "nodes_invalid": 0,
-  "nodes_yellow": 39,
-  "nodes_green": 3,
+  "nodes_invalid": 3,
+  "nodes_yellow": 19,
+  "nodes_green": 20,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -29,24 +29,54 @@
       "aplicables": 20
     },
     "avisos_smn": {
-      "vigentes": 48,
+      "vigentes": 0,
       "aplicables": 48
     }
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 2,
     "fallidas": 0,
     "pendientes": 6,
-    "omitidas": 6,
+    "omitidas": 4,
     "inicializadas": 0,
-    "sin_datos": 1,
+    "sin_datos": 4,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "a574ca504f2e",
+      "creado": "2026-10-22T06:40:44.159649+00:00",
+      "intento": "2026-10-22T06:40:44.159649+00:00",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 10.2 puntos. Río observado en Barranqueras: 7,22 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 19,9 → 30,1/100; se evalúa por separado.",
+      "indice_anterior": 19.9,
+      "indice": 30.1,
+      "estado": "enviado",
+      "message_id": 63,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "2c817e2f6c02",
+      "creado": "2026-10-22T06:40:44.159649+00:00",
+      "intento": "2026-10-22T06:40:44.159649+00:00",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 10.2 puntos. Río observado en Barranqueras: 7,22 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 19,9 → 30,1/100; se evalúa por separado.",
+      "indice_anterior": 19.9,
+      "indice": 30.1,
+      "estado": "enviado",
+      "message_id": 64,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "e18622aaac41",
       "creado": "2026-10-21T20:32:23.327726+00:00",
@@ -378,38 +408,19 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "0/48 puntos aplicables con cobertura vigente del canal de avisos SMN.",
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 695361,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "ff1bd7bb2560749a9e90b36b22d38b38f6f35171",
-    "commit_sha": "d18a679fe74310ad18dfaadb4947c2a56fdc9dff",
-    "bytes": 695368,
-    "generated_at": "2026-10-22T05:32:31.553794+00:00",
-    "verified_at": "2026-10-22T05:32:42.441622+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "56d557d8a59b20e0782760fe5cc78068417a9fde",
-    "commit_sha": "7f0ee61e1048100b1026ec68a9eecdf6f23d005d",
-    "bytes": 1193066,
-    "consultado": "2026-10-22T05:32:28.164407+00:00",
-    "verified_at": "2026-10-22T05:32:46.656958+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
