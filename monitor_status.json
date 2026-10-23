@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T10:32:42.721692+00:00",
-  "checked_at_art": "2026-10-23T07:32:42.721692-03:00",
+  "checked_at": "2026-10-23T11:33:34.666072+00:00",
+  "checked_at_art": "2026-10-23T08:33:34.666072-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 9,
-    "omitidas": 9,
+    "omitidas": 8,
     "inicializadas": 0,
     "sin_datos": 2,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "5b3621fc97c9",
+      "creado": "2026-10-23T11:33:34.666528+00:00",
+      "intento": "2026-10-23T11:33:34.666528+00:00",
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 22.9 puntos. Índice meteorológico 61,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 84,5 → 61,6/100; se evalúa por separado.",
+      "indice_anterior": 84.5,
+      "indice": 61.6,
+      "estado": "enviado",
+      "message_id": 81,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "f9e36c0ba3cb",
       "creado": "2026-10-23T07:43:36.504935+00:00",
@@ -481,56 +496,20 @@
       "message_id": 52,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "0f6bdf5dd12e",
-      "creado": "2026-10-15T03:31:33.070403+00:00",
-      "intento": "2026-10-15T03:31:33.070403+00:00",
-      "localidad": "Reconquista",
-      "provincia": "Santa Fe",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
-      "indice_anterior": 24.1,
-      "indice": 24.0,
-      "estado": "enviado",
-      "message_id": 51,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 674424,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "2214659e3851cd4d63d497b47f2b592a51171b3f",
-    "commit_sha": "d3cfa8be9f9294a24c07789437c2cde03380262b",
-    "bytes": 674425,
-    "generated_at": "2026-10-23T10:32:45.113324+00:00",
-    "verified_at": "2026-10-23T10:32:56.550917+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "88004fc765de32a767d156f824fad3cebbaf9a61",
-    "commit_sha": "ce4ee30fb4bf8f81a1cb5d9a89cfc2e31475d52d",
-    "bytes": 1192406,
-    "consultado": "2026-10-23T10:32:41.994240+00:00",
-    "verified_at": "2026-10-23T10:33:00.435404+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
