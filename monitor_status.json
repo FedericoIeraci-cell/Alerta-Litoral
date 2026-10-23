@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T01:39:53.926739+00:00",
-  "checked_at_art": "2026-10-22T22:39:53.926739-03:00",
+  "checked_at": "2026-10-23T02:32:24.812672+00:00",
+  "checked_at_art": "2026-10-22T23:32:24.812672-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 10,
-    "omitidas": 10,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "55f25eee5876",
+      "creado": "2026-10-23T02:32:24.813042+00:00",
+      "intento": "2026-10-23T02:32:24.813042+00:00",
+      "localidad": "Andresito",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.6 puntos. Índice meteorológico 56,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 67,1 → 56,5/100; se evalúa por separado.",
+      "indice_anterior": 67.1,
+      "indice": 56.5,
+      "estado": "enviado",
+      "message_id": 74,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "ffa055cd546f",
       "creado": "2026-10-22T22:30:12.258364+00:00",
@@ -481,21 +496,6 @@
       "message_id": 44,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "615b997c1c6a",
-      "creado": "2026-10-14T17:48:41.522123+00:00",
-      "intento": "2026-10-14T17:48:41.522123+00:00",
-      "localidad": "Resistencia",
-      "provincia": "Chaco",
-      "tipo": "ALERTA HIDROLÓGICA INICIAL",
-      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
-      "indice_anterior": 25.3,
-      "indice": 25.3,
-      "estado": "enviado",
-      "message_id": 45,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -507,34 +507,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 698753,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "fb698ad79a7f6c885506b31bd6e00fcee1698856",
-    "commit_sha": "c2c43bcb707f15344e5f7f77cfe81a9c04d5c8b9",
-    "bytes": 698752,
-    "generated_at": "2026-10-23T01:39:56.764243+00:00",
-    "verified_at": "2026-10-23T01:40:34.876512+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "dc234c467929083457e11ad6cf50df206751f656",
-    "commit_sha": "2102ead477db2bd31bea490bce10ff5a1267dc06",
-    "bytes": 1196550,
-    "consultado": "2026-10-23T01:39:53.167453+00:00",
-    "verified_at": "2026-10-23T01:40:40.003404+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "d2623fb951e60ecb62bf6867354b4aa71b56ac42",
-    "commit_sha": "44c4778183ba0a5cb78acf2d08096eebb0f49536",
-    "bytes": 244950,
-    "consultado": "2026-10-23T01:40:40.009074+00:00",
-    "verified_at": "2026-10-23T01:40:48.558613+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
