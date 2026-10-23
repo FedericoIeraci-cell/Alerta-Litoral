@@ -179,7 +179,7 @@ _SCRIPT_MAPA = r"""
   try {
     const mapa = L.map('mapa-litoral', {
       renderer: L.svg() || L.canvas(), preferCanvas: false,
-      zoomControl: false, scrollWheelZoom: false, zoomSnap: 0.25,
+      zoomControl: false, scrollWheelZoom: true, zoomSnap: 0.25,
       minZoom: 2, maxZoom: 18, zoomAnimation: false,
       fadeAnimation: false, markerZoomAnimation: false
     });
