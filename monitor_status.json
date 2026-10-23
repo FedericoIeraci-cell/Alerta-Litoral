@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T04:32:45.972655+00:00",
-  "checked_at_art": "2026-10-23T01:32:45.972655-03:00",
+  "checked_at": "2026-10-23T05:31:46.181628+00:00",
+  "checked_at_art": "2026-10-23T02:31:46.181628-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 10,
-    "omitidas": 10,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 0,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "e732aa115463",
+      "creado": "2026-10-23T05:31:46.182095+00:00",
+      "intento": "2026-10-23T05:31:46.182095+00:00",
+      "localidad": "El Soberbio",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 11.0 puntos. Índice meteorológico 69,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 58,0 → 69,0/100; se evalúa por separado.",
+      "indice_anterior": 58.0,
+      "indice": 69.0,
+      "estado": "enviado",
+      "message_id": 76,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "a41ce98b60c3",
       "creado": "2026-10-23T03:33:19.944964+00:00",
@@ -481,55 +496,19 @@
       "message_id": 42,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "80abaac7fe44",
-      "creado": "2026-10-14T17:48:41.522123+00:00",
-      "intento": "2026-10-14T17:48:41.522123+00:00",
-      "localidad": "Goya",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA HIDROLÓGICA INICIAL",
-      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
-      "indice_anterior": 20.7,
-      "indice": 20.7,
-      "estado": "enviado",
-      "message_id": 43,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "18/20 puntos aplicables con información vigente de represas."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 685254,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "a6901e714ffe8280002b79d28c9b58c8f535e196",
-    "commit_sha": "d88ca3db9fc2a57bc0b89dfcc0985edf4e6c320d",
-    "bytes": 685248,
-    "generated_at": "2026-10-23T04:32:48.694532+00:00",
-    "verified_at": "2026-10-23T04:32:59.701078+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "a9861c2773061bf215c0c78393b80f327c1fd5ce",
-    "commit_sha": "632909edcce45fbdcd7b7bc7011bea5c06b775da",
-    "bytes": 1185858,
-    "consultado": "2026-10-23T04:32:45.495167+00:00",
-    "verified_at": "2026-10-23T04:33:03.440432+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
