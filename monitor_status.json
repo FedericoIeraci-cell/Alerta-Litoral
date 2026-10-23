@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T05:31:46.181628+00:00",
-  "checked_at_art": "2026-10-23T02:31:46.181628-03:00",
+  "checked_at": "2026-10-23T06:39:27.173774+00:00",
+  "checked_at_art": "2026-10-23T03:39:27.173774-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 48,
-  "nodes_red": 10,
-  "nodes_invalid": 0,
-  "nodes_yellow": 37,
-  "nodes_green": 1,
+  "nodes_valid": 46,
+  "nodes_red": 11,
+  "nodes_invalid": 2,
+  "nodes_yellow": 28,
+  "nodes_green": 7,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,18 +35,48 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 2,
     "fallidas": 0,
-    "pendientes": 10,
+    "pendientes": 11,
     "omitidas": 9,
     "inicializadas": 0,
-    "sin_datos": 0,
+    "sin_datos": 2,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "1f5b51bb05ea",
+      "creado": "2026-10-23T06:39:27.174118+00:00",
+      "intento": "2026-10-23T06:39:27.174118+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 56,8/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,8 → 56,8/100; se evalúa por separado.",
+      "indice_anterior": 54.8,
+      "indice": 56.8,
+      "estado": "enviado",
+      "message_id": 77,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "bcb00dbcfb09",
+      "creado": "2026-10-23T06:39:27.174118+00:00",
+      "intento": "2026-10-23T06:39:27.174118+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 13.1 puntos. Río observado en Puerto Iguazú: 28,25 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 22/10/2026 · hora de medición no confirmada. Índice meteorológico: 61,7 → 48,6/100; se evalúa por separado.",
+      "indice_anterior": 61.7,
+      "indice": 48.6,
+      "estado": "enviado",
+      "message_id": 78,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "e732aa115463",
       "creado": "2026-10-23T05:31:46.182095+00:00",
@@ -466,36 +496,6 @@
       "message_id": 49,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "258fb86ff927",
-      "creado": "2026-10-14T17:48:41.522123+00:00",
-      "intento": "2026-10-14T17:48:41.522123+00:00",
-      "localidad": "Reconquista",
-      "provincia": "Santa Fe",
-      "tipo": "ALERTA HIDROLÓGICA INICIAL",
-      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
-      "indice_anterior": 26.9,
-      "indice": 26.9,
-      "estado": "enviado",
-      "message_id": 41,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "d8f12438ac79",
-      "creado": "2026-10-14T17:48:41.522123+00:00",
-      "intento": "2026-10-14T17:48:41.522123+00:00",
-      "localidad": "Corrientes",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA HIDROLÓGICA INICIAL",
-      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
-      "indice_anterior": 24.0,
-      "indice": 24.0,
-      "estado": "enviado",
-      "message_id": 42,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -503,38 +503,13 @@
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas."
+    "18/20 puntos aplicables con información vigente de represas.",
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 654521,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "2e5fdf20c4eda9b38cb5d1fa98226cc7ce6d0474",
-    "commit_sha": "d408b8a4e55518c37ec10ef2a531534921b8c5fb",
-    "bytes": 654529,
-    "generated_at": "2026-10-23T05:31:52.372457+00:00",
-    "verified_at": "2026-10-23T05:32:32.538434+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "13a2bee6fee2ec98bdb9351ddeac856ddfba176b",
-    "commit_sha": "3c9d2c092a84e6df309a9ac0fddd120af509b90e",
-    "bytes": 1178778,
-    "consultado": "2026-10-23T05:31:45.449991+00:00",
-    "verified_at": "2026-10-23T05:32:36.535097+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "b2fcb0cb1f3889e93a1c56f79397bc5be74497bd",
-    "commit_sha": "8808eaf8e6763bcb8d81efad1bd5ed3d08765d6c",
-    "bytes": 238902,
-    "consultado": "2026-10-23T05:32:36.539863+00:00",
-    "verified_at": "2026-10-23T05:32:56.360462+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
