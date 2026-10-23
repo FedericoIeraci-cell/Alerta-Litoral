@@ -1,7 +1,8 @@
 /* VIIRS Flood / SSEC-CIMSS. Capa visual opcional: no reclasifica nodos. */
 (function (root) {
   'use strict';
-  const HOST = 'https://floods.ssec.wisc.edu';
+  const HOSTS = Object.freeze(['https://floods.ssec.wisc.edu', 'https://realearth.ssec.wisc.edu']);
+  const REQUEST_TIMEOUT_MS = 8000;
   const PRODUCTS = Object.freeze({
     'RIVER-FLDglobal-composite1': {label: 'Composición de 1 día', days: 1},
     'RIVER-FLDglobal-composite': {label: 'Composición de 5 días', days: 5}
@@ -11,6 +12,11 @@
   function productInfo(id) {
     if (!Object.hasOwn(PRODUCTS, id)) throw new Error('Producto VIIRS no reconocido.');
     return PRODUCTS[id];
+  }
+
+  function allowedHost(host = HOSTS[0]) {
+    if (!HOSTS.includes(host)) throw new Error('Fuente VIIRS no reconocida.');
+    return host;
   }
 
   function parseTime(value) {
@@ -46,7 +52,7 @@
   function tileUrl(meta) {
     productInfo(meta.id);
     if (!parseTime(meta.time)) throw new Error('Fecha VIIRS inválida.');
-    return HOST + '/api/image?products=' + encodeURIComponent(meta.id + '_' + meta.time.replace('.', '_')) +
+    return allowedHost(meta.host) + '/api/image?products=' + encodeURIComponent(meta.id + '_' + meta.time.replace('.', '_')) +
       '&x={x}&y={y}&z={z}';
   }
 
@@ -71,6 +77,16 @@
       const enabledLabel = add('label'); enabledLabel.className = 'viirs-enabled';
       const enabled = add('input', '', enabledLabel); enabled.type = 'checkbox';
       enabledLabel.appendChild(document.createTextNode(' Mostrar agua detectada · VIIRS'));
+      const status = add('p', 'Capa desactivada. Activala para consultar el producto disponible.');
+      status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); status.className = 'viirs-status';
+      const dates = add('p'); dates.className = 'viirs-dates';
+      const setStatus = (state, message) => {
+        const badges = {off: '', loading: 'Cargando', received: 'Imágenes recibidas',
+          unavailable: 'No disponible', partial: 'Capa incompleta'};
+        summary.textContent = 'Agua por satélite' + (badges[state] ? ' · ' + badges[state] : '');
+        box.setAttribute('data-state', {off: 'off', loading: 'loading', received: 'ready',
+          unavailable: 'error', partial: 'error'}[state]); status.textContent = message;
+      };
       const selectionLabel = add('label', 'Período del producto');
       const select = add('select', '', selectionLabel);
       Object.entries(PRODUCTS).forEach(([id, info]) => {
@@ -81,9 +97,8 @@
       const opacity = add('input', '', opacityLabel); opacity.type = 'range';
       opacity.min = '15'; opacity.max = '100'; opacity.value = '65'; opacity.setAttribute('aria-label', 'Opacidad VIIRS');
       const refresh = add('button', 'Actualizar capa'); refresh.type = 'button'; refresh.disabled = true;
-      const status = add('p', 'Capa desactivada. Activala para consultar el producto disponible.');
-      status.setAttribute('role', 'status'); status.className = 'viirs-status';
-      const dates = add('p'); dates.className = 'viirs-dates';
+      add('p', '1 día: máxima agua detectada ese día. 5 días: máxima extensión vista en ese período; puede incluir agua que ya retrocedió.').className = 'viirs-note';
+      add('p', 'Opacidad cambia la visibilidad de la imagen. Los colores del satélite no son los colores de alerta de los nodos.').className = 'viirs-note';
       const note = add('p', 'Observación satelital regional (~375 m), no pronóstico. Nubes, sombras y falta de cobertura pueden ocultar agua. Una zona sin color no confirma ausencia de inundación.');
       note.className = 'viirs-note';
       const legendBox = add('details'); legendBox.className = 'viirs-legend';
@@ -92,7 +107,7 @@
       legend.hidden = true;
       const legendError = add('p', '', legendBox); legendError.hidden = true;
       const source = add('a', 'Fuente y visor SSEC / NOAA ↗');
-      source.href = HOST + '/?products=RIVER-FLDglobal-composite1&center=-29,-59&zoom=5';
+      source.href = HOSTS[0] + '/?products=RIVER-FLDglobal-composite1&center=-29,-59&zoom=5';
       source.target = '_blank'; source.rel = 'noopener noreferrer';
       L.DomEvent.disableClickPropagation(box); L.DomEvent.disableScrollPropagation(box);
       box.addEventListener('keydown', e => e.stopPropagation());
@@ -104,34 +119,64 @@
         if (layer) { map.removeLayer(layer); layer = null; }
         legend.hidden = true; legend.removeAttribute('src'); legendError.hidden = true;
         dates.textContent = ''; failedTiles = false;
+        source.href = HOSTS[0] + '/?products=' + encodeURIComponent(select.value) + '&center=-29,-59&zoom=5';
       }
 
       async function load() {
         clear();
         refresh.disabled = !enabled.checked;
         if (!enabled.checked) {
-          status.textContent = 'Capa desactivada.'; return;
+          setStatus('off', 'Capa desactivada.'); return;
         }
         const token = generation, id = select.value;
-        status.textContent = 'Consultando fecha del producto VIIRS…';
-        const controller = new AbortController(); request = controller;
-        const timeout = setTimeout(() => controller.abort(), 12000);
+        const current = () => token === generation && enabled.checked;
+        setStatus('loading', 'Consultando fecha del producto VIIRS…');
         try {
           productInfo(id);
-          const response = await fetch(HOST + '/api/products?products=' + encodeURIComponent(id),
-            {signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer'});
-          if (!response.ok) throw new Error('No se pudo consultar VIIRS (HTTP ' + response.status + ').');
-          const body = await response.text();
-          if (body.length > 1000000) throw new Error('Respuesta VIIRS demasiado grande.');
-          const queried = Date.now();
-          const meta = metadata(JSON.parse(body), id, queried);
-          if (token !== generation || !enabled.checked) return;
+          let meta = null, queried = null;
+          const failures = [];
+          // Dos servicios oficiales, en orden fijo; nunca se prueba un host recibido en los datos.
+          for (const host of HOSTS) {
+            if (!current()) return;
+            const controller = new AbortController(); request = controller;
+            let timedOut = false;
+            const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
+            try {
+              const response = await fetch(host + '/api/products?products=' + encodeURIComponent(id) + '&timespan=-7d',
+                {signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer'});
+              if (!current()) return;
+              if (!response.ok) {
+                const error = new Error('HTTP'); error.httpStatus = response.status; throw error;
+              }
+              const body = await response.text();
+              if (!current()) return;
+              if (body.length > 1000000) throw new SyntaxError('Respuesta demasiado grande.');
+              queried = Date.now();
+              meta = {...metadata(JSON.parse(body), id, queried), host: allowedHost(host)};
+              break;
+            } catch (error) {
+              // Cancelar, cambiar producto o cerrar el mapa tampoco inicia la segunda consulta.
+              if (!current()) return;
+              failures.push(timedOut || error.name === 'AbortError' ? 'tiempo de espera agotado' :
+                Number.isInteger(error.httpStatus) ? 'error HTTP ' + error.httpStatus :
+                  error.name === 'TypeError' ? 'conexión no disponible' : 'producto o fecha sin verificar');
+            } finally {
+              clearTimeout(timeout);
+              if (request === controller) request = null;
+            }
+          }
+          if (!current()) return;
+          if (!meta) {
+            setStatus('unavailable', 'VIIRS no disponible: no se pudo verificar el producto y su fecha en las dos fuentes oficiales. ' +
+              'Motivo: ' + [...new Set(failures)].join('; ') + '. Podés reintentar.');
+            return;
+          }
           const nominal = meta.date.toLocaleDateString('es-AR', {timeZone: 'UTC'});
           const consulted = new Date(queried).toLocaleString('es-AR', {timeZone: 'America/Argentina/Buenos_Aires', hour12: false});
           dates.textContent = meta.label + ' · fecha nominal (UTC): ' + nominal +
             '. No identifica la hora exacta de observación de cada píxel. Consulta: ' + consulted + ' (Argentina).';
           const ageNote = meta.ageDays >= 2 ? ' Producto de hace ' + meta.ageDays + ' días; revisar antigüedad.' : '';
-          status.textContent = 'Solicitando imágenes; la cobertura local aún no está comprobada.' + ageNote;
+          setStatus('loading', 'Solicitando imágenes; la cobertura local aún no está comprobada.' + ageNote);
           if (!map.getPane('viirs')) {
             map.createPane('viirs'); map.getPane('viirs').style.zIndex = '350';
             map.getPane('viirs').style.pointerEvents = 'none';
@@ -141,13 +186,13 @@
             attribution: '<a href="https://www.ssec.wisc.edu/flood-map-demo/" target="_blank" rel="noopener noreferrer">VIIRS · NOAA / GMU / SSEC-CIMSS</a>'});
           layer.on('tileload', () => {
             if (token === generation && !failedTiles) {
-              status.textContent = 'Imágenes recibidas; la cobertura local puede ser parcial.' + ageNote;
+              setStatus('received', 'Imágenes recibidas; la cobertura local puede ser parcial.' + ageNote);
             }
           });
           layer.on('tileerror', () => {
             if (token === generation) {
               failedTiles = true;
-              status.textContent = 'Capa incompleta: falló la carga de imágenes. No permite descartar agua.' + ageNote;
+              setStatus('partial', 'Capa incompleta: falló la carga de imágenes. No permite descartar agua.' + ageNote);
             }
           });
           layer.addTo(map);
@@ -158,18 +203,13 @@
               legendError.textContent = 'Leyenda no disponible. Consultá las clases en el visor de la fuente.';
             }
           };
-          legend.src = HOST + '/api/legend?products=' + encodeURIComponent(id);
-          source.href = HOST + '/?products=' + encodeURIComponent(id + '_' + meta.time.replace('.', '_')) +
+          legend.src = meta.host + '/api/legend?products=' + encodeURIComponent(id);
+          source.href = meta.host + '/?products=' + encodeURIComponent(id + '_' + meta.time.replace('.', '_')) +
             '&center=-29,-59&zoom=5';
         } catch (error) {
           if (token === generation && enabled.checked) {
-            status.textContent = error.name === 'AbortError' ?
-              'VIIRS no respondió a tiempo. No se muestra una capa sin verificar.' :
-              'VIIRS no disponible: no se pudo verificar el producto y su fecha. Podés reintentar.';
+            setStatus('unavailable', 'VIIRS no disponible: no se pudo verificar el producto y su fecha. Podés reintentar.');
           }
-        } finally {
-          clearTimeout(timeout);
-          if (request === controller) request = null;
         }
       }
 
@@ -191,3 +231,4 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AlaViirs = api;
 })(typeof window !== 'undefined' ? window : globalThis);
+

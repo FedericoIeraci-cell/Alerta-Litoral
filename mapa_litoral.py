@@ -399,8 +399,9 @@ def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
     datos['capa_viirs'] = bool(capa_viirs)
     css, js = _leer_leaflet()
     viirs_js = _leer_viirs() if capa_viirs else ''
-    fuente_viirs = ' https://floods.ssec.wisc.edu' if capa_viirs else ''
-    conexiones = 'https://floods.ssec.wisc.edu' if capa_viirs else "'none'"
+    origenes_viirs = 'https://floods.ssec.wisc.edu https://realearth.ssec.wisc.edu'
+    fuente_viirs = ' ' + origenes_viirs if capa_viirs else ''
+    conexiones = origenes_viirs if capa_viirs else "'none'"
     return f'''<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: https://tile.openstreetmap.org{fuente_viirs}; connect-src {conexiones}; object-src 'none'; base-uri 'none'; form-action 'none'">
@@ -440,6 +441,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 #mapa-fondo{{position:absolute;left:12px;bottom:38px;z-index:900;max-width:230px;background:#fffffff0;border-radius:5px;padding:5px 7px;font-size:11px;pointer-events:none}}
 .viirs-control{{box-sizing:border-box;width:270px;max-width:calc(100vw - 88px);background:#fff;color:#17324d;border:1px solid #cad5df;border-radius:8px;box-shadow:0 1px 5px #0002;font-size:12px}}
 .viirs-control>summary{{box-sizing:border-box;min-height:44px;padding:12px;cursor:pointer;font-weight:700}}
+.viirs-control[data-state="error"]>summary{{color:#991b1b;background:#fff1f2;border-radius:8px}}
+.viirs-control[data-state="loading"]>summary{{color:#854d0e;background:#fffbeb;border-radius:8px}}
+.viirs-control[data-state="error"] .viirs-status{{padding:8px;border:1px solid #f1a4aa;border-radius:6px;background:#fff1f2;color:#991b1b}}
 .viirs-panel{{padding:0 12px 10px;max-height:{altura-100}px;overflow-y:auto;overscroll-behavior:contain}}
 .viirs-panel label{{display:block;margin:6px 0;font-size:12px}}
 .viirs-panel .viirs-enabled{{display:flex;gap:7px;align-items:center;min-height:44px;font-weight:650}}
@@ -471,3 +475,4 @@ body:has(.viirs-control[open]) .mapa-leyenda{{visibility:hidden}}
 <script id="mapa-litoral-datos" type="application/json">{_json_html(datos)}</script>
 <script>{js}</script><script>{viirs_js}</script><script>{_SCRIPT_MAPA}</script>
 </body></html>'''
+
