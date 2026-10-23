@@ -399,7 +399,7 @@ def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
     datos['capa_viirs'] = bool(capa_viirs)
     css, js = _leer_leaflet()
     viirs_js = _leer_viirs() if capa_viirs else ''
-    origenes_viirs = 'https://floods.ssec.wisc.edu https://realearth.ssec.wisc.edu'
+    origenes_viirs = 'https://gibs.earthdata.nasa.gov'
     fuente_viirs = ' ' + origenes_viirs if capa_viirs else ''
     conexiones = origenes_viirs if capa_viirs else "'none'"
     return f'''<!doctype html>
