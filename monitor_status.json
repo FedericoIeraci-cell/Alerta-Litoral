@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T06:39:27.173774+00:00",
-  "checked_at_art": "2026-10-23T03:39:27.173774-03:00",
+  "checked_at": "2026-10-23T07:43:36.504574+00:00",
+  "checked_at_art": "2026-10-23T04:43:36.504574-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -47,6 +47,36 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "f9e36c0ba3cb",
+      "creado": "2026-10-23T07:43:36.504935+00:00",
+      "intento": "2026-10-23T07:43:36.504935+00:00",
+      "localidad": "Oberá",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 15.4 puntos. Índice meteorológico 77,3/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 61,9 → 77,3/100; se evalúa por separado.",
+      "indice_anterior": 61.9,
+      "indice": 77.3,
+      "estado": "enviado",
+      "message_id": 79,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "0415425e4b67",
+      "creado": "2026-10-23T07:43:36.504935+00:00",
+      "intento": "2026-10-23T07:43:36.504935+00:00",
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 11.4 puntos. Índice meteorológico 84,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 73,1 → 84,5/100; se evalúa por separado.",
+      "indice_anterior": 73.1,
+      "indice": 84.5,
+      "estado": "enviado",
+      "message_id": 80,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "1f5b51bb05ea",
       "creado": "2026-10-23T06:39:27.174118+00:00",
@@ -466,71 +496,20 @@
       "message_id": 51,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "4504a0727673",
-      "creado": "2026-10-14T21:31:16.373836+00:00",
-      "intento": "2026-10-14T21:31:16.373836+00:00",
-      "localidad": "Eldorado",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
-      "indice_anterior": 54.8,
-      "indice": 55.4,
-      "estado": "enviado",
-      "message_id": 50,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "b88f8a4fba12",
-      "creado": "2026-10-14T20:30:40.563196+00:00",
-      "intento": "2026-10-14T20:30:40.563196+00:00",
-      "localidad": "San Javier (Misiones)",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
-      "indice_anterior": 54.5,
-      "indice": 55.9,
-      "estado": "enviado",
-      "message_id": 49,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 648103,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "d8f422cd96a26ea798c147349111cfab111334d2",
-    "commit_sha": "58b25a457fbc7e869005ec03db24e076ed4c15ca",
-    "bytes": 648103,
-    "generated_at": "2026-10-23T06:39:38.889906+00:00",
-    "verified_at": "2026-10-23T06:40:02.864231+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "2c64a990a59c4996a9d19b2f316b48c6bf8587e4",
-    "commit_sha": "79b8aee76f5bd138dd58899640b13c6ddfb81910",
-    "bytes": 1186746,
-    "consultado": "2026-10-23T06:39:26.606485+00:00",
-    "verified_at": "2026-10-23T06:40:07.109342+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
