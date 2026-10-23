@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T02:32:24.812672+00:00",
-  "checked_at_art": "2026-10-22T23:32:24.812672-03:00",
+  "checked_at": "2026-10-23T03:33:19.944418+00:00",
+  "checked_at_art": "2026-10-23T00:33:19.944418-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "a41ce98b60c3",
+      "creado": "2026-10-23T03:33:19.944964+00:00",
+      "intento": "2026-10-23T03:33:19.944964+00:00",
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 18.0 puntos. Índice meteorológico 73,1/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 55,1 → 73,1/100; se evalúa por separado.",
+      "indice_anterior": 55.1,
+      "indice": 73.1,
+      "estado": "enviado",
+      "message_id": 75,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "55f25eee5876",
       "creado": "2026-10-23T02:32:24.813042+00:00",
@@ -481,21 +496,6 @@
       "message_id": 43,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "b728b854391f",
-      "creado": "2026-10-14T17:48:41.522123+00:00",
-      "intento": "2026-10-14T17:48:41.522123+00:00",
-      "localidad": "Paso de los Libres",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA HIDROLÓGICA INICIAL",
-      "motivo": "La primera evaluación automática detectó una situación crítica oficial vigente; este aviso identifica la primera comprobación, no el inicio del fenómeno.",
-      "indice_anterior": 27.9,
-      "indice": 27.9,
-      "estado": "enviado",
-      "message_id": 44,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -507,34 +507,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 699343,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "02a271fbd0013acece8bbf1421f5eb08a76112d3",
-    "commit_sha": "da728918b8b5841d61c571ef64af4b1c621e25e4",
-    "bytes": 699343,
-    "generated_at": "2026-10-23T02:32:32.099472+00:00",
-    "verified_at": "2026-10-23T02:33:00.682563+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "9d5eb8b7b80ae13370b0056aa52546181ca9f7c6",
-    "commit_sha": "9d23d571af70de342af2c3553cacf8354f9b12c1",
-    "bytes": 1210286,
-    "consultado": "2026-10-23T02:32:24.206790+00:00",
-    "verified_at": "2026-10-23T02:33:04.877221+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "1dc0da4667d860f946a36ccfddfef498b051eb78",
-    "commit_sha": "f25b1ccdb19b5bd2c122fda371c2ebc04e862438",
-    "bytes": 244554,
-    "consultado": "2026-10-23T02:33:04.881634+00:00",
-    "verified_at": "2026-10-23T02:33:23.799997+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
