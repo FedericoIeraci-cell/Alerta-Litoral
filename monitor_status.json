@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T12:36:46.600282+00:00",
-  "checked_at_art": "2026-10-23T09:36:46.600282-03:00",
+  "checked_at": "2026-10-23T13:40:16.368948+00:00",
+  "checked_at_art": "2026-10-23T10:40:16.368948-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 46,
-  "nodes_red": 9,
-  "nodes_invalid": 2,
-  "nodes_yellow": 20,
+  "nodes_valid": 45,
+  "nodes_red": 10,
+  "nodes_invalid": 3,
+  "nodes_yellow": 18,
   "nodes_green": 17,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 48,
+      "vigentes": 47,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -35,18 +35,48 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 2,
     "fallidas": 0,
-    "pendientes": 9,
-    "omitidas": 9,
+    "pendientes": 10,
+    "omitidas": 8,
     "inicializadas": 0,
-    "sin_datos": 2,
+    "sin_datos": 3,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "bc09b54eb69b",
+      "creado": "2026-10-23T13:40:16.369289+00:00",
+      "intento": "2026-10-23T13:40:16.369289+00:00",
+      "localidad": "Oberá",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 16.1 puntos. Índice meteorológico 61,2/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 77,3 → 61,2/100; se evalúa por separado.",
+      "indice_anterior": 77.3,
+      "indice": 61.2,
+      "estado": "enviado",
+      "message_id": 82,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "3611ec2753c0",
+      "creado": "2026-10-23T13:40:16.369289+00:00",
+      "intento": "2026-10-23T13:40:16.369289+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 57,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 50,4 → 57,6/100; se evalúa por separado.",
+      "indice_anterior": 50.4,
+      "indice": 57.6,
+      "estado": "enviado",
+      "message_id": 83,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "5b3621fc97c9",
       "creado": "2026-10-23T11:33:34.666528+00:00",
@@ -466,71 +496,21 @@
       "message_id": 54,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "bed4e92a23a9",
-      "creado": "2026-10-15T13:43:07.428026+00:00",
-      "intento": "2026-10-15T13:43:07.428026+00:00",
-      "localidad": "Puerto Iguazú",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 11.5 puntos. Río observado en Puerto Iguazú: 32,20 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 14/10/2026 00:00 ART. Índice meteorológico: 60,1 → 48,6/100; se evalúa por separado.",
-      "indice_anterior": 60.1,
-      "indice": 48.6,
-      "estado": "enviado",
-      "message_id": 53,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "ef4f93aacf95",
-      "creado": "2026-10-15T08:35:32.384959+00:00",
-      "intento": "2026-10-15T08:35:32.384959+00:00",
-      "localidad": "Santo Tomé",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Paso de AMARILLO a ROJO en la localidad.",
-      "indice_anterior": 49.3,
-      "indice": 75.0,
-      "estado": "enviado",
-      "message_id": 52,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
+    "47/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 674516,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "36fdca8471b09fb064e632f8d2bc095d6dbfd063",
-    "commit_sha": "e0d15d2985a6ccbd5ab816dd820e8e43d8dfbcf1",
-    "bytes": 674515,
-    "generated_at": "2026-10-23T12:36:48.822114+00:00",
-    "verified_at": "2026-10-23T12:37:17.752970+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "385a1883b44359278852b369f7c211c088ab3cee",
-    "commit_sha": "43a388993e87e280a749bcf1b173d001983845fc",
-    "bytes": 1181938,
-    "consultado": "2026-10-23T12:36:45.854518+00:00",
-    "verified_at": "2026-10-23T12:37:21.712934+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
