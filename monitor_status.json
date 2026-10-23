@@ -498,17 +498,38 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "datos_parciales",
+  "health": "error_meteorologia_zc",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas."
+    "18/20 puntos aplicables con información vigente de represas.",
+    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente",
-  "meteorologia_publicada": false,
-  "meteorologia_estado": "pendiente"
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "meteorologia_publicada": true,
+  "meteorologia_estado": "verificada",
+  "red_integrada_bytes": 683756,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "755b130db2d71bcc298029c4387568277978bcc7",
+    "commit_sha": "716a7d165753636bfb1744420c98b6786bf457cb",
+    "bytes": 683757,
+    "generated_at": "2026-10-23T03:33:26.100497+00:00",
+    "verified_at": "2026-10-23T03:33:58.711720+00:00"
+  },
+  "meteorologia_confirmacion": {
+    "sha": "e455b27b785174f2cf6722213122b07be2ceb687",
+    "commit_sha": "c2d87d4fc747e6175f2a02370323714f668dd214",
+    "bytes": 1182454,
+    "consultado": "2026-10-23T03:33:19.201494+00:00",
+    "verified_at": "2026-10-23T03:34:02.626977+00:00"
+  },
+  "meteorologia_zc_publicada": false,
+  "meteorologia_zc_estado": "error",
+  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
+  "health_evaluacion": "datos_parciales"
 }
