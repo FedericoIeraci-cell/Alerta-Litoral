@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-23T11:33:34.666072+00:00",
-  "checked_at_art": "2026-10-23T08:33:34.666072-03:00",
+  "checked_at": "2026-10-23T12:36:46.600282+00:00",
+  "checked_at_art": "2026-10-23T09:36:46.600282-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 0,
     "fallidas": 0,
     "pendientes": 9,
-    "omitidas": 8,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 2,
     "atrasadas": 0,
@@ -498,39 +498,18 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 658674,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "72a9b19c928d2463094270ab03d8e38b6b65fb2d",
-    "commit_sha": "1ddd2d3ad6bfddc1aa81acc807157b931be05d73",
-    "bytes": 658669,
-    "generated_at": "2026-10-23T11:33:39.607080+00:00",
-    "verified_at": "2026-10-23T11:34:05.619657+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "5fd3ab07707abf0906db990560ee65464472b7dc",
-    "commit_sha": "911fc661d60bba3190603f0d16d0c84150d3868f",
-    "bytes": 1188650,
-    "consultado": "2026-10-23T11:33:33.939736+00:00",
-    "verified_at": "2026-10-23T11:34:09.535033+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
