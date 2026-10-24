@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T10:28:47.714318+00:00",
-  "checked_at_art": "2026-10-24T07:28:47.714318-03:00",
+  "checked_at": "2026-10-24T11:27:42.115335+00:00",
+  "checked_at_art": "2026-10-24T08:27:42.115335-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "f95517757832",
+      "creado": "2026-10-24T11:27:42.115625+00:00",
+      "intento": "2026-10-24T11:27:42.115625+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 11.1 puntos. Índice meteorológico 66,7/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 55,6 → 66,7/100; se evalúa por separado.",
+      "indice_anterior": 55.6,
+      "indice": 66.7,
+      "estado": "enviado",
+      "message_id": 94,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "97bf6b3b87fa",
       "creado": "2026-10-24T10:28:47.714794+00:00",
@@ -481,57 +496,21 @@
       "message_id": 65,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "a574ca504f2e",
-      "creado": "2026-10-22T06:40:44.159649+00:00",
-      "intento": "2026-10-22T06:40:44.159649+00:00",
-      "localidad": "Resistencia",
-      "provincia": "Chaco",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 10.2 puntos. Río observado en Barranqueras: 7,22 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 19,9 → 30,1/100; se evalúa por separado.",
-      "indice_anterior": 19.9,
-      "indice": 30.1,
-      "estado": "enviado",
-      "message_id": 63,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "38/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 675001,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "83ac18bf44be30434201d40b3aa9fd4f4e202cc3",
-    "commit_sha": "4a030c1e45ca904b95c3bf3394759cc653742e1e",
-    "bytes": 675001,
-    "generated_at": "2026-10-24T10:28:54.425692+00:00",
-    "verified_at": "2026-10-24T10:29:20.341116+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "cec59ed0fbce27e7c27b441e6d3bf84cb7abd81c",
-    "commit_sha": "7235a2f82ed0ffb08037c01c8d030b444bba72ab",
-    "bytes": 1177370,
-    "consultado": "2026-10-24T10:28:46.983236+00:00",
-    "verified_at": "2026-10-24T10:29:24.969462+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
