@@ -1,0 +1,28 @@
+{
+  "code": 0,
+  "msg": "synthetic fixture, not a field observation",
+  "time": "1792454400",
+  "data": {
+    "outdoor": {
+      "temperature": {"time": "1792454400", "unit": "ºF", "value": "77"},
+      "humidity": {"time": "1792454400", "unit": "%", "value": "65"}
+    },
+    "pressure": {
+      "absolute": {"time": "1792454400", "unit": "inHg", "value": "29.53"},
+      "relative": {"time": "1792454400", "unit": "hPa", "value": "1013.2"}
+    },
+    "wind": {
+      "wind_speed": {"time": "1792454400", "unit": "mph", "value": "10"},
+      "wind_gust": {"time": "1792454400", "unit": "mph", "value": "15"},
+      "wind_direction": {"time": "1792454400", "unit": "º", "value": "180"}
+    },
+    "rainfall": {
+      "rain_rate": {"time": "1792454400", "unit": "in/hr", "value": "0"},
+      "daily": {"time": "1792454400", "unit": "in", "value": "0.1"}
+    },
+    "rainfall_piezo": {
+      "rain_rate": {"time": "1792454400", "unit": "mm/hr", "value": "0"},
+      "daily": {"time": "1792454400", "unit": "mm", "value": "3.1"}
+    }
+  }
+}
