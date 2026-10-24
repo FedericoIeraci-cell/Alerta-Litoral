@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T16:28:42.504068+00:00",
-  "checked_at_art": "2026-10-24T13:28:42.504068-03:00",
+  "checked_at": "2026-10-24T17:26:43.085870+00:00",
+  "checked_at_art": "2026-10-24T14:26:43.085870-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 0,
     "fallidas": 0,
     "pendientes": 10,
-    "omitidas": 9,
+    "omitidas": 10,
     "inicializadas": 0,
     "sin_datos": 2,
     "atrasadas": 0,
@@ -509,34 +509,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 840350,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "f7590631cfb79ea9844e91129412393372e3901c",
-    "commit_sha": "cafcca27ee3e9ad842e8e91af07046b70e2a15ae",
-    "bytes": 840350,
-    "generated_at": "2026-10-24T16:28:48.239281+00:00",
-    "verified_at": "2026-10-24T16:29:31.024571+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "652036996a5b0d8eb90c5a5d6a8dd5c950f86fbc",
-    "commit_sha": "64941a9bbb4ae9dda4a775e6a03ee9a30d0acd99",
-    "bytes": 1184170,
-    "consultado": "2026-10-24T16:28:42.121879+00:00",
-    "verified_at": "2026-10-24T16:29:34.612115+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "c1e6b26153ba874c59cc5cb5ba2068c6409c84ee",
-    "commit_sha": "59ae236645a4b9b96e2d147b58d0758b7ac0cd37",
-    "bytes": 243194,
-    "consultado": "2026-10-24T16:29:34.618228+00:00",
-    "verified_at": "2026-10-24T16:29:37.271552+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
