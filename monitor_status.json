@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T06:34:58.421470+00:00",
-  "checked_at_art": "2026-10-24T03:34:58.421470-03:00",
+  "checked_at": "2026-10-24T07:35:51.567290+00:00",
+  "checked_at_art": "2026-10-24T04:35:51.567290-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 47,
-  "nodes_red": 10,
+  "nodes_red": 11,
   "nodes_invalid": 1,
-  "nodes_yellow": 36,
+  "nodes_yellow": 35,
   "nodes_green": 1,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 10,
+    "pendientes": 11,
     "omitidas": 10,
     "inicializadas": 0,
     "sin_datos": 1,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "50d6fdf0234a",
+      "creado": "2026-10-24T07:35:51.567647+00:00",
+      "intento": "2026-10-24T07:35:51.567647+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 55,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 52,0 → 55,6/100; se evalúa por separado.",
+      "indice_anterior": 52.0,
+      "indice": 55.6,
+      "estado": "enviado",
+      "message_id": 92,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "6d08d6102b73",
       "creado": "2026-10-24T05:29:27.546955+00:00",
@@ -481,21 +496,6 @@
       "message_id": 64,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "e18622aaac41",
-      "creado": "2026-10-21T20:32:23.327726+00:00",
-      "intento": "2026-10-21T20:32:23.327726+00:00",
-      "localidad": "Andresito",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 55,1/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,6 → 55,1/100; se evalúa por separado.",
-      "indice_anterior": 54.6,
-      "indice": 55.1,
-      "estado": "enviado",
-      "message_id": 62,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -509,34 +509,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 730923,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "646f4ec10590d4383fb0e72543c087ae7875f653",
-    "commit_sha": "590bd9710250e150e17b5dabc7af1dbcb97d7eec",
-    "bytes": 730923,
-    "generated_at": "2026-10-24T06:35:01.309875+00:00",
-    "verified_at": "2026-10-24T06:35:58.366207+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "763fa8ef368ff70d7d002df480310eb0416a7a2b",
-    "commit_sha": "c2112ab0b95ca5125ccda90c8babcde11db900db",
-    "bytes": 1179150,
-    "consultado": "2026-10-24T06:34:57.860588+00:00",
-    "verified_at": "2026-10-24T06:36:02.521480+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "d8aa635f1a3bbd4f356770af8a483f1f30e4a7fe",
-    "commit_sha": "18e133a652dcd8df4880f6f969780dff6d9bbe8f",
-    "bytes": 240014,
-    "consultado": "2026-10-24T06:36:02.527544+00:00",
-    "verified_at": "2026-10-24T06:36:10.619333+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
