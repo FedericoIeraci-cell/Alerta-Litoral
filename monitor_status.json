@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T15:28:32.425284+00:00",
-  "checked_at_art": "2026-10-24T12:28:32.425284-03:00",
+  "checked_at": "2026-10-24T16:28:42.504068+00:00",
+  "checked_at_art": "2026-10-24T13:28:42.504068-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 46,
-  "nodes_red": 9,
+  "nodes_red": 10,
   "nodes_invalid": 2,
-  "nodes_yellow": 34,
+  "nodes_yellow": 33,
   "nodes_green": 3,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 9,
+    "pendientes": 10,
     "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 2,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "8ebeeedbad5b",
+      "creado": "2026-10-24T16:28:42.504343+00:00",
+      "intento": "2026-10-24T16:28:42.504343+00:00",
+      "localidad": "San Javier (Misiones)",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en San Javier: posible superación del umbral de evacuación (10,00 m) para el punto publicado 27/10/2026 00:00 ART; escenario central 10,44 m; bandas 8,71–12,16 m. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 39,4 → 39,5/100; se evalúa por separado.",
+      "indice_anterior": 39.4,
+      "indice": 39.5,
+      "estado": "enviado",
+      "message_id": 98,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "9bb536bc77f3",
       "creado": "2026-10-24T14:27:53.703628+00:00",
@@ -481,21 +496,6 @@
       "message_id": 69,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "37fa1169ec7d",
-      "creado": "2026-10-22T14:36:14.399501+00:00",
-      "intento": "2026-10-22T14:36:14.399501+00:00",
-      "localidad": "El Soberbio",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 58,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,1 → 58,0/100; se evalúa por separado.",
-      "indice_anterior": 54.1,
-      "indice": 58.0,
-      "estado": "enviado",
-      "message_id": 68,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -509,34 +509,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 726953,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "54529a863a8c3a908195e776d4b2d94ca5409daa",
-    "commit_sha": "daa5c892209315161005ddf2b36145541e0d7c7e",
-    "bytes": 726952,
-    "generated_at": "2026-10-24T15:28:34.567606+00:00",
-    "verified_at": "2026-10-24T15:28:44.563720+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "766a370197f9c32880a1b8135f368ed401fb1717",
-    "commit_sha": "fa2a31112098dfddc1b87af2156e0bed7bfe77f3",
-    "bytes": 1181094,
-    "consultado": "2026-10-24T15:28:31.695897+00:00",
-    "verified_at": "2026-10-24T15:28:48.167907+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "c11402472fb690e3181c953bade2e9c7140c3b84",
-    "commit_sha": "a72152ba2330d6f4d7a26f33153229d6358477f1",
-    "bytes": 242478,
-    "consultado": "2026-10-24T15:28:48.171841+00:00",
-    "verified_at": "2026-10-24T15:29:07.845655+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
