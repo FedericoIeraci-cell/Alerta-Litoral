@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T01:41:20.662566+00:00",
-  "checked_at_art": "2026-10-23T22:41:20.662566-03:00",
+  "checked_at": "2026-10-24T02:30:32.449189+00:00",
+  "checked_at_art": "2026-10-23T23:30:32.449189-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 46,
+  "nodes_valid": 47,
   "nodes_red": 9,
-  "nodes_invalid": 2,
-  "nodes_yellow": 36,
+  "nodes_invalid": 1,
+  "nodes_yellow": 37,
   "nodes_green": 1,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 39,
+      "vigentes": 36,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -40,13 +40,28 @@
     "pendientes": 9,
     "omitidas": 8,
     "inicializadas": 0,
-    "sin_datos": 2,
+    "sin_datos": 1,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "5c576d53e3ac",
+      "creado": "2026-10-24T02:30:32.449697+00:00",
+      "intento": "2026-10-24T02:30:32.449697+00:00",
+      "localidad": "Andresito",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 55,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 51,0 → 55,0/100; se evalúa por separado.",
+      "indice_anterior": 51.0,
+      "indice": 55.0,
+      "estado": "enviado",
+      "message_id": 88,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "c616a408597d",
       "creado": "2026-10-24T01:41:20.663073+00:00",
@@ -481,57 +496,21 @@
       "message_id": 58,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "a6f285278393",
-      "creado": "2026-10-17T17:25:47.990599+00:00",
-      "intento": "2026-10-17T17:25:47.990599+00:00",
-      "localidad": "Barranqueras",
-      "provincia": "Chaco",
-      "tipo": "ACTUALIZACIÓN DEL RIESGO",
-      "motivo": "Actualización del riesgo: nueva condición determinante. Río observado en Barranqueras: 6,50 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 17/10/2026 00:00 ART. Previsión fluvial en Barranqueras: posible superación del umbral de evacuación (6,50 m) a partir de 17/10/2026 · hora no publicada; previsión textual, sin altura numérica de cruce publicada. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 25,3 → 19,9/100; se evalúa por separado.",
-      "indice_anterior": 25.3,
-      "indice": 19.9,
-      "estado": "enviado",
-      "message_id": 59,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "39/48 puntos aplicables con meteorología completa.",
+    "36/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 760825,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "d6d539adff19ce8d22eff11ee87e07fe9e67ad87",
-    "commit_sha": "7b089a012e83ec763a30f320f919feff4ce5931d",
-    "bytes": 760825,
-    "generated_at": "2026-10-24T01:41:25.904198+00:00",
-    "verified_at": "2026-10-24T01:41:47.595231+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "83651e9b3752c4e387d1610f6eb54d41cf67b61c",
-    "commit_sha": "141a6ca65fc1ebcfdbf7df7ece6d0c4524b323df",
-    "bytes": 1200494,
-    "consultado": "2026-10-24T01:41:19.916760+00:00",
-    "verified_at": "2026-10-24T01:41:51.464704+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
