@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T13:31:52.615552+00:00",
-  "checked_at_art": "2026-10-24T10:31:52.615552-03:00",
+  "checked_at": "2026-10-24T14:27:53.703268+00:00",
+  "checked_at_art": "2026-10-24T11:27:53.703268-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 46,
-  "nodes_red": 11,
+  "nodes_red": 9,
   "nodes_invalid": 2,
-  "nodes_yellow": 33,
-  "nodes_green": 2,
+  "nodes_yellow": 34,
+  "nodes_green": 3,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 38,
+      "vigentes": 31,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 3,
     "fallidas": 0,
-    "pendientes": 11,
-    "omitidas": 11,
+    "pendientes": 9,
+    "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 2,
     "atrasadas": 0,
@@ -47,6 +47,51 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "9bb536bc77f3",
+      "creado": "2026-10-24T14:27:53.703628+00:00",
+      "intento": "2026-10-24T14:27:53.703628+00:00",
+      "localidad": "Eldorado",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.9 puntos. Índice meteorológico 55,8/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 66,7 → 55,8/100; se evalúa por separado.",
+      "indice_anterior": 66.7,
+      "indice": 55.8,
+      "estado": "enviado",
+      "message_id": 95,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "5445f15bcf0e",
+      "creado": "2026-10-24T14:27:53.703628+00:00",
+      "intento": "2026-10-24T14:27:53.703628+00:00",
+      "localidad": "El Soberbio",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 13.5 puntos. Índice meteorológico 55,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 69,0 → 55,5/100; se evalúa por separado.",
+      "indice_anterior": 69.0,
+      "indice": 55.5,
+      "estado": "enviado",
+      "message_id": 96,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "9c60125baa38",
+      "creado": "2026-10-24T14:27:53.703628+00:00",
+      "intento": "2026-10-24T14:27:53.703628+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 25.6 puntos. Río observado en Puerto Ituzaingó: 4,40 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 23/10/2026 · hora de medición no confirmada. Índice meteorológico: 62,2 → 36,6/100; se evalúa por separado.",
+      "indice_anterior": 62.2,
+      "indice": 36.6,
+      "estado": "enviado",
+      "message_id": 97,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "f95517757832",
       "creado": "2026-10-24T11:27:42.115625+00:00",
@@ -451,87 +496,21 @@
       "message_id": 68,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "8a3ece93c97a",
-      "creado": "2026-10-22T13:44:50.862313+00:00",
-      "intento": "2026-10-22T13:44:50.862313+00:00",
-      "localidad": "Ituzaingó",
-      "provincia": "Corrientes",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 14.6 puntos. Río observado en Puerto Ituzaingó: 4,38 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 22/10/2026 · hora de medición no confirmada. Índice meteorológico 59,2/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 44,6 → 59,2/100; se evalúa por separado.",
-      "indice_anterior": 44.6,
-      "indice": 59.2,
-      "estado": "enviado",
-      "message_id": 67,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "3c5ad13441f4",
-      "creado": "2026-10-22T10:34:27.045312+00:00",
-      "intento": "2026-10-22T10:34:27.045312+00:00",
-      "localidad": "Corrientes",
-      "provincia": "Corrientes",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 10.2 puntos. Río observado en Corrientes: 7,36 m, supera o alcanza el umbral de evacuación (7,00 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 23,9 → 34,1/100; se evalúa por separado.",
-      "indice_anterior": 23.9,
-      "indice": 34.1,
-      "estado": "enviado",
-      "message_id": 66,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "1b1ab829f50a",
-      "creado": "2026-10-22T09:35:30.252597+00:00",
-      "intento": "2026-10-22T09:35:30.252597+00:00",
-      "localidad": "Ituzaingó",
-      "provincia": "Corrientes",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 10.6 puntos. Río observado en Puerto Ituzaingó: 4,61 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 21/10/2026 · hora de medición no confirmada. Índice meteorológico: 34,0 → 44,6/100; se evalúa por separado.",
-      "indice_anterior": 34.0,
-      "indice": 44.6,
-      "estado": "enviado",
-      "message_id": 65,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "38/48 puntos aplicables con meteorología completa.",
+    "31/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 725936,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "8853d66d761ccb74a85f1e57c1db92e57e1e63f0",
-    "commit_sha": "d527835dd48b635046ae716c297e22be53d742ed",
-    "bytes": 725936,
-    "generated_at": "2026-10-24T13:31:55.160114+00:00",
-    "verified_at": "2026-10-24T13:32:23.425259+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "89ad61f04c1c067a2021283ecba2497efcb2596d",
-    "commit_sha": "8fd95ea1e8e3f238b1320a1fda184ef192b53d3e",
-    "bytes": 1180578,
-    "consultado": "2026-10-24T13:31:52.013170+00:00",
-    "verified_at": "2026-10-24T13:32:27.661457+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
