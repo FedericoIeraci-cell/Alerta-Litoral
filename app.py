@@ -7278,7 +7278,7 @@ def mostrar_proyecto_ficha():
 
 def cargar_panel_red():
     import red_integrada as red
-    if getattr(red, 'VERSION_RED', None) != '2026-10-20.1':
+    if getattr(red, 'VERSION_RED', None) != '2026-10-22.regional':
         import importlib
         red = importlib.reload(red)
     return red
@@ -7391,7 +7391,7 @@ def render_app():
     # ============================================================
 
     tab_agro, tab_plan, tab_red, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
-        "🌧️ Alerta Litoral Agro", "📋 Plan y ficha del proyecto", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
+        "🌧️ Alerta Litoral Agro", "📋 Plan y ficha del proyecto", "🌐 Datos del Litoral", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
         "🌱 Suelo y ríos", "🌊 El Niño / La Niña", "🗺️ Territorio y rutas", "📘 Caso histórico y ficha",
     ])
     # ============================================================

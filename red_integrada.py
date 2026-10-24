@@ -2,7 +2,7 @@
 
 Sólo transporta evidencia y su cobertura. No envía mensajes, no emite órdenes,
 no suma caudales de estaciones sucesivas ni convierte compuertas en alturas.
-Las páginas consumen la misma instantánea publicada por el monitor ALA.
+Cada página publica su región en su propio repositorio y proceso.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 SCHEMA_VERSION = 1
 CATALOGO_VERSION = 1
-VERSION_RED = "2026-10-20.1"
+VERSION_RED = "2026-10-22.regional"
 REPOSITORY = "FedericoIeraci-cell/Alerta-Litoral"
 STATE_BRANCH = "ala-monitor-state"
 SNAPSHOT_PATH = "red_integrada.json"
@@ -472,11 +472,11 @@ def consultar_meteorologia_zc(referencia=None, session=None, anterior=None):
         return list(pool.map(consultar, NODOS_ZC))
 
 
-def consultar_zc_red(referencia=None, session=None, anterior=None):
+def consultar_zc_red(referencia=None, session=None, anterior=None, meteorologia=None):
     """Consulta diez coordenadas y fuentes INA locales; toda ausencia queda explícita."""
     ref = _ahora(referencia)
     consulta = ref.isoformat()
-    nodos = consultar_meteorologia_zc(ref, session, anterior)
+    nodos = consultar_meteorologia_zc(ref, session, anterior) if meteorologia is None else meteorologia
     fuentes = []
     actuales = sum(n.get("lluvia_prevista_72_mm") is not None and
                    _estado_fecha(n.get("fecha_calculo"), ref, 3)["vigente"] for n in nodos)
@@ -654,7 +654,7 @@ def _normalizar_fuente(item):
             "error": _texto(item.get("error"))}
 
 
-def construir_red_integrada(frame_ala, panorama_ala, zc=None, monitor=None, referencia=None, version_ala=""):
+def construir_red_integrada(frame_ala, panorama_ala, zc=None, monitor=None, referencia=None, version_ala="", region=None):
     """Crea el documento público sin tocar Telegram ni las variables de ninguna app."""
     ref = _ahora(referencia)
     panorama_ala = panorama_ala if isinstance(panorama_ala, dict) else {}
@@ -684,6 +684,17 @@ def construir_red_integrada(frame_ala, panorama_ala, zc=None, monitor=None, refe
                "represas": [_normalizar_represa(k, v) for k, v in panorama_ala.get("represas", {}).items() if isinstance(v, dict)],
                "fuentes": [_normalizar_fuente(f) for f in fuentes if isinstance(f, dict)],
                "limitaciones": list(LIMITES), "permite_orden_evacuacion": False, "envia_telegram": False}
+    if region is not None:
+        if region not in {"Litoral", "Zárate–Campana"}:
+            raise ValueError("Región no compatible")
+        payload["regiones"] = [region]
+        payload["producer"]["app"] = "Alerta Litoral Agro" if region == "Litoral" else "Alerta Zárate–Campana"
+        for campo in ("nodos", "rios"):
+            payload[campo] = [item for item in payload[campo] if item.get("red") == region]
+        fuentes_regionales = {region, "Cuenca compartida"} if region == "Litoral" else {region}
+        payload["fuentes"] = [item for item in payload["fuentes"] if item.get("red") in fuentes_regionales]
+        if region == "Zárate–Campana":
+            payload["represas"] = []
     return validar_red_integrada(_json_finito(payload), ref)
 
 
@@ -703,9 +714,15 @@ def validar_red_integrada(payload, referencia=None):
             raise ValueError("Colección de informe no válida: " + k)
     if payload.get("monitor") is not None and not isinstance(payload["monitor"], dict):
         raise ValueError("Estado del control automático no válido")
-    expected = {(red, n["localidad"]): n for red, nodes in (("Litoral", NODOS_ALA), ("Zárate–Campana", NODOS_ZC)) for n in nodes}
+    regiones = payload.get("regiones", ["Litoral", "Zárate–Campana"])
+    if (not isinstance(regiones, list) or not regiones or len(set(regiones)) != len(regiones)
+            or any(region not in {"Litoral", "Zárate–Campana"} for region in regiones)):
+        raise ValueError("Alcance regional no compatible")
+    expected = {(red, n["localidad"]): n for red, nodes in (("Litoral", NODOS_ALA), ("Zárate–Campana", NODOS_ZC)) if red in regiones for n in nodes}
     found = set()
     out = {k: deepcopy(payload.get(k)) for k in ("schema_version", "catalogo_version", "generated_at", "producer", "monitor", "nodos", "rios", "represas", "fuentes")}
+    if "regiones" in payload:
+        out["regiones"] = list(regiones)
     out["limitaciones"] = list(LIMITES)
     out["permite_orden_evacuacion"] = False
     out["envia_telegram"] = False
@@ -748,7 +765,7 @@ def validar_red_integrada(payload, referencia=None):
         node["explicacion_estado"] = ("Evaluación histórica; revisar vigencia de cada evidencia" if not integrada_vigente
             else "Trazabilidad disponible" if node.get("explicacion_version") == 1 else "Informe anterior sin desencadenante estructurado")
     if found != set(expected):
-        raise ValueError("El informe no conserva los 58 puntos del catálogo")
+        raise ValueError("El informe no conserva todos los puntos de su catálogo regional")
     automatica_vista = False
     for rio in out["rios"]:
         if not isinstance(rio, dict):
@@ -1050,7 +1067,7 @@ def resumen_estado_operativo(datos, estado_monitor, referencia=None):
     fuente = _url(datos.get("snapshot_url")) if isinstance(datos, dict) else ""
     informe = {"estado": red["estado"], "fecha": red.get("generated_at"),
                "fuente": fuente or f"https://raw.githubusercontent.com/{REPOSITORY}/{STATE_BRANCH}/{SNAPSHOT_PATH}",
-               "alcance": "Red Litoral–Zárate–Campana", "faltantes": [], "comprobacion": red.get("prueba", False)}
+               "alcance": " / ".join(datos.get("regiones", ["Red Litoral–Zárate–Campana"])) if isinstance(datos, dict) else "Datos regionales", "faltantes": [], "comprobacion": red.get("prueba", False)}
     if red["estado"] == "sin_confirmar":
         informe["motivo"] = "No se pudo verificar el informe compartido."
     else:
@@ -1171,20 +1188,25 @@ def mostrar_estado_conexion(st, app_actual="ala", datos=None, *, estado_monitor=
     operativo = resumen_estado_operativo(datos, estado_monitor, referencia)
     resumen["estado_operativo"] = operativo
     if resumen["estado"] == "sin_confirmar":
-        st.warning("Conexión entre las páginas sin confirmar. Revisá la fecha de cada dato antes de usarlo.")
+        st.warning("No se pudo verificar el informe de esta página. Revisá la fecha de cada dato antes de usarlo.")
         _mostrar_control_publico(st, operativo["control"])
         return resumen
     edad = resumen["edad_horas"]
     minutos = max(0, round(edad * 60)) if edad is not None else None
     antiguedad = f" · hace {minutos} min" if minutos is not None else ""
-    st.caption("Red Litoral–Zárate–Campana · informe común: " + fecha_publica(resumen["generated_at"]) + antiguedad)
+    regional = bool(datos.get("regiones"))
+    titulo = "Datos de " + " / ".join(datos["regiones"]) if regional else "Red Litoral–Zárate–Campana · informe común"
+    st.caption(titulo + ": " + fecha_publica(resumen["generated_at"]) + antiguedad)
     if resumen["estado"] == "antiguo":
-        st.warning("El informe compartido tiene más de 3 horas. La actualización entre las páginas necesita revisión.")
+        st.warning("El informe tiene más de 3 horas. La actualización de esta página necesita revisión.")
     _mostrar_control_publico(st, operativo["control"], comprobacion_datos=resumen["prueba"])
     otra = "Zárate–Campana" if str(app_actual).lower() == "ala" else "Litoral"
     url = "https://alerta-zarate-campana.streamlit.app/" if otra == "Zárate–Campana" else "https://alerta-litoral-agro.streamlit.app/"
-    st.caption(f"48 localidades del Litoral + 10 referencias de Zárate–Campana. [Ver {otra}]({url}). "
-               "El informe común y la consulta local pueden tener horas distintas; compará también el período de cada pronóstico.")
+    if regional:
+        st.caption(f"{resumen['nodos']} referencias de esta página. Actualización y estado independientes. [Abrir {otra}]({url}). Cada fuente conserva su fecha.")
+    else:
+        st.caption(f"48 localidades del Litoral + 10 referencias de Zárate–Campana. [Ver {otra}]({url}). "
+                   "El informe común y la consulta local pueden tener horas distintas; compará también el período de cada pronóstico.")
     return resumen
 
 
@@ -1215,20 +1237,20 @@ def filas_publicas_nodos(datos, region="Ambas regiones"):
 
 def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, *, estado_monitor=None, referencia=None):
     """La misma evidencia, las mismas edades y el mismo lenguaje en ambas páginas."""
-    st.subheader("🌐 Red integrada · Litoral y Zárate–Campana")
-    st.write("Seguimiento compartido de lluvia, ríos y represas. Cada dato conserva su lugar, su fecha y su fuente.")
+    st.subheader("🌐 Datos regionales" if app_actual in {"ala", "zc"} else "🌐 Red integrada · Litoral y Zárate–Campana")
+    st.write("Seguimiento de lluvia, ríos y represas. Cada página tiene su propio proceso de actualización; cada dato conserva su lugar, fecha y fuente.")
     left, right = st.columns(2)
     left.link_button("Abrir Alerta Litoral Agro", "https://alerta-litoral-agro.streamlit.app/", key="red_integrada_ala")
     right.link_button("Abrir Alerta Zárate–Campana", "https://alerta-zarate-campana.streamlit.app/", key="red_integrada_zc")
     consultar = datos is None
-    actualizar = consultar and st.button("Actualizar informe compartido", key="red_integrada_actualizar")
+    actualizar = consultar and st.button("Actualizar datos de esta página", key="red_integrada_actualizar")
     datos = consultar_red_integrada(repository, actualizar=actualizar, referencia=referencia) if consultar else datos
     if estado_monitor is None and consultar:
         estado_monitor = consultar_estado_monitor(repository, actualizar=actualizar, referencia=referencia)
     resumen = resumen_publico_red(datos, referencia)
     control = resumen_publico_monitor(estado_monitor, referencia)
     if resumen["estado"] == "sin_confirmar":
-        st.warning(resumen["error"] + " La conexión actual entre las páginas no está confirmada.")
+        st.warning(resumen["error"] + " Revisá el actualizador de esta página.")
         _mostrar_control_publico(st, control)
         st.link_button("Ver controles del informe compartido", f"https://github.com/{repository}/actions", key="red_integrada_actions_error")
         return datos if isinstance(datos, dict) else {"error": resumen["error"], "snapshot_vigente": False}
@@ -1248,7 +1270,8 @@ def mostrar_red_integrada(st, repository=REPOSITORY, app_actual="", datos=None, 
                "Una crecida aguas arriba refuerza la preparación; no permite fijar la llegada del agua a Zárate o Campana.")
     if resumen["sin_clasificacion_litoral"] and resumen["estado"] == "reciente":
         st.warning("Clasificación integrada sin datos suficientes: " + ", ".join(resumen["sin_clasificacion_litoral"]) + ". La falta de información no significa riesgo bajo.")
-    seleccion = st.selectbox("Área de la red integrada", ["Ambas regiones", "Litoral", "Zárate–Campana"], key="red_integrada_region")
+    regiones = datos.get("regiones")
+    seleccion = regiones[0] if regiones and len(regiones) == 1 else st.selectbox("Área de la red integrada", ["Ambas regiones", "Litoral", "Zárate–Campana"], key="red_integrada_region")
     nodes = [n for n in datos["nodos"] if seleccion == "Ambas regiones" or n["red"] == seleccion]
     st.markdown("### Situación y lluvia por localidad")
     st.dataframe(filas_publicas_nodos(datos, seleccion), hide_index=True, use_container_width=True)
