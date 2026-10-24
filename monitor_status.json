@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T04:30:24.147445+00:00",
-  "checked_at_art": "2026-10-24T01:30:24.147445-03:00",
+  "checked_at": "2026-10-24T05:29:27.546469+00:00",
+  "checked_at_art": "2026-10-24T02:29:27.546469-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 10,
-    "omitidas": 10,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 1,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "6d08d6102b73",
+      "creado": "2026-10-24T05:29:27.546955+00:00",
+      "intento": "2026-10-24T05:29:27.546955+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 10.2 puntos. Río observado en Puerto Iguazú: 28,40 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 23/10/2026 · hora de medición no confirmada. Índice meteorológico: 38,6 → 48,8/100; se evalúa por separado.",
+      "indice_anterior": 38.6,
+      "indice": 48.8,
+      "estado": "enviado",
+      "message_id": 91,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "d9917579ccdc",
       "creado": "2026-10-24T03:31:09.441558+00:00",
@@ -481,57 +496,21 @@
       "message_id": 62,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "c8c1d82ed526",
-      "creado": "2026-10-20T03:32:48.132374+00:00",
-      "intento": "2026-10-20T03:32:48.132374+00:00",
-      "localidad": "Goya",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en Goya: posible superación del umbral de evacuación (5,70 m) a partir de 23/10/2026 · hora no publicada; previsión textual, sin altura numérica de cruce publicada. Entra en la ventana de preparación de 72 h según la fecha publicada. La previsión antes en prealerta ahora está dentro de la ventana de 72 h; esto no demuestra una subida observada del río. Índice meteorológico: 18,0 → 18,1/100; se evalúa por separado.",
-      "indice_anterior": 18.0,
-      "indice": 18.1,
-      "estado": "enviado",
-      "message_id": 61,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "36/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 749118,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "d36425cf782824b0c627de980e3a76b2c3da530b",
-    "commit_sha": "415f38471627e9983e2d70e78525a3b05b728c4a",
-    "bytes": 749117,
-    "generated_at": "2026-10-24T04:30:26.600743+00:00",
-    "verified_at": "2026-10-24T04:30:36.340383+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "eb6b12cb2691a905297c9bcd32a9ec9fd89fcbfb",
-    "commit_sha": "c8908e820c78633939ba13ca50c8b5b0cdf99edb",
-    "bytes": 1180510,
-    "consultado": "2026-10-24T04:30:23.375568+00:00",
-    "verified_at": "2026-10-24T04:30:40.088338+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
