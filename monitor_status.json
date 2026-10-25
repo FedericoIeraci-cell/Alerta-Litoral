@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-25T21:26:59.941708+00:00",
-  "checked_at_art": "2026-10-25T18:26:59.941708-03:00",
+  "checked_at": "2026-10-25T22:25:28.585390+00:00",
+  "checked_at_art": "2026-10-25T19:25:28.585390-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 44,
   "nodes_red": 7,
-  "nodes_invalid": 3,
-  "nodes_yellow": 20,
+  "nodes_invalid": 4,
+  "nodes_yellow": 19,
   "nodes_green": 18,
   "configured_nodes": 48,
   "coverage": {
@@ -40,7 +40,7 @@
     "pendientes": 7,
     "omitidas": 7,
     "inicializadas": 0,
-    "sin_datos": 4,
+    "sin_datos": 5,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -508,34 +508,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 649232,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "663d7940a64ee96d384cbce0281c17d311220b26",
-    "commit_sha": "80448e0a9ad913bbeb1f1cc6ad781308ec5a587e",
-    "bytes": 649232,
-    "generated_at": "2026-10-25T21:27:02.503981+00:00",
-    "verified_at": "2026-10-25T21:27:32.020775+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "1f11a9507c3fc122159cb129618f22ce7e750c07",
-    "commit_sha": "7756bcd2de81c3648cc23bb33a50bb3db57e6c30",
-    "bytes": 1194670,
-    "consultado": "2026-10-25T21:26:59.201126+00:00",
-    "verified_at": "2026-10-25T21:27:36.462897+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "c83698e8e5005d43e4a012bc8bff6b4970a5dc1d",
-    "commit_sha": "9e6f01a8babf40a40d9fe6527a73db3cbc44c1fa",
-    "bytes": 238570,
-    "consultado": "2026-10-25T21:27:36.467686+00:00",
-    "verified_at": "2026-10-25T21:27:54.751770+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
