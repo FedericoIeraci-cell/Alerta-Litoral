@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-25T10:28:00.033680+00:00",
-  "checked_at_art": "2026-10-25T07:28:00.033680-03:00",
+  "checked_at": "2026-10-25T11:28:25.759302+00:00",
+  "checked_at_art": "2026-10-25T08:28:25.759302-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -498,39 +498,18 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "5/29 puntos aplicables con pronóstico fluvial vigente.",
     "4/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 645831,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "47c7bea044be60635bec1aca37154528c4ef8e82",
-    "commit_sha": "ea8cce5bb79948c699da80aa8dff3ee32807997a",
-    "bytes": 645831,
-    "generated_at": "2026-10-25T10:28:02.805742+00:00",
-    "verified_at": "2026-10-25T10:28:31.134413+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "44655793f51fccd1fe3e74de757ac286d948f2bc",
-    "commit_sha": "33593715cf4463342f60882a7f22f80693fc488a",
-    "bytes": 1190502,
-    "consultado": "2026-10-25T10:27:59.308120+00:00",
-    "verified_at": "2026-10-25T10:28:35.819708+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
