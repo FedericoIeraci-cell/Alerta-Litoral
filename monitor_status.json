@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-25T17:27:18.699065+00:00",
-  "checked_at_art": "2026-10-25T14:27:18.699065-03:00",
+  "checked_at": "2026-10-25T18:30:33.226235+00:00",
+  "checked_at_art": "2026-10-25T15:30:33.226235-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "43f2442efbd9",
+      "creado": "2026-10-25T18:30:33.226742+00:00",
+      "intento": "2026-10-25T18:30:33.226742+00:00",
+      "localidad": "Corrientes",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Corrientes: 7,36 m, supera o alcanza el umbral de evacuación (7,00 m). Lectura 25/10/2026 · hora de medición no confirmada. Índice meteorológico: 34,1 → 24,1/100; se evalúa por separado.",
+      "indice_anterior": 34.1,
+      "indice": 24.1,
+      "estado": "enviado",
+      "message_id": 105,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "d888a70a560a",
       "creado": "2026-10-25T17:27:18.699485+00:00",
@@ -481,21 +496,6 @@
       "message_id": 76,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "a41ce98b60c3",
-      "creado": "2026-10-23T03:33:19.944964+00:00",
-      "intento": "2026-10-23T03:33:19.944964+00:00",
-      "localidad": "San Vicente",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 18.0 puntos. Índice meteorológico 73,1/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 55,1 → 73,1/100; se evalúa por separado.",
-      "indice_anterior": 55.1,
-      "indice": 73.1,
-      "estado": "enviado",
-      "message_id": 75,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,34 +508,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 723749,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "27af9ab2a85ec7bc09d59889cb08dab9cdcffd83",
-    "commit_sha": "b8a7d4750c48b87e8e98047870f3b95f9684d567",
-    "bytes": 723755,
-    "generated_at": "2026-10-25T17:27:24.745835+00:00",
-    "verified_at": "2026-10-25T17:27:47.527169+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "c274e1e0a494771681079d49a2c1d6dc488101c5",
-    "commit_sha": "530339fa76fa1e11a06af16f94156a7cb3f74922",
-    "bytes": 1187922,
-    "consultado": "2026-10-25T17:27:18.095244+00:00",
-    "verified_at": "2026-10-25T17:27:51.511140+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "cf64ddd8b473335195fe18f1b5d19d36407494c7",
-    "commit_sha": "4afe39f8df99ea8995aaffc17769e0bcbc9e4469",
-    "bytes": 243178,
-    "consultado": "2026-10-25T17:27:51.516435+00:00",
-    "verified_at": "2026-10-25T17:28:09.699328+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
