@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-25T16:28:51.530791+00:00",
-  "checked_at_art": "2026-10-25T13:28:51.530791-03:00",
+  "checked_at": "2026-10-25T17:27:18.699065+00:00",
+  "checked_at_art": "2026-10-25T14:27:18.699065-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 45,
-  "nodes_red": 6,
+  "nodes_red": 7,
   "nodes_invalid": 3,
-  "nodes_yellow": 22,
+  "nodes_yellow": 21,
   "nodes_green": 17,
   "configured_nodes": 48,
   "coverage": {
@@ -37,16 +37,31 @@
     "configurado": true,
     "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
-    "omitidas": 5,
+    "pendientes": 7,
+    "omitidas": 6,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 4,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "d888a70a560a",
+      "creado": "2026-10-25T17:27:18.699485+00:00",
+      "intento": "2026-10-25T17:27:18.699485+00:00",
+      "localidad": "Reconquista",
+      "provincia": "Santa Fe",
+      "tipo": "ACTUALIZACIÓN DEL RIESGO",
+      "motivo": "Actualización del riesgo: nueva condición determinante. Río observado en Reconquista: 5,33 m, supera o alcanza el umbral de evacuación (5,30 m). Lectura 25/10/2026 · hora de medición no confirmada. Índice meteorológico: 21,9 → 19,6/100; se evalúa por separado.",
+      "indice_anterior": 21.9,
+      "indice": 19.6,
+      "estado": "enviado",
+      "message_id": 104,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "2f988bc5d68c",
       "creado": "2026-10-25T16:28:51.531290+00:00",
@@ -481,21 +496,6 @@
       "message_id": 75,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "55f25eee5876",
-      "creado": "2026-10-23T02:32:24.813042+00:00",
-      "intento": "2026-10-23T02:32:24.813042+00:00",
-      "localidad": "Andresito",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.6 puntos. Índice meteorológico 56,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 67,1 → 56,5/100; se evalúa por separado.",
-      "indice_anterior": 67.1,
-      "indice": 56.5,
-      "estado": "enviado",
-      "message_id": 74,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,34 +508,8 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 641722,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "6de20755843ce556106ac72cc71ec813eaf93a8f",
-    "commit_sha": "0d939781e875353f502b89fe99d0af5f37ef24e3",
-    "bytes": 641722,
-    "generated_at": "2026-10-25T16:28:57.565514+00:00",
-    "verified_at": "2026-10-25T16:29:32.060004+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "eaa4f288fc2e39619791ae753eb52a0e0d13de92",
-    "commit_sha": "acbdf7b22f59ae848dac85214abfe5e179771bf2",
-    "bytes": 1190890,
-    "consultado": "2026-10-25T16:28:50.861801+00:00",
-    "verified_at": "2026-10-25T16:29:36.412022+00:00"
-  },
-  "meteorologia_zc_publicada": true,
-  "meteorologia_zc_estado": "verificada",
-  "meteorologia_zc_confirmacion": {
-    "sha": "0aa735aad1d996aacc62b9f6050edc9f2c54dec3",
-    "commit_sha": "4566060492586ff8d21c8826745ad7d7fcded33b",
-    "bytes": 241046,
-    "consultado": "2026-10-25T16:29:36.418365+00:00",
-    "verified_at": "2026-10-25T16:29:54.964306+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
