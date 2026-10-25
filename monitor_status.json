@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-25T00:36:52.642009+00:00",
-  "checked_at_art": "2026-10-24T21:36:52.642009-03:00",
+  "checked_at": "2026-10-25T01:31:40.909994+00:00",
+  "checked_at_art": "2026-10-24T22:31:40.909994-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 40,
-  "nodes_red": 10,
-  "nodes_invalid": 8,
-  "nodes_yellow": 19,
-  "nodes_green": 11,
+  "nodes_valid": 38,
+  "nodes_red": 8,
+  "nodes_invalid": 10,
+  "nodes_yellow": 18,
+  "nodes_green": 12,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 34,
+      "vigentes": 32,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -37,10 +37,10 @@
     "configurado": true,
     "enviadas": 0,
     "fallidas": 0,
-    "pendientes": 10,
-    "omitidas": 10,
+    "pendientes": 8,
+    "omitidas": 8,
     "inicializadas": 0,
-    "sin_datos": 8,
+    "sin_datos": 10,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -498,40 +498,19 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "34/48 puntos aplicables con meteorología completa.",
+    "32/48 puntos aplicables con meteorología completa.",
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate costanera, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 701546,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "d5c1fec6264a76ec6ce74d90eb74a0dddce41f2f",
-    "commit_sha": "f93d22f806defb63a9e73f5e93378e0ba15d6365",
-    "bytes": 701547,
-    "generated_at": "2026-10-25T00:36:55.179542+00:00",
-    "verified_at": "2026-10-25T00:37:07.120770+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "8eeb5eb96fe5200fa497f5017183799ae4e995fe",
-    "commit_sha": "a7591a1d8ae19c88d8b3f142d3e7a759d4a0d857",
-    "bytes": 1193418,
-    "consultado": "2026-10-25T00:36:51.959626+00:00",
-    "verified_at": "2026-10-25T00:37:11.446059+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate costanera, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
