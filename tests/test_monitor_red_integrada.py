@@ -86,9 +86,8 @@ class TestRedMonitor(unittest.TestCase):
         self.assertEqual(self.calls.count("panorama"), 1)
         self.assertEqual(self.calls.count("risk"), 1)
         self.assertEqual(self.calls.count("telegram"), 1)
-        self.assertEqual(self.calls.count("query_zc"), 1)
+        self.assertEqual(self.calls.count("query_zc"), 0)
         names = [call[0] if isinstance(call, tuple) else call for call in self.calls]
-        self.assertLess(names.index("status"), names.index("query_zc"))
         self.assertLess(names.index("status"), names.index("save_red"))
         saved = next(call[1] for call in self.calls if isinstance(call, tuple))
         self.assertNotIn("red_integrada", saved)
@@ -105,7 +104,7 @@ class TestRedMonitor(unittest.TestCase):
     def test_dry_run_no_store_ni_telegram_ni_secrets(self):
         self.app.obtener_secrets_telegram = lambda: self.fail("No debe leer secretos")
         status = self.run_monitor(dry_run=True)
-        self.assertEqual(self.calls, ["panorama", "risk", "query_zc", "build_red"])
+        self.assertEqual(self.calls, ["panorama", "risk", "build_red"])
         self.assertIn("red_integrada", status)
         self.assertEqual(status["health"], "dry_run")
         self.assertFalse(status["ok"])
@@ -126,17 +125,18 @@ class TestRedMonitor(unittest.TestCase):
         self.assertNotIn("panorama", self.calls)
         self.assertEqual(status["result"]["enviadas"], 1)
 
-    def test_consulta_red_fallida_no_cambia_canal(self):
+    def test_zc_caida_no_afecta_vigilancia_ni_publicacion_ala(self):
         self.module.consultar_zc_red = lambda **kwargs: (_ for _ in ()).throw(TimeoutError("HTTP token secret"))
-        with self.assertRaises(monitor.MonitorError):
+        self.module.consultar_red_integrada = lambda **kwargs: (_ for _ in ()).throw(TimeoutError("No leer ZC"))
+        with patch("meteorologia_compartida.crear_captura_zc", side_effect=AssertionError("No consultar ZC")):
             self.run_monitor()
         status = [call[1] for call in self.calls if isinstance(call, tuple)][-1]
-        self.assertFalse(status["ok"])
-        self.assertEqual(status["health"], "error_red_integrada")
+        self.assertTrue(status["ok"])
+        self.assertEqual(status["health"], "ok")
         self.assertEqual(status["health_evaluacion"], "ok")
         self.assertEqual(status["result"]["enviadas"], 1)
-        self.assertNotIn("save_red", self.calls)
-        self.assertNotIn("secret", status["red_integrada_error"])
+        self.assertIn("save_red", self.calls)
+        self.assertEqual(status["meteorologia_zc_estado"], "proceso_independiente")
         self.assertEqual(self.calls.count("telegram"), 1)
 
     def test_publicacion_red_fallida_no_cambia_canal(self):
@@ -177,13 +177,13 @@ class TestRedMonitor(unittest.TestCase):
     def test_publicacion_sola_no_lee_secrets_ni_estado_telegram(self):
         self.app.obtener_secrets_telegram = lambda: self.fail("No debe leer secretos")
         status = self.run_monitor(publish_red_only=True)
-        self.assertEqual(self.calls, ["panorama", "risk", "query_zc", "build_red", "save_red"])
+        self.assertEqual(self.calls, ["panorama", "risk", "build_red", "save_red"])
         self.assertTrue(status["red_integrada_publicada"])
         self.assertTrue(status["dry_run"])
         self.assertFalse(Path(self.app.TELEGRAM_DB_FILE).exists())
 
     def test_dry_run_falla_si_no_puede_preparar_red(self):
-        self.module.consultar_zc_red = lambda **kwargs: (_ for _ in ()).throw(ValueError("secret"))
+        self.module.construir_red_integrada = lambda *args, **kwargs: (_ for _ in ()).throw(ValueError("secret"))
         with self.assertRaisesRegex(monitor.MonitorError, "preparacion"):
             self.run_monitor(dry_run=True)
         self.assertNotIn("telegram", self.calls)

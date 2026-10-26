@@ -7278,7 +7278,7 @@ def mostrar_proyecto_ficha():
 
 def cargar_panel_red():
     import red_integrada as red
-    if getattr(red, 'VERSION_RED', None) != '2026-10-20.1':
+    if getattr(red, 'VERSION_RED', None) != '2026-10-22.regional':
         import importlib
         red = importlib.reload(red)
     return red
@@ -7379,6 +7379,20 @@ def render_app():
     with mapa_principal.container():
         mostrar_mapa_principal(st, NODOS, componentes=components,
                               geometrias=GEOMETRIAS_LITORAL, tarjeta_nodo=hover_nodo)
+    with st.expander('Cómo leer el mapa y el agua satelital'):
+        st.markdown(
+            '**Elegí un nodo** para ver qué ocurre, qué información falta y las fechas de lluvia y río. '
+            'Gris significa información insuficiente para completar la evaluación.'
+        )
+        st.markdown(
+            '**Agua por satélite:** abrí el control del mapa y activá “Mostrar agua · VIIRS NASA”. '
+            'Elegí un período publicado: la imagen combina observaciones de 2 o 3 días; no es una vista en vivo.'
+        )
+        st.caption(
+            'Cian: agua superficial; amarillo: inundación recurrente; rojo: inundación detectada; '
+            'gris: datos insuficientes. La ausencia de color no confirma suelo seco. '
+            'La capa aporta contexto visual y no cambia automáticamente el color de los nodos.'
+        )
     firma_actual=firma_cobertura()
     if st.session_state.get('firma_cobertura')!=firma_actual:
         for clave in ('df_alerta','raw_ecmwf','df_operativo','firma_historial_operativo','ficha_localidad','localidad_seleccionada'):
@@ -7390,10 +7404,16 @@ def render_app():
     # SMN — DATOS EN DIRECTO
     # ============================================================
 
-    tab_agro, tab_plan, tab_red, tab_radar, tab_smn, tab_fuentes, tab_enos, tab_territorio, tab_historia = st.tabs([
-        "🌧️ Alerta Litoral Agro", "📋 Plan y ficha del proyecto", "🌐 Red integrada", "📡 Radar SINARAME", "🇦🇷 Datos oficiales SMN",
-        "🌱 Suelo y ríos", "🌊 El Niño / La Niña", "🗺️ Territorio y rutas", "📘 Caso histórico y ficha",
+    tab_agro, tab_consultas, tab_territorio, tab_proyecto = st.tabs([
+        "📍 Mi localidad", "🌦️ Fuentes y mapas", "🗺️ Territorio", "📘 Proyecto",
     ])
+    with tab_consultas:
+        st.caption('Consultá las fuentes que sostienen la evaluación y los mapas complementarios.')
+        tab_red, tab_smn, tab_radar, tab_fuentes, tab_enos = st.tabs([
+            "Datos del Litoral", "Avisos y datos SMN", "Radar", "Suelo y ríos", "El Niño / La Niña",
+        ])
+    with tab_proyecto:
+        tab_plan, tab_historia = st.tabs(["Plan y ficha", "Casos históricos y validación"])
     # ============================================================
     # SIDEBAR
     # ============================================================
@@ -7613,7 +7633,7 @@ def render_app():
         try:
             cargar_panel_red().mostrar_estado_conexion(st, app_actual='ala')
         except Exception:
-            st.warning('No se pudo confirmar la actualización del informe compartido. Revisá Red integrada y las fuentes de cada localidad.')
+            st.warning('No se pudo confirmar la actualización de los datos del Litoral. Revisá Fuentes y mapas y las fechas de cada localidad.')
         st.html('<div id="ala-alertas" class="ala-ancla" tabindex="-1"></div>')
         mostrar_vigilancia_inundaciones(df_alerta, panorama_hidro)
         mostrar_explorar_tiempo(localidad_seleccionada)
@@ -8697,7 +8717,7 @@ def render_app():
 
         st.caption(
             f"{APP_NAME} · {VERSION} · "
-            "Sistema experimental · Fuentes y límites en Caso histórico y ficha"
+            "Sistema experimental · Fuentes y límites en Proyecto"
         )
 
 
@@ -8707,7 +8727,7 @@ def render_app():
         try:
             cargar_panel_red().mostrar_red_integrada(st, repository="FedericoIeraci-cell/Alerta-Litoral", app_actual="ala")
         except Exception:
-            st.warning("No se pudo cargar la información compartida en esta consulta. Los paneles regionales siguen disponibles; no se confirma el estado de la red.")
+            st.warning("No se pudieron cargar los datos publicados del Litoral en esta consulta. El mapa conserva la información disponible de cada localidad, con sus fechas y faltantes.")
     with tab_radar:
         mostrar_radar_smn()
     with tab_smn:

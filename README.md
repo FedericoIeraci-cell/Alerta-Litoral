@@ -168,37 +168,33 @@ python monitor.py --dry-run
 
 Para abrir el panel local, instalá `requirements.txt` y ejecutá `streamlit run app.py`.
 
-## Red integrada Litoral–Zárate–Campana
+## Procesos independientes de ALA y Zárate–Campana
 
-Las dos aplicaciones tienen una solapa **Red integrada** que consulta el mismo informe público: `red_integrada.json` en la rama `ala-monitor-state` del repositorio Alerta-Litoral.
+ALA consulta y publica exclusivamente sus **48 localidades del Litoral**, sus fuentes fluviales, represas y avisos SMN. No descarga meteorología ZC ni espera a su actualizador.
 
-El informe reúne los **48 puntos del Litoral y 10 referencias meteorológicas de Zárate–Campana**, estaciones y pronósticos fluviales oficiales disponibles y reportes de represas. Conserva fechas, cobertura y fuentes. Los puntos cercanos pueden representar la misma celda meteorológica.
+- ALA: repositorio `Alerta-Litoral`, rama `ala-monitor-state`; `monitor_status.json`, `red_integrada.json` y `meteorologia_ecmwf.json`.
+- Zárate–Campana: repositorio `alerta-zarate-campana`, rama `zc-datos-state`; `datos_status.json`, `red_integrada.json` y `meteorologia_zc_ecmwf.json`.
+- Los enlaces entre páginas se conservan para navegar. El estado de una página no acredita ni bloquea el de la otra.
 
-El monitor existente de ALA prepara el informe común después de guardar su evaluación regional. La consulta adicional de Zárate–Campana no incorpora nuevos candidatos ni destinatarios a Telegram. Cada aplicación conserva sus criterios y registros regionales; el informe común no activa una orden de evacuación.
+El formato regional declara `regiones: ["Litoral"]` y contiene 48 puntos. El lector conserva compatibilidad con los informes históricos de 58 puntos, pero el monitor ya no los produce. Un nodo ausente dentro de la región sigue siendo un error de contrato; la ausencia de la otra región es deliberada.
 
-El publicador y los lectores comparten un límite de **2.000.000 bytes**. El JSON se guarda compacto, sin recortar evidencias. Cada escritura utiliza el SHA leído previamente y se confirma releyendo el contenido y el SHA remoto. `monitor_status.json` guarda primero `red_integrada_estado: pendiente` y luego el resultado final: `red_integrada_publicada`, estado, confirmación (SHA, bytes, generación y verificación) o código/etapa del error. Un fallo de publicación hace fallar Actions aunque la evaluación regional haya terminado; `health_evaluacion` conserva el resultado regional. Las reservas, confirmaciones y deduplicación de Telegram mantienen su circuito anterior.
+`.github/workflows/ala-monitor.yml` mantiene la evaluación horaria y su registro de avisos. `.github/workflows/ala-red-integrada.yml` publica sólo datos del Litoral con cadencia objetivo de diez minutos. Ambos conservan la exclusión de escritores de ALA; no comparten cola, estado ni credenciales con ZC. La validación de ALA tampoco ejecuta consultas ZC.
 
-Un informe con más de 3 horas se señala como vencido. Las alturas y corridas locales de Zárate–Campana también se revisan con un máximo de 6 horas; la fecha de generación del informe no renueva una lectura antigua. No se suman caudales de estaciones sucesivas ni se calcula una hora de llegada desde las compuertas.
-
-Para actualizar, incluí `red_integrada.py` en la raíz de ambos repositorios. ALA también requiere el `monitor.py` actualizado. Una prueba de consulta y exportación sin envíos es:
+Prueba sin envíos ni escrituras remotas:
 
 ```bash
-python monitor.py --dry-run --export-red red_integrada_revision.json
+python monitor.py --dry-run --export-red red_litoral_revision.json
 ```
 
-Para recuperar y verificar **sólo la publicación**, con permisos de GitHub y sin credenciales de Telegram:
+Publicación de datos ALA sin leer secretos de Telegram ni modificar su registro:
 
 ```bash
 python monitor.py --publish-red-only
 ```
 
-Este modo consulta fuentes actuales, publica y relee `red_integrada.json`, pero no lee ni escribe el SQLite de avisos ni `monitor_status.json`. El informe indica `dry_run: true` para no atribuirle una evaluación de envíos. El workflow de validación ejecuta este modo después de superar las pruebas en un push a la rama principal. En ramas y pull requests sólo valida, sin publicaciones ni envíos.
+Los problemas de fuentes de ALA siguen informándose en ALA. El registro, las reservas y la deduplicación de Telegram se conservan. Una fuente caída, una previsión vencida o un parte diario sin hora permanecen identificados con su fecha real; separar las páginas no completa información ausente.
 
-El workflow `.github/workflows/ala-red-integrada.yml` también ejecuta esta publicación con una **cadencia objetivo de 10 minutos**, a los minutos 3, 13, 23, 33, 43 y 53 de cada hora. No recibe secretos de Telegram. El monitor con evaluación de envíos conserva su programación horaria, su registro y sus reservas. Los tres publicadores comparten el grupo de concurrencia con `queue: max`: se ejecuta un solo escritor y los pendientes esperan sin reemplazar la vigilancia horaria.
-
-GitHub Actions puede demorar las ejecuciones programadas; esta frecuencia no es una garantía de telemetría en tiempo real. Cada ejecución consulta las fuentes disponibles, recalcula la evaluación y confirma la publicación; conserva las fechas originales de medición, emisión y validez. Una fuente que no publicó un dato nuevo seguirá mostrando su lectura anterior y su antigüedad. El último control de Telegram se obtiene de `monitor_status.json` y no se adelanta por una publicación sin envíos.
-
-Diagnóstico y regresiones de la incidencia: [Publicación de la red, 15/10/2026](docs/PUBLICACION_RED_20261015.md).
+GitHub Actions puede demorar el inicio de las tareas. La frecuencia configurada no garantiza telemetría continua. El lector recalcula la vigencia de cada evidencia y no cambia su hora al abrir la página.
 
 [Abrir Alerta Litoral Agro](https://alerta-litoral-agro.streamlit.app/) · [Abrir Alerta Zárate–Campana](https://alerta-zarate-campana.streamlit.app/)
 

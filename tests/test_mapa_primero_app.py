@@ -77,6 +77,21 @@ class MapaPrimeroAppTests(unittest.TestCase):
                 self.assertLess(posicion, i)
         self.assertFalse(any(e.type == 'markdown' and 'class="hero"' in e.value for e in elementos))
 
+        # La navegación sigue disponible aunque la primera fuente falle:
+        # cuatro entradas principales, con las fuentes y el proyecto agrupados.
+        principal, fuentes, proyecto = at.get('tab_container')
+        self.assertEqual([t.label for t in principal.children.values()],
+                         ['📍 Mi localidad', '🌦️ Fuentes y mapas', '🗺️ Territorio', '📘 Proyecto'])
+        self.assertEqual([t.label for t in fuentes.children.values()],
+                         ['Datos del Litoral', 'Avisos y datos SMN', 'Radar', 'Suelo y ríos', 'El Niño / La Niña'])
+        self.assertEqual([t.label for t in proyecto.children.values()],
+                         ['Plan y ficha', 'Casos históricos y validación'])
+        guia = next(e for e in at.expander if e.label == 'Cómo leer el mapa y el agua satelital')
+        textos = ' '.join(e.value for e in guia if e.type in ('markdown', 'caption'))
+        self.assertIn('no es una vista en vivo', textos)
+        self.assertIn('La ausencia de color no confirma suelo seco', textos)
+        self.assertIn('no cambia automáticamente el color de los nodos', textos)
+
 
 if __name__ == '__main__':
     unittest.main()

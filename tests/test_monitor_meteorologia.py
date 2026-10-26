@@ -181,39 +181,38 @@ class MonitorMeteorologiaTests(unittest.TestCase):
         self.assertEqual(self.calls, ["red", "meteorologia"])
         self.assertEqual(self.statuses, [])
 
-    def test_fallo_zc_queda_guardado_y_no_repite_envios(self):
+    def test_fallo_zc_no_se_consulta_ni_repite_envios_ala(self):
         self.store.save_meteorologia_zc = lambda value: self.calls.append("zc")
-        with patch.object(meteo, "crear_captura_zc", side_effect=meteo.CapturaMeteorologicaError("ZC timeout_lectura")):
-            with self.assertRaisesRegex(monitor.MonitorError, "ZC timeout_lectura"):
-                self.run_monitor()
+        with patch.object(meteo, "crear_captura_zc", side_effect=meteo.CapturaMeteorologicaError("ZC timeout_lectura")) as consulta:
+            self.run_monitor()
+        consulta.assert_not_called()
         status = self.statuses[-1]
-        self.assertEqual(status["health"], "error_meteorologia_zc")
+        self.assertEqual(status["health"], "ok")
         self.assertEqual(status["health_evaluacion"], "ok")
-        self.assertFalse(status["ok"])
-        self.assertIn("ZC timeout_lectura", status["errors"])
+        self.assertTrue(status["ok"])
+        self.assertNotIn("ZC timeout_lectura", status["errors"])
         self.assertTrue(status["red_integrada_publicada"])
         self.assertTrue(status["meteorologia_publicada"])
-        self.assertFalse(status["meteorologia_zc_publicada"])
+        self.assertEqual(status["meteorologia_zc_estado"], "proceso_independiente")
         self.assertNotIn("zc", self.calls)
         self.assertEqual(self.calls.count("telegram"), 1)
 
-    def test_fallo_zc_detiene_publicacion_sola_sin_telegram_ni_status(self):
+    def test_fallo_zc_no_detiene_publicacion_ala(self):
         self.store.save_meteorologia_zc = lambda value: self.calls.append("zc")
-        with patch.object(meteo, "crear_captura_zc", side_effect=RuntimeError("private credential")):
-            with self.assertRaisesRegex(monitor.MonitorError, "Zárate–Campana") as caught:
-                self.run_monitor(publish_red_only=True)
-        self.assertNotIn("private", str(caught.exception))
+        with patch.object(meteo, "crear_captura_zc", side_effect=RuntimeError("private credential")) as consulta:
+            self.run_monitor(publish_red_only=True)
+        consulta.assert_not_called()
         self.assertEqual(self.calls, ["red", "meteorologia"])
         self.assertEqual(self.statuses, [])
 
-    def test_recuperacion_zc_confirma_sin_telegram_ni_status(self):
+    def test_captura_zc_disponible_tampoco_se_publica_desde_ala(self):
         self.store.save_meteorologia_zc = lambda value: self.calls.append("zc") or {"sha": "confirmed"}
         with patch.object(meteo, "crear_captura_zc", return_value=captura()):
             status = self.run_monitor(publish_red_only=True)
-        self.assertTrue(status["meteorologia_zc_publicada"])
-        self.assertEqual(status["meteorologia_zc_confirmacion"], {"sha": "confirmed"})
+        self.assertNotIn("meteorologia_zc_publicada", status)
+        self.assertNotIn("meteorologia_zc_confirmacion", status)
         self.assertNotIn("meteorologia_zc_error", status)
-        self.assertEqual(self.calls, ["red", "meteorologia", "zc"])
+        self.assertEqual(self.calls, ["red", "meteorologia"])
         self.assertEqual(self.statuses, [])
 
     def test_error_zc_no_oculta_error_del_canal(self):
@@ -221,7 +220,7 @@ class MonitorMeteorologiaTests(unittest.TestCase):
                   "red_integrada_publicada": True, "meteorologia_zc_error": "ZC timeout_lectura"}
         monitor._guardar_resultado_publicacion(status, self.store)
         self.assertEqual(self.statuses[-1]["health"], "envio_rechazado")
-        self.assertEqual(self.statuses[-1]["errors"], ["Canal", "ZC timeout_lectura"])
+        self.assertEqual(self.statuses[-1]["errors"], ["Canal"])
 
     def test_dry_run_no_publica_captura_disponible(self):
         status = self.run_monitor(dry_run=True)

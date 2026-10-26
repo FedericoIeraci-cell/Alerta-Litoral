@@ -652,15 +652,12 @@ def _coverage_errors(coverage: dict[str, Any]) -> list[str]:
 
 
 def _preparar_red_integrada(frame, panorama, status, app) -> dict[str, Any] | None:
-    """La consulta regional adicional nunca cambia candidatos ni envíos ALA."""
+    """Publica sólo el Litoral: ninguna descarga ni lectura depende de ZC."""
     try:
-        from red_integrada import consultar_zc_red, construir_red_integrada, consultar_red_integrada
+        from red_integrada import construir_red_integrada
         referencia = datetime.now(timezone.utc)
-        # Lectura pública independiente: no requiere acceso al registro Telegram.
-        anterior = consultar_red_integrada(referencia=referencia, actualizar=True)
-        zc = consultar_zc_red(referencia=referencia, anterior=anterior)
         document = construir_red_integrada(
-            frame, panorama or {}, zc=zc, monitor=status,
+            frame, panorama or {}, monitor=status, region="Litoral",
             referencia=referencia, version_ala=str(getattr(app, "VERSION", "")),
         )
         document, payload = _serializar_red_integrada(document)
@@ -703,7 +700,6 @@ def _publicar_red_integrada(frame, panorama, status, app, store) -> None:
         _error_red_integrada(status, RedPublicationError("publicacion", "error_interno"))
     if status["red_integrada_publicada"]:
         _publicar_meteorologia(status, app, store)
-        _publicar_meteorologia_zc(status, store)
 
 
 def _publicar_meteorologia(status, app, store):
@@ -762,11 +758,6 @@ def _guardar_resultado_publicacion(status, store):
         status["errors"].append(status["meteorologia_error"])
         if status["health"] in {"ok", "datos_parciales"}:
             status["health"] = "error_meteorologia"
-    if status.get("meteorologia_zc_error"):
-        status["ok"] = False
-        status["errors"].append(status["meteorologia_zc_error"])
-        if status["health"] in {"ok", "datos_parciales"}:
-            status["health"] = "error_meteorologia_zc"
     # El snapshot grande tiene su propio archivo; sólo el diagnóstico va al estado.
     store.save_status({k: v for k, v in status.items() if k != "red_integrada"})
 
@@ -862,6 +853,8 @@ def run_monitor(
         "red_integrada_estado": "pendiente" if not dry_run else "no_solicitada",
         "meteorologia_publicada": False,
         "meteorologia_estado": "pendiente" if not dry_run else "no_solicitada",
+        "region": "Litoral",
+        "meteorologia_zc_estado": "proceso_independiente",
     }
     if no_telegram:
         if valid == 0:
@@ -873,8 +866,6 @@ def run_monitor(
                 raise MonitorError(status["red_integrada_error"])
             if status.get("meteorologia_error"):
                 raise MonitorError(status["meteorologia_error"])
-            if status.get("meteorologia_zc_error"):
-                raise MonitorError(status["meteorologia_zc_error"])
         else:
             document = _preparar_red_integrada(frame, panorama, status, app)
             if document is None:
@@ -930,8 +921,6 @@ def run_monitor(
         raise MonitorError(status["red_integrada_error"] + " La evaluación regional quedó guardada, pero el informe compartido no se confirmó.")
     if status.get("meteorologia_error"):
         raise MonitorError(status["meteorologia_error"] + " La red integrada se publicó, pero la captura meteorológica no se confirmó.")
-    if status.get("meteorologia_zc_error"):
-        raise MonitorError(status["meteorologia_zc_error"] + " La captura completa de Zárate–Campana no se confirmó; se conserva la anterior con su fecha original.")
     return status
 
 

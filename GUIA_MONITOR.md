@@ -2,6 +2,10 @@
 
 El panel y el monitor horario usan la misma integración de meteorología, hidrología, represas y avisos oficiales. GitHub Actions ejecuta el monitor aunque nadie abra la página. Abrir o actualizar Streamlit no envía alertas automáticas.
 
+En la arquitectura independiente el proceso ALA evalúa y publica únicamente el Litoral. Las consultas meteorológicas de Zárate–Campana y su publicación se ejecutan en el repositorio de ZC, en `zc-datos-state`, con su propio workflow y registro. Un fallo ZC no cambia el resultado del control ALA. El SQLite y la deduplicación de ALA no se migran ni reinician.
+
+Para activar la separación desde el formato histórico de 58 puntos, integrar primero el actualizador y lector propios de ZC y confirmar sus tres archivos en `zc-datos-state`. Sólo después activar el productor ALA de 48 localidades. Antes de esa confirmación, el informe compartido sigue siendo la fuente publicada; un PR abierto no acredita una migración activa.
+
 ## 1. Actualizar el paquete completo
 
 Subí juntos estos archivos a la rama principal de tu repositorio, la misma que utiliza Streamlit:
