@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-26T02:34:55.012367+00:00",
-  "checked_at_art": "2026-10-25T23:34:55.012367-03:00",
+  "checked_at": "2026-10-26T03:35:00.284520+00:00",
+  "checked_at_art": "2026-10-26T00:35:00.284520-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 7,
-    "omitidas": 7,
+    "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 5,
     "atrasadas": 0,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "27fbc68eae8f",
+      "creado": "2026-10-26T03:35:00.284871+00:00",
+      "intento": "2026-10-26T03:35:00.284871+00:00",
+      "localidad": "Ituzaingó",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Puerto Ituzaingó: 4,50 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 25/10/2026 · hora de medición no confirmada. Índice meteorológico: 36,6 → 26,6/100; se evalúa por separado.",
+      "indice_anterior": 36.6,
+      "indice": 26.6,
+      "estado": "enviado",
+      "message_id": 106,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "43f2442efbd9",
       "creado": "2026-10-25T18:30:33.226742+00:00",
@@ -481,56 +496,20 @@
       "message_id": 78,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "e732aa115463",
-      "creado": "2026-10-23T05:31:46.182095+00:00",
-      "intento": "2026-10-23T05:31:46.182095+00:00",
-      "localidad": "El Soberbio",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 11.0 puntos. Índice meteorológico 69,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 58,0 → 69,0/100; se evalúa por separado.",
-      "indice_anterior": 58.0,
-      "indice": 69.0,
-      "estado": "enviado",
-      "message_id": 76,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia_zc",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "5/29 puntos aplicables con pronóstico fluvial vigente.",
     "4/20 puntos aplicables con información vigente de represas.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Consulta meteorológica ZC: Zárate centro, timeout_lectura."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
-  "red_integrada_bytes": 653007,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "106fd318c3c482aedad1f11991ec4cc87bd61282",
-    "commit_sha": "44bcae908fda74cb884729b3b5aca17cdfcfbc19",
-    "bytes": 653008,
-    "generated_at": "2026-10-26T02:34:57.831574+00:00",
-    "verified_at": "2026-10-26T02:35:09.572624+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "4e0d62b4f5561d4cd2ecf77c72309610c7a3c3d8",
-    "commit_sha": "6c375eee2c243a80b4f2757656bf777e180fc598",
-    "bytes": 1181942,
-    "consultado": "2026-10-26T02:34:54.627530+00:00",
-    "verified_at": "2026-10-26T02:35:13.157510+00:00"
-  },
-  "meteorologia_zc_publicada": false,
-  "meteorologia_zc_estado": "error",
-  "meteorologia_zc_error": "Consulta meteorológica ZC: Zárate centro, timeout_lectura.",
-  "health_evaluacion": "datos_parciales"
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente"
 }
