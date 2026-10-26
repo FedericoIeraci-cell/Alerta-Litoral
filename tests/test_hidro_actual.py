@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 import hidro_actual as hidro
 import panel_hidro_actual as panel
@@ -51,7 +52,7 @@ class LecturasTests(unittest.TestCase):
         self.assertEqual(cero['erogado_m3s'],7785)
 
     def test_ina_no_rejuvenece_lecturas_diarias(self):
-        datos = hidro.parsear_rios(WFS,NOW)
+        datos = hidro.parsear_rios(WFS,NOW,alcance='compartido')
         zarate = next(d for d in datos if d['serie']==40)
         self.assertEqual(zarate['altura_m'],1.3)
         self.assertEqual(zarate['fecha'],'2026-10-18T03:00:00+00:00')
@@ -73,6 +74,45 @@ class LecturasTests(unittest.TestCase):
             self.assertIsNone(d['altura_m']); self.assertTrue(d['error'])
         datos=deepcopy(WFS);datos['features'].append(datos['features'][0])
         self.assertIsNone(next(d for d in hidro.parsear_rios(datos,NOW) if d['serie']==19)['altura_m'])
+
+    def test_actualizador_litoral_no_consulta_zc_ni_solicita_sus_series(self):
+        def respuesta(url, session=None):
+            return HTML.encode() if url == hidro.CTM_HORARIOS else json.dumps(WFS).encode()
+        with patch.object(hidro,'_descargar',side_effect=respuesta) as descargar, \
+                patch('hidrometria_local.consultar_altura_zarate',side_effect=AssertionError('ZC fuera de alcance')) as zc:
+            lecturas = hidro.consultar_hidrologia_actual(NOW)
+        zc.assert_not_called()
+        urls = [c.args[0] for c in descargar.call_args_list]
+        self.assertEqual(len(urls),2)
+        consulta = next(u for u in urls if u.startswith(hidro.INA_WFS))
+        filtro = parse_qs(urlsplit(consulta).query)['CQL_FILTER'][0]
+        series = {int(n) for n in filtro.removeprefix('series_id IN (').removesuffix(')').split(',')}
+        self.assertEqual(series,set(hidro.ESTACIONES))
+        self.assertFalse(series & {40,41,52})
+        self.assertFalse({d.get('serie') for d in lecturas} & {40,41,52,29437})
+        self.assertEqual(len(lecturas),len(hidro.ESTACIONES)+1)
+        corrientes = next(d for d in lecturas if d.get('serie')==19)
+        self.assertEqual(corrientes['altura_m'],6.89)
+        self.assertEqual(corrientes['precision_fecha'],'fecha_registro_fuente')
+
+    def test_cache_del_alcance_compartido_no_contamina_litoral(self):
+        def respuesta(url, session=None):
+            return HTML.encode() if url == hidro.CTM_HORARIOS else json.dumps(WFS).encode()
+        dato = {'fecha_observada':'2026-10-18T20:00:00Z','altura_m':1.18,
+                'consulta':NOW.isoformat(),'fuente':'https://alerta.ina.gob.ar','error':''}
+        with patch.object(hidro,'_descargar',side_effect=respuesta) as descargar, \
+                patch('hidrometria_local.consultar_altura_zarate',return_value=dato) as zc:
+            compartidas = hidro.consultar_hidrologia_actual(NOW,alcance='compartido')
+            litoral = hidro.consultar_hidrologia_actual(NOW,alcance='Litoral')
+        self.assertEqual(zc.call_count,1)
+        self.assertIn(29437,{d.get('serie') for d in compartidas})
+        self.assertFalse({d.get('serie') for d in litoral} & {40,41,52,29437})
+        self.assertIn('rios',hidro._CACHE)
+        self.assertIn('rios_compartidos',hidro._CACHE)
+        self.assertEqual(len(descargar.call_args_list),3)
+        with patch.object(hidro,'_descargar') as descargar, self.assertRaises(ValueError):
+            hidro.consultar_hidrologia_actual(NOW,alcance='desconocido')
+        descargar.assert_not_called()
 
     def test_cache_cinco_minutos_y_revalidacion_a_cada_lectura(self):
         dato = hidro.parsear_horarios(HTML,NOW)
@@ -135,6 +175,7 @@ class LecturasTests(unittest.TestCase):
             panel.mostrar_panel_hidrologia_actual(st);st.fn()
         self.assertEqual(st.intervalo,'60s');self.assertEqual(leer.call_count,2);self.assertEqual(red.call_count,2)
         self.assertEqual(dibujar.call_count,2)
+        self.assertTrue(all(c.kwargs == {'alcance':'Litoral'} for c in leer.call_args_list))
 
     def test_ui_real_streamlit_no_etiqueta_boletines_como_vivo(self):
         from streamlit.testing.v1 import AppTest
@@ -152,6 +193,8 @@ class LecturasTests(unittest.TestCase):
         self.assertIn('17/10/2026',texto)
         self.assertIn('No se pudo confirmar un boletín',texto)
         self.assertEqual(at.metric[0].value,'16.047,00 m³/s')
+        self.assertEqual(at.metric[1].label,'Corrientes · altura del río')
+        self.assertFalse(any('Zárate' in e.label for e in at.metric))
 
     def test_horario_cruza_contrato_compartido_y_caduca(self):
         import red_integrada as red

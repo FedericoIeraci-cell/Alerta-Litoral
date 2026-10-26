@@ -23,12 +23,12 @@ def dibujar_panel(st, lecturas, informe=None):
                'La frecuencia de medición depende de cada organismo. Una consulta nueva no renueva un dato antiguo.')
     st.caption('Panel revisado: '+hora(datetime.now(timezone.utc)))
     salto = next((d for d in lecturas if d.get('nombre')=='Salto Grande'),{})
-    automatica = next((d for d in lecturas if d.get('serie')==29437 or d.get('nombre')=='Zárate · automática RHN'),{})
+    corrientes = next((d for d in lecturas if d.get('serie')==19),{})
     columnas = st.columns(2)
     for col,d,t,c,u in ((columnas[0],salto,'Salto Grande · descarga horaria','erogado_m3s','m³/s'),
-                        (columnas[1],automatica,'Zárate · automática RHN','altura_m','m')):
+                        (columnas[1],corrientes,'Corrientes · altura del río','altura_m','m')):
         col.metric(t,valor(d.get(c),u))
-        col.caption('Medición: '+hora(d.get('fecha'))+' · '+d.get('estado','SIN DATOS'))
+        col.caption('Fecha de la fuente: '+hora(d.get('fecha'),d.get('precision_fecha'))+' · '+d.get('estado','SIN DATOS'))
         col.caption('Última consulta: '+hora(d.get('consulta')))
         if not d.get('vigente'):
             col.warning(d.get('error') or 'No hay una lectura reciente confirmada.')
@@ -47,7 +47,7 @@ def dibujar_panel(st, lecturas, informe=None):
         st.caption('Datos horarios CTM. Más de 2 horas se indica como lectura atrasada. La cota del embalse no es la altura de un puerto.')
         st.markdown('[Fuente horaria de Salto Grande](https://www.saltogrande.org/datos_horarios.php)')
         st.write('Yacyretá · boletín oficial, sin telemetría en vivo verificada')
-        st.caption('Se recibe del informe compartido, cuya actualización está programada aproximadamente cada 10 minutos. Conserva la fecha original del boletín.')
+        st.caption('Se recibe del informe del Litoral, cuya actualización está programada aproximadamente cada 10 minutos. Conserva la fecha original del boletín.')
         partes = [d for d in (informe or {}).get('represas',[]) if d.get('nombre')=='Yacyretá']
         if partes:
             from red_integrada import fecha_publica, estado_publico
@@ -57,7 +57,7 @@ def dibujar_panel(st, lecturas, informe=None):
                 'Vigencia':estado_publico(d.get('estado_tiempo'),d.get('vigente'),(informe or {}).get('snapshot_vigente',False)),
                 'Fuente':d.get('fuente')} for d in partes],hide_index=True,use_container_width=True)
         else:
-            st.warning('No se pudo confirmar un boletín de Yacyretá en el informe compartido.')
+            st.warning('No se pudo confirmar un boletín de Yacyretá en el informe del Litoral.')
         st.markdown('[Consultar los informes oficiales de Yacyretá](https://www.eby.org.ar/informe-hidrologico)')
 
 
@@ -65,5 +65,5 @@ def mostrar_panel_hidrologia_actual(st):
     @st.fragment(run_every='60s')
     def panel():
         from red_integrada import consultar_red_integrada
-        dibujar_panel(st,consultar_hidrologia_actual(),consultar_red_integrada())
+        dibujar_panel(st,consultar_hidrologia_actual(alcance='Litoral'),consultar_red_integrada())
     panel()

@@ -22,13 +22,15 @@ INA_WFS = 'https://alerta.ina.gob.ar/geoserver/ows'
 CACHE_SEGUNDOS = 300
 MAX_BYTES = 2_000_000
 # Identidades del catálogo INA de alturas de Prefectura, variable H en metros.
-ESTACIONES = {8:'Andresito',9:'Puerto Iguazú',15:'Ituzaingó',19:'Corrientes',20:'Barranqueras',
+ESTACIONES_COMPARTIDAS = {8:'Andresito',9:'Puerto Iguazú',15:'Ituzaingó',19:'Corrientes',20:'Barranqueras',
     23:'Goya',24:'Reconquista',26:'La Paz',29:'Paraná',30:'Santa Fe',32:'Victoria',34:'Rosario',
     40:'Zárate',41:'Campana',52:'San Fernando',55:'Puerto Pilcomayo',57:'Puerto Formosa',
     65:'San Javier',68:'Santo Tomé',72:'Paso de los Libres',79:'Concordia',80:'Colón',
     81:'Concepción del Uruguay',84:'Boca Gualeguaychú'}
+# ALA no descarga las referencias del Delta ni la automática de Zárate.
+ESTACIONES = {sid: nombre for sid, nombre in ESTACIONES_COMPARTIDAS.items() if sid not in (40, 41, 52)}
 _CACHE = {}
-_LOCKS = {key: threading.Lock() for key in ('rios','salto','zarate')}
+_LOCKS = {key: threading.Lock() for key in ('rios','rios_compartidos','salto','zarate')}
 
 
 def _fecha(value):
@@ -157,20 +159,28 @@ def consultar_salto_grande(referencia=None, session=None):
     return parsear_horarios(_descargar(CTM_HORARIOS,session).decode('utf-8'),referencia)
 
 
-def url_rios():
+def _estaciones(alcance):
+    if alcance == 'Litoral':
+        return ESTACIONES
+    if alcance == 'compartido':
+        return ESTACIONES_COMPARTIDAS
+    raise ValueError('Alcance hidrológico no reconocido.')
+
+
+def url_rios(alcance='Litoral'):
     return INA_WFS+'?'+urlencode({'service':'WFS','version':'1.0.0','request':'GetFeature',
         'typeName':'public2:ultimas_alturas_con_timeseries','outputFormat':'application/json',
-        'CQL_FILTER':'series_id IN ('+','.join(map(str,ESTACIONES))+')',
+        'CQL_FILTER':'series_id IN ('+','.join(map(str,_estaciones(alcance)))+')',
         'propertyName':'series_id,nombre,var_id,tabla,fecha,valor,timeseries,nivel_de_alerta,nivel_de_evacuacion'})
 
 
-def parsear_rios(payload, referencia=None):
+def parsear_rios(payload, referencia=None, *, alcance='Litoral'):
     ref = _ahora(referencia)
     if not isinstance(payload,dict) or payload.get('type')!='FeatureCollection' or not isinstance(payload.get('features'),list):
         raise ValueError('Respuesta INA incompatible.')
     salida = []
-    for sid,nombre in ESTACIONES.items():
-        item = {'nombre':nombre,'serie':sid,'fecha':None,'altura_m':None,'fuente':url_rios(),
+    for sid,nombre in _estaciones(alcance).items():
+        item = {'nombre':nombre,'serie':sid,'fecha':None,'altura_m':None,'fuente':url_rios(alcance),
                 'tipo':'lectura_ina','consulta':ref.isoformat(),'error':'Serie ausente o identidad no verificada.',
                 'precision_fecha':'fecha_registro_fuente', 'automatica':None,
                 'nota_fecha':'Fecha y hora del registro INA; la hora de medición no está confirmada.'}
@@ -188,19 +198,20 @@ def parsear_rios(payload, referencia=None):
                     or (alerta is not None and evacuacion is not None and evacuacion<alerta))
                 item.update(fecha=fecha.isoformat(),fecha_registro=p['fecha'],altura_m=valor,error='',
                     tabla='alturas_prefe',var_id=2,unidad='m',alerta_m=alerta,evacuacion_m=evacuacion,
-                    umbral_invalido=umbral_invalido,fuente_umbrales=url_rios())
+                    umbral_invalido=umbral_invalido,fuente_umbrales=url_rios(alcance))
         salida.append(estado_lectura(item,ref))
     return salida
 
 
-def consultar_rios(referencia=None, session=None):
+def consultar_rios(referencia=None, session=None, *, alcance='Litoral'):
     """Alturas y umbrales de la misma escala INA; no consulta la serie RHN."""
-    return parsear_rios(json.loads(_descargar(url_rios(),session)),referencia)
+    return parsear_rios(json.loads(_descargar(url_rios(alcance),session)),referencia,alcance=alcance)
 
 
 def _consulta(nombre, referencia):
     if nombre=='salto': return [consultar_salto_grande(referencia)]
     if nombre=='rios': return consultar_rios(referencia)
+    if nombre=='rios_compartidos': return consultar_rios(referencia,alcance='compartido')
     from hidrometria_local import consultar_altura_zarate
     dato = consultar_altura_zarate(referencia)
     return [{'nombre':'Zárate · automática RHN', 'serie':29437,'tipo':'automatica_rhn',
@@ -216,7 +227,7 @@ def _con_cache(nombre, referencia):
         try:
             datos = _consulta(nombre,referencia)
         except Exception as exc:
-            datos = deepcopy(anterior['datos']) if anterior else [{'nombre':{'salto':'Salto Grande','rios':'Ríos INA','zarate':'Zárate · automática RHN'}[nombre]}]
+            datos = deepcopy(anterior['datos']) if anterior else [{'nombre':{'salto':'Salto Grande','rios':'Ríos INA · Litoral','rios_compartidos':'Ríos INA · compartido','zarate':'Zárate · automática RHN'}[nombre]}]
             for dato in datos:
                 dato.update(error='Consulta oficial no confirmada ('+type(exc).__name__+').',
                             consulta=referencia.isoformat())
@@ -240,9 +251,12 @@ def solicitar_actualizacion():
                 _CACHE[nombre]['tick'] = -float('inf')
 
 
-def consultar_hidrologia_actual(referencia=None):
+def consultar_hidrologia_actual(referencia=None, *, alcance='Litoral'):
+    """ALA consulta sólo sus fuentes; el modo histórico debe solicitarse explícitamente."""
+    _estaciones(alcance)  # Rechazar alcances ambiguos antes de consultar o usar caché.
     ref = _ahora(referencia)
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        grupos = list(pool.map(lambda key:_con_cache(key,ref),('rios','salto','zarate')))
+    claves = ('rios','salto') if alcance == 'Litoral' else ('rios_compartidos','salto','zarate')
+    with ThreadPoolExecutor(max_workers=len(claves)) as pool:
+        grupos = list(pool.map(lambda key:_con_cache(key,ref),claves))
     # Revalidar incluso si la respuesta se recuperó de caché.
     return [estado_lectura(item,ref) for grupo in grupos for item in grupo]
