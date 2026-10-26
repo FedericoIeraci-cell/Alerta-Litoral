@@ -177,7 +177,9 @@ class MapaLitoralTests(unittest.TestCase):
         self.assertEqual(datos['puntos'], base['puntos'])
         self.assertTrue(datos['capa_viirs'])
         self.assertEqual(parser.scripts_remotos, [])
-        self.assertIn('connect-src https://floods.ssec.wisc.edu;', parser.csp)
+        conexiones = next(parte.strip() for parte in parser.csp.split(';')
+                          if parte.strip().startswith('connect-src ')).split()[1:]
+        self.assertEqual(set(conexiones), {'https://gibs.earthdata.nasa.gov'})
         self.assertNotIn('connect-src *', parser.csp)
 
     def test_importacion_no_depende_de_streamlit_plotly_ni_red(self):
@@ -199,3 +201,4 @@ class MapaLitoralTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

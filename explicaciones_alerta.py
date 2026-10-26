@@ -100,6 +100,27 @@ def resumen_evidencia(e):
     return 'Evidencia sin descripción verificable.'
 
 
+def motivo_cobertura_insuficiente(row):
+    """Describe lo disponible y lo faltante sin convertir el índice en seguridad."""
+    localidad = str(row.get('localidad') or '').strip()
+    partes = ['Cobertura insuficiente para clasificar el riesgo integrado'
+              + (f' de {localidad}.' if localidad else '.')]
+    if row.get('cobertura_meteorologica') and row.get('nivel_meteorologico') in RANGOS:
+        partes.append('La meteorología está disponible; no reemplaza la evaluación del río.')
+    elif row.get('cobertura_meteorologica') is False:
+        partes.append('La meteorología no tiene cobertura completa y vigente verificada.')
+    if row.get('hidrologia_aplica'):
+        estacion = str(row.get('hidrologia_estacion') or '')
+        if estacion == 'Sin estación local vinculada':
+            partes.append('No hay estación local vinculada con altura y umbrales verificables.')
+        elif not row.get('hidrologia_vigente'):
+            partes.append('La lectura fluvial local está ausente, incompleta o sin vigencia verificada.')
+        if not row.get('hidrologia_pronostico_vigente'):
+            partes.append('No hay pronóstico fluvial local vigente y clasificable.')
+    partes.append('Los faltantes no acreditan ausencia de riesgo.')
+    return ' '.join(partes)
+
+
 def construir_explicacion(row, fusion, amarillo, rojo):
     evidencias = list(row.get('hidrologia_evidencias') or []) + list(row.get('smn_evidencias') or [])
     met = row.get('nivel_meteorologico', 'SIN DATOS')
@@ -120,7 +141,7 @@ def construir_explicacion(row, fusion, amarillo, rojo):
     if causas:
         motivo = resumen_evidencia(causas[0])
     elif row.get('nivel') == 'SIN DATOS':
-        motivo = 'Cobertura insuficiente para clasificar el riesgo integrado; los faltantes no acreditan seguridad.'
+        motivo = motivo_cobertura_insuficiente(row)
     else:
         motivo = 'Desencadenante no verificable en este registro; revisar la evaluación y sus fuentes.'
     return dict(explicacion_version=1, evidencias_alerta=evidencias, desencadenantes=causas,
@@ -137,7 +158,7 @@ def motivo_publico(row):
     if causas:
         return resumen_evidencia(causas[0])
     if row.get('nivel') == 'SIN DATOS':
-        return 'Cobertura insuficiente; no se acredita ausencia de riesgo.'
+        return motivo_cobertura_insuficiente(row)
     return 'Desencadenante no verificable en este registro; revisar fuentes y evaluación.'
 
 
