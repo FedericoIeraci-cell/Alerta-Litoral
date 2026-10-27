@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-27T03:34:56.864640+00:00",
-  "checked_at_art": "2026-10-27T00:34:56.864640-03:00",
+  "checked_at": "2026-10-27T04:33:58.443052+00:00",
+  "checked_at_art": "2026-10-27T01:33:58.443052-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 44,
   "nodes_red": 9,
   "nodes_invalid": 4,
-  "nodes_yellow": 15,
-  "nodes_green": 20,
+  "nodes_yellow": 14,
+  "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 0,
     "fallidas": 0,
     "pendientes": 9,
-    "omitidas": 8,
+    "omitidas": 9,
     "inicializadas": 0,
     "sin_datos": 4,
     "atrasadas": 0,
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 430151,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "ce0dd6c161b6417dae3513b0efd159ef168ea937",
-    "commit_sha": "170d1e7a3c65b9aa95a5dce6fc77a4bc07af540f",
-    "bytes": 430151,
-    "generated_at": "2026-10-27T03:35:03.330008+00:00",
-    "verified_at": "2026-10-27T03:35:05.749179+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "15cc6119806451f3c573bfd171a157aeece04731",
-    "commit_sha": "e09b6b72a0deaa19cbe57e555179bf66c5476658",
-    "bytes": 1178354,
-    "consultado": "2026-10-27T03:34:56.142759+00:00",
-    "verified_at": "2026-10-27T03:35:10.187981+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
