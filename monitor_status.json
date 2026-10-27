@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-27T02:32:11.360768+00:00",
-  "checked_at_art": "2026-10-26T23:32:11.360768-03:00",
+  "checked_at": "2026-10-27T03:34:56.864640+00:00",
+  "checked_at_art": "2026-10-27T00:34:56.864640-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 44,
-  "nodes_red": 8,
+  "nodes_red": 9,
   "nodes_invalid": 4,
-  "nodes_yellow": 16,
+  "nodes_yellow": 15,
   "nodes_green": 20,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 8,
+    "pendientes": 9,
     "omitidas": 8,
     "inicializadas": 0,
     "sin_datos": 4,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "330ce9382e35",
+      "creado": "2026-10-27T03:34:56.865097+00:00",
+      "intento": "2026-10-27T03:34:56.865097+00:00",
+      "localidad": "Paso de los Libres",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en Paso de los Libres: posible superación del umbral de evacuación (8,50 m) para el punto publicado 30/10/2026 00:00 ART; escenario central 9,03 m; bandas 8,43–9,63 m. Entra en la ventana de preparación de 72 h según la fecha publicada. La previsión antes en prealerta ahora está dentro de la ventana de 72 h; esto no demuestra una subida observada del río. Índice meteorológico: 30,2 → 29,8/100; se evalúa por separado.",
+      "indice_anterior": 30.2,
+      "indice": 29.8,
+      "estado": "enviado",
+      "message_id": 109,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "31ea7291b80a",
       "creado": "2026-10-27T01:42:53.513986+00:00",
@@ -481,21 +496,6 @@
       "message_id": 79,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "0415425e4b67",
-      "creado": "2026-10-23T07:43:36.504935+00:00",
-      "intento": "2026-10-23T07:43:36.504935+00:00",
-      "localidad": "San Vicente",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 11.4 puntos. Índice meteorológico 84,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 73,1 → 84,5/100; se evalúa por separado.",
-      "indice_anterior": 73.1,
-      "indice": 84.5,
-      "estado": "enviado",
-      "message_id": 80,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 449989,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "671821cb69c84359130501afc07872cc985be099",
-    "commit_sha": "ab323f30566d851f06a45ffba8544bda5e79a4d9",
-    "bytes": 449989,
-    "generated_at": "2026-10-27T02:32:13.845514+00:00",
-    "verified_at": "2026-10-27T02:32:15.815874+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "98e33058d09487b2e79bb94612834d021d9e1391",
-    "commit_sha": "4a985f78c5691fe04e0871f92e60cbcd31dacc3f",
-    "bytes": 1199634,
-    "consultado": "2026-10-27T02:32:10.609795+00:00",
-    "verified_at": "2026-10-27T02:32:19.922212+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
