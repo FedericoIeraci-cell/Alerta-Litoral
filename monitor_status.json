@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-27T18:42:28.984581+00:00",
-  "checked_at_art": "2026-10-27T15:42:28.984581-03:00",
+  "checked_at": "2026-10-27T19:40:20.159210+00:00",
+  "checked_at_art": "2026-10-27T16:40:20.159210-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -35,10 +35,10 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 2,
     "fallidas": 0,
     "pendientes": 8,
-    "omitidas": 8,
+    "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 4,
     "atrasadas": 0,
@@ -47,6 +47,36 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "839d480eb204",
+      "creado": "2026-10-27T19:40:20.159685+00:00",
+      "intento": "2026-10-27T19:40:20.159685+00:00",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Barranqueras: 7,23 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 27/10/2026 · hora de medición no confirmada. Índice meteorológico: 30,1 → 20,1/100; se evalúa por separado.",
+      "indice_anterior": 30.1,
+      "indice": 20.1,
+      "estado": "enviado",
+      "message_id": 110,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "44991c832d24",
+      "creado": "2026-10-27T19:40:20.159685+00:00",
+      "intento": "2026-10-27T19:40:20.159685+00:00",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Barranqueras: 7,23 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 27/10/2026 · hora de medición no confirmada. Índice meteorológico: 30,1 → 20,1/100; se evalúa por separado.",
+      "indice_anterior": 30.1,
+      "indice": 20.1,
+      "estado": "enviado",
+      "message_id": 111,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "330ce9382e35",
       "creado": "2026-10-27T03:34:56.865097+00:00",
@@ -466,36 +496,6 @@
       "message_id": 83,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "5b3621fc97c9",
-      "creado": "2026-10-23T11:33:34.666528+00:00",
-      "intento": "2026-10-23T11:33:34.666528+00:00",
-      "localidad": "San Vicente",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 22.9 puntos. Índice meteorológico 61,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 84,5 → 61,6/100; se evalúa por separado.",
-      "indice_anterior": 84.5,
-      "indice": 61.6,
-      "estado": "enviado",
-      "message_id": 81,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "f9e36c0ba3cb",
-      "creado": "2026-10-23T07:43:36.504935+00:00",
-      "intento": "2026-10-23T07:43:36.504935+00:00",
-      "localidad": "Oberá",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 15.4 puntos. Índice meteorológico 77,3/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 61,9 → 77,3/100; se evalúa por separado.",
-      "indice_anterior": 61.9,
-      "indice": 77.3,
-      "estado": "enviado",
-      "message_id": 79,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 425478,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "54a300e04c77015fc63b750d5275b6583bc997ee",
-    "commit_sha": "814af984d8c3786c5ecd925789d7b0c0f59b58fa",
-    "bytes": 425478,
-    "generated_at": "2026-10-27T18:42:31.881269+00:00",
-    "verified_at": "2026-10-27T18:42:34.556003+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "959f9b1c642781150eaf2e88a5dfd6f1bca39031",
-    "commit_sha": "b2e61baba3488df1c144fec390b2de0282c04387",
-    "bytes": 1201990,
-    "consultado": "2026-10-27T18:42:28.589842+00:00",
-    "verified_at": "2026-10-27T18:42:38.975925+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
