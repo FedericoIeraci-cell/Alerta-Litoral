@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-28T13:57:13.752307+00:00",
-  "checked_at_art": "2026-10-28T10:57:13.752307-03:00",
+  "checked_at": "2026-10-28T14:53:12.533241+00:00",
+  "checked_at_art": "2026-10-28T11:53:12.533241-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 481648,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "7fabb2e978b5a14ee2bfa48c7780e8b3343fa6f0",
-    "commit_sha": "bc7ead309569ba3d188e7664256e2a508609ae9b",
-    "bytes": 481648,
-    "generated_at": "2026-10-28T13:57:16.794793+00:00",
-    "verified_at": "2026-10-28T13:57:19.191165+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "02f18e4907f1b59dc5aa9dcafa1429e5de7a9feb",
-    "commit_sha": "801894756524901639afe6dc6b5cb124d9cc5cf3",
-    "bytes": 1194326,
-    "consultado": "2026-10-28T13:57:13.004887+00:00",
-    "verified_at": "2026-10-28T13:57:23.512041+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
