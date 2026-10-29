@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-29T12:51:23.142894+00:00",
-  "checked_at_art": "2026-10-29T09:51:23.142894-03:00",
+  "checked_at": "2026-10-29T13:59:55.444165+00:00",
+  "checked_at_art": "2026-10-29T10:59:55.444165-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 44,
-  "nodes_red": 6,
+  "nodes_red": 7,
   "nodes_invalid": 4,
-  "nodes_yellow": 16,
+  "nodes_yellow": 15,
   "nodes_green": 22,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
+    "pendientes": 7,
     "omitidas": 6,
     "inicializadas": 0,
     "sin_datos": 4,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "cc7065f5de1c",
+      "creado": "2026-10-29T13:59:55.444610+00:00",
+      "intento": "2026-10-29T13:59:55.444610+00:00",
+      "localidad": "Goya",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Río observado en Goya: 5,76 m, supera o alcanza el umbral de evacuación (5,70 m). Lectura 29/10/2026 · hora de medición no confirmada. Índice meteorológico: 16,5 → 16,6/100; se evalúa por separado.",
+      "indice_anterior": 16.5,
+      "indice": 16.6,
+      "estado": "enviado",
+      "message_id": 113,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "3bd828aaf336",
       "creado": "2026-10-27T20:37:14.861584+00:00",
@@ -481,21 +496,6 @@
       "message_id": 84,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "bc09b54eb69b",
-      "creado": "2026-10-23T13:40:16.369289+00:00",
-      "intento": "2026-10-23T13:40:16.369289+00:00",
-      "localidad": "Oberá",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 16.1 puntos. Índice meteorológico 61,2/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 77,3 → 61,2/100; se evalúa por separado.",
-      "indice_anterior": 77.3,
-      "indice": 61.2,
-      "estado": "enviado",
-      "message_id": 82,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 435584,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "8436e1721587bd15134eae3a1c66d35255cef968",
-    "commit_sha": "79aa74b2b4f4803b1453d0bdacc5993586e0a3af",
-    "bytes": 435584,
-    "generated_at": "2026-10-29T12:51:25.684882+00:00",
-    "verified_at": "2026-10-29T12:51:27.813866+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "64c5389cda6513e0ae3afaacebe962e303f0801f",
-    "commit_sha": "99d55392aae95f772b854a1910f2157ae10586b5",
-    "bytes": 1199766,
-    "consultado": "2026-10-29T12:51:22.416608+00:00",
-    "verified_at": "2026-10-29T12:51:32.095554+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
