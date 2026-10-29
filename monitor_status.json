@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-29T14:55:19.465030+00:00",
-  "checked_at_art": "2026-10-29T11:55:19.465030-03:00",
+  "checked_at": "2026-10-29T15:53:09.124095+00:00",
+  "checked_at_art": "2026-10-29T12:53:09.124095-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
@@ -21,7 +21,7 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 11,
+      "vigentes": 9,
       "aplicables": 29
     },
     "represas": {
@@ -502,33 +502,16 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "11/29 puntos aplicables con pronóstico fluvial vigente.",
+    "9/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 434648,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "ac4f3e3346f2eba82aa4393bb214006c577ceb0b",
-    "commit_sha": "d68916e1c6e4cb210ea86b73066c433c3721f752",
-    "bytes": 434648,
-    "generated_at": "2026-10-29T14:55:22.755672+00:00",
-    "verified_at": "2026-10-29T14:55:24.917305+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "02ee629a8c3397981fa3791a317844fed6852629",
-    "commit_sha": "1d04aeb70e01da92213c4a6533b91b1c4cbf9309",
-    "bytes": 1205182,
-    "consultado": "2026-10-29T14:55:18.974968+00:00",
-    "verified_at": "2026-10-29T14:55:29.036824+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
