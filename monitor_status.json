@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-29T03:45:48.861436+00:00",
-  "checked_at_art": "2026-10-29T00:45:48.861436-03:00",
+  "checked_at": "2026-10-29T04:46:12.457551+00:00",
+  "checked_at_art": "2026-10-29T01:46:12.457551-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 42,
+  "nodes_valid": 43,
   "nodes_red": 6,
-  "nodes_invalid": 6,
-  "nodes_yellow": 14,
+  "nodes_invalid": 5,
+  "nodes_yellow": 15,
   "nodes_green": 22,
   "configured_nodes": 48,
   "coverage": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 6,
+      "vigentes": 11,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 16,
+      "vigentes": 18,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -40,7 +40,7 @@
     "pendientes": 6,
     "omitidas": 6,
     "inicializadas": 0,
-    "sin_datos": 6,
+    "sin_datos": 5,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -502,33 +502,16 @@
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "6/29 puntos aplicables con pronóstico fluvial vigente.",
-    "16/20 puntos aplicables con información vigente de represas.",
+    "11/29 puntos aplicables con pronóstico fluvial vigente.",
+    "18/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 408952,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "c6d2f715245f6f069f098c52f2f6ac5dc5019861",
-    "commit_sha": "7dfdac664989724bbf35803e7067feeaa25b0fd5",
-    "bytes": 408952,
-    "generated_at": "2026-10-29T03:45:51.666622+00:00",
-    "verified_at": "2026-10-29T03:45:53.721992+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "b8e8537290a25cdc7dbd466070e88579473ed232",
-    "commit_sha": "a8bcab65075663b8fa4b3573e8fc684f7bc45a90",
-    "bytes": 1182290,
-    "consultado": "2026-10-29T03:45:48.117284+00:00",
-    "verified_at": "2026-10-29T03:45:58.093563+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
