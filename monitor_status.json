@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-29T23:36:25.536735+00:00",
-  "checked_at_art": "2026-10-29T20:36:25.536735-03:00",
+  "checked_at": "2026-10-30T00:52:33.787581+00:00",
+  "checked_at_art": "2026-10-29T21:52:33.787581-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 43,
+  "nodes_valid": 44,
   "nodes_red": 7,
-  "nodes_invalid": 5,
-  "nodes_yellow": 14,
-  "nodes_green": 22,
+  "nodes_invalid": 4,
+  "nodes_yellow": 16,
+  "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -40,7 +40,7 @@
     "pendientes": 7,
     "omitidas": 7,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 4,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 434795,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "d5c7c2fd5e3d4770b7fbf37d80d87f16a2a38295",
-    "commit_sha": "3bce40271ac4137e8afae1d27e9312b357fff974",
-    "bytes": 434795,
-    "generated_at": "2026-10-29T23:36:27.762972+00:00",
-    "verified_at": "2026-10-29T23:36:29.475347+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "af929255e446655274e4ea8e80eb6cc81de8d461",
-    "commit_sha": "42d4e10203683b20647ca5b3811b9d9faa9e5a7d",
-    "bytes": 1211654,
-    "consultado": "2026-10-29T23:36:24.787820+00:00",
-    "verified_at": "2026-10-29T23:36:33.191934+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
