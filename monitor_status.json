@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-30T20:38:17.363902+00:00",
-  "checked_at_art": "2026-10-30T17:38:17.363902-03:00",
+  "checked_at": "2026-10-31T00:41:51.426455+00:00",
+  "checked_at_art": "2026-10-30T21:41:51.426455-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 44,
+  "nodes_valid": 43,
   "nodes_red": 6,
-  "nodes_invalid": 4,
-  "nodes_yellow": 17,
-  "nodes_green": 21,
+  "nodes_invalid": 5,
+  "nodes_yellow": 14,
+  "nodes_green": 23,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,12 +35,12 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 1,
+    "enviadas": 0,
     "fallidas": 0,
     "pendientes": 6,
-    "omitidas": 5,
+    "omitidas": 6,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 6,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 507140,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "96be8ff394d3ece36f1c7fbb0e4f7855c52c68ea",
-    "commit_sha": "567e8ae291e6c670e9a4eba3c180d6c1efa5be07",
-    "bytes": 507140,
-    "generated_at": "2026-10-30T20:38:23.404873+00:00",
-    "verified_at": "2026-10-30T20:38:25.731467+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "7b86982d0b9b8dd919713f8dbf86d489e1fcf78c",
-    "commit_sha": "e80d03d7b751f68c86ef77d5a0762bc2a2230ee4",
-    "bytes": 1204902,
-    "consultado": "2026-10-30T20:38:16.995229+00:00",
-    "verified_at": "2026-10-30T20:38:29.478961+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
