@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-31T00:41:51.426455+00:00",
-  "checked_at_art": "2026-10-30T21:41:51.426455-03:00",
+  "checked_at": "2026-10-31T06:54:30.638967+00:00",
+  "checked_at_art": "2026-10-31T03:54:30.638967-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 43,
+  "nodes_valid": 44,
   "nodes_red": 6,
-  "nodes_invalid": 5,
-  "nodes_yellow": 14,
-  "nodes_green": 23,
+  "nodes_invalid": 4,
+  "nodes_yellow": 25,
+  "nodes_green": 13,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 6,
-    "omitidas": 6,
+    "omitidas": 5,
     "inicializadas": 0,
-    "sin_datos": 6,
+    "sin_datos": 5,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "534a2c511e67",
+      "creado": "2026-10-31T06:54:30.639482+00:00",
+      "intento": "2026-10-31T06:54:30.639482+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 13.8 puntos. Río observado en Puerto Iguazú: 28,35 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 30/10/2026 · hora de medición no confirmada. Índice meteorológico: 42,2 → 28,4/100; se evalúa por separado.",
+      "indice_anterior": 42.2,
+      "indice": 28.4,
+      "estado": "enviado",
+      "message_id": 115,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "61ff9d9c4ec4",
       "creado": "2026-10-30T20:38:17.364162+00:00",
@@ -481,21 +496,6 @@
       "message_id": 85,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "4db608333e29",
-      "creado": "2026-10-23T21:32:03.725518+00:00",
-      "intento": "2026-10-23T21:32:03.725518+00:00",
-      "localidad": "Puerto Iguazú",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Puerto Iguazú: 28,40 m, supera o alcanza el umbral de evacuación (28,00 m). Lectura 23/10/2026 · hora de medición no confirmada. Índice meteorológico: 48,6 → 38,6/100; se evalúa por separado.",
-      "indice_anterior": 48.6,
-      "indice": 38.6,
-      "estado": "enviado",
-      "message_id": 86,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 500689,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "b2c2792ea6f0644fd0e28f64829d736fa8d57977",
-    "commit_sha": "411917e61e9b238f1bda264b5c74edb9e01102e0",
-    "bytes": 500689,
-    "generated_at": "2026-10-31T00:41:54.176275+00:00",
-    "verified_at": "2026-10-31T00:41:57.195247+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "10b41848e8e242913d547cb2d142839ce69076e5",
-    "commit_sha": "8746d54dc82a764e4383d22aad2bd0c78df381ff",
-    "bytes": 1195782,
-    "consultado": "2026-10-31T00:41:50.684542+00:00",
-    "verified_at": "2026-10-31T00:42:02.007531+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
