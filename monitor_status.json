@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-02T00:37:43.896086+00:00",
-  "checked_at_art": "2026-11-01T21:37:43.896086-03:00",
+  "checked_at": "2026-11-02T07:36:12.488820+00:00",
+  "checked_at_art": "2026-11-02T04:36:12.488820-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 43,
   "nodes_red": 5,
-  "nodes_invalid": 3,
-  "nodes_yellow": 21,
+  "nodes_invalid": 5,
+  "nodes_yellow": 19,
   "nodes_green": 19,
   "configured_nodes": 48,
   "coverage": {
@@ -29,24 +29,69 @@
       "aplicables": 20
     },
     "avisos_smn": {
-      "vigentes": 48,
+      "vigentes": 0,
       "aplicables": 48
     }
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 3,
     "fallidas": 0,
     "pendientes": 5,
-    "omitidas": 5,
+    "omitidas": 2,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 7,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "ddf9e8399b69",
+      "creado": "2026-11-02T07:36:12.489410+00:00",
+      "intento": "2026-11-02T07:36:12.489410+00:00",
+      "localidad": "Corrientes",
+      "provincia": "Corrientes",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 14.9 puntos. Río observado en Corrientes: 7,16 m, supera o alcanza el umbral de evacuación (7,00 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 17,8 → 32,7/100; se evalúa por separado.",
+      "indice_anterior": 17.8,
+      "indice": 32.7,
+      "estado": "enviado",
+      "message_id": 122,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "fc82409091a9",
+      "creado": "2026-11-02T07:36:12.489410+00:00",
+      "intento": "2026-11-02T07:36:12.489410+00:00",
+      "localidad": "Resistencia",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 12.7 puntos. Río observado en Barranqueras: 7,02 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 17,2 → 29,9/100; se evalúa por separado.",
+      "indice_anterior": 17.2,
+      "indice": 29.9,
+      "estado": "enviado",
+      "message_id": 123,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
+    {
+      "id": "526a4f79ed03",
+      "creado": "2026-11-02T07:36:12.489410+00:00",
+      "intento": "2026-11-02T07:36:12.489410+00:00",
+      "localidad": "Barranqueras",
+      "provincia": "Chaco",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 12.7 puntos. Río observado en Barranqueras: 7,02 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 17,2 → 29,9/100; se evalúa por separado.",
+      "indice_anterior": 17.2,
+      "indice": 29.9,
+      "estado": "enviado",
+      "message_id": 124,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "5a8e48aba66a",
       "creado": "2026-11-01T21:06:11.559671+00:00",
@@ -451,51 +496,6 @@
       "message_id": 97,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "f95517757832",
-      "creado": "2026-10-24T11:27:42.115625+00:00",
-      "intento": "2026-10-24T11:27:42.115625+00:00",
-      "localidad": "Eldorado",
-      "provincia": "Misiones",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 11.1 puntos. Índice meteorológico 66,7/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 55,6 → 66,7/100; se evalúa por separado.",
-      "indice_anterior": 55.6,
-      "indice": 66.7,
-      "estado": "enviado",
-      "message_id": 94,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "97bf6b3b87fa",
-      "creado": "2026-10-24T10:28:47.714794+00:00",
-      "intento": "2026-10-24T10:28:47.714794+00:00",
-      "localidad": "San Vicente",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 56,7/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 54,9 → 56,7/100; se evalúa por separado.",
-      "indice_anterior": 54.9,
-      "indice": 56.7,
-      "estado": "enviado",
-      "message_id": 93,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "50d6fdf0234a",
-      "creado": "2026-10-24T07:35:51.567647+00:00",
-      "intento": "2026-10-24T07:35:51.567647+00:00",
-      "localidad": "Eldorado",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 55,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 52,0 → 55,6/100; se evalúa por separado.",
-      "indice_anterior": 52.0,
-      "indice": 55.6,
-      "estado": "enviado",
-      "message_id": 92,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -504,31 +504,15 @@
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
     "5/29 puntos aplicables con pronóstico fluvial vigente.",
     "4/20 puntos aplicables con información vigente de represas.",
+    "0/48 puntos aplicables con cobertura vigente del canal de avisos SMN.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 413533,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "bff2023080a268c8a169b32b5a4cb4a63b119088",
-    "commit_sha": "af812c927ec33f728705514c6e2aa5e19fdac32c",
-    "bytes": 413533,
-    "generated_at": "2026-11-02T00:37:48.297288+00:00",
-    "verified_at": "2026-11-02T00:37:51.144474+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "a87820c18abed16201523047db7006d4ebc7c441",
-    "commit_sha": "b66459eee0d20d611332277ddb023d638193f35d",
-    "bytes": 1197586,
-    "consultado": "2026-11-02T00:37:43.513316+00:00",
-    "verified_at": "2026-11-02T00:37:54.636533+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
