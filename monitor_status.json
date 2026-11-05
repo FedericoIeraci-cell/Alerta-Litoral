@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-04T21:14:49.893412+00:00",
-  "checked_at_art": "2026-11-04T18:14:49.893412-03:00",
+  "checked_at": "2026-11-05T02:15:49.149244+00:00",
+  "checked_at_art": "2026-11-04T23:15:49.149244-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 46,
   "nodes_red": 9,
-  "nodes_invalid": 3,
-  "nodes_yellow": 16,
-  "nodes_green": 20,
+  "nodes_invalid": 2,
+  "nodes_yellow": 22,
+  "nodes_green": 15,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 3,
+    "enviadas": 1,
     "fallidas": 0,
     "pendientes": 9,
-    "omitidas": 6,
+    "omitidas": 8,
     "inicializadas": 0,
-    "sin_datos": 4,
+    "sin_datos": 2,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "6a024a559e92",
+      "creado": "2026-11-05T02:15:49.149810+00:00",
+      "intento": "2026-11-05T02:15:49.149810+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico subió 39.6 puntos. Índice meteorológico 68,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 28,4 → 68,0/100; se evalúa por separado. Aumento de al menos 20 puntos: aviso sin esperar tres horas.",
+      "indice_anterior": 28.4,
+      "indice": 68.0,
+      "estado": "enviado",
+      "message_id": 136,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "aafcc85f31cc",
       "creado": "2026-11-04T21:14:49.894013+00:00",
@@ -481,21 +496,6 @@
       "message_id": 107,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "27fbc68eae8f",
-      "creado": "2026-10-26T03:35:00.284871+00:00",
-      "intento": "2026-10-26T03:35:00.284871+00:00",
-      "localidad": "Ituzaingó",
-      "provincia": "Corrientes",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico bajó 10.0 puntos. Río observado en Puerto Ituzaingó: 4,50 m, supera o alcanza el umbral de evacuación (4,00 m). Lectura 25/10/2026 · hora de medición no confirmada. Índice meteorológico: 36,6 → 26,6/100; se evalúa por separado.",
-      "indice_anterior": 36.6,
-      "indice": 26.6,
-      "estado": "enviado",
-      "message_id": 106,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 462844,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "55cfb46092e28e4fa448254ea672014e96bec9e4",
-    "commit_sha": "42b363e686dc930594bfa7623ddc83ffbf8fe404",
-    "bytes": 462844,
-    "generated_at": "2026-11-04T21:15:03.864917+00:00",
-    "verified_at": "2026-11-04T21:15:06.215713+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "3be6d2d992a472b2a8ae612e5c9efe24ab9e2cc8",
-    "commit_sha": "8079e7da91af0f990349f0ebbae1ec0dca4e3efa",
-    "bytes": 1204654,
-    "consultado": "2026-11-04T21:14:49.176289+00:00",
-    "verified_at": "2026-11-04T21:15:10.678370+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
