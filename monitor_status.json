@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-06T14:56:55.962190+00:00",
-  "checked_at_art": "2026-11-06T11:56:55.962190-03:00",
+  "checked_at": "2026-11-06T20:49:15.339188+00:00",
+  "checked_at_art": "2026-11-06T17:49:15.339188-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
   "nodes_valid": 46,
-  "nodes_red": 7,
+  "nodes_red": 8,
   "nodes_invalid": 2,
-  "nodes_yellow": 23,
+  "nodes_yellow": 22,
   "nodes_green": 16,
   "configured_nodes": 48,
   "coverage": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 7,
+    "pendientes": 8,
     "omitidas": 7,
     "inicializadas": 0,
     "sin_datos": 2,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "9f8a59bf56a2",
+      "creado": "2026-11-06T20:49:15.339449+00:00",
+      "intento": "2026-11-06T20:49:15.339449+00:00",
+      "localidad": "San Javier (Misiones)",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en San Javier: posible superación del umbral de evacuación (10,00 m) para el punto publicado 07/11/2026 00:00 ART; escenario central 10,27 m; bandas 8,07–12,47 m. Entra en la ventana de preparación de 72 h según la fecha publicada. Índice meteorológico: 37,1 → 40,4/100; se evalúa por separado.",
+      "indice_anterior": 37.1,
+      "indice": 40.4,
+      "estado": "enviado",
+      "message_id": 138,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "39c707a58bfc",
       "creado": "2026-11-05T18:40:25.990586+00:00",
@@ -481,21 +496,6 @@
       "message_id": 109,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "31ea7291b80a",
-      "creado": "2026-10-27T01:42:53.513986+00:00",
-      "intento": "2026-10-27T01:42:53.513986+00:00",
-      "localidad": "Andresito",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 56,7/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 53,3 → 56,7/100; se evalúa por separado.",
-      "indice_anterior": 53.3,
-      "indice": 56.7,
-      "estado": "enviado",
-      "message_id": 108,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 418202,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "526a47f5bef41679bb683f85c7856ab13be0c43d",
-    "commit_sha": "468ab31a10e1aaccbc339ee47db61c1d4ae3e0ce",
-    "bytes": 418202,
-    "generated_at": "2026-11-06T14:56:59.131331+00:00",
-    "verified_at": "2026-11-06T14:57:01.287833+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "c29462aa2538b08c1fed9ca55cf0e150a909d79d",
-    "commit_sha": "5389cb70d629f9ddb246ea4fa952e55ce7f74aab",
-    "bytes": 1219874,
-    "consultado": "2026-11-06T14:56:55.571059+00:00",
-    "verified_at": "2026-11-06T14:57:05.480888+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
