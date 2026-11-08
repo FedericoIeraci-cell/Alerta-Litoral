@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-08T02:19:12.344387+00:00",
-  "checked_at_art": "2026-11-07T23:19:12.344387-03:00",
+  "checked_at": "2026-11-08T10:09:58.488747+00:00",
+  "checked_at_art": "2026-11-08T07:09:58.488747-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 43,
-  "nodes_red": 5,
-  "nodes_invalid": 5,
-  "nodes_yellow": 17,
+  "nodes_valid": 42,
+  "nodes_red": 6,
+  "nodes_invalid": 6,
+  "nodes_yellow": 15,
   "nodes_green": 21,
   "configured_nodes": 48,
   "coverage": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 14,
+      "vigentes": 5,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 18,
+      "vigentes": 4,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 5,
+    "pendientes": 6,
     "omitidas": 5,
     "inicializadas": 0,
-    "sin_datos": 5,
+    "sin_datos": 6,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "ee07d61f64b1",
+      "creado": "2026-11-08T10:09:58.489103+00:00",
+      "intento": "2026-11-08T10:09:58.489103+00:00",
+      "localidad": "Paso de los Libres",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en Paso de los Libres: posible superación del umbral de evacuación (8,50 m) para el punto publicado 11/11/2026 00:00 ART; escenario central 8,58 m; bandas 7,94–9,22 m. Entra en la ventana de preparación de 72 h según la fecha publicada. La previsión antes en prealerta ahora está dentro de la ventana de 72 h; esto no demuestra una subida observada del río. Índice meteorológico: 23,2 → 23,2/100; se evalúa por separado.",
+      "indice_anterior": 23.2,
+      "indice": 23.2,
+      "estado": "enviado",
+      "message_id": 143,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "b471697d4f3a",
       "creado": "2026-11-07T18:39:55.079508+00:00",
@@ -481,54 +496,22 @@
       "message_id": 114,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "cc7065f5de1c",
-      "creado": "2026-10-29T13:59:55.444610+00:00",
-      "intento": "2026-10-29T13:59:55.444610+00:00",
-      "localidad": "Goya",
-      "provincia": "Corrientes",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Río observado en Goya: 5,76 m, supera o alcanza el umbral de evacuación (5,70 m). Lectura 29/10/2026 · hora de medición no confirmada. Índice meteorológico: 16,5 → 16,6/100; se evalúa por separado.",
-      "indice_anterior": 16.5,
-      "indice": 16.6,
-      "estado": "enviado",
-      "message_id": 113,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
   "ok": false,
   "errors": [
     "22/29 puntos aplicables con observaciones fluviales vigentes.",
-    "14/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
+    "5/29 puntos aplicables con pronóstico fluvial vigente.",
+    "4/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 495096,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "b8bb27280fc77ae0e6a696605b40b1185553678f",
-    "commit_sha": "26562febd5d97fd0ab7ee83f22d0fe62176ed5af",
-    "bytes": 495096,
-    "generated_at": "2026-11-08T02:19:14.507369+00:00",
-    "verified_at": "2026-11-08T02:19:16.188145+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "8d61244b8fe7c98e8d69fe457d96b5dcaa4adf5c",
-    "commit_sha": "0e9c8d86d761e912effce05c9f311cfe62ac4e87",
-    "bytes": 1214806,
-    "consultado": "2026-11-08T02:19:11.601288+00:00",
-    "verified_at": "2026-11-08T02:19:19.704510+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
