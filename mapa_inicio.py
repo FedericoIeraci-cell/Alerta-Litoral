@@ -157,7 +157,7 @@ def completar_catalogo_mapa(catalogo, frame=None):
 
 
 def mostrar_mapa_principal(st, catalogo, frame=None, *, componentes=None,
-                          geometrias=None, tarjeta_nodo=None, altura=440,
+                          geometrias=None, tarjeta_nodo=None, altura=720,
                           nombre='Mapa de riesgo del Litoral', ajustar_a='geometrias',
                           leyenda='Evaluación integrada', consultando=None):
     """Dibuja el mapa antes de sus textos; admite un ``st.empty().container()``.
