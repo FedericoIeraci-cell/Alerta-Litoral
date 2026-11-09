@@ -113,6 +113,20 @@ Suelo INTA, satélite y relieve se incorporan mediante consultas/cargas de la se
 
 Ver [FICHA_DEL_PROYECTO.md](FICHA_DEL_PROYECTO.md) para la correspondencia con la entrega y los requisitos que aún dependen de validación predictiva o confirmación operativa local.
 
+## Estación meteorológica propia (opcional)
+
+La página **Estación propia** queda desactivada por defecto. Se preparó un conector
+de lectura Ecowitt V3, controles de unidades/fechas/calidad y un colector histórico
+independiente con pruebas simuladas. Las mediciones particulares no ingresan al
+índice, al riesgo integrado, al informe compartido ni a Telegram. No se modificaron
+umbrales ni se conectó un equipo real.
+
+Ver [comparación de equipos, arquitectura y puesta en marcha](docs/ESTACION_PROPIA.md)
+y [configuración de ejemplo sin claves](docs/estacion_propia.secrets.example.toml).
+Al desplegar esta funcionalidad, incluir también `estacion_propia.py` y
+`panel_estacion.py` y la carpeta `pages/`; `archivo_estacion.py` se ejecuta en un host con disco persistente
+cuando se necesite historia continua, fuera del proceso web.
+
 ## Verificación
 
 ### Agua detectada por satélite y colores ENOS
