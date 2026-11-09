@@ -31,6 +31,7 @@ MONITOR_MAX_BYTES = 500_000
 # Se conserva el límite de tres horas que ya usaba el lector para el control.
 MONITOR_MAX_AGE_HOURS = 3
 API_METEO = "https://api.open-meteo.com/v1/ecmwf"
+MODELO_METEO = "ECMWF IFS025 · 0,25° (~25 km) / Open-Meteo"
 INA_WFS = "https://alerta.ina.gob.ar/geoserver/ows"
 MAX_BYTES = 2_000_000
 PRIVATE_KEYS = {"token", "chat_id", "destino", "mensaje", "telegram_bot_token", "telegram_chat_id", "github_token", "authorization", "password", "secret"}
@@ -173,7 +174,7 @@ def _nodo_vacio(nodo, red="Zárate–Campana", error="Sin fuente consultada"):
             "nivel_experimental": "SIN DATOS", "fecha_calculo": None,
             "fecha_consulta": None, "fecha_emision_modelo": None, "referencia_pronostico": None,
             "cobertura_horaria": {}, "estado_datos": "SIN DATOS", "error": error,
-            "fuente": API_METEO, "modelo": "ECMWF IFS / Open-Meteo"}
+            "fuente": API_METEO, "modelo": MODELO_METEO}
 
 
 def parsear_meteorologia_zc(nodo, payload, consultado, referencia=None):
@@ -391,7 +392,8 @@ def _guardar_grilla_zc(nodo, payload):
 def _recuperar_meteo_zc(nodo, anterior, referencia, error):
     if not isinstance(anterior, dict) or anterior.get("grilla_version") != 1:
         return None
-    if any(anterior.get(k) != nodo.get(k) for k in ("localidad", "lat", "lon")) or anterior.get("fuente") != API_METEO:
+    if (any(anterior.get(k) != nodo.get(k) for k in ("localidad", "lat", "lon"))
+            or anterior.get("fuente") != API_METEO or anterior.get("modelo") != MODELO_METEO):
         return None
     fecha = _fecha(anterior.get("fecha_consulta"))
     # No se renueva esta fecha en fallos sucesivos ni se aceptan fechas futuras.
@@ -432,7 +434,8 @@ def consultar_meteorologia_zc(referencia=None, session=None, anterior=None):
     def consultar(nodo):
         params = {"latitude": str(nodo["lat"]), "longitude": str(nodo["lon"]),
                   "hourly": "precipitation,runoff,soil_moisture_0_to_7cm", "past_days": 8, "forecast_days": 15,
-                  "timezone": "America/Argentina/Buenos_Aires", "precipitation_unit": "mm", "cell_selection": "land"}
+                  "timezone": "America/Argentina/Buenos_Aires", "precipitation_unit": "mm", "cell_selection": "land",
+                  "models": "ecmwf_ifs025"}
         intentos = []
         for intento in range(3):
             if intento:
@@ -552,7 +555,8 @@ def _normalizar_nodo_ala(nodo, fila):
                   referencia_pronostico=_iso(fila.get("referencia_pronostico")),
                   fecha_evaluacion_integrada=_iso(fila.get("fecha_evaluacion_integrada")),
                   precision_calculo=precision, estado_datos=_texto(fila.get("estado_datos")), error=_texto(fila.get("error_datos")))
-    completa = fila.get("cobertura_meteorologica") is True or str(fila.get("estado_datos")) == "OK"
+    completa = (fila.get("cobertura_meteorologica") is True
+                or "cobertura_meteorologica" not in fila and str(fila.get("estado_datos")) == "OK")
     if completa:
         fields = {"lluvia_prevista_24_mm": "lluvia_futura_24", "lluvia_prevista_72_mm": "lluvia_futura_72",
                   "lluvia_prevista_7d_mm": "lluvia_futura_7d", "lluvia_previa_7d_mm": "lluvia_7d",
@@ -564,6 +568,16 @@ def _normalizar_nodo_ala(nodo, fila):
         salida["nivel_experimental"] = _texto(fila.get("nivel")) or "SIN DATOS"
     else:
         salida["error"] = salida["error"] or "Variables incompletas: el informe común no completa valores ausentes con cero"
+        # La falta de humedad o escurrimiento impide calcular el índice, pero
+        # no borra una ventana de lluvia que el productor verificó por separado.
+        # Los informes anteriores sin estas banderas conservan sus faltantes.
+        for target, source, cobertura in (
+            ("lluvia_prevista_24_mm", "lluvia_futura_24", "cobertura_lluvia_futura_24"),
+            ("lluvia_prevista_72_mm", "lluvia_futura_72", "cobertura_lluvia_futura_72"),
+            ("lluvia_prevista_7d_mm", "lluvia_futura_7d", "cobertura_pronostico_7d"),
+        ):
+            if fila.get(cobertura) is True:
+                salida[target] = _numero(fila.get(source), 0, 100000)
     salida["nivel_tipo"] = "nivel_experimental es legado del estado integrado ALA; usar nivel_meteorologico para el índice"
     salida["estado_integrado_ala"] = _texto(fila.get("nivel")) or "SIN DATOS"
     salida["nivel_meteorologico"] = _texto(fila.get("nivel_meteorologico")) or "SIN DATOS"
@@ -758,11 +772,24 @@ def validar_red_integrada(payload, referencia=None):
             for e in evidencias:
                 if not isinstance(e, dict):
                     raise ValueError("Evidencia no válida")
-                limite = _fecha(e.get("valida_hasta") or e.get("hasta"))
+                limite_publicado = e.get("valida_hasta") or e.get("hasta")
+                limite = _fecha(limite_publicado)
                 e["vigente"] = bool(e.get("vigente") is True and integrada_vigente
-                    and (e.get("tipo") != "meteorologia" or node["vigente"]) and (limite is None or ref <= limite))
+                    and (e.get("tipo") != "meteorologia" or node["vigente"])
+                    and (not limite_publicado or limite is not None and ref <= limite))
             node[campo] = evidencias
+        # Una evaluación de hace unos minutos puede contener un CAP o una
+        # lectura que ya venció. La hora del cálculo no prolonga la causa del
+        # color. Sin un desencadenante vigente del mismo rango, no se deduce un
+        # color menor: faltan una evaluación y una cobertura actuales.
+        rango = {"VERDE": 0, "AMARILLO": 1, "ROJO": 2}.get(node["nivel_integrado_vigente"])
+        causa_vigente = any(e.get("vigente") is True and e.get("verificada") is not False
+            and e.get("rango", rango) == rango for e in node["desencadenantes"])
+        causa_vencida = bool(node.get("explicacion_version") == 1 and rango is not None and not causa_vigente)
+        if causa_vencida:
+            node["nivel_integrado_vigente"] = "SIN DATOS"
         node["explicacion_estado"] = ("Evaluación histórica; revisar vigencia de cada evidencia" if not integrada_vigente
+            else "Desencadenantes sin vigencia; falta una evaluación integrada actual" if causa_vencida
             else "Trazabilidad disponible" if node.get("explicacion_version") == 1 else "Informe anterior sin desencadenante estructurado")
     if found != set(expected):
         raise ValueError("El informe no conserva todos los puntos de su catálogo regional")

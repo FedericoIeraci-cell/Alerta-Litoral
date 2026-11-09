@@ -18,7 +18,10 @@ import time
 import zlib
 
 SCHEMA_VERSION = 1
-FUENTE = "https://api.open-meteo.com/v1/ecmwf"
+# Fijar el modelo evita depender del predeterminado del proveedor y permite
+# distinguir las capturas legadas que no acreditaban su identidad.
+MODELO_API = "ecmwf_ifs025"
+FUENTE = "https://api.open-meteo.com/v1/ecmwf?models=" + MODELO_API
 SNAPSHOT_PATH = "meteorologia_ecmwf.json"
 SNAPSHOT_URL = (
     "https://raw.githubusercontent.com/FedericoIeraci-cell/Alerta-Litoral/"
@@ -128,6 +131,62 @@ def _tiempo_modelo(value, diario=False):
     return value
 
 
+def unidades_compatibles(variable, unidad):
+    """Las unidades admitidas pertenecen a cada magnitud, no sólo a una lista."""
+    if not isinstance(unidad, str):
+        return False
+    if variable == "time":
+        return unidad == "iso8601"
+    if "temperature" in variable or variable == "dew_point_2m":
+        esperadas = {"°C"}
+    elif variable.startswith("soil_moisture_"):
+        esperadas = {"m³/m³", "m3/m3"}
+    elif variable.startswith(("precipitation_probability", "relative_humidity", "cloud_cover")):
+        esperadas = {"%"}
+    elif variable.startswith("wind_direction"):
+        esperadas = {"°"}
+    elif variable.startswith(("wind_speed", "wind_gusts")):
+        esperadas = {"km/h"}
+    elif variable in {"pressure_msl", "surface_pressure"}:
+        esperadas = {"hPa"}
+    elif variable.startswith("cape"):
+        esperadas = {"J/kg"}
+    elif variable == "vapour_pressure_deficit":
+        esperadas = {"kPa"}
+    elif variable == "shortwave_radiation":
+        esperadas = {"W/m²"}
+    elif variable == "shortwave_radiation_sum":
+        esperadas = {"MJ/m²"}
+    elif variable == "weather_code":
+        esperadas = {"wmo code"}
+    elif variable == "sunshine_duration":
+        esperadas = {"s"}
+    elif variable == "precipitation_hours":
+        esperadas = {"h"}
+    else:
+        esperadas = {"mm"}
+    return unidad in esperadas
+
+
+def validar_coordenadas_respuesta(dato, nodo):
+    """Una respuesta con celda identificada debe corresponder al nodo pedido.
+
+    Los archivos legados sin coordenadas conservan su contrato; nunca se
+    completan con coordenadas inventadas. La tolerancia admite la celda del
+    modelo, como el colector completo, pero rechaza respuestas de otro lugar.
+    """
+    if "latitude" not in dato and "longitude" not in dato:
+        return
+    lat, lon = _numero(dato.get("latitude")), _numero(dato.get("longitude"))
+    if not -90 <= lat <= 90 or not -180 <= lon <= 180:
+        _error("Las coordenadas de la celda meteorológica no son válidas.")
+    p1, p2 = math.radians(nodo["lat"]), math.radians(lat)
+    dp, dl = math.radians(lat - nodo["lat"]), math.radians(lon - nodo["lon"])
+    h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    if 6371 * 2 * math.asin(math.sqrt(min(1, max(0, h)))) > 40:
+        _error("Las coordenadas de la celda meteorológica no corresponden al nodo solicitado.")
+
+
 def _dato(raw, estricto):
     if not isinstance(raw, dict) or (estricto and set(raw) - _CAMPOS):
         _error()
@@ -190,7 +249,8 @@ def _dato(raw, estricto):
                     if (clave == "time" or not isinstance(valores, list) or
                             any(valor is not None for valor in valores)):
                         _error(f"La unidad no disponible de {campo}.{clave} no corresponde a una serie nula.")
-                elif not isinstance(unidad, str) or unidad not in _UNIDADES:
+                elif (not isinstance(unidad, str) or unidad not in _UNIDADES
+                      or not unidades_compatibles(clave, unidad)):
                     _error(f"La unidad de {campo}.{clave} no está admitida en la captura meteorológica.")
                 limpio[clave] = unidad
             salida[unidades] = limpio
@@ -239,6 +299,8 @@ def validar_captura(captura, nodos, referencia=None):
     if not isinstance(datos, list) or len(datos) != len(esperados):
         _error("La cantidad de respuestas meteorológicas no coincide con los nodos.")
     limpios = [_dato(d, True) for d in datos]
+    for dato, nodo in zip(limpios, esperados):
+        validar_coordenadas_respuesta(dato, nodo)
     if not any(_con_datos(d) for d in limpios):
         _error("La captura no contiene ningún nodo con datos meteorológicos utilizables.")
     return {"schema_version": SCHEMA_VERSION, "fuente": FUENTE,

@@ -9,6 +9,8 @@ from datetime import date, datetime, timedelta
 from math import isfinite
 from zoneinfo import ZoneInfo
 
+from portada_local import _fecha_meteorologica_vigente, _lluvia_vigente
+
 ART = ZoneInfo("America/Argentina/Buenos_Aires")
 SMN = "https://www.smn.gob.ar/"
 SEPA = "https://sepa.inta.gob.ar/"
@@ -66,7 +68,7 @@ def _valor(numero, unidad):
 def horizontes_lluvia(row, datos=None, referencia=None):
     """Los días 8–14 usan siete días calendario completos, nunca suma parcial."""
     ref = _fecha(referencia) or datetime.now(ART)
-    reciente = bool(row.get("cobertura_meteorologica") is True and _vigente(row.get("actualizado"), 12, ref))
+    reciente = _fecha_meteorologica_vigente(row, ref)
     salida = []
     for titulo, campo, horas in [
         ("Próximas 24 horas", "lluvia_futura_24", 24),
@@ -74,11 +76,9 @@ def horizontes_lluvia(row, datos=None, referencia=None):
         ("Próximos 7 días", "lluvia_futura_7d", 168),
     ]:
         n = _numero(row.get(campo))
-        valido = reciente and n is not None and n >= 0
-        if campo == "lluvia_futura_7d":
-            # La cobertura general del índice sólo exige 72 h futuras.
-            # Se requiere el indicador independiente del horizonte de 168 h.
-            valido = valido and row.get("cobertura_pronostico_7d") is True
+        # Las ventanas de lluvia tienen cobertura independiente del índice:
+        # suelo o escurrimiento ausentes no invalidan una lluvia completa.
+        valido = _lluvia_vigente(row, campo, ref) and n is not None and n >= 0
         salida.append({"horizonte": titulo, "precipitacion_mm": n if valido else None,
                        "estado": "Estimación de grilla" if valido else "Sin cobertura vigente suficiente",
                        "horas": horas, "inicio": None, "fin": None})
@@ -120,15 +120,19 @@ def construir_inventario(row, *, agua=None, suelo=None, relieve=None, siga=None,
                       "fuente": str(fuente or ""), "fecha": str(fecha or "Sin fecha"),
                       "alcance": alcance, "monitor_horario": "Sí" if monitor else "No"})
 
-    met = row.get("cobertura_meteorologica") is True and _vigente(row.get("actualizado"), 12, ref)
+    consulta_meteo = row.get("consulta_meteorologica")
+    fecha_meteo = consulta_meteo if consulta_meteo is not None else row.get("actualizado")
+    met = row.get("cobertura_meteorologica") is True and _fecha_meteorologica_vigente(row, ref)
+    lluvia_72 = _numero(row.get("lluvia_futura_72"))
+    lluvia_vigente = _lluvia_vigente(row, "lluvia_futura_72", ref) and lluvia_72 is not None and lluvia_72 >= 0
     agregar("lluvia_modelada", "Lluvia y pronóstico de grilla",
             _valor(row.get("lluvia_futura_72"), "mm / próximas 72 h"),
-            "Disponible" if met else "Incompleto o vencido", "https://open-meteo.com/en/docs/ecmwf-api",
-            row.get("actualizado"), "Celda del modelo; la lluvia antecedente también es modelada, no un pluviómetro del lote.", True)
+            "Disponible" if lluvia_vigente else "Incompleto o vencido", "https://open-meteo.com/en/docs/ecmwf-api",
+            fecha_meteo, "Celda del modelo; la lluvia antecedente también es modelada, no un pluviómetro del lote.", True)
     humedad = _numero(row.get("humedad_suelo_promedio"))
     agregar("humedad_modelada", "Humedad volumétrica del suelo", _valor(humedad, "m³/m³"),
             "Disponible" if met and humedad is not None else "Sin dato vigente", "https://open-meteo.com/en/docs/ecmwf-api",
-            row.get("actualizado"), "Promedio modelado de capas; no mide saturación física ni portancia del lote.", True)
+            fecha_meteo, "Promedio modelado de capas; no mide saturación física ni portancia del lote.", True)
     sig = siga or {}
     pp = _numero(sig.get("precipitacion_mm"))
     agregar("lluvia_observada", "Lluvia observada · INTA SIGA", _valor(pp, "mm / día"),

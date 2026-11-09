@@ -296,7 +296,12 @@ def _pronosticos_texto(texto, emision, nombres, fuente):
         targets = _menciones(sentence, nombres)
         if not targets:
             continue
-        negative = bool(re.search(r"no\s+(?:se\s+)?(?:preve|espera)|sin\s+(?:probabilidad|chances|exceder|superar)|no\s+hay\s+probabilidad", norm))
+        negative = bool(re.search(
+            r"\bno\s+(?:se\s+)?(?:preve|espera)|sin\s+(?:probabilidad|chances)|no\s+hay\s+probabilidad"
+            # Una previsión de NO cruce no puede convertirse en evacuación.
+            # Incluye negaciones del verbo de cruce, no sólo de «se prevé».
+            r"|\b(?:no\s+(?:se\s+)?|sin\s+(?:que\s+)?(?:se\s+)?)(?:exced\w*|super\w*|alcanz\w*)",
+            norm))
         crosses = list(re.finditer(r"(?:nivel(?:es)?(?:\s+de)?\s+|marca(?:\s+de)?\s+)(alerta|evacuacion)", norm))
         if crosses and not negative:
             for i, match in enumerate(crosses):
@@ -450,7 +455,7 @@ def parsear_boletin_yacyreta(contenido, referencia=None, url=EBY_URL):
                 "extremos_publicados_m": extremos,
                 "probabilidad": "sin probabilidad cuantificada; extremos del período publicados por EBY, sujetos a revisión"})
     entrada = re.search(r"caudal afluente previsto.*?entorno de\s*([\d.,]+)\s*m", texto, re.I)
-    aporte_futuro = re.search(r"proximos d[ií]as entre\s*([\d.,]+)\s*a\s*([\d.,]+)\s*m", normalizar(texto))
+    aporte_futuro = re.search(r"proximos d[ií]as entre\s*([\d.,]+)\s*(?:a|y)\s*([\d.,]+)\s*m", normalizar(texto))
     def caudal(s):
         # Los boletines EBY usan punto como separador de miles (34.100 m³/s).
         return decimal_es(s.replace(".", "")) if s else None
@@ -694,20 +699,22 @@ def obtener_panorama(referencia=None, session=None):
     except Exception as exc:
         panorama["fuentes"].append(_estado_fuente("ina_diario", INA_URL, None, ahora, error=f"No se obtuvo el reporte ({type(exc).__name__})."))
     try:
-        homepage = _DOM(_descargar(session, EBY_URL)).root
         links = []
-        for a in homepage.iter("a"):
-            href = urljoin(EBY_URL, a.attrs.get("href", ""))
-            if "alerta-hidrologico" in href and urlparse(href).hostname == "www.eby.gov.py" and href not in links:
-                links.append(href)
-        if not links:
-            # La portada institucional no siempre incluye los boletines; la
-            # categoría oficial del río Paraná es un índice independiente.
-            categoria = _DOM(_descargar(session, EBY_CATEGORIA_URL)).root
-            for a in categoria.iter("a"):
+        # La categoría es un índice oficial independiente: también se intenta
+        # cuando falla la portada, no sólo cuando ésta devuelve cero enlaces.
+        for indice in (EBY_URL, EBY_CATEGORIA_URL):
+            try:
+                pagina = _DOM(_descargar(session, indice)).root
+            except Exception as exc:
+                panorama["avisos"].append(
+                    f"Índice EBY no disponible ({type(exc).__name__}): {indice}")
+                continue
+            for a in pagina.iter("a"):
                 href = urljoin(EBY_URL, a.attrs.get("href", ""))
                 if "alerta-hidrologico" in href and urlparse(href).hostname == "www.eby.gov.py" and href not in links:
                     links.append(href)
+            if links:
+                break
         if not links:
             raise ValueError("No hay enlace reconocible a boletín hidrológico EBY")
         candidatos = []

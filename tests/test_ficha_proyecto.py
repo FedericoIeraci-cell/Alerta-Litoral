@@ -40,6 +40,38 @@ class FichaProyectoTests(unittest.TestCase):
         row = self.row(cobertura_meteorologica=False, lluvia_futura_24=0, lluvia_futura_72=0)
         self.assertTrue(all(r["precipitacion_mm"] is None for r in horizontes_lluvia(row, referencia=NOW)))
 
+    def test_lluvia_completa_independiente_se_conserva_sin_indice(self):
+        row = self.row(cobertura_meteorologica=False,
+                       cobertura_lluvia_futura_24=True, cobertura_lluvia_futura_72=False,
+                       cobertura_pronostico_7d=True,
+                       consulta_meteorologica=NOW.isoformat())
+        horizontes = horizontes_lluvia(row, referencia=NOW)
+        self.assertEqual(horizontes[0]["precipitacion_mm"], 0)
+        self.assertIsNone(horizontes[1]["precipitacion_mm"])
+        self.assertEqual(horizontes[2]["precipitacion_mm"], 10)
+
+    def test_calculo_reciente_no_renueva_consulta_modelada_vencida(self):
+        consulta = (NOW - timedelta(hours=13)).isoformat()
+        row = self.row(consulta_meteorologica=consulta, cobertura_pronostico_7d=True)
+        self.assertTrue(all(r["precipitacion_mm"] is None for r in horizontes_lluvia(row, referencia=NOW)))
+        inventario = {r["id"]: r for r in construir_inventario(row, referencia=NOW)}
+        self.assertEqual(inventario["lluvia_modelada"]["estado"], "Incompleto o vencido")
+        self.assertEqual(inventario["humedad_modelada"]["estado"], "Sin dato vigente")
+        self.assertEqual(inventario["lluvia_modelada"]["fecha"], consulta)
+        self.assertEqual(inventario["humedad_modelada"]["fecha"], consulta)
+
+    def test_inventario_lluvia_independiente_requiere_valor_y_cobertura(self):
+        for valor, cobertura, estado in ((0, True, "Disponible"),
+                                         (2, False, "Incompleto o vencido"),
+                                         (None, True, "Incompleto o vencido"),
+                                         (-1, True, "Incompleto o vencido")):
+            with self.subTest(valor=valor, cobertura=cobertura):
+                row = self.row(cobertura_meteorologica=False, lluvia_futura_72=valor,
+                               cobertura_lluvia_futura_72=cobertura)
+                inventario = {r["id"]: r for r in construir_inventario(row, referencia=NOW)}
+                self.assertEqual(inventario["lluvia_modelada"]["estado"], estado)
+                self.assertEqual(inventario["humedad_modelada"]["estado"], "Sin dato vigente")
+
     def test_cero_observado_y_ausencia_son_diferentes(self):
         a = construir_inventario(self.row(), siga={"fecha": NOW.isoformat(), "precipitacion_mm": 0}, referencia=NOW)
         b = construir_inventario(self.row(), siga={"fecha": NOW.isoformat(), "precipitacion_mm": None}, referencia=NOW)

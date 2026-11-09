@@ -16,6 +16,8 @@ import unicodedata
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
+from portada_local import _fecha_meteorologica_vigente, _lluvia_vigente
+
 ART = ZoneInfo("America/Argentina/Buenos_Aires")
 FUENTES = (
     ("INTA EEA Reconquista · agosto de 2026",
@@ -184,14 +186,13 @@ def construir_plan(row, usuario, evidencias=None, referencia=None):
     eval_fecha = row.get("fecha_evaluacion_integrada") or row.get("actualizado")
     if not _vigente(eval_fecha, 12, ref):
         pendientes.append("Actualizar o verificar la fecha del semáforo antes de usarlo para una decisión actual.")
-    met_vigente = bool(row.get("cobertura_meteorologica") is True and _vigente(row.get("actualizado"), 12, ref))
     lluvia = {}
     for campo, clave in (("lluvia_futura_24", "24_h"), ("lluvia_futura_72", "72_h"),
                           ("lluvia_futura_7d", "7_dias"), ("lluvia_dias_8_14", "dias_8_14")):
         n = _numero(row.get(campo))
-        cobertura = (campo != "lluvia_futura_7d" or row.get("cobertura_pronostico_7d") is True)
-        cobertura &= campo != "lluvia_dias_8_14" or row.get("cobertura_dias_8_14") is True
-        lluvia[clave] = n if met_vigente and cobertura and n is not None and n >= 0 else None
+        cobertura = (_fecha_meteorologica_vigente(row, ref) and row.get("cobertura_dias_8_14") is True
+                     if campo == "lluvia_dias_8_14" else _lluvia_vigente(row, campo, ref))
+        lluvia[clave] = n if cobertura and n is not None and n >= 0 else None
     if lluvia["24_h"] is None or lluvia["72_h"] is None:
         pendientes.append("Obtener lluvia prevista vigente de 24 y 72 horas; no sustituir faltantes por cero.")
     resumen_lluvia = "; ".join(f"{k.replace('_', ' ')}: {v:g} mm" for k, v in lluvia.items() if v is not None)

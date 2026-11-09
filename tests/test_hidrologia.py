@@ -88,7 +88,10 @@ class HidrologiaTests(unittest.TestCase):
     def test_no_detecta_rojo_en_negacion(self):
         emision = NOW.replace(hour=0)
         for text in ("En Goya no se prevé exceder el nivel de Evacuación en los próximos 3 días.",
-                     "En Goya se prevé una oscilación sin exceder el nivel de Evacuación en los próximos 3 días."):
+                     "En Goya se prevé una oscilación sin exceder el nivel de Evacuación en los próximos 3 días.",
+                     "En Goya se prevé que no supere el nivel de Evacuación en los próximos 3 días.",
+                     "En Goya se prevé que no se superará el nivel de Evacuación en los próximos 3 días.",
+                     "En Goya se prevé una crecida sin que se supere el nivel de Evacuación en los próximos 3 días."):
             forecasts = h._pronosticos_texto(text, emision, {"goya"}, h.INA_URL)
             self.assertTrue(all(p["nivel"] == "SIN_DATOS" for p in forecasts))
 
@@ -224,6 +227,46 @@ class HidrologiaTests(unittest.TestCase):
         self.assertIsNone(p["represa"]["afluente_previsto_min_m3s"])
         self.assertIsNone(p["represa"]["afluente_previsto_max_m3s"])
         self.assertEqual(p["represa"]["afluente_previsto_extremos_publicados_m3s"], [])
+
+    def test_yacyreta_boletin_real_noviembre_admite_entre_y_sin_renovar_fecha(self):
+        p = h.parsear_boletin_yacyreta(
+            (FIX / "eby_20261104.html").read_text(), "2026-11-08T21:48:00-03:00",
+            "https://www.eby.gov.py/alerta-hidrologico-n02-noviembre/",
+        )
+        self.assertEqual(p["represa"]["afluente_m3s"], 30500)
+        self.assertEqual(p["represa"]["afluente_previsto_extremos_publicados_m3s"], [30000, 27000])
+        self.assertEqual(p["represa"]["afluente_previsto_min_m3s"], 27000)
+        self.assertEqual(p["represa"]["afluente_previsto_max_m3s"], 30000)
+        self.assertEqual(p["fuente"]["fecha_documento"], "2026-11-04T00:00:00-03:00")
+        self.assertEqual(p["fuente"]["estado"], "VENCIDO")
+        self.assertEqual(p["fuente"]["valido_hasta"], "2026-11-10T23:59:59-03:00")
+        self.assertEqual(p["estaciones"]["puerto ituzaingo"]["altura_m"], 3.79)
+        self.assertNotIn("erogado_m3s", p["represa"])
+
+    def test_categoria_eby_se_intenta_tambien_si_falla_la_portada(self):
+        boletin = (FIX / "eby_20261104.html").read_text()
+        url = "https://www.eby.gov.py/alerta-hidrologico-n02-noviembre/"
+
+        def descargar(session, destino):
+            if destino == h.EBY_URL:
+                raise TimeoutError("Portada caída")
+            if destino == h.EBY_CATEGORIA_URL:
+                return '<a href="' + url + '">Alerta hidrológico n02</a>'
+            if destino == url:
+                return boletin
+            raise OSError("Fuente omitida de la prueba; sin red")
+
+        with patch.object(h, "_descargar", side_effect=descargar) as leer, \
+                patch("ctm.obtener_ctm", return_value={}), \
+                patch("hidro_actual.consultar_rios", side_effect=OSError("Sin red")), \
+                patch("hidro_actual.consultar_salto_grande", side_effect=OSError("Sin red")):
+            panorama = h.obtener_panorama("2026-11-04T15:00:00-03:00", session=object())
+        self.assertIn(h.EBY_CATEGORIA_URL, [c.args[1] for c in leer.call_args_list])
+        fuente = next(f for f in panorama["fuentes"] if f["id"] == "eby_yacyreta")
+        self.assertEqual(fuente["url"], url)
+        self.assertEqual(fuente["estado"], "VIGENTE")
+        self.assertEqual(panorama["represas"]["yacyreta"]["afluente_m3s"], 30500)
+        self.assertTrue(any("Índice EBY no disponible" in aviso for aviso in panorama["avisos"]))
 
     def test_serie_numerica_respeta_fecha_unidad_bandas(self):
         raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())

@@ -115,8 +115,22 @@ def _bloque(titulo, estado, datos=None, fechas=None, fuentes=None):
 
 def _fecha_meteorologica_vigente(row, referencia):
     consulta = row.get('consulta_meteorologica')
-    fecha = _fecha(consulta) if consulta is not None else _fecha(row.get('actualizado'))
-    return fecha is not None and -timedelta(minutes=5) <= referencia - fecha <= timedelta(hours=12)
+    if consulta is not None:
+        # La captura compartida exige hora y zona originales, con el mismo
+        # límite de tres horas que el motor. No asumir ART para una consulta
+        # sin zona ni rejuvenecerla con la fecha de cálculo de la pantalla.
+        try:
+            fecha = datetime.fromisoformat(consulta.replace('Z', '+00:00')) if isinstance(consulta, str) else consulta
+            if not isinstance(fecha, datetime) or fecha.tzinfo is None or fecha.utcoffset() is None:
+                return False
+        except (TypeError, ValueError):
+            return False
+        limite = timedelta(hours=3)
+    else:
+        # Los registros anteriores sin consulta conservan su control legado.
+        fecha = _fecha(row.get('actualizado'))
+        limite = timedelta(hours=12)
+    return fecha is not None and -timedelta(minutes=5) <= referencia - fecha <= limite
 
 
 def _lluvia_vigente(row, campo, referencia):
@@ -142,7 +156,7 @@ def construir_portada_local(row, panorama=None, referencia=None):
     utiles = [e for e in evidencias if evidencia_util(e)]
     faltantes = []
 
-    met_ok = _si(row.get("cobertura_meteorologica"))
+    met_ok = _si(row.get("cobertura_meteorologica")) and _fecha_meteorologica_vigente(row, ref)
     lluvias = []
     cifras = []
     for campo, plazo in (("lluvia_futura_24", "Próximas 24 h"), ("lluvia_futura_72", "Próximas 72 h"), ("lluvia_futura_7d", "Próximos 7 días")):
@@ -171,6 +185,8 @@ def construir_portada_local(row, panorama=None, referencia=None):
     indice = _numero(row.get("indice"))
     met["datos"].insert(0, "Índice meteorológico: " + (numero(indice, 1) + "/100 · " + str(row.get("nivel_meteorologico") or "sin nivel")
                                                      if met_ok and indice is not None else "sin dato completo vigente"))
+    if not met_ok or indice is None:
+        faltantes.append("Índice meteorológico: sin dato completo vigente.")
     extendida = _numero(row.get("lluvia_futura_extendida"))
     if (_fecha_meteorologica_vigente(row, ref) and
             _si(row.get("cobertura_pronostico_extendido")) and extendida is not None and row.get("pronostico_extendido_hasta")):

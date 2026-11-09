@@ -195,7 +195,11 @@ def mostrar_mapa_principal(st, catalogo, frame=None, *, componentes=None,
                     + '** · **🟡 Prepararse: ' + str(conteo['AMARILLO'])
                     + '** · 🟢 Seguimiento: ' + str(conteo['VERDE'])
                     + ' · ⚪ Información insuficiente: ' + str(conteo['SIN DATOS']))
-        con_lluvia = sum(f.get('cobertura_lluvia_futura_24') is True or f.get('cobertura_lluvia_futura_72') is True for f in filas)
+        from portada_local import ART, _lluvia_vigente, _numero
+        referencia_lluvia = datetime.now(ART)
+        con_lluvia = sum(any(_lluvia_vigente(f, campo, referencia_lluvia)
+                            and _numero(f.get(campo)) is not None and _numero(f.get(campo)) >= 0
+                            for campo in ('lluvia_futura_24', 'lluvia_futura_72')) for f in filas)
         st.caption('Lluvia prevista disponible en ' + str(con_lluvia) + '/' + str(len(filas))
                    + ' puntos. Tocá un nodo para ver sus valores y fechas. Un índice pendiente no elimina los datos de lluvia disponibles.')
         st.caption('Gris significa que falta información para completar la evaluación. El color es experimental; los avisos oficiales y las condiciones locales se revisan debajo.')
