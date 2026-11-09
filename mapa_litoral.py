@@ -222,7 +222,7 @@ _SCRIPT_MAPA = r"""
       }).addTo(referencias);
       marcador.bindPopup(punto.popup, {
         maxWidth: 480, minWidth: 210, maxHeight: 350,
-        autoPan: true, keepInView: true, autoPanPadding: [24, 24],
+        autoPan: true, keepInView: true, closeOnClick: false, autoPanPadding: [24, 24],
         className: 'mapa-popup-nodo'
       });
       marcador.on('mouseover', function () {

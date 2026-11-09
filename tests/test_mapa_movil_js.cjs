@@ -93,6 +93,8 @@ function escenario(movil) {
   assert.equal(Boolean(markers[0].tooltipBound), false, 'No se superpone una etiqueta sobre el detalle');
   if (!movil) {
     const popup = markers[0].getPopup();
+    assert.equal(popup.options.closeOnClick, false,
+      'Reencuadrar el mapa bajo el cursor no cierra la descripción al terminar el clic');
     assert.ok(popup.options.maxWidth <= 480 && popup.options.maxWidth <= mapSize.x - 48,
       'El detalle cabe con margen horizontal dentro del mapa');
     assert.ok(popup.options.maxHeight <= mapSize.y - 88,
