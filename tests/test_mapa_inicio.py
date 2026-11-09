@@ -55,7 +55,7 @@ class MapaInicioTest(unittest.TestCase):
         with patch('mapa_litoral._leer_leaflet', return_value=('', '')):
             datos = mostrar_mapa_principal(vista, CATALOGO, componentes=vista)
         self.assertEqual(vista.eventos[0][0], 'mapa')
-        self.assertEqual(vista.eventos[0][2]['height'], 440)
+        self.assertEqual(vista.eventos[0][2]['height'], 720)
         self.assertIn('Consultando las fuentes', vista.eventos[1][1])
         self.assertEqual(len(datos), 2)
         self.assertIn('Punto A', vista.eventos[0][1])

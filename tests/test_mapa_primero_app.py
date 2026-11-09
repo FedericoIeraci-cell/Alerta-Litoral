@@ -60,7 +60,7 @@ class MapaPrimeroAppTests(unittest.TestCase):
                  if e.type == 'iframe' and 'id="mapa-litoral-datos"' in e.proto.srcdoc]
         self.assertEqual(len(mapas), 1)
         posicion, mapa = mapas[0]
-        self.assertEqual(at.session_state['alturas_mapa'], [440])
+        self.assertEqual(at.session_state['alturas_mapa'], [720])
         bloque = re.search(r'<script id="mapa-litoral-datos" type="application/json">(.*?)</script>',
                            mapa.proto.srcdoc, re.S)
         self.assertIsNotNone(bloque)

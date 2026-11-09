@@ -34,7 +34,8 @@ function escenario(movil) {
   const bounds = {isValid: () => true}, provinceBounds = {isValid: () => true};
   const group = {addTo() {return this;}, addLayer(m) {layers.add(m); return this;},
     removeLayer(m) {layers.delete(m); return this;}, getBounds: () => bounds};
-  const map = {attributionControl: {setPrefix() {}}, invalidateSize() {},
+  let mapSize = movil ? {x: 390, y: 400} : {x: 1000, y: 540};
+  const map = {attributionControl: {setPrefix() {}}, invalidateSize() {}, getSize() {return mapSize;},
     fitBounds(value) {this.lastBounds = value;}, setView() {}};
   const control = () => ({addTo() {return this;}});
   const L = {svg() {}, canvas() {}, map: () => map, control: {zoom: control, scale: control},
@@ -43,15 +44,20 @@ function escenario(movil) {
     DomUtil: {create: tag => new Element(tag)}, DomEvent: {disableClickPropagation() {}},
     circleMarker: () => {
       const node = new Element('path'), events = {};
-      const marker = {addTo(g) {g.addLayer(this); return this;}, bindPopup() {}, bindTooltip() {},
-        on(k, f) {events[k] = f;}, getElement: () => node, openPopup() {this.popup = true;},
-        closePopup() {this.popup = false;}, fire(k) {events[k]?.();}};
+      const marker = {addTo(g) {g.addLayer(this); return this;},
+        bindPopup(content, options) {this.boundPopup = {content, options,
+          update: () => {this.popupUpdates = (this.popupUpdates || 0) + 1;}}; return this;},
+        bindTooltip() {this.tooltipBound = true; return this;},
+        getPopup() {return this.boundPopup;}, isPopupOpen() {return Boolean(this.popup);},
+        on(k, f) {events[k] = f;}, getElement: () => node, openPopup() {this.popup = true; return this;},
+        closePopup() {this.popup = false; return this;}, fire(k) {events[k]?.({target: this});}};
       markers.push(marker); return marker;
     }};
   let onResize;
   vm.runInNewContext(source, {document, L, ResizeObserver: class {
     constructor(callback) {onResize = callback;} observe() {}
-  }, window: {matchMedia: () => ({matches: movil}), addEventListener() {}}});
+  }, window: {matchMedia: query => ({matches: query.includes('hover: hover') ? !movil : movil}),
+    addEventListener() {}}});
   assert.equal(ids['mapa-litoral'].dataset.estado, 'listo');
   assert.equal(layers.size, 3);
   assert.equal(ids['mapa-lista'].children.length, 3);
@@ -80,6 +86,28 @@ function escenario(movil) {
   ids['mapa-buscar'].value = ''; ids['mapa-nivel'].value = ''; ids['mapa-nivel'].fire('change');
   ids['mapa-vista-mapa'].fire('click');
   assert.equal(layers.size, 3); assert.equal(ids['mapa-panel'].hidden, false);
+  markers[0].fire('mouseover');
+  assert.equal(Boolean(markers[0].popup), !movil,
+    'El cursor de escritorio abre el detalle completo; un toque no se simula como hover');
+  assert.equal(markers[0].getPopup().content, puntos[0].popup, 'La descripción se conserva completa');
+  assert.equal(Boolean(markers[0].tooltipBound), false, 'No se superpone una etiqueta sobre el detalle');
+  if (!movil) {
+    const popup = markers[0].getPopup();
+    assert.ok(popup.options.maxWidth <= 480 && popup.options.maxWidth <= mapSize.x - 48,
+      'El detalle cabe con margen horizontal dentro del mapa');
+    assert.ok(popup.options.maxHeight <= mapSize.y - 88,
+      'La altura disponible reserva espacio para el marco y el cierre');
+    markers[0].fire('mouseout');
+    assert.equal(markers[0].popup, true, 'El detalle permanece abierto para llegar a sus enlaces y texto');
+    mapSize = {x: 300, y: 140};
+    onResize([{contentRect: {width: mapSize.x, height: mapSize.y}}]);
+    assert.ok(popup.options.maxWidth <= mapSize.x - 48);
+    assert.ok(popup.options.minWidth <= popup.options.maxWidth, 'El mínimo no desborda un contenedor estrecho');
+    assert.ok(popup.options.maxHeight >= 80, 'Un cambio de tamaño no genera una altura negativa');
+    assert.ok(markers[0].popupUpdates > 0, 'Una ficha abierta se vuelve a ajustar al tamaño disponible');
+    markers[0].closePopup();
+    mapSize = {x: 1000, y: 540};
+  }
   const nodo = markers[0].getElement(); nodo.focus();
   nodo.fire('keydown', {key: 'Enter', preventDefault() {}});
   assert.equal(ids['mapa-detalle-titulo'].textContent, 'Goya');

@@ -198,6 +198,22 @@ _SCRIPT_MAPA = r"""
     }).addTo(mapa);
     const referencias = L.featureGroup().addTo(mapa);
     let reajustarFiltro = () => {};
+    let popupActual = null;
+    const ajustarPopup = (marcador) => {
+      const tamano = mapa.getSize();
+      const popup = marcador.getPopup();
+      // Reservar espacio para marco, punta y márgenes dentro del iframe.
+      const ancho = Math.min(480, Math.max(180, tamano.x - 96));
+      popup.options.maxWidth = ancho;
+      popup.options.minWidth = Math.min(280, ancho);
+      popup.options.maxHeight = Math.max(80, tamano.y - 112);
+      if (marcador.isPopupOpen()) popup.update();
+    };
+    const abrirPopup = (marcador) => {
+      ajustarPopup(marcador);
+      marcador.openPopup();
+      popupActual = marcador;
+    };
     const marcadores = [];
     datos.puntos.forEach(function (punto) {
       const marcador = L.circleMarker([punto.lat, punto.lon], {
@@ -205,12 +221,24 @@ _SCRIPT_MAPA = r"""
         fillColor: punto.color, fillOpacity: 0.96, bubblingMouseEvents: false
       }).addTo(referencias);
       marcador.bindPopup(punto.popup, {
-        maxWidth: 360, minWidth: 210, maxHeight: 350, autoPanPadding: [18, 24]
+        maxWidth: 480, minWidth: 210, maxHeight: 350,
+        autoPan: true, keepInView: true, autoPanPadding: [24, 24],
+        className: 'mapa-popup-nodo'
       });
-      marcador.bindTooltip(texto(punto.nombre + ' · ' + punto.estado), {direction: 'top'});
+      marcador.on('mouseover', function () {
+        if (!window.matchMedia('(max-width: 620px)').matches &&
+            window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+          abrirPopup(marcador);
+        }
+      });
+      marcador.on('popupclose', function () {
+        if (popupActual === marcador) popupActual = null;
+      });
       marcador.on('click', function () {
         if (window.matchMedia('(max-width: 620px)').matches) {
           marcador.closePopup(); abrirDetalle(punto, marcador.getElement());
+        } else {
+          abrirPopup(marcador);
         }
       });
       marcadores.push({punto, marcador});
@@ -361,17 +389,21 @@ _SCRIPT_MAPA = r"""
     }
     // Reencuadrar al cambiar el ancho también cubre iframes inicialmente ocultos
     // dentro de una pestaña. No hay temporizador, geolocalización ni seguimiento.
+    const reajustarMapa = () => {
+      reajustarFiltro();
+      if (popupActual && popupActual.isPopupOpen()) ajustarPopup(popupActual);
+    };
     if (typeof ResizeObserver !== 'undefined') {
       let ancho = 0, alto = 0;
       const observador = new ResizeObserver(function (entradas) {
         const rect = entradas[0].contentRect;
         if (rect.width > 0 && rect.height > 0 && (rect.width !== ancho || rect.height !== alto)) {
-          ancho = rect.width; alto = rect.height; reajustarFiltro();
+          ancho = rect.width; alto = rect.height; reajustarMapa();
         }
       });
       observador.observe(document.getElementById('mapa-litoral'));
     } else {
-      window.addEventListener('resize', reajustarFiltro);
+      window.addEventListener('resize', reajustarMapa);
     }
     document.getElementById('mapa-litoral').dataset.estado = 'listo';
   } catch (error) {
@@ -429,6 +461,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 #mapa-litoral{{width:100%;height:100%;background:#edf3f5;border-radius:10px}}
 .leaflet-container{{font-family:system-ui,sans-serif;font-size:13px}}
 .leaflet-popup-content{{line-height:1.45;overflow-wrap:anywhere}}
+.mapa-popup-nodo .leaflet-popup-content{{font-size:14px;line-height:1.5;max-width:calc(100vw - 96px);overscroll-behavior:contain}}
+.mapa-popup-nodo .ala-evi{{padding:0;margin:0;border:0;border-radius:0;box-shadow:none}}
+.mapa-popup-nodo .ala-evi h3{{font-size:19px}}
 .leaflet-interactive:focus{{outline:3px solid #0f172a;outline-offset:3px}}
 .mapa-provincia{{background:transparent;border:0;box-shadow:none;color:#253d50;font-size:11px;font-weight:650;text-shadow:0 1px 2px #fff,1px 0 2px #fff;white-space:nowrap}}
 .mapa-provincia:before{{display:none}}
