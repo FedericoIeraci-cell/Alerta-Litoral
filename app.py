@@ -13,13 +13,13 @@
 #   Misiones
 #
 # Fuentes:
-#   Open-Meteo / ECMWF IFS HRES 9 km
+#   Open-Meteo / ECMWF IFS 0.25° (~25 km)
 #   SMN — observaciones meteorológicas en directo
 #   NOAA GOES-19 ABI (vigilancia satelital)
 #
 # Integra INA, INTA, ENOS, relieve y planificación territorial.
 #
-# Versión: V4.10.3
+# Versión: V4.10.6
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -112,8 +112,8 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.5"
-MODELO = "ECMWF IFS HRES 9 km"
+VERSION = "V4.10.6"
+MODELO = "ECMWF IFS 0.25° (~25 km)"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 
@@ -238,6 +238,18 @@ def _id_de_objeto(obj):
     return None
 
 
+def vigencia_observacion_smn(valor, referencia=None):
+    """Evalúa una fecha publicada, sin inferir zona ni renovar la medición."""
+    referencia = referencia or ahora()
+    fecha = _fecha_cap(valor)
+    if fecha is None:
+        return "SIN FECHA/HORA VERIFICABLE"
+    edad = (referencia.astimezone(timezone.utc) - fecha).total_seconds()
+    if edad < -300:
+        return "FECHA FUTURA"
+    return "RECIENTE" if edad <= 3 * 3600 else "VENCIDA"
+
+
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_observaciones_smn():
     """Obtiene observaciones actuales del SMN y las normaliza."""
@@ -310,10 +322,13 @@ def obtener_observaciones_smn():
         df = pd.DataFrame(registros).drop_duplicates(
             subset=["smn_id", "lat", "lon"], keep="first"
         )
+        consulta = ahora()
+        df["estado_observacion_smn"] = df["fecha_smn"].map(lambda valor: vigencia_observacion_smn(valor, consulta))
+        df["fecha_consulta_smn"] = consulta.isoformat()
         return df, "OK"
 
     except Exception as e:
-        return pd.DataFrame(), f"Error consultando observaciones del SMN: {e}"
+        return pd.DataFrame(), "No se pudieron consultar observaciones verificables del SMN en esta actualización."
 
 
 def asociar_smn_a_nodos(df_smn):
@@ -338,6 +353,8 @@ def asociar_smn_a_nodos(df_smn):
             "smn_id": mejor.get("smn_id"),
             "distancia_km": round(float(mejor.get("distancia_km", np.nan)), 1),
             "fecha_smn": mejor.get("fecha_smn"),
+            "estado_observacion_smn": vigencia_observacion_smn(mejor.get("fecha_smn")),
+            "fecha_consulta_smn": mejor.get("fecha_consulta_smn"),
             "temperatura_smn": mejor.get("temperatura_smn"),
             "humedad_smn": mejor.get("humedad_smn"),
             "presion_smn": mejor.get("presion_smn"),
@@ -379,7 +396,7 @@ def obtener_alertas_smn():
         r.raise_for_status()
         return r.json(), "OK"
     except Exception as e:
-        return None, f"No se pudieron consultar las alertas del SMN directamente: {e}"
+        return None, "No se pudieron consultar las alertas del SMN directamente en esta actualización."
 
 
 # ============================================================
@@ -1218,6 +1235,7 @@ def obtener_datos_ecmwf():
     params = {
         "latitude": latitudes,
         "longitude": longitudes,
+        "models": "ecmwf_ifs025",
         "hourly": ",".join(variables_horarias),
         "daily": ",".join(variables_diarias),
         "past_days": 8,
@@ -1263,10 +1281,12 @@ def obtener_datos_ecmwf():
                 return [{'error':'La fuente meteorológica devolvió una respuesta no válida'} for _ in lote]
             except Exception:
                 return [{'error':'No se pudo completar la consulta meteorológica del lote'} for _ in lote]
+    # El tiempo pertenece al inicio de la consulta: la espera de la descarga
+    # no rejuvenece los datos, ni al publicarlos ni al leerlos después.
+    consultado = ahora().isoformat()
     lotes=[NODOS[i:i+8] for i in range(0,len(NODOS),8)]
     with ThreadPoolExecutor(max_workers=3) as pool:
         datos = [fila for lote in pool.map(consultar_lote,lotes) for fila in lote]
-    consultado = ahora().isoformat()
     # El publicador reutiliza esta misma descarga; nunca repite la consulta.
     if ALA_MONITOR_HEADLESS:
         global _captura_meteorologica_monitor, _captura_meteorologica_error
@@ -1415,6 +1435,17 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
 
         return resultado_sin_datos(nodo, error)
 
+    from meteorologia_compartida import validar_coordenadas_respuesta, unidades_compatibles
+    try:
+        validar_coordenadas_respuesta(datos, nodo)
+    except ValueError as exc:
+        return resultado_sin_datos(nodo, str(exc))
+    if (not isinstance(datos.get('timezone', 'America/Argentina/Buenos_Aires'), str)
+            or datos.get('timezone', 'America/Argentina/Buenos_Aires') not in
+            {'America/Argentina/Buenos_Aires', 'America/Buenos_Aires'}
+            or datos.get('utc_offset_seconds', -10800) != -10800):
+        return resultado_sin_datos(nodo, 'La zona horaria meteorológica no corresponde a Argentina')
+
     consulta_original = datos.get('_ala_consultado')
     if consulta_original is not None:
         try:
@@ -1427,12 +1458,16 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
             return resultado_sin_datos(nodo, 'La consulta meteorológica está vencida o no tiene una fecha válida')
 
     hourly = datos.get("hourly", {}) or {}
+    if not isinstance(hourly, dict) or not isinstance(datos.get('hourly_units', {}), dict):
+        return resultado_sin_datos(nodo, 'La estructura meteorológica no es válida')
     tiempos = hourly.get("time", [])
+    if not isinstance(tiempos, list):
+        return resultado_sin_datos(nodo, 'La respuesta no contiene una lista de horarios válidos')
 
-    horas_raw = pd.to_datetime(
-        tiempos,
-        errors="coerce",
-    )
+    try:
+        horas_raw = pd.to_datetime(tiempos, errors="coerce")
+    except (TypeError, ValueError):
+        return resultado_sin_datos(nodo, 'La respuesta no contiene horarios válidos')
 
     if len(horas_raw) == 0:
         return resultado_sin_datos(
@@ -1442,6 +1477,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
 
     horas = pd.DatetimeIndex(horas_raw)
     valid_time = ~horas.isna()
+    if not valid_time.all() or horas.tz is not None:
+        return resultado_sin_datos(nodo, 'Las marcas horarias meteorológicas no tienen el formato local solicitado')
     horas = horas[valid_time]
 
     if horas.has_duplicates:
@@ -1449,16 +1486,32 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
             nodo,
             'La respuesta contiene marcas horarias duplicadas; no se suman ni se calcula el índice',
         )
+    if not horas.is_monotonic_increasing:
+        return resultado_sin_datos(nodo, 'La respuesta contiene marcas horarias fuera de orden')
 
     n = len(horas)
 
     def serie(nombre):
-        return ajustar_longitud(
+        originales = hourly.get(nombre, [])
+        if not isinstance(originales, list) or len(originales) != len(horas_raw):
+            return np.full(n, np.nan, dtype=float)
+        valores = ajustar_longitud(
             array_numerico(
-                hourly.get(nombre, [])
+                [v if v is None or (isinstance(v, (int, float)) and not isinstance(v, bool))
+                 else np.nan for v in originales]
             ),
             len(horas_raw),
         )[valid_time]
+        if not unidades_compatibles(nombre, datos.get('hourly_units', {}).get(nombre)):
+            return np.full(n, np.nan, dtype=float)
+        if nombre.startswith('soil_moisture_'):
+            valores = np.where((valores >= 0) & (valores <= 1), valores, np.nan)
+        elif nombre.startswith(('precipitation_probability', 'relative_humidity', 'cloud_cover')):
+            valores = np.where((valores >= 0) & (valores <= 100), valores, np.nan)
+        elif nombre in {'precipitation', 'rain', 'showers', 'runoff', 'evapotranspiration',
+                        'et0_fao_evapotranspiration', 'wind_speed_10m', 'wind_gusts_10m', 'cape'}:
+            valores = np.where(valores >= 0, valores, np.nan)
+        return valores
 
     temperatura = serie("temperature_2m")
     sensacion = serie("apparent_temperature")
@@ -1499,6 +1552,19 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     if referencia.tzinfo is not None:
         referencia = referencia.tz_convert("America/Argentina/Buenos_Aires").tz_localize(None)
 
+    def agregado_completo(valores, mascara, primera_hora, cantidad, operacion):
+        """Una métrica de una ventana requiere todos sus valores horarios."""
+        marcas = pd.DatetimeIndex(horas[mascara])
+        esperadas = pd.date_range(primera_hora, periods=cantidad, freq='h')
+        seleccion = valores[mascara]
+        if (len(marcas) != cantidad or not marcas.equals(esperadas)
+                or not np.isfinite(seleccion).all()):
+            return np.nan
+        return float(operacion(seleccion))
+
+    def acumulado_completo(valores, mascara, primera_hora, cantidad):
+        return agregado_completo(valores, mascara, primera_hora, cantidad, np.sum)
+
     pasado_24 = ventana_mascara(
         horas,
         referencia - pd.Timedelta(hours=24),
@@ -1535,7 +1601,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         referencia + pd.Timedelta(days=7),
     )
 
-    hasta_actual = horas <= referencia
+    # No arrastrar una humedad o temperatura antigua a la hora actual.
+    hasta_actual = horas == referencia
 
     idx_actuales = np.where(hasta_actual)[0]
     idx_actual = (
@@ -1705,30 +1772,15 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     # PRECIPITACIÓN ANTECEDENTE Y FUTURA
     # ========================================================
 
-    lluvia_24 = suma_segura(
-        precipitacion,
-        pasado_24,
-    )
+    lluvia_24 = acumulado_completo(precipitacion, pasado_24, referencia - pd.Timedelta(hours=23), 24)
 
-    lluvia_72 = suma_segura(
-        precipitacion,
-        pasado_72,
-    )
+    lluvia_72 = acumulado_completo(precipitacion, pasado_72, referencia - pd.Timedelta(hours=71), 72)
 
-    lluvia_7d = suma_segura(
-        precipitacion,
-        pasado_7d,
-    )
+    lluvia_7d = acumulado_completo(precipitacion, pasado_7d, referencia - pd.Timedelta(hours=167), 168)
 
-    lluvia_futura_24 = suma_segura(
-        precipitacion,
-        futuro_24,
-    )
+    lluvia_futura_24 = acumulado_completo(precipitacion, futuro_24, referencia + pd.Timedelta(hours=1), 24)
 
-    lluvia_futura_72 = suma_segura(
-        precipitacion,
-        futuro_72,
-    )
+    lluvia_futura_72 = acumulado_completo(precipitacion, futuro_72, referencia + pd.Timedelta(hours=1), 72)
 
     # Cada acumulado se acredita por su propia grilla, sin depender del índice.
     def lluvia_completa(mascara, cantidad):
@@ -1772,64 +1824,31 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     pronostico_extendido_hasta = ((referencia + pd.Timedelta(hours=pronostico_extendido_horas)).tz_localize(TZ).isoformat()
                                   if pronostico_extendido_horas else None)
 
-    rain_24 = suma_segura(
-        rain,
-        pasado_24,
-    )
+    rain_24 = acumulado_completo(rain, pasado_24, referencia - pd.Timedelta(hours=23), 24)
 
-    rain_72 = suma_segura(
-        rain,
-        pasado_72,
-    )
+    rain_72 = acumulado_completo(rain, pasado_72, referencia - pd.Timedelta(hours=71), 72)
 
-    rain_7d = suma_segura(
-        rain,
-        pasado_7d,
-    )
+    rain_7d = acumulado_completo(rain, pasado_7d, referencia - pd.Timedelta(hours=167), 168)
 
-    showers_24 = suma_segura(
-        showers,
-        pasado_24,
-    )
+    showers_24 = acumulado_completo(showers, pasado_24, referencia - pd.Timedelta(hours=23), 24)
 
-    showers_72 = suma_segura(
-        showers,
-        pasado_72,
-    )
+    showers_72 = acumulado_completo(showers, pasado_72, referencia - pd.Timedelta(hours=71), 72)
 
-    showers_7d = suma_segura(
-        showers,
-        pasado_7d,
-    )
+    showers_7d = acumulado_completo(showers, pasado_7d, referencia - pd.Timedelta(hours=167), 168)
 
     # ========================================================
     # RUNOFF
     # ========================================================
 
-    runoff_24 = suma_segura(
-        runoff,
-        pasado_24,
-    )
+    runoff_24 = acumulado_completo(runoff, pasado_24, referencia - pd.Timedelta(hours=23), 24)
 
-    runoff_72 = suma_segura(
-        runoff,
-        pasado_72,
-    )
+    runoff_72 = acumulado_completo(runoff, pasado_72, referencia - pd.Timedelta(hours=71), 72)
 
-    runoff_7d = suma_segura(
-        runoff,
-        pasado_7d,
-    )
+    runoff_7d = acumulado_completo(runoff, pasado_7d, referencia - pd.Timedelta(hours=167), 168)
 
-    runoff_futuro_24 = suma_segura(
-        runoff,
-        futuro_24,
-    )
+    runoff_futuro_24 = acumulado_completo(runoff, futuro_24, referencia + pd.Timedelta(hours=1), 24)
 
-    runoff_futuro_72 = suma_segura(
-        runoff,
-        futuro_72,
-    )
+    runoff_futuro_72 = acumulado_completo(runoff, futuro_72, referencia + pd.Timedelta(hours=1), 72)
 
     valores_runoff_7d = runoff[futuro_7d]
     cobertura_runoff_7d = bool(secuencia_completa_7d
@@ -1841,64 +1860,18 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
     # PROBABILIDAD DE PRECIPITACIÓN
     # ========================================================
 
-    prob_lluvia_24 = media_segura(
-        probabilidad,
-        futuro_24,
-    )
+    prob_lluvia_24 = agregado_completo(probabilidad, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.mean)
+    prob_lluvia_72 = agregado_completo(probabilidad, futuro_72, referencia + pd.Timedelta(hours=1), 72, np.mean)
+    prob_lluvia = agregado_completo(probabilidad, futuro_72, referencia + pd.Timedelta(hours=1), 72, np.max)
 
-    prob_lluvia_72 = media_segura(
-        probabilidad,
-        futuro_72,
-    )
+    # No presentar un extremo de horas conocidas como extremo de 24 h completas.
+    temp_min_24 = agregado_completo(temperatura, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.min)
+    temp_max_24 = agregado_completo(temperatura, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.max)
+    viento_max_24 = agregado_completo(viento, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.max)
+    rafaga_max_24 = agregado_completo(rafaga, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.max)
+    cape_max_24 = agregado_completo(cape, futuro_24, referencia + pd.Timedelta(hours=1), 24, np.max)
 
-    prob_lluvia = maximo_seguro(
-        probabilidad,
-        futuro_72,
-    )
-
-    # ========================================================
-    # EXTREMOS / VARIABLES ADICIONALES
-    # ========================================================
-
-    temp_min_24 = (
-        np.nanmin(temperatura[futuro_24])
-        if np.any(futuro_24)
-        and np.any(np.isfinite(temperatura[futuro_24]))
-        else np.nan
-    )
-
-    temp_max_24 = (
-        np.nanmax(temperatura[futuro_24])
-        if np.any(futuro_24)
-        and np.any(np.isfinite(temperatura[futuro_24]))
-        else np.nan
-    )
-
-    viento_max_24 = (
-        np.nanmax(viento[futuro_24])
-        if np.any(futuro_24)
-        and np.any(np.isfinite(viento[futuro_24]))
-        else np.nan
-    )
-
-    rafaga_max_24 = (
-        np.nanmax(rafaga[futuro_24])
-        if np.any(futuro_24)
-        and np.any(np.isfinite(rafaga[futuro_24]))
-        else np.nan
-    )
-
-    cape_max_24 = (
-        np.nanmax(cape[futuro_24])
-        if np.any(futuro_24)
-        and np.any(np.isfinite(cape[futuro_24]))
-        else np.nan
-    )
-
-    et0_24 = suma_segura(
-        et0,
-        futuro_24,
-    )
+    et0_24 = acumulado_completo(et0, futuro_24, referencia + pd.Timedelta(hours=1), 24)
 
     # ========================================================
     # COMPONENTES DEL ÍNDICE
@@ -1974,15 +1947,9 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
         referencia - pd.Timedelta(hours=12),
     )
 
-    runoff_reciente = media_segura(
-        runoff,
-        reciente_12,
-    )
+    runoff_reciente = agregado_completo(runoff, reciente_12, referencia - pd.Timedelta(hours=11), 12, np.mean)
 
-    runoff_anterior = media_segura(
-        runoff,
-        anterior_12_36,
-    )
+    runoff_anterior = agregado_completo(runoff, anterior_12_36, referencia - pd.Timedelta(hours=35), 24, np.mean)
 
     if (
         np.isfinite(runoff_reciente)
@@ -2082,9 +2049,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
 
     cobertura_completa = bool(
         cobertura_lluvia_futura_72
-        and len(pd.DatetimeIndex(horas[pasado_7d & np.isfinite(precipitacion) & (precipitacion>=0)]).unique()) >= 168
-        and len(pd.DatetimeIndex(horas[futuro_72 & np.isfinite(precipitacion) & (precipitacion>=0)]).unique()) >= 72
-        and len(pd.DatetimeIndex(horas[pasado_72 & np.isfinite(runoff) & (runoff>=0)]).unique()) >= 72
+        and np.isfinite(lluvia_7d)
+        and np.isfinite(runoff_72)
         and len(humedad_validas) >= 3
     )
     indice_parcial = round(indice,1) if not cobertura_completa else np.nan
@@ -3253,6 +3219,8 @@ def extraer_pronostico_diario(
     datos
 ):
 
+    from meteorologia_compartida import unidades_compatibles
+
     daily = (
         datos or {}
     ).get(
@@ -3260,12 +3228,17 @@ def extraer_pronostico_diario(
         {}
     ) or {}
 
+    if not isinstance(daily, dict):
+        return pd.DataFrame()
+    unidades = (datos or {}).get('daily_units', {})
+    if not isinstance(unidades, dict):
+        return pd.DataFrame()
     fechas = daily.get(
         "time",
         []
     )
 
-    if not fechas:
+    if not isinstance(fechas, list) or not fechas:
         return pd.DataFrame()
 
     def arr(nombre):
@@ -3274,6 +3247,12 @@ def extraer_pronostico_diario(
             nombre,
             []
         )
+
+        if (not unidades_compatibles(nombre, unidades.get(nombre))
+                or not isinstance(valores, list) or len(valores) != len(fechas)):
+            return [np.nan] * len(fechas)
+        valores = [v if isinstance(v, (int, float)) and not isinstance(v, bool)
+                   and np.isfinite(v) else np.nan for v in valores]
 
         salida = list(valores)[
             :len(fechas)
@@ -3514,7 +3493,7 @@ def estado_telegram_ui():
 
 def mostrar_observaciones_api_smn():
     st.divider()
-    st.header("🇦🇷 Observaciones en directo — Servicio Meteorológico Nacional")
+    st.header("🇦🇷 Observaciones por estación — Servicio Meteorológico Nacional")
     st.caption(
         "Datos observados por estaciones del SMN. Se muestran como una capa oficial independiente "
         "del índice experimental de Alerta Litoral Agro."
@@ -3545,7 +3524,13 @@ def mostrar_observaciones_api_smn():
         df_smn_nodos = asociar_smn_a_nodos(df_smn_raw)
 
         ok_count = len(df_smn_nodos)
-        st.success(f"🟢 SMN conectado · {ok_count} nodos asociados a la estación más cercana")
+        recientes = df_smn_nodos[df_smn_nodos["estado_observacion_smn"].eq("RECIENTE")]
+        st.success(f"SMN consultado · {ok_count} nodos asociados a la estación más cercana")
+        if len(recientes) < ok_count:
+            st.warning(f"{ok_count - len(recientes)} asociaciones sin observación reciente verificable. "
+                       "Se conserva la fecha publicada; descargar otra vez no renueva la medición.")
+        st.caption("Reciente: fecha y zona horaria publicadas, hasta tres horas de antigüedad. "
+                   "La cercanía no asegura representatividad sobre cada localidad o lote.")
 
         c1, c2, c3, c4 = st.columns(4)
         with c1:
@@ -3553,9 +3538,11 @@ def mostrar_observaciones_api_smn():
         with c2:
             st.metric("Nodos asociados", ok_count)
         with c3:
-            st.metric("Temperatura media", f"{pd.to_numeric(df_smn_nodos['temperatura_smn'], errors='coerce').mean():.1f} °C")
+            temperatura = pd.to_numeric(recientes['temperatura_smn'], errors='coerce').mean()
+            st.metric("Temperatura media · referencias recientes", f"{temperatura:.1f} °C" if np.isfinite(temperatura) else "Sin dato reciente")
         with c4:
-            st.metric("Humedad media", f"{pd.to_numeric(df_smn_nodos['humedad_smn'], errors='coerce').mean():.0f} %")
+            humedad = pd.to_numeric(recientes['humedad_smn'], errors='coerce').mean()
+            st.metric("Humedad media · referencias recientes", f"{humedad:.0f} %" if np.isfinite(humedad) else "Sin dato reciente")
 
         columnas_smn = {
             "localidad": "Localidad",
@@ -3570,7 +3557,9 @@ def mostrar_observaciones_api_smn():
             "viento_smn": "Viento km/h",
             "direccion_smn": "Dirección",
             "tiempo_smn": "Condición",
-            "fecha_smn": "Hora SMN",
+            "fecha_smn": "Fecha/hora publicada SMN",
+            "estado_observacion_smn": "Vigencia de la observación",
+            "fecha_consulta_smn": "Consulta a la fuente",
         }
 
         mostrar = df_smn_nodos[list(columnas_smn)].rename(columns=columnas_smn).copy()
@@ -3796,7 +3785,8 @@ def parsear_cap_smn(contenido, url):
         })
     # Las cancelaciones pueden omitir el bloque info y aun así deben invalidar referencias.
     return {"id": txt(root, "identifier"), "tipo_mensaje": txt(root, "msgType"),
-            "status": txt(root, "status"), "referencias": referencias, "filas": filas}
+            "status": txt(root, "status"), "emision": _fecha_cap(txt(root, "sent")),
+            "referencias": referencias, "filas": filas}
 
 
 @st.cache_data(ttl=300, max_entries=200, show_spinner=False)
@@ -3845,16 +3835,24 @@ def obtener_cap_litoral():
         with ThreadPoolExecutor(max_workers=8) as pool:
             resultados = list(pool.map(descargar_cap_smn, seleccion))
         docs = [d for d, _ in resultados if d]
-        reemplazados = set(r for d in docs if d["status"] == "Actual" for r in d["referencias"])
+        # Una referencia sólo reemplaza avisos cuando pertenece a una actualización
+        # o cancelación real ya emitida. Un Ack o una fecha futura no los anula.
+        reemplazados = set(r for d in docs if d["status"] == "Actual"
+                          and d["tipo_mensaje"] in ("Update", "Cancel")
+                          and d.get("emision") is not None
+                          and d["emision"] <= consultado + timedelta(minutes=5)
+                          for r in d["referencias"])
         filas = []
         for d in docs:
             if d["id"] in reemplazados or d["tipo_mensaje"] == "Cancel":
                 continue
             for f in d["filas"]:
-                if f["status"] == "Actual" and f["provincias"]:
+                if (f["status"] == "Actual" and f["tipo_mensaje"] in ("Alert", "Update")
+                        and f["provincias"]):
                     filas.append(f)
-        # Un documento con varias áreas se conserva una sola vez por bloque info.
-        unicos = {(f["id"], f["desde"], f["hasta"], f["fenomeno"], tuple(f["provincias"])): f for f in filas}
+        # Sólo bloques info idénticos son duplicados. El mismo documento puede
+        # publicar áreas, severidades o recomendaciones distintas para un plazo.
+        unicos = {json.dumps(f, sort_keys=True, ensure_ascii=False, default=str): f for f in filas}
         return {"filas": list(unicos.values()), "fecha_feed": fecha_feed, "consultado": consultado,
                 "total": len(links), "leidos": len(docs),
                 "fallos": sum(d is None for d, _ in resultados) + invalidos,
@@ -5376,7 +5374,8 @@ def reconstruir_vera():
             a=np.array(pasado['hourly'].get(var,[None]*len(th)),dtype=float)
             b=np.array(run['hourly'].get(var,[None]*len(tr)),dtype=float)
             hourly[var]=np.r_[a[hp],b[hr]].tolist()
-        r=procesar_nodo(next(n for n in NODOS if n['localidad']=='Vera'),{'hourly':hourly},referencia)
+        serie = {'hourly': hourly, **metadatos_horarios_historicos((pasado, run))}
+        r=procesar_nodo(next(n for n in NODOS if n['localidad']=='Vera'),serie,referencia)
         resultados.append({'inicializacion_UTC':dia+'T00:00Z','corte_ART':referencia.isoformat(),
             'indice':r['indice'],'indice_parcial':r.get('indice_parcial'), 'nivel':r['nivel'],
             'estado':r['estado_datos'], 'lluvia_previa_72_mm':r['lluvia_72'],
@@ -5499,6 +5498,36 @@ def consultar_corrida_historica(evento_id, inicializacion_utc):
             'fuente_antecedentes': HISTORICAL_FORECAST_URL+'?'+urlencode(pa)}
 
 
+def metadatos_horarios_historicos(fuentes):
+    """Conserva unidades publicadas al ensamblar; no completa metadatos ausentes."""
+    from meteorologia_compartida import unidades_compatibles
+    unidades = {}
+    offsets = set()
+    zonas = set()
+    for fuente in fuentes:
+        h = fuente.get('hourly') if isinstance(fuente, dict) else None
+        originales = fuente.get('hourly_units') if isinstance(fuente, dict) else None
+        if not isinstance(h, dict) or not isinstance(originales, dict):
+            raise ValueError('El archivo histórico debe conservar sus unidades horarias originales.')
+        for variable, valores in h.items():
+            unidad = originales.get(variable)
+            nula = variable != 'time' and isinstance(valores, list) and all(v is None for v in valores)
+            if not unidades_compatibles(variable, unidad) and not (unidad == 'undefined' and nula):
+                raise ValueError(f'Unidad histórica ausente o incompatible de {variable}.')
+            if variable in unidades and unidades[variable] != unidad:
+                raise ValueError(f'Las fuentes históricas discrepan en la unidad de {variable}.')
+            unidades[variable] = unidad
+        zonas.add(fuente.get('timezone'))
+        if 'utc_offset_seconds' in fuente:
+            offsets.add(fuente['utc_offset_seconds'])
+    if zonas != {'America/Argentina/Buenos_Aires'} or (offsets and offsets != {-10800}):
+        raise ValueError('Los archivos históricos deben conservar la zona horaria argentina solicitada.')
+    resultado = {'hourly_units': unidades, 'timezone': next(iter(zonas))}
+    if offsets:
+        resultado['utc_offset_seconds'] = next(iter(offsets))
+    return resultado
+
+
 def ensamblar_corrida_historica(antecedentes, corrida, corte):
     """El futuro procede de una única corrida; nunca de una serie de lead-time fijo."""
     corte = fecha_fuente(corte).tz_localize(None)
@@ -5535,7 +5564,8 @@ def ensamblar_corrida_historica(antecedentes, corrida, corte):
         valores = pd.to_numeric(d.get(variable, pd.Series(index=d.index, dtype=float)), errors='coerce')
         if len(d.loc[mascara & np.isfinite(valores) & valores.ge(0), 'time'].unique()) < horas:
             raise ValueError(f'Cobertura insuficiente de {variable}: se necesitan {horas} horas válidas.')
-    return {'hourly': {c: d[c].dt.strftime('%Y-%m-%dT%H:%M').tolist() if c == 'time' else d[c].tolist() for c in d}}
+    return {'hourly': {c: d[c].dt.strftime('%Y-%m-%dT%H:%M').tolist() if c == 'time' else d[c].tolist() for c in d},
+            **metadatos_horarios_historicos((antecedentes, corrida))}
 
 
 def evaluar_vinculacion_historica(evento_id, inicializacion_utc, archivos=None):
@@ -5566,7 +5596,8 @@ def evaluar_vinculacion_historica(evento_id, inicializacion_utc, archivos=None):
     return {
         'evento_id': evento_id, 'grupo_evento': caso.get('grupo_evento',evento_id), 'localidad_calculo': punto[2],
         'fecha_evento': fecha, 'inicializacion_utc': run.isoformat(), 'emision': corte.isoformat(),
-        'indice': salida['indice'], 'nivel': salida['nivel'], 'modelo': MODELO,
+        'indice': salida['indice'], 'nivel': salida['nivel'],
+        'modelo': 'ECMWF IFS HRES 9 km · ecmwf_ifs (archivo histórico)',
         'tipo_emision': 'corte_reconstruido', 'disponibilidad_confirmada': 'no',
         'fuente_pronostico': datos.get('fuente_pronostico', SINGLE_RUNS_URL),
         'fuente_antecedentes': datos.get('fuente_antecedentes', HISTORICAL_FORECAST_URL),
@@ -5701,7 +5732,7 @@ def mostrar_historia_ficha():
             {'Fuente':'SMN','Dato':'Lluvia, observaciones, alertas CAP y PDF trimestral','Uso':'Alertas, observaciones y mapas trimestrales dentro de la app','Frecuencia / cobertura':'Horaria/diaria y trimestre; cobertura por estación/área','Limitación':'Avisos oficiales y red rural incompleta; tendencia no es lluvia de un día'},
             {'Fuente':'INTA SEPA','Dato':'Recarga del perfil, excedentes, NDVI y archivo de situación hídrica','Uso':'Mapas, GeoTIFF autorizado y muestras; Sentinel-2 para NDWI/NDVI/MNDWI automatizados','Frecuencia / cobertura':'Suelo S-NPP 500 m, decadal; NDVI MODIS 250 m, compuesto 16 días','Limitación':'Nubes y ventana compuesta; JPG no da un valor automático por lote; composición hídrica no es clasificación; NDWI requiere bandas/muestras'},
             {'Fuente':'INA','Dato':'Altura, caudal y umbrales por estación','Uso':'Series actuales/históricas y comparación con umbral','Frecuencia / cobertura':'Observaciones diarias según serie; revisar último dato','Limitación':'Datum de escala y representatividad del tramo; caudal por curva; series atrasadas'},
-            {'Fuente':'Open-Meteo / ECMWF','Dato':'Lluvia 7–14 días, humedad volumétrica, escorrentía','Uso':'Índice meteorológico, reconstrucción y corridas archivadas','Frecuencia / cobertura':'Horaria; modelo de celda ~9 km','Limitación':'Subestimación convectiva; no equivale a medición de campo'},
+            {'Fuente':'Open-Meteo / ECMWF IFS 0.25°','Dato':'Lluvia 7–14 días, humedad volumétrica, escorrentía','Uso':'Índice meteorológico operativo; corridas históricas identificadas por separado','Frecuencia / cobertura':'Salida horaria interpolada; celda ~25 km','Limitación':'Subestimación convectiva; no equivale a medición de campo'},
             {'Fuente':'Vialidad Nacional','Dato':'Estado, tramo, observaciones y fecha de reporte','Uso':'Tabla en la app; contrastar trazados de planificación','Frecuencia / cobertura':'Consulta bajo demanda, caché 30 min','Limitación':'No cubre todos los caminos rurales/provinciales; confirmar reportes >24 h'},
             {'Fuente':'Copernicus / IGN / Defensa Civil','Dato':'DEM, salud, refugios, terrenos altos y rutas','Uso':'Mapa Leaflet, muestreo de cotas y registros verificables','Frecuencia / cobertura':'DEM estático; registros operativos con vigencia declarada','Limitación':'Cota no certifica refugio; habilitación y suero requieren autoridad'},
             {'Fuente':'NOAA CPC','Dato':'RONI y episodios ENOS','Uso':'Contexto estacional e histórico del Pacífico','Frecuencia / cobertura':'Trimestral móvil, publicación mensual desde 1950','Limitación':'Valores revisables; no determina riesgo local por sí solo'},
@@ -6066,19 +6097,29 @@ def obtener_riesgo_automatico(panorama=None):
 
 def evaluar_smn_local(localidad, panorama, referencia):
     resultado = panorama.get('smn', {})
-    fecha = resultado.get('fecha_feed')
-    vigente = bool(fecha and dato_vigente(fecha,24,referencia) and not resultado.get('error')
-                   and not resultado.get('fallos') and not resultado.get('truncado'))
+    fecha = _fecha_cap(resultado.get('fecha_feed'))
+    consulta = resultado.get('consultado')
+    consulta_util = bool(fecha and dato_vigente(fecha,24,referencia) and not resultado.get('error')
+                         and (consulta is None or dato_vigente(consulta,24,referencia)))
+    vigente = bool(consulta_util and not resultado.get('fallos') and not resultado.get('truncado'))
+    # Cobertura incompleta no acredita ausencia de avisos. Se conservan los
+    # documentos aplicables y vigentes efectivamente descargados, indicando que
+    # no se pudo comprobar la totalidad del canal (incluidas cancelaciones).
     avisos=[]
-    if vigente:
-        for fila in resultado.get('filas',[]):
-            if (localidad not in fila.get('nodos',[]) or fila.get('status') != 'Actual' or fila.get('tipo_mensaje') == 'Cancel'
+    if consulta_util:
+        for fila_original in resultado.get('filas',[]):
+            fila = dict(fila_original)
+            for campo in ('emision', 'desde', 'hasta'):
+                fila[campo] = _fecha_cap(fila.get(campo))
+            if (localidad not in fila.get('nodos',[]) or fila.get('status') != 'Actual' or fila.get('tipo_mensaje') not in ('Alert', 'Update')
                     or not url_oficial(fila.get('url'))):
                 continue
             if not fila.get('emision') or fila['emision'] > referencia + timedelta(minutes=5):
                 continue
             estado=estado_vigencia_cap(fila,referencia.astimezone(timezone.utc))
             desde=fila.get('desde') or fila.get('emision')
+            if fila.get('hasta') is not None and desde is not None and desde >= fila['hasta']:
+                continue
             fenomeno=normalizar_nombre(fila.get('fenomeno',''))
             if estado not in ('Vigente','Previsto') or not desde or desde > referencia + timedelta(hours=72):
                 continue
@@ -6093,7 +6134,9 @@ def evaluar_smn_local(localidad, panorama, referencia):
                 'fecha_emision':f['emision'].isoformat(), 'desde':(f.get('desde') or f['emision']).isoformat(),
                 'hasta':f['hasta'].isoformat() if f.get('hasta') else None,
                 'valida_hasta':min(f.get('hasta') or fecha+timedelta(hours=24), fecha+timedelta(hours=24)).isoformat(),
-                'criterio_vigencia':'Aviso vigente o previsto aplicable y feed completo de hasta 24 h'} for f in avisos],
+                'cobertura_canal_completa':vigente,
+                'criterio_vigencia':('Aviso vigente o previsto aplicable y feed completo de hasta 24 h' if vigente
+                    else 'Documento aplicable con plazo vigente; canal incompleto: no se pudieron comprobar todos los avisos y cancelaciones')} for f in avisos],
             'smn_firma':hashlib.sha256('|'.join(sorted(str(f.get('id','')) for f in avisos)).encode()).hexdigest() if avisos else '',
             'smn_alertas':' | '.join(f"{f.get('fenomeno')} · {f.get('severidad_cap')} · {_hora_smn(f.get('desde') or f.get('emision'))} hasta {_hora_smn(f.get('hasta'))}" for f in avisos),
             'smn_fuentes':' | '.join(sorted({f.get('url','') for f in avisos}))}
@@ -7466,7 +7509,7 @@ def render_app():
 
     **Meteorología principal**
     - Open-Meteo
-    - ECMWF IFS HRES 9 km
+    - ECMWF IFS 0.25° (~25 km), seleccionado explícitamente como ecmwf_ifs025
     - Precipitación / lluvia / chaparrones
     - Humedad y temperatura del suelo
     - Agua que escurre sobre el suelo
@@ -7761,7 +7804,7 @@ def render_app():
         )
 
         st.caption(
-            "Pronóstico diario del ECMWF IFS HRES. El horizonte "
+            "Pronóstico diario del ECMWF IFS 0.25°. El horizonte "
             "extendido sirve para planificación y tendencia general; "
             "la incertidumbre aumenta con el plazo."
         )
@@ -8653,7 +8696,7 @@ def render_app():
 
         ### Pronóstico extendido
 
-        La aplicación muestra hasta **15 días** de pronóstico diario del ECMWF IFS HRES 9 km.
+        La aplicación muestra hasta **15 días** de pronóstico diario del ECMWF IFS 0.25° (~25 km), seleccionado explícitamente como `ecmwf_ifs025`. Los antecedentes son pronósticos archivados, no observaciones de una estación. La salida horaria puede interpolar pasos nativos de 3 o 6 horas. La versión IFS de 9 km no aporta escorrentía utilizable en la consulta comprobada y no se mezcla silenciosamente con este índice.
         Este horizonte es útil para planificación y tendencia general, pero la incertidumbre
         aumenta con el plazo y no debe interpretarse con la misma precisión que el corto plazo.
 

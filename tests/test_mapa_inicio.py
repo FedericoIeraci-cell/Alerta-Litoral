@@ -1,7 +1,9 @@
 """Primera pintura del mapa y conservación de referencias sin resultado."""
 from copy import deepcopy
+from datetime import datetime, timedelta
 import unittest
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from mapa_inicio import completar_catalogo_mapa, mostrar_mapa_principal
 
@@ -69,6 +71,19 @@ class MapaInicioTest(unittest.TestCase):
         self.assertIn('Detalle Punto A', vista.eventos[0][1])
         self.assertIn('Atención prioritaria: 1', vista.eventos[1][1])
         self.assertIn('Información insuficiente: 1', vista.eventos[1][1])
+
+    def test_conteo_de_lluvia_exige_ventana_valida_y_consulta_vigente(self):
+        now = datetime(2026, 11, 8, 21, 0, tzinfo=ZoneInfo('America/Argentina/Buenos_Aires'))
+        base = {'nivel': 'SIN DATOS', 'cobertura_meteorologica': False,
+                'cobertura_lluvia_futura_24': True, 'lluvia_futura_24': 0.0,
+                'actualizado': now.strftime('%d/%m/%Y %H:%M')}
+        rows = [{**CATALOGO[0], **base, 'consulta_meteorologica': now.isoformat()},
+                {**CATALOGO[1], **base, 'consulta_meteorologica': (now-timedelta(hours=13)).isoformat()}]
+        vista = Vista()
+        with patch('mapa_litoral._leer_leaflet', return_value=('', '')), patch('mapa_inicio.datetime') as clock:
+            clock.now.return_value = now
+            mostrar_mapa_principal(vista, CATALOGO, rows, componentes=vista)
+        self.assertTrue(any('Lluvia prevista disponible en 1/2 puntos.' in e[1] for e in vista.eventos))
 
 
 if __name__ == '__main__':

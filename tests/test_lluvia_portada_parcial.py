@@ -62,11 +62,45 @@ class LluviaPortadaParcialTest(unittest.TestCase):
         self.assertEqual(valores['lluvia72'], 'Sin dato completo vigente')
         self.assertFalse(any('Próximos 7 días: 45,0 mm' == x for x in datos['bloques'][0]['datos']))
 
+    def test_bandera_de_cobertura_no_renueva_indice_meteorologico(self):
+        datos, _ = cifras(fila(cobertura_meteorologica=True, indice=22.0,
+                               nivel_meteorologico='VERDE',
+                               consulta_meteorologica=(AHORA-timedelta(hours=13)).isoformat()))
+        met = datos['bloques'][0]
+        self.assertIn('Índice meteorológico: sin dato completo vigente', met['datos'])
+        self.assertNotIn('Pronóstico de modelo', met['estado'])
+        self.assertTrue(any(t.startswith('Índice meteorológico:') for t in datos['faltantes']))
+
     def test_consulta_futura_o_sin_fecha_no_afirma_vigencia(self):
         for fecha in [(AHORA+timedelta(minutes=10)).isoformat(), 'fecha inválida']:
             with self.subTest(fecha=fecha):
                 _, valores = cifras(fila(consulta_meteorologica=fecha))
                 self.assertEqual(valores['lluvia24'], 'Sin dato completo vigente')
+
+    def test_consulta_expresa_caduca_a_tres_horas_aunque_calculo_sea_nuevo(self):
+        for edad, vigente in ((timedelta(hours=3), True), (timedelta(hours=3, seconds=1), False)):
+            with self.subTest(edad=edad):
+                datos, valores = cifras(fila(cobertura_meteorologica=True, indice=22.0,
+                    nivel_meteorologico='VERDE', consulta_meteorologica=(AHORA-edad).isoformat()))
+                self.assertEqual(valores['lluvia24'], '12,3 mm' if vigente else 'Sin dato completo vigente')
+                self.assertEqual(valores['lluvia72'], '31,2 mm' if vigente else 'Sin dato completo vigente')
+                self.assertEqual(any('22,0/100' in t for t in datos['bloques'][0]['datos']), vigente)
+
+    def test_consulta_sin_zona_no_infiere_art(self):
+        for consulta in (AHORA.replace(tzinfo=None), AHORA.replace(tzinfo=None).isoformat(), AHORA.date().isoformat()):
+            with self.subTest(consulta=consulta):
+                datos, valores = cifras(fila(cobertura_meteorologica=True, indice=22.0,
+                    nivel_meteorologico='VERDE', consulta_meteorologica=consulta))
+                self.assertEqual(valores['lluvia24'], 'Sin dato completo vigente')
+                self.assertIn('Índice meteorológico: sin dato completo vigente', datos['bloques'][0]['datos'])
+
+    def test_fila_sin_consulta_conserva_limite_legado_de_doce_horas(self):
+        for edad, vigente in ((timedelta(hours=12), True), (timedelta(hours=12, minutes=1), False)):
+            with self.subTest(edad=edad):
+                row = fila(actualizado=(AHORA-edad).isoformat())
+                row.pop('consulta_meteorologica')
+                _, valores = cifras(row)
+                self.assertEqual(valores['lluvia24'], '12,3 mm' if vigente else 'Sin dato completo vigente')
 
     def test_fila_heredada_completa_conserva_visibilidad(self):
         row = fila(cobertura_meteorologica=True)

@@ -69,6 +69,24 @@ class DecisionesAgroTests(unittest.TestCase):
         self.assertTrue(any("no certifican ventanas seguras" in t for t in p["limitaciones"]))
         self.assertIn("Portancia local", p["acciones"][1]["verificar"])
 
+    def test_new_calculation_does_not_refresh_old_meteorological_query(self):
+        p = self.plan(fila(consulta_meteorologica=(NOW-timedelta(hours=13)).isoformat()))
+        self.assertTrue(all(v is None for v in p["datos"]["lluvia_modelada_mm"].values()))
+
+    def test_rain_windows_have_independent_coverage_from_soil_index(self):
+        p = self.plan(fila(cobertura_meteorologica=False,
+                           cobertura_lluvia_futura_24=True, cobertura_lluvia_futura_72=False))
+        lluvia = p["datos"]["lluvia_modelada_mm"]
+        self.assertEqual(lluvia["24_h"], 0.0)
+        self.assertIsNone(lluvia["72_h"])
+        self.assertEqual(lluvia["7_dias"], 45.0)
+
+    def test_partial_rain_is_not_promoted_by_a_complete_index(self):
+        p = self.plan(fila(cobertura_lluvia_futura_24=False, cobertura_lluvia_futura_72=False))
+        lluvia = p["datos"]["lluvia_modelada_mm"]
+        self.assertIsNone(lluvia["24_h"])
+        self.assertIsNone(lluvia["72_h"])
+
     def test_evidence_failures_are_pending_and_original_provenance_is_kept(self):
         estados = ["Sin", "Histórico", "Incompleto", "Confirmación requerida"]
         evidence = [{"id": str(i), "variable": "Dato " + str(i), "estado": state,

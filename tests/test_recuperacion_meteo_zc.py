@@ -42,6 +42,18 @@ class Recovery(unittest.TestCase):
         self.sleep = patch.object(red.time, 'sleep').start()
         self.addCleanup(patch.stopall)
 
+    def test_modelo_operativo_explicito_y_respaldo_sin_reetiquetar_historicos(self):
+        with patch.object(red, '_request_json', side_effect=success) as get:
+            nodes = red.consultar_meteorologia_zc(NOW)
+        self.assertTrue(all(call.args[2]['models'] == 'ecmwf_ifs025' for call in get.call_args_list))
+        self.assertTrue(all(n['modelo'] == red.MODELO_METEO for n in nodes))
+        prev = previous()
+        n = next(n for n in prev['nodos'] if n['red'] == 'Zárate–Campana')
+        n['modelo'] = 'ECMWF IFS / Open-Meteo'
+        original = copy.deepcopy(n)
+        self.assertIsNone(red._recuperar_meteo_zc(red.NODOS_ZC[0], n, NOW + timedelta(hours=1), 'falló'))
+        self.assertEqual(n, original)
+
     def test_one_timeout_does_not_discard_neighbours_and_attempts_are_bounded(self):
         def get(session, url, params, **kwargs):
             self.assertEqual(kwargs['timeout'], (5, 20))
@@ -72,6 +84,7 @@ class Recovery(unittest.TestCase):
 
     def test_reduced_query_preserves_missing_long_and_soil_variables(self):
         def get(session, url, params, **kwargs):
+            self.assertEqual(params['models'], 'ecmwf_ifs025')
             if params['hourly'] != 'precipitation':
                 raise requests.ReadTimeout()
             self.assertEqual((params['past_days'], params['forecast_days']), (0, 4))
