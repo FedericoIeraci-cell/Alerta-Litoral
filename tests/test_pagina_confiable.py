@@ -36,6 +36,7 @@ class PaginaConfiableTests(unittest.TestCase):
         self.assertEqual([v['valor'] for v in filas[0]['valores']], [0., 2., 5.98])
         html = tarjeta_html(filas[0])
         self.assertIn('0,0 mm', html)
+        self.assertIn('5,98 m', html)
         self.assertIn('21:00 ART', html)
         self.assertNotIn('99', html)
         self.assertNotIn('EVACUAR', html)

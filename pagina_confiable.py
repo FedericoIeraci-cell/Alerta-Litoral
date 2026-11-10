@@ -54,6 +54,11 @@ def verdadero(valor):
     return valor is True or (type(valor).__name__ == 'bool' and bool(valor))
 
 
+def cifra_publica(valor):
+    decimales = 2 if valor['tipo'] == 'observacion' else 1
+    return format(valor['valor'], '.' + str(decimales) + 'f').replace('.', ',') + ' ' + valor['unidad']
+
+
 def lluvia_valida(fila, horas, ahora):
     campo = 'lluvia_futura_' + str(horas)
     valor = numero(fila.get(campo))
@@ -144,7 +149,7 @@ def construir_filas(catalogo, meteorologia, panorama, ahora):
 def tarjeta_html(fila):
     partes = ['<h3>' + escape(fila['localidad']) + ' · ' + escape(fila.get('provincia', '')) + '</h3>']
     for valor in fila['valores']:
-        cifra = f"{valor['valor']:.1f}".replace('.', ',') + ' ' + valor['unidad']
+        cifra = cifra_publica(valor)
         partes.append('<p><b>' + escape(valor['variable']) + ':</b> ' + escape(cifra) + '<br>')
         if valor['tipo'] == 'pronostico_de_modelo':
             partes.append('<small>' + escape(MODELO) + '<br>Desde ' + escape(fechada(valor['desde']))
@@ -229,7 +234,7 @@ def mostrar_pagina(app):
             fila = next(f for f in filas if f['localidad'] == seleccion)
             st.subheader(fila['localidad'] + ' · ' + fila['provincia'])
             for valor in fila['valores']:
-                st.metric(valor['variable'], f"{valor['valor']:.1f}".replace('.', ',') + ' ' + valor['unidad'])
+                st.metric(valor['variable'], cifra_publica(valor))
                 if valor['tipo'] == 'pronostico_de_modelo':
                     st.caption(MODELO + ' · Desde ' + fechada(valor['desde']) + ' hasta ' + fechada(valor['hasta']))
                     st.caption('Consulta a la fuente: ' + fechada(valor['consulta']) + ' · Emisión de la corrida: no informada por la API.')
