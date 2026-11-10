@@ -53,7 +53,8 @@ class CaducidadMeteorologiaIntegradaTests(unittest.TestCase):
                     'estaciones': {'paso de los libres': {
                         'nombre': 'Paso de los Libres', 'rio': 'Uruguay', 'altura_m': 9.28,
                         'alerta_m': 7.5, 'evacuacion_m': 8.5,
-                        'fecha': self.now.isoformat(), 'fuente': fuente}},
+                        'fecha': self.now.isoformat(), 'precision_fecha': 'fecha_hora_publicada',
+                        'fuente': fuente}},
                     'pronosticos': [], 'represas': {}, 'avisos': []}
         evaluada = self.evaluar(row, panorama)
         self.assertFalse(evaluada.cobertura_meteorologica)

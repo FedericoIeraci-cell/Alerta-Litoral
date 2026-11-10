@@ -82,9 +82,9 @@ class PortadaLocalTests(unittest.TestCase):
         self.assertIn('0,0 mm',cifras['lluvia24']['texto'])
         self.assertIn('Período desde: 14/10/2026 11:00 ART',cifras['lluvia24']['texto'])
         self.assertTrue(cifras['lluvia24']['fuentes'])
-        self.assertIn('5,32 m',cifras['rio']['texto'])
-        self.assertIn('Lectura: 13/10/2026 · hora no publicada',cifras['rio']['texto'])
-        self.assertTrue(cifras['rio']['fuentes'])
+        self.assertIn('Sin lectura vigente',cifras['rio']['texto'])
+        self.assertNotIn('5,32 m',cifras['rio']['texto'])
+        self.assertIn('Último dato disponible: 13/10/2026 · hora no publicada',cifras['rio']['texto'])
         self.assertNotIn('00:00',' '.join(cifras['rio']['texto']))
         # La causa roja sigue fuera de los detalles cerrados, aunque la lluvia sea baja.
         inicio=html_portada_local(panel).split('<details',1)[0]

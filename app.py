@@ -1,8 +1,8 @@
 # ============================================================
 # 🌧️ ALERTA LITORAL AGRO
 # ============================================================
-# Sistema experimental de alerta temprana para riesgo de
-# anegamiento agropecuario.
+# Vista pública mínima de datos meteorológicos e hidrológicos
+# verificables. Las herramientas experimentales quedan archivadas.
 #
 # Regiones:
 #   Santa Fe
@@ -17,9 +17,9 @@
 #   SMN — observaciones meteorológicas en directo
 #   NOAA GOES-19 ABI (vigilancia satelital)
 #
-# Integra INA, INTA, ENOS, relieve y planificación territorial.
+# La vista vigente usa pagina_confiable; el código anterior no se expone.
 #
-# Versión: V4.10.6
+# Versión: V4.11.0
 # Requisitos: streamlit>=1.40, requests>=2.31, pandas>=2.0,
 # numpy>=1.24, plotly>=6.0, rasterio>=1.4, PyMuPDF>=1.24.
 # Opcional: SMN_API_TOKEN en Secrets, únicamente una credencial
@@ -62,7 +62,7 @@ def cargar_motor_hidrologico():
     import hidrologia
     def motor_vigente():
         return (getattr(hidrologia, 'VERSION_EVIDENCIAS', 0) == 1 and
-                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-10-18.1')
+                getattr(hidrologia, 'VERSION_MOTOR', None) == '2026-11-10.1')
     if not motor_vigente():
         import importlib
         hidrologia = importlib.reload(hidrologia)
@@ -112,7 +112,7 @@ if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:
     )
 
 APP_NAME = "Alerta Litoral Agro"
-VERSION = "V4.10.6"
+VERSION = "V4.11.0"
 MODELO = "ECMWF IFS 0.25° (~25 km)"
 API_URL = "https://api.open-meteo.com/v1/ecmwf"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
@@ -1297,7 +1297,7 @@ def obtener_datos_ecmwf():
             _captura_meteorologica_monitor = crear_captura(NODOS, datos, consultado)
         except ValueError:
             _captura_meteorologica_error = 'captura_no_valida'
-    return [dict(fila, _ala_consultado=consultado, _ala_origen='directa')
+    return [dict(fila, _ala_consultado=consultado, _ala_origen='directa', _ala_modelo_api='ecmwf_ifs025')
             if isinstance(fila.get('hourly'), dict) and not fila.get('error') else fila
             for fila in datos]
 
@@ -1313,7 +1313,7 @@ def obtener_meteorologia_publica():
     try:
         from meteorologia_compartida import validar_captura
         captura = validar_captura(obtener_captura_meteorologica_publica(), NODOS, referencia=ahora())
-        datos = [dict(fila, _ala_consultado=captura['consultado'], _ala_origen='compartida')
+        datos = [dict(fila, _ala_consultado=captura['consultado'], _ala_origen='compartida', _ala_modelo_api='ecmwf_ifs025')
                  for fila in captura['datos']]
         return datos, {'origen': 'compartida', 'consultado': captura['consultado']}
     except (ValueError, requests.exceptions.RequestException):
@@ -1435,7 +1435,8 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
 
         return resultado_sin_datos(nodo, error)
 
-    from meteorologia_compartida import validar_coordenadas_respuesta, unidades_compatibles
+    from meteorologia_compartida import (validar_coordenadas_respuesta, unidades_compatibles,
+                                        valor_meteorologico_valido)
     try:
         validar_coordenadas_respuesta(datos, nodo)
     except ValueError as exc:
@@ -1497,7 +1498,7 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
             return np.full(n, np.nan, dtype=float)
         valores = ajustar_longitud(
             array_numerico(
-                [v if v is None or (isinstance(v, (int, float)) and not isinstance(v, bool))
+                [v if v is None or valor_meteorologico_valido(nombre, v)
                  else np.nan for v in originales]
             ),
             len(horas_raw),
@@ -2395,6 +2396,7 @@ def procesar_nodo(nodo, datos, referencia_historica=None):
             ),
 
         "consulta_meteorologica": consulta_original,
+        "modelo_api": datos.get('_ala_modelo_api'),
         "origen_meteorologia": datos.get('_ala_origen', 'directa'),
         "horas_disponibles":
             int(n),
@@ -3219,7 +3221,7 @@ def extraer_pronostico_diario(
     datos
 ):
 
-    from meteorologia_compartida import unidades_compatibles
+    from meteorologia_compartida import unidades_compatibles, valor_meteorologico_valido
 
     daily = (
         datos or {}
@@ -3240,6 +3242,10 @@ def extraer_pronostico_diario(
 
     if not isinstance(fechas, list) or not fechas:
         return pd.DataFrame()
+    fechas_validas = pd.to_datetime(fechas, errors='coerce')
+    if (fechas_validas.isna().any() or fechas_validas.has_duplicates
+            or not fechas_validas.is_monotonic_increasing):
+        return pd.DataFrame()
 
     def arr(nombre):
 
@@ -3251,8 +3257,7 @@ def extraer_pronostico_diario(
         if (not unidades_compatibles(nombre, unidades.get(nombre))
                 or not isinstance(valores, list) or len(valores) != len(fechas)):
             return [np.nan] * len(fechas)
-        valores = [v if isinstance(v, (int, float)) and not isinstance(v, bool)
-                   and np.isfinite(v) else np.nan for v in valores]
+        valores = [v if valor_meteorologico_valido(nombre, v, diario=True) else np.nan for v in valores]
 
         salida = list(valores)[
             :len(fechas)
@@ -7412,7 +7417,7 @@ def mostrar_hero_litoral():
 # ============================================================
 
 
-def render_app():
+def _render_app_experimental_archivada():
     from mapa_inicio import mostrar_mapa_principal, crear_tarjeta_mapa, mostrar_logotipo_ala
     from interfaz_movil import estilos_responsive, accesos_principales
     st.html(estilos_responsive())
@@ -8778,6 +8783,18 @@ def render_app():
     mostrar_paneles_ficha(tab_fuentes, tab_enos, tab_territorio, tab_historia)
     with st.expander('Acerca de '+APP_NAME):
         mostrar_hero_litoral()
+
+
+def render_app():
+    """La vista pública ya no usa el semáforo experimental ni las cargas de sesión."""
+    from types import SimpleNamespace
+    from pagina_confiable import mostrar_pagina
+    mostrar_pagina(SimpleNamespace(st=st, components=components, NODOS=NODOS,
+        GEOMETRIAS_LITORAL=GEOMETRIAS_LITORAL, cargar_logo_ala=cargar_logo_ala,
+        ahora=ahora, obtener_meteorologia_publica=obtener_meteorologia_publica,
+        procesar_nodo=procesar_nodo, obtener_panorama_hidrologico=obtener_panorama_hidrologico,
+        obtener_estado_monitor_publico=obtener_estado_monitor_publico,
+        VERSION=VERSION))
 
 
 if __name__ == '__main__' and not ALA_MONITOR_HEADLESS:

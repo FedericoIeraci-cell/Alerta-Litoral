@@ -22,6 +22,7 @@ INA_URL = "https://alerta.ina.gob.ar/a5/diario/reporte_diario"
 EBY_URL = "https://www.eby.gov.py/"
 EBY_CATEGORIA_URL = "https://www.eby.gov.py/category/estado-del-rio-parana/"
 MAX_EDAD_HORAS = 48
+MAX_EDAD_OBSERVACION_HORAS = 6
 TIMEOUT = (20, 30)
 
 
@@ -66,12 +67,40 @@ def _iso(value):
 
 def _vigente(fecha, ahora, hasta=None):
     dt = _fecha(fecha)
-    if dt is None or dt > ahora + timedelta(minutes=15):
+    if dt is None or dt > ahora:
         return False
     if ahora - dt > timedelta(hours=MAX_EDAD_HORAS):
         return False
     fin = _fecha(hasta)
     return fin is None or ahora <= fin
+
+
+def _instante_con_zona(value):
+    """Las series numéricas requieren un instante publicado, sin asumir zona."""
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00")) if isinstance(value, str) else value
+        return dt.astimezone(TZ) if isinstance(dt, datetime) and dt.tzinfo is not None else None
+    except (ValueError, TypeError):
+        return None
+
+
+def _observacion_vigente(estacion, ahora):
+    """Sólo una hora de medición publicada permite evaluar el estado actual.
+
+    La medianoche de un registro diario no es una hora física observada. El
+    límite de seis horas es una regla operativa de ALA, no una vigencia oficial.
+    """
+    if estacion.get("precision_fecha") != "fecha_hora_publicada":
+        return False
+    raw = estacion.get("fecha")
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00")) if isinstance(raw, str) else raw
+    except (ValueError, TypeError):
+        return False
+    if not isinstance(dt, datetime) or dt.tzinfo is None:
+        return False
+    edad = ahora - dt
+    return (not estacion.get("error") and timedelta(0) <= edad <= timedelta(hours=MAX_EDAD_OBSERVACION_HORAS))
 
 
 def decimal_es(value):
@@ -215,7 +244,7 @@ def _estado_fuente(nombre, url, fecha, ahora, hasta=None, error=None):
     estado = "ERROR" if error else ("VIGENTE" if _vigente(fecha, ahora, hasta) else "VENCIDO")
     if not error and not _fecha(fecha):
         estado = "SIN_FECHA"
-    if _fecha(fecha) and _fecha(fecha) > ahora + timedelta(minutes=15):
+    if _fecha(fecha) and _fecha(fecha) > ahora:
         estado = "FECHA_FUTURA"
     return {"id": nombre, "nombre": nombre.replace("_", " ").upper(), "url": url,
             "estado": estado, "fecha_documento": fecha, "consultado": ahora.isoformat(),
@@ -523,9 +552,15 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
     for item in payload.get("observaciones", []):
         if not isinstance(item, (list, tuple)) or len(item) < 3:
             continue
-        dt, valor = _fecha(item[0]), decimal_es(item[2])
-        if dt is not None and dt <= ahora and valor is not None and valor >= -10:
+        dt, valor = _instante_con_zona(item[0]), decimal_es(item[2])
+        if dt is not None and dt <= ahora and valor is not None and -10 <= valor <= 100:
             obs_validas.append((dt, valor))
+    por_fecha = {}
+    for dt, valor in obs_validas:
+        if dt in por_fecha and por_fecha[dt] != valor:
+            raise ValueError("Alturas contradictorias para una misma fecha INA")
+        por_fecha[dt] = valor
+    obs_validas = list(por_fecha.items())
     ultimo = max(obs_validas, default=(None, None), key=lambda x: x[0])
     estacion = {"nombre": nombre, "rio": est.get("rio", ""), "altura_m": ultimo[1],
         "alerta_m": decimal_es(est.get("nivel_alerta")), "evacuacion_m": decimal_es(est.get("nivel_evacuacion")),
@@ -550,7 +585,7 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
             out_id = [out_id]
         if str(series_id) not in [str(v) for v in out_id]:
             continue
-        emision = _fecha(corrida.get("forecast_date"))
+        emision = _instante_con_zona(corrida.get("forecast_date"))
         if not emision or not _vigente(emision.isoformat(), ahora):
             continue
         candidatos.append((emision, bool(p.get("selected")), p))
@@ -566,18 +601,21 @@ def parsear_serie_ina(payload, series_id, referencia=None, url=None):
             if qualifier not in ("medio", "inferior", "superior"):
                 continue
             for punto in serie.get("pronosticos", []):
-                dt = _fecha(punto.get("timestart"))
+                dt = _instante_con_zona(punto.get("timestart"))
                 valor = decimal_es(punto.get("valor"))
-                if not dt or valor is None or valor < -10 or dt < emision:
+                if not dt or valor is None or not -10 <= valor <= 100 or dt < emision:
                     continue
-                bands.setdefault(dt.isoformat(), {})[qualifier] = valor
+                band = bands.setdefault(dt.isoformat(), {})
+                if qualifier in band and band[qualifier] != valor:
+                    raise ValueError("Pronósticos contradictorios para una misma fecha y banda INA")
+                band[qualifier] = valor
         for fecha_punto in sorted(bands):
             band = bands[fecha_punto]
             lo, mid, hi = (band.get(k) for k in ("inferior", "medio", "superior"))
             if mid is not None and ((lo is not None and lo > mid) or (hi is not None and hi < mid)):
                 continue
             dt = _fecha(fecha_punto)
-            if dt < ahora.replace(hour=0, minute=0, second=0, microsecond=0):
+            if dt < ahora:
                 continue
             curvas.append({"estacion": nombre, "fecha": fecha_punto, "central_m": mid, "inferior_m": lo, "superior_m": hi,
                 "fecha_emision": emision.isoformat(), "modelo": nombre_modelo, "fuente": url})
@@ -623,7 +661,8 @@ def _integrar_lecturas_actuales_ina(panorama, ahora, session, estaciones_series)
         import hidro_actual
         # Streamlit puede conservar el módulo anterior tras actualizar archivos.
         # Recargar sólo si falta la interfaz nueva; un fallo queda diagnosticado.
-        if not callable(getattr(hidro_actual, "consultar_rios", None)):
+        if (not callable(getattr(hidro_actual, "consultar_rios", None))
+                or getattr(hidro_actual, "VERSION_LECTURAS", None) != "2026-11-10.1"):
             from importlib import reload
             hidro_actual = reload(hidro_actual)
         url = hidro_actual.url_rios()
@@ -765,28 +804,20 @@ def obtener_panorama(referencia=None, session=None):
                     vieja["fuente_pronostico"] = nueva.get("fuente_pronostico", nueva.get("fuente"))
     _integrar_lecturas_actuales_ina(panorama, ahora, session, estaciones_series)
     try:
-        from ctm import obtener_ctm
-        ctm = obtener_ctm(ahora, session)
+        import ctm as modulo_ctm
+        if getattr(modulo_ctm, "VERSION_CTM", None) != "2026-11-10.1":
+            from importlib import reload
+            modulo_ctm = reload(modulo_ctm)
+        ctm = modulo_ctm.obtener_ctm(ahora, session)
         panorama["fuentes"].extend(ctm.get("fuentes") or ([ctm["fuente"]] if ctm.get("fuente") else []))
         panorama["avisos"].extend(ctm.get("avisos", []))
         if ctm.get("represa"):
             panorama["represas"]["salto_grande"] = ctm["represa"]
         panorama["pronosticos"].extend(ctm.get("pronosticos", []))
-        for key, nueva in ctm.get("estaciones", {}).items():
-            vieja = panorama["estaciones"].get(key)
-            if not vieja or not _fecha(nueva.get("fecha")):
-                continue
-            # La escala CTM/INA se vincula sólo por el mismo puerto y río.
-            # El PDF CTM no declara umbrales; los conserva de la estación INA.
-            if "uruguay" not in normalizar(nueva.get("rio")) or "uruguay" not in normalizar(vieja.get("rio")):
-                continue
-            if _fecha(vieja.get("fecha")) and _fecha(nueva["fecha"]) <= _fecha(vieja["fecha"]):
-                continue
-            combinada = dict(vieja)
-            combinada.update({k: v for k, v in nueva.items() if v is not None})
-            combinada["fuente_umbrales"] = vieja.get("fuente")
-            combinada["observaciones"] = list(vieja.get("observaciones", [])) + [{"fecha": nueva["fecha"], "valor": nueva.get("altura_m")}]
-            panorama["estaciones"][key] = combinada
+        # El nombre del puerto y el río no acreditan el mismo cero de escala.
+        # Conservar las mediciones CTM por separado: el PDF no declara umbrales
+        # ni una equivalencia documental con las escalas INA/PNA vinculadas.
+        panorama["lecturas_ctm"] = list(ctm.get("estaciones", {}).values())
     except Exception as exc:
         panorama["fuentes"].append(_estado_fuente("ctm_salto_grande", "https://www.saltogrande.org/", None, ahora,
             error=f"No se obtuvo un documento CTM verificable ({type(exc).__name__})."))
@@ -826,7 +857,7 @@ def obtener_panorama(referencia=None, session=None):
 
 
 VERSION_EVIDENCIAS = 1
-VERSION_MOTOR = "2026-10-18.1"
+VERSION_MOTOR = "2026-11-10.1"
 
 
 def _fuente_verificable(url, panorama):
@@ -839,7 +870,8 @@ def _fuente_verificable(url, panorama):
 
 
 def _evidencia(tipo, estacion, fuente, fecha, ahora, rango, **campos):
-    limite = _fecha(fecha) + timedelta(hours=MAX_EDAD_HORAS)
+    limite_horas = MAX_EDAD_OBSERVACION_HORAS if tipo in ("observacion_fluvial", "aguas_arriba") else MAX_EDAD_HORAS
+    limite = _fecha(fecha) + timedelta(hours=limite_horas)
     hasta = _fecha(campos.get("hasta"))
     if hasta:
         limite = min(limite, hasta)
@@ -849,7 +881,7 @@ def _evidencia(tipo, estacion, fuente, fecha, ahora, rango, **campos):
     return {"tipo": tipo, "estacion": estacion, "fuente": fuente,
             "rango": rango, "verificada": True, "vigente": True,
             "evaluada_en": ahora.isoformat(), "valida_hasta": limite.isoformat(),
-            "criterio_vigencia": "Máximo 48 h desde la fecha de la fuente; límite de uso de ALA, no vigencia oficial adicional",
+            "criterio_vigencia": f"Máximo {limite_horas} h desde la fecha de la fuente; límite de uso de ALA, no vigencia oficial adicional",
             **campos}
 
 
@@ -872,7 +904,7 @@ def _upstream(localidad, station_key, sistema, panorama, ahora):
     result = []
     for key in anteriores:
         obs = panorama.get("estaciones", {}).get(key)
-        if (not obs or not _vigente(obs.get("fecha"), ahora) or obs.get("umbral_invalido")
+        if (not obs or not _observacion_vigente(obs, ahora) or obs.get("umbral_invalido")
                 or not _fuente_verificable(obs.get("fuente"), panorama)
                 or not _fuente_verificable(obs.get("fuente_umbrales", obs.get("fuente")), panorama)):
             continue
@@ -920,7 +952,7 @@ def evaluar_localidad(localidad, panorama, referencia=None):
             "hidrologia_evacuacion_m": estacion.get("evacuacion_m"), "hidrologia_fecha": estacion.get("fecha")})
         if estacion.get("fuente"):
             fuentes.add(estacion["fuente"])
-        vigente = (_vigente(estacion.get("fecha"), ahora) and not estacion.get("umbral_invalido", False)
+        vigente = (_observacion_vigente(estacion, ahora) and not estacion.get("umbral_invalido", False)
                    and _fuente_verificable(estacion.get("fuente"), panorama)
                    and _fuente_verificable(estacion.get("fuente_umbrales", estacion.get("fuente")), panorama))
         if estacion.get("fecha_documento"):
@@ -942,14 +974,14 @@ def evaluar_localidad(localidad, panorama, referencia=None):
                 fuente_umbrales=estacion.get("fuente_umbrales", estacion.get("fuente"))))
             motivos.append(f"{estacion_nombre}: {estacion.get('altura_m')} m; nivel {nivel}, lectura {estacion.get('fecha')}.")
         else:
-            motivos.append("Lectura local vencida, futura, incompleta, sin umbrales válidos o sin fuente verificable; riesgo observado sin evaluar.")
+            motivos.append("Lectura local sin hora de medición confirmada, de más de 6 h, futura, incompleta, sin umbrales válidos o sin fuente verificable; riesgo observado sin evaluar.")
     else:
         motivos.append(f"{tramo}: no hay estación local con altura y umbrales automatizados.")
     candidatos = [p for p in panorama.get("pronosticos", []) if key in p.get("localidades", []) or station_key in p.get("localidades", [])]
     validos = [p for p in candidatos if _vigente(p.get("fecha_emision"), ahora, p.get("hasta"))
         and _fuente_verificable(p.get("fuente"), panorama)
         and not (p.get("tipo") in ("prevision_oficial_numerica", "banda_superior_incierta")
-                 and _fecha(p.get("desde")) and _fecha(p["desde"]).date() < ahora.date())]
+                 and _fecha(p.get("desde")) and _fecha(p["desde"]) < ahora)]
     textos, ventanas = [], []
     firma_previsiones = []
     clase_prevista = None

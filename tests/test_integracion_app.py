@@ -54,7 +54,7 @@ def panorama_vigente():
 def estacion(nombre, altura, alerta, evacuacion, rio="Uruguay", fecha=None):
     return dict(nombre=nombre, rio=rio, altura_m=altura, alerta_m=alerta,
                 evacuacion_m=evacuacion, fecha=(fecha or NOW-timedelta(hours=2)).isoformat(),
-                fuente=INA_URL)
+                precision_fecha="fecha_hora_publicada", fuente=INA_URL)
 
 
 def cap_lluvia(**changes):

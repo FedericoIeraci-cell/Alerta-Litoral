@@ -22,11 +22,16 @@ def dibujar_panel(st, lecturas, informe=None):
     st.caption('Consulta a las fuentes cada 5 minutos mientras esta página está abierta; el panel se refresca cada minuto. '
                'La frecuencia de medición depende de cada organismo. Una consulta nueva no renueva un dato antiguo.')
     st.caption('Panel revisado: '+hora(datetime.now(timezone.utc)))
+    lecturas = [d for d in lecturas if d.get('vigente') is True and not d.get('error')]
+    if not lecturas:
+        st.info('No hay lecturas hidrológicas vigentes con hora de medición confirmada. Los valores no verificables se omiten.')
     salto = next((d for d in lecturas if d.get('nombre')=='Salto Grande'),{})
     corrientes = next((d for d in lecturas if d.get('serie')==19),{})
     columnas = st.columns(2)
     for col,d,t,c,u in ((columnas[0],salto,'Salto Grande · descarga horaria','erogado_m3s','m³/s'),
                         (columnas[1],corrientes,'Corrientes · altura del río','altura_m','m')):
+        if not d:
+            continue
         col.metric(t,valor(d.get(c),u))
         col.caption('Fecha de la fuente: '+hora(d.get('fecha'),d.get('precision_fecha'))+' · '+d.get('estado','SIN DATOS'))
         col.caption('Última consulta: '+hora(d.get('consulta')))
@@ -38,17 +43,19 @@ def dibujar_panel(st, lecturas, informe=None):
             'Estado':d.get('estado'),'Última consulta':hora(d.get('consulta')),
             'Detalle':d.get('error',''),'Fuente':d.get('fuente','')}
             for d in lecturas if d.get('nombre')!='Salto Grande'],hide_index=True,use_container_width=True)
-        st.caption('La lectura de cada río conserva su escala. Las estaciones de Prefectura pueden tener frecuencia diaria; '
-                   'más de 6 horas se indica como lectura atrasada en este panel. No se trasladan umbrales entre puertos y estaciones automáticas.')
+        st.caption('Sólo se muestran lecturas vigentes con hora de medición confirmada. La fecha de un registro diario no acredita esa hora. '
+                   'El límite operativo ALA es de 6 horas para ríos; no es una vigencia oficial. No se trasladan umbrales entre estaciones.')
     with st.expander('Ver operación de represas y boletín de Yacyretá',expanded=False):
-        st.write('Salto Grande · cota del embalse: '+valor(salto.get('cota_embalse_m'),'m')+
-                 ' · turbinado: '+valor(salto.get('turbinas_m3s'),'m³/s')+
-                 ' · vertido: '+valor(salto.get('vertedero_m3s'),'m³/s'))
+        if salto:
+            st.write('Salto Grande · cota del embalse: '+valor(salto.get('cota_embalse_m'),'m')+
+                     ' · turbinado: '+valor(salto.get('turbinas_m3s'),'m³/s')+
+                     ' · vertido: '+valor(salto.get('vertedero_m3s'),'m³/s'))
         st.caption('Datos horarios CTM. Más de 2 horas se indica como lectura atrasada. La cota del embalse no es la altura de un puerto.')
         st.markdown('[Fuente horaria de Salto Grande](https://www.saltogrande.org/datos_horarios.php)')
         st.write('Yacyretá · boletín oficial, sin telemetría en vivo verificada')
         st.caption('Se recibe del informe del Litoral, cuya actualización está programada aproximadamente cada 10 minutos. Conserva la fecha original del boletín.')
-        partes = [d for d in (informe or {}).get('represas',[]) if d.get('nombre')=='Yacyretá']
+        partes = [d for d in (informe or {}).get('represas',[]) if d.get('nombre')=='Yacyretá'
+                  and d.get('vigente') is True and (informe or {}).get('snapshot_vigente') is True]
         if partes:
             from red_integrada import fecha_publica, estado_publico
             st.dataframe([{'Fecha del boletín':fecha_publica(d.get('fecha') or d.get('fecha_original'),d.get('precision_fecha')),

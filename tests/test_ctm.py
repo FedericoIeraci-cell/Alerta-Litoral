@@ -54,6 +54,7 @@ class CTMTests(unittest.TestCase):
     def test_pdf_real_magic_fechas_y_ultima_columna(self):
         self.assertTrue(NIVELES.startswith(b"%PDF-"))
         p = ctm.parsear_niveles(self.niveles_texto, NOW)
+        self.assertTrue(all(e["precision_fecha"] == "fecha_hora_publicada" for e in p["estaciones"].values()))
         self.assertEqual(p["fuente"]["fecha_documento"], "2026-10-14T09:00:00-03:00")
         self.assertEqual(p["estaciones"]["concordia"]["fecha"], "2026-10-14T07:00:00-03:00")
         self.assertEqual(p["estaciones"]["concordia"]["altura_m"], 11.10)

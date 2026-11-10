@@ -46,23 +46,22 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         panorama = self.panorama()
         estacion = panorama["estaciones"]["corrientes"]
         self.assertEqual(estacion["altura_m"], 6.89)
+        self.assertEqual(estacion["unidad"], "m")
+        self.assertEqual(estacion["nombre"], "Corrientes")
         self.assertEqual(estacion["fecha"], "2026-10-18T03:00:00+00:00")
         self.assertEqual((estacion["alerta_m"], estacion["evacuacion_m"]), (6.5, 7))
         evaluada = h.evaluar_localidad("Corrientes", panorama, NOW)
-        self.assertEqual(evaluada["nivel_hidrologico_observado"], "ALERTA")
-        self.assertEqual(evaluada["hidrologia_rango"], 1)
-        evidencia = next(e for e in evaluada["hidrologia_evidencias"] if e["tipo"] == "observacion_fluvial")
-        self.assertEqual(evidencia["altura_m"], 6.89)
-        self.assertEqual(evidencia["fuente"], hidro_actual.url_rios())
-        self.assertEqual(evidencia["fuente_umbrales"], hidro_actual.url_rios())
-        self.assertEqual(evidencia["precision_fecha"], "fecha_registro_fuente")
-        self.assertFalse(evidencia["automatica"])
-        self.assertEqual(evidencia["fecha_registro"], "2026-10-18T03:00:00Z")
+        self.assertEqual(evaluada["nivel_hidrologico_observado"], "SIN_DATOS")
+        self.assertIsNone(evaluada["hidrologia_rango"])
+        self.assertEqual(evaluada["hidrologia_evidencias"], [])
+        self.assertEqual(estacion["precision_fecha"], "fecha_registro_fuente")
+        self.assertFalse(estacion["automatica"])
+        self.assertEqual(estacion["fecha_registro"], "2026-10-18T03:00:00Z")
 
     def test_wfs_identifica_escala_y_umbrales_aunque_falle_api_de_serie(self):
         panorama = self.panorama(sin_serie=True)
         resultado = h.evaluar_localidad("Corrientes", panorama, NOW)
-        self.assertEqual(resultado["nivel_hidrologico_observado"], "ALERTA")
+        self.assertEqual(resultado["nivel_hidrologico_observado"], "SIN_DATOS")
         self.assertIsNone(panorama["estaciones"]["corrientes"]["automatica"])
         self.assertNotIn("zarate", panorama["estaciones"])
         self.assertNotIn("campana", panorama["estaciones"])
@@ -98,7 +97,7 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
             serie["observaciones"].append([fecha, "", 7.1])
             panorama = self.panorama(serie=serie)
             self.assertEqual(panorama["estaciones"]["corrientes"]["altura_m"], 7.1)
-            self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "EVACUACION")
+            self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "SIN_DATOS")
 
     def test_observacion_futura_de_serie_no_bloquea_la_ultima_wfs_valida(self):
         for delta in (timedelta(seconds=1), timedelta(minutes=10), timedelta(hours=1)):
@@ -109,7 +108,7 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
                 estacion = panorama["estaciones"]["corrientes"]
                 self.assertEqual(estacion["altura_m"], 6.89)
                 self.assertLessEqual(h._fecha(estacion["fecha"]), NOW)
-                self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "ALERTA")
+                self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "SIN_DATOS")
 
     def test_fuente_incompleta_futura_o_otra_escala_no_pisa_lectura(self):
         for campo, valor in (("nombre", "Zárate"), ("tabla", "sat2"), ("var_id", 1),
@@ -136,7 +135,7 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         # Sólo la misma serie y tabla verificadas pueden completar los umbrales.
         panorama = self.panorama(payload)
         self.assertEqual(panorama["estaciones"]["corrientes"]["fuente_umbrales"], h.url_serie_ina(19, NOW))
-        self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "ALERTA")
+        self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "SIN_DATOS")
 
     def test_umbral_inconsistente_no_se_completa_con_otro_origen(self):
         for valor in (True, float("nan"), 5):
@@ -168,7 +167,7 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         payload["features"][0]["properties"]["valor"] = 0
         panorama = self.panorama(payload)
         self.assertEqual(panorama["estaciones"]["corrientes"]["altura_m"], 0)
-        self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "BAJO")
+        self.assertEqual(h.evaluar_localidad("Corrientes", panorama, NOW)["nivel_hidrologico_observado"], "SIN_DATOS")
 
     def test_caida_wfs_conserva_fuentes_y_registra_fallo_sin_secretos(self):
         panorama = self.panorama(fallo_wfs=True)
@@ -194,12 +193,9 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         recargar.assert_called_once_with(anterior)
         nuevo.consultar_rios.assert_called_once_with(NOW, sesion)
         self.assertEqual(panorama["estaciones"]["corrientes"]["altura_m"], 6.89)
-        evidencia = next(e for e in h.evaluar_localidad("Corrientes", panorama, NOW)["hidrologia_evidencias"]
-                         if e["tipo"] == "observacion_fluvial")
-        self.assertEqual(evidencia["consultado"], consulta)
-        senal = next(e for e in h.evaluar_localidad("Goya", panorama, NOW)["hidrologia_evidencias"]
-                     if e["tipo"] == "aguas_arriba")
-        self.assertEqual(senal["consultado"], consulta)
+        self.assertEqual(panorama["estaciones"]["corrientes"]["consultado"], consulta)
+        self.assertFalse(h.evaluar_localidad("Corrientes", panorama, NOW)["hidrologia_vigente"])
+        self.assertEqual(h.evaluar_localidad("Goya", panorama, NOW)["hidrologia_alertas_aguas_arriba"], [])
 
     def test_fallo_de_recarga_no_interrumpe_el_panorama(self):
         anterior = ModuleType("hidro_actual")
@@ -212,14 +208,12 @@ class UltimasAlturasIntegradasTests(unittest.TestCase):
         self.assertEqual(panorama["fuentes"][0]["estado"], "ERROR")
         self.assertNotIn("privado", panorama["fuentes"][0]["error"])
 
-    def test_evidencia_aguas_arriba_conserva_precision_sin_trasladar_altura(self):
+    def test_registro_sin_hora_no_generar_senal_operativa_aguas_arriba(self):
         panorama = self.panorama()
         resultado = h.evaluar_localidad("Goya", panorama, NOW)
         self.assertIsNone(resultado["hidrologia_altura_m"])
-        senal = next(e for e in resultado["hidrologia_evidencias"] if e["tipo"] == "aguas_arriba")
-        self.assertEqual(senal["estacion"], "Corrientes")
-        self.assertEqual(senal["precision_fecha"], "fecha_registro_fuente")
-        self.assertEqual(senal["fuente_umbrales"], hidro_actual.url_rios())
+        self.assertEqual(resultado["hidrologia_alertas_aguas_arriba"], [])
+        self.assertEqual(resultado["hidrologia_evidencias"], [])
 
 
 if __name__ == "__main__":

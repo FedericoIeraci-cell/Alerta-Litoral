@@ -29,20 +29,33 @@ class HidrologiaTests(unittest.TestCase):
         for v in ("NaN", "inf", float("nan"), float("inf"), "sin dato", "3,4 5,6"):
             self.assertIsNone(h.decimal_es(v))
 
-    def test_rojo_local_observado_no_depende_de_lluvia(self):
+    def test_diario_sin_hora_no_certifica_rojo_actual(self):
         p = panorama_diario()
         for lugar, altura, umbral in [("Paso de los Libres", 9.28, 8.5), ("Puerto Iguazú", 28.65, 28)]:
             x = h.evaluar_localidad(lugar, p, NOW)
-            self.assertEqual(x["hidrologia_rango"], 2)
-            self.assertEqual(x["nivel_hidrologico_observado"], "EVACUACION")
+            self.assertEqual(x["nivel_hidrologico_observado"], "SIN_DATOS")
+            self.assertFalse(x["hidrologia_vigente"])
+            self.assertFalse(any(e["tipo"] == "observacion_fluvial" for e in x["hidrologia_evidencias"]))
             self.assertEqual(x["hidrologia_altura_m"], altura)
             self.assertEqual(x["hidrologia_evacuacion_m"], umbral)
-            self.assertIn("indicaciones oficiales", x["hidrologia_accion"])
+
+    def test_solo_medicion_reciente_con_hora_publicada_certifica_nivel(self):
+        for precision in (None, "fecha_registro_fuente", "fecha_sin_hora", "hora_no_verificada_en_reporte_diario", "fecha_hora_publicada"):
+            estacion = {"altura_m": 9.3, "alerta_m": 7.5, "evacuacion_m": 8.5,
+                "fecha": NOW.isoformat(), "precision_fecha": precision, "fuente": h.INA_URL}
+            x = h.evaluar_localidad("Paso de los Libres", {"estaciones": {"paso de los libres": estacion}}, NOW)
+            self.assertEqual(x["hidrologia_vigente"], precision == "fecha_hora_publicada")
+            self.assertEqual(x["nivel_hidrologico_observado"], "EVACUACION" if precision == "fecha_hora_publicada" else "SIN_DATOS")
+        for fecha in (NOW-timedelta(hours=6,seconds=1), NOW+timedelta(seconds=1)):
+            estacion["fecha"] = fecha.isoformat()
+            self.assertFalse(h.evaluar_localidad("Paso de los Libres", {"estaciones": {"paso de los libres": estacion}}, NOW)["hidrologia_vigente"])
+        estacion["fecha"] = NOW.replace(tzinfo=None).isoformat()
+        self.assertFalse(h.evaluar_localidad("Paso de los Libres", {"estaciones": {"paso de los libres": estacion}}, NOW)["hidrologia_vigente"])
 
     def test_prevision_textual_conserva_diferentes_fechas_de_umbral(self):
         x = h.evaluar_localidad("Corrientes", panorama_diario(), NOW)
         self.assertEqual(x["hidrologia_rango"], 2)
-        self.assertEqual(x["nivel_hidrologico_observado"], "BAJO")
+        self.assertEqual(x["nivel_hidrologico_observado"], "SIN_DATOS")
         self.assertIn("15/10", x["hidrologia_ventana"])
         self.assertIn("17/10", x["hidrologia_ventana"])
         self.assertIn("probabilística", x["hidrologia_motivo"])
@@ -199,8 +212,8 @@ class HidrologiaTests(unittest.TestCase):
         self.assertNotIn("de INA", previsto["probabilidad"])
         self.assertIsNone(previsto["desde"])
         resultado = h.evaluar_localidad("Ituzaingó", panorama, referencia)
-        self.assertEqual(resultado["hidrologia_rango"], 2)
-        self.assertEqual(resultado["nivel_hidrologico_observado"], "EVACUACION")
+        self.assertEqual(resultado["hidrologia_rango"], 1)
+        self.assertEqual(resultado["nivel_hidrologico_observado"], "SIN_DATOS")
         self.assertEqual(resultado["hidrologia_altura_m"], 4.81)
         self.assertEqual(resultado["hidrologia_evacuacion_m"], 4.0)
         self.assertEqual(resultado["nivel_hidrologico_previsto"], "EVACUACION")
@@ -272,6 +285,8 @@ class HidrologiaTests(unittest.TestCase):
         raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
         p = h.parsear_serie_ina(raw, 19, NOW)
         self.assertEqual(p["estaciones"]["corrientes"]["altura_m"], 5.5)
+        self.assertEqual(p["estaciones"]["corrientes"]["unidad"], "m")
+        self.assertEqual(p["estaciones"]["corrientes"]["nombre"], "Corrientes")
         self.assertEqual(p["estaciones"]["corrientes"]["fecha"], "2026-10-14T00:00:00-03:00")
         central_evacuacion = [f for f in p["pronosticos"] if f["nivel"] == "EVACUACION"]
         self.assertEqual(len(central_evacuacion), 1)
@@ -314,13 +329,15 @@ class HidrologiaTests(unittest.TestCase):
     def test_main_qualifier_y_corrida_vacia(self):
         raw = json.loads((FIX / "ina_serie65_20261014.json").read_text())
         p = h.parsear_serie_ina(raw, 65, NOW)
-        self.assertEqual(len(p["curvas"]), 13)
+        self.assertEqual(len(p["curvas"]), 12)
+        self.assertTrue(all(h._fecha(punto["fecha"]) >= NOW for punto in p["curvas"]))
         x = h.evaluar_localidad("San Javier (Misiones)", p, NOW)
         self.assertTrue(x["hidrologia_pronostico_vigente"])
         self.assertEqual(x["nivel_hidrologico_previsto"], "BAJO")
 
     def test_firma_no_cambia_por_hora_o_altura_sin_cambio_material(self):
         p = panorama_diario()
+        p["estaciones"]["paso de los libres"].update(fecha=NOW.isoformat(), precision_fecha="fecha_hora_publicada")
         a = h.evaluar_localidad("Paso de los Libres", p, NOW)
         p["estaciones"]["paso de los libres"].update(altura_m=9.32, fecha=(NOW + timedelta(minutes=1)).isoformat())
         b = h.evaluar_localidad("Paso de los Libres", p, NOW + timedelta(minutes=2))
@@ -354,20 +371,69 @@ class HidrologiaTests(unittest.TestCase):
         self.assertTrue(all(e["desde"] is None for e in textos))
         self.assertEqual(sum(e["hasta"] is None for e in textos), 1)
 
-    def test_firmas_compatibles_evitan_reavisos_por_la_correccion(self):
-        # Firmas capturadas antes de la corrección: datos que ya funcionaban
-        # deben conservar la identidad usada para deduplicar notificaciones.
+    def test_firma_cambia_al_retirar_una_observacion_no_verificable(self):
         p = panorama_diario()
-        for lugar, firma in (
-            ("Corrientes", "5dfa4a2e158a646a3a0f"),
-            ("Paso de los Libres", "710556a173bc174dac6e"),
-            ("Formosa", "0771d812adcc77256c96"),
-        ):
-            with self.subTest(localidad=lugar):
-                self.assertEqual(h.evaluar_localidad(lugar, p, NOW)["hidrologia_firma"], firma)
+        e = p["estaciones"]["paso de los libres"]
+        e.update(fecha=NOW.isoformat(), precision_fecha="fecha_hora_publicada")
+        valida = h.evaluar_localidad("Paso de los Libres", p, NOW)
+        e["precision_fecha"] = "fecha_registro_fuente"
+        incierta = h.evaluar_localidad("Paso de los Libres", p, NOW)
+        self.assertNotEqual(valida["hidrologia_firma"], incierta["hidrologia_firma"])
+        self.assertEqual(incierta["nivel_hidrologico_observado"], "SIN_DATOS")
+
+    def test_no_mezcla_umbrales_ina_con_otra_escala_ctm_por_nombre(self):
+        diario = (FIX / "ina_diario_20261013.html").read_text()
+        previa = h.parsear_reporte_ina(diario, NOW)["estaciones"]["concordia"]
+        ctm = {"estaciones": {"concordia": {"nombre": "Concordia", "rio": "Uruguay", "altura_m": 15,
+            "fecha": (NOW-timedelta(hours=1)).isoformat(), "precision_fecha": "fecha_hora_publicada",
+            "fuente": "https://www.saltogrande.org/", "alerta_m": None, "evacuacion_m": None}}}
+        def leer(_session,url):
+            if url == h.INA_URL:
+                return diario
+            raise OSError("Fuente aislada; sin red")
+        with patch.object(h,"_descargar",side_effect=leer), patch("ctm.obtener_ctm",return_value=ctm), \
+             patch("hidro_actual.consultar_rios",side_effect=OSError("Sin WFS")), \
+             patch("hidro_actual.consultar_salto_grande",side_effect=OSError("Sin horario")):
+            panorama = h.obtener_panorama(NOW,session=object())
+        self.assertEqual(panorama["estaciones"]["concordia"]["altura_m"], previa["altura_m"])
+        self.assertEqual(panorama["lecturas_ctm"][0]["altura_m"],15)
+        self.assertIsNone(panorama["lecturas_ctm"][0]["evacuacion_m"])
+        self.assertFalse(h.evaluar_localidad("Concordia",panorama,NOW)["hidrologia_vigente"])
+
+    def test_pronostico_numerico_del_pasado_de_hoy_no_se_reutiliza(self):
         raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
-        p = h.parsear_serie_ina(raw, 19, NOW)
-        self.assertEqual(h.evaluar_localidad("Corrientes", p, NOW)["hidrologia_firma"], "586aaae33b5834dc38a4")
+        raw["pronosticos"][0]["corrida"]["forecast_date"] = (NOW-timedelta(hours=2)).isoformat()
+        for banda in raw["pronosticos"][0]["corrida"]["series"]:
+            banda["pronosticos"] = [{"timestart": (NOW-timedelta(hours=1)).isoformat(), "valor": 8}]
+        panorama = h.parsear_serie_ina(raw, 19, NOW)
+        self.assertEqual(panorama["curvas"], [])
+        self.assertEqual(panorama["pronosticos"], [])
+        self.assertFalse(h.evaluar_localidad("Corrientes", panorama, NOW)["hidrologia_pronostico_vigente"])
+
+    def test_corrida_y_documento_futuros_no_se_certifican_ni_con_tolerancia(self):
+        futuro = (NOW + timedelta(seconds=1)).isoformat()
+        self.assertFalse(h._vigente(futuro,NOW))
+        self.assertEqual(h._estado_fuente("prueba",h.INA_URL,futuro,NOW)["estado"],"FECHA_FUTURA")
+
+    def test_serie_no_inventa_zona_horaria_para_observacion_automatica(self):
+        raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
+        raw["estacion"]["automatica"] = True
+        fecha = NOW.replace(tzinfo=None).isoformat()
+        raw["observaciones"] = [[fecha,fecha,9]]
+        panorama = h.parsear_serie_ina(raw,19,NOW)
+        self.assertIsNone(panorama["estaciones"]["corrientes"]["altura_m"])
+        self.assertFalse(h.evaluar_localidad("Corrientes",panorama,NOW)["hidrologia_vigente"])
+
+    def test_serie_rechaza_alturas_y_bandas_contradictorias(self):
+        raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
+        raw["observaciones"].append([raw["observaciones"][-1][0], "", 99])
+        with self.assertRaisesRegex(ValueError, "contradictorias"):
+            h.parsear_serie_ina(raw, 19, NOW)
+        raw = json.loads((FIX / "ina_serie19_20261014.json").read_text())
+        banda = raw["pronosticos"][0]["corrida"]["series"][0]
+        banda["pronosticos"].append({**banda["pronosticos"][0], "valor": 99})
+        with self.assertRaisesRegex(ValueError, "contradictorios"):
+            h.parsear_serie_ina(raw, 19, NOW)
 
     def test_panorama_serializable_y_fallos_no_encubren_ausencia(self):
         class Session:

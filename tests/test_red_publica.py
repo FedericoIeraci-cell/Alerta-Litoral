@@ -64,6 +64,7 @@ class PublicReportContract(unittest.TestCase):
                     explicacion_version=1)
         evidence = {"tipo": "observacion_fluvial", "estacion": "Corrientes",
                     "fecha_observada": utc(NOW - timedelta(hours=2)),
+                    "precision_fecha": "fecha_hora_publicada", "verificada": True,
                     "valida_hasta": utc(NOW + timedelta(hours=12)),
                     "fuente": "https://alerta.ina.gob.ar/a5/observaciones?seriesId=19",
                     "vigente": True}
@@ -71,7 +72,7 @@ class PublicReportContract(unittest.TestCase):
         node["evidencias_alerta"] = [copy.deepcopy(evidence)]
         return document
 
-    def test_ina_local_fuentes_y_rios_comparten_limite_de_seis_horas(self):
+    def test_ina_local_fuentes_y_previsiones_expiran_sin_acreditar_medicion_portuaria(self):
         for elapsed, expected in [(timedelta(hours=6), True),
                                   (timedelta(hours=6, seconds=1), False)]:
             with self.subTest(elapsed=elapsed):
@@ -87,7 +88,7 @@ class PublicReportContract(unittest.TestCase):
                 self.assertTrue(checked["snapshot_vigente"])
                 for place in ("Zárate", "Campana"):
                     river = river_of(checked, place)
-                    self.assertEqual(river["observacion_vigente"], expected)
+                    self.assertFalse(river["observacion_vigente"])
                     self.assertEqual(river["pronostico_vigente"], expected)
                     self.assertEqual(river["fecha_observada"], published)
                     for name in ("INA · " + place, "INA · pronóstico " + place):
