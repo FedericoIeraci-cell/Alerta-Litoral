@@ -16,6 +16,7 @@ import unicodedata
 from urllib.parse import urlencode, urlsplit
 from zoneinfo import ZoneInfo
 
+VERSION_LECTURAS = '2026-11-10.1'
 ART = ZoneInfo('America/Argentina/Buenos_Aires')
 CTM_HORARIOS = 'https://www.saltogrande.org/datos_horarios.php'
 INA_WFS = 'https://alerta.ina.gob.ar/geoserver/ows'
@@ -69,6 +70,8 @@ def estado_lectura(item, referencia=None):
     limite = 2 if out.get('tipo') == 'observacion_horaria_ctm' else 6
     estado = ('SIN FECHA VERIFICADA' if fecha is None else 'FECHA FUTURA' if edad < 0
               else 'LECTURA ATRASADA' if edad > limite else 'LECTURA RECIENTE')
+    if estado == 'LECTURA RECIENTE' and out.get('precision_fecha') != 'fecha_hora_publicada':
+        estado = 'HORA DE MEDICIÓN NO CONFIRMADA'
     if out.get('error'):
         estado = 'CONSULTA FALLIDA · última lectura conservada' if fecha else 'SIN DATOS · consulta fallida'
     out.update(edad_horas=edad, estado=estado, vigente=estado == 'LECTURA RECIENTE', limite_horas=limite)
@@ -216,7 +219,8 @@ def _consulta(nombre, referencia):
     dato = consultar_altura_zarate(referencia)
     return [{'nombre':'Zárate · automática RHN', 'serie':29437,'tipo':'automatica_rhn',
              'fecha':dato.get('fecha_observada'),'altura_m':dato.get('altura_m'),
-             'consulta':dato.get('consulta'),'fuente':dato.get('fuente'),'error':dato.get('error','')}]
+             'consulta':dato.get('consulta'),'fuente':dato.get('fuente'),'error':dato.get('error',''),
+             'precision_fecha':'fecha_hora_publicada'}]
 
 
 def _con_cache(nombre, referencia):

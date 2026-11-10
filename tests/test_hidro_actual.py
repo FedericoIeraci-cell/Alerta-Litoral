@@ -65,6 +65,14 @@ class LecturasTests(unittest.TestCase):
         self.assertIsNone(faltante['altura_m'])
         self.assertTrue(faltante['error'])
 
+    def test_registro_manual_reciente_no_confirma_hora_de_medicion(self):
+        payload = deepcopy(WFS)
+        payload['features'][0]['properties']['fecha'] = '2026-10-18T20:00:00Z'
+        dato = next(d for d in hidro.parsear_rios(payload,NOW) if d['serie']==19)
+        self.assertEqual(dato['altura_m'],6.89)
+        self.assertFalse(dato['vigente'])
+        self.assertEqual(dato['estado'],'HORA DE MEDICIÓN NO CONFIRMADA')
+
     def test_ina_rechaza_otra_escala_red_variable_duplicado_y_fecha_futura(self):
         for key,value in [('nombre','Otra estación'),('tabla','sat2'),('var_id',1),
                           ('valor',float('nan')),('valor',True),('fecha','2026-10-18T23:00:00Z'),
@@ -189,12 +197,10 @@ class LecturasTests(unittest.TestCase):
         at=AppTest.from_function(app).run(timeout=20)
         self.assertFalse(at.exception)
         texto=' '.join(x.value for x in at.caption)+' '.join(x.value for x in at.warning)
-        self.assertIn('LECTURA ATRASADA',texto)
-        self.assertIn('17/10/2026',texto)
+        self.assertTrue(any('No hay lecturas hidrológicas vigentes' in e.value for e in at.info))
+        self.assertNotIn('16.047',texto)
         self.assertIn('No se pudo confirmar un boletín',texto)
-        self.assertEqual(at.metric[0].value,'16.047,00 m³/s')
-        self.assertEqual(at.metric[1].label,'Corrientes · altura del río')
-        self.assertFalse(any('Zárate' in e.label for e in at.metric))
+        self.assertEqual(len(at.metric),0)
 
     def test_horario_cruza_contrato_compartido_y_caduca(self):
         import red_integrada as red

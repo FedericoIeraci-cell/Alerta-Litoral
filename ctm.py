@@ -15,6 +15,7 @@ import unicodedata
 from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
 
+VERSION_CTM = "2026-11-10.1"
 TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 INICIO = "https://www.saltogrande.org/"
 MAX_BYTES = 3 * 1024 * 1024
@@ -69,7 +70,7 @@ def _estado(clave, url, fecha, ahora, hasta=None, error=None):
     estado = "ERROR" if error else "SIN_FECHA"
     if not error and fecha:
         estado = "VIGENTE"
-        if fecha > ahora + timedelta(minutes=15):
+        if fecha > ahora:
             estado = "FECHA_FUTURA"
         elif ahora - fecha > MAX_EDAD or (hasta and ahora > hasta):
             estado = "VENCIDO"
@@ -210,6 +211,7 @@ def parsear_niveles(texto, referencia=None, url=INICIO):
             clave = _normalizar(nombre)
             estaciones[clave] = {"nombre": nombre, "rio": "Uruguay", "altura_m": valores[-1],
                 "fecha": observado.isoformat(), "fecha_documento": publicado.isoformat(), "fuente": url,
+                "precision_fecha": "fecha_hora_publicada", "precision_fecha_documento": "fecha_hora_publicada",
                 "alerta_m": None, "evacuacion_m": None, "series_id": ids.get(nombre),
                 "representatividad": "Escala CTM de la estación; requiere umbrales compatibles, no cota del terreno."}
     if not estaciones:

@@ -125,6 +125,30 @@ class MapaLitoralTests(unittest.TestCase):
         self.assertEqual(datos['puntos'][0]['lat'], 0)
         self.assertEqual(datos['omitidos'], 5)
 
+    def test_paleta_de_disponibilidad_no_traslada_colores_de_riesgo(self):
+        estados = {'DATOS': ('#2563eb', 'Datos disponibles'),
+                   'SIN DATOS': ('#64748b', 'Sin datos válidos')}
+        filas = [{'localidad': 'Con datos', 'lat': -29, 'lon': -59, 'nivel': 'DATOS'},
+                 {'localidad': 'Sin datos', 'lat': -30, 'lon': -60, 'nivel': 'SIN DATOS'},
+                 {'localidad': 'Estado de otro producto', 'lat': -31, 'lon': -61, 'nivel': 'ROJO'}]
+        documento = html_mapa_litoral(filas, {}, estados=estados,
+            titulo='Datos verificados del Litoral', leyenda='Disponibilidad de datos', capa_viirs=False)
+        datos = datos_html(documento)
+        self.assertEqual([p['nivel'] for p in datos['puntos']], ['DATOS', 'SIN DATOS', 'SIN DATOS'])
+        self.assertEqual([p['color'] for p in datos['puntos']], ['#2563eb', '#64748b', '#64748b'])
+        self.assertEqual([p['estado'] for p in datos['puntos']],
+                         ['Datos disponibles', 'Sin datos válidos', 'Sin datos válidos'])
+        self.assertEqual([e['nivel'] for e in datos['estados']], ['DATOS', 'SIN DATOS'])
+        self.assertEqual(datos['leyenda'], 'Disponibilidad de datos')
+        self.assertFalse(datos['capa_viirs'])
+        self.assertIn('Todos los estados', documento)
+        self.assertIn('aria-label="Filtrar por estado"', documento)
+        self.assertNotIn('Atención prioritaria', json.dumps(datos))
+        self.assertEqual(filas[-1]['nivel'], 'ROJO', 'La vista no modifica la evaluación de origen')
+        legado = construir_datos_mapa(filas[-1:], {})
+        self.assertEqual(legado['puntos'][0]['color'], '#dc2626')
+        self.assertEqual(legado['puntos'][0]['estado'], 'Atención prioritaria')
+
     def test_ambas_vistas_y_el_fondo_opcional_conservan_los_mismos_datos(self):
         nodos, geometrias = catalogo_ala()
         filas = [{**n, 'nivel': 'AMARILLO'} for n in nodos]

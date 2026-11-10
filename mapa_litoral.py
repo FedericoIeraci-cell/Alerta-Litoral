@@ -6,6 +6,7 @@ El fondo raster de OpenStreetMap es opcional e independiente de esas capas.
 Este módulo no consulta servicios, importa Streamlit ni calcula riesgo.
 """
 from base64 import b64encode
+from collections.abc import Mapping
 from functools import lru_cache
 from html import escape
 import json
@@ -22,6 +23,21 @@ _ESTADOS = {
     'VERDE': ('#16a34a', 'Seguimiento'),
     'SIN DATOS': ('#64748b', 'Sin datos suficientes'),
 }
+
+
+def _paleta_estados(estados):
+    if estados is None:
+        return dict(_ESTADOS)
+    if not isinstance(estados, Mapping) or not estados or 'SIN DATOS' not in estados:
+        raise ValueError('La paleta de estados debe incluir SIN DATOS.')
+    salida = {}
+    for nivel, configuracion in estados.items():
+        if (not isinstance(nivel, str) or not nivel.strip() or
+                not isinstance(configuracion, (tuple, list)) or len(configuracion) != 2 or
+                any(not isinstance(valor, str) or not valor.strip() for valor in configuracion)):
+            raise ValueError('Cada estado debe declarar un código, color y texto válidos.')
+        salida[nivel] = tuple(configuracion)
+    return salida
 
 
 def _coordenada(valor, limite):
@@ -67,15 +83,18 @@ def _geometria_publica(geometria):
 
 def construir_datos_mapa(df, geometrias, tarjeta_nodo=None, *,
                          ajustar_a='geometrias', titulo='Mapa de riesgo del Litoral',
-                         leyenda='Evaluación integrada'):
+                         leyenda='Evaluación integrada', estados=None):
     """Prepara sólo datos públicos; conserva puntos sin índice y todos los estados.
 
     ``tarjeta_nodo`` recibe una copia de la fila y devuelve HTML ya escapado por
     el formateador de la app. Si se omite, se utiliza un texto mínimo escapado.
-    No se modifica el dataframe ni se reclasifican los valores de riesgo.
+    No se modifica el dataframe ni se recalculan sus datos. Una paleta
+    personalizada sólo admite sus códigos explícitos; los demás se muestran
+    como SIN DATOS, sin trasladar colores de otra evaluación.
     """
     if ajustar_a not in ('geometrias', 'puntos'):
         raise ValueError("ajustar_a debe ser 'geometrias' o 'puntos'")
+    paleta = _paleta_estados(estados)
     filas = df.to_dict('records') if hasattr(df, 'to_dict') else list(df or [])
     puntos, omitidos = [], 0
     for fila in filas:
@@ -85,7 +104,9 @@ def construir_datos_mapa(df, geometrias, tarjeta_nodo=None, *,
             continue
         nombre = str(fila.get('localidad') or fila.get('nombre') or 'Referencia')
         nivel = str(fila.get('nivel') or 'SIN DATOS')
-        color, estado = _ESTADOS.get(nivel, _ESTADOS['SIN DATOS'])
+        if estados is not None and nivel not in paleta:
+            nivel = 'SIN DATOS'
+        color, estado = paleta.get(nivel, paleta['SIN DATOS'])
         popup = (str(tarjeta_nodo(dict(fila))) if tarjeta_nodo else
                  f'<b>{escape(nombre)}</b><br>{escape(nivel)}')
         puntos.append({'nombre': nombre, 'provincia': str(fila.get('provincia') or ''),
@@ -104,7 +125,7 @@ def construir_datos_mapa(df, geometrias, tarjeta_nodo=None, *,
         'puntos': puntos, 'geometrias': {'type': 'FeatureCollection', 'features': features},
         'omitidos': omitidos, 'geometrias_omitidas': geometrias_omitidas,
         'estados': [{'nivel': nivel, 'color': color, 'texto': texto}
-                    for nivel, (color, texto) in _ESTADOS.items()],
+                    for nivel, (color, texto) in paleta.items()],
     }
 
 
@@ -416,7 +437,8 @@ _SCRIPT_MAPA = r"""
 
 def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
                       ajustar_a='geometrias', titulo='Mapa de riesgo del Litoral',
-                      leyenda='Evaluación integrada', fondo_osm=True, capa_viirs=False):
+                      leyenda='Evaluación integrada', fondo_osm=True, capa_viirs=False,
+                      estados=None):
     """Devuelve un documento para ``components.html(..., height=altura)``.
 
     En Zárate–Campana se pasa ``geometrias={}``, ``ajustar_a='puntos'`` y el
@@ -426,7 +448,7 @@ def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
     if isinstance(altura, bool) or not isinstance(altura, int) or not 250 <= altura <= 1200:
         raise ValueError('altura debe ser un entero entre 250 y 1200 píxeles')
     datos = construir_datos_mapa(df, geometrias, tarjeta_nodo, ajustar_a=ajustar_a,
-                                titulo=titulo, leyenda=leyenda)
+                                titulo=titulo, leyenda=leyenda, estados=estados)
     datos['fondo_osm'] = bool(fondo_osm)
     datos['capa_viirs'] = bool(capa_viirs)
     css, js = _leer_leaflet()
@@ -434,6 +456,9 @@ def html_mapa_litoral(df, geometrias, tarjeta_nodo=None, *, altura=540,
     origenes_viirs = 'https://gibs.earthdata.nasa.gov'
     fuente_viirs = ' ' + origenes_viirs if capa_viirs else ''
     conexiones = origenes_viirs if capa_viirs else "'none'"
+    filtro_titulo = 'Filtrar por estado' if estados is not None else 'Filtrar por nivel'
+    filtro_todos = 'Todos los estados' if estados is not None else 'Todos los niveles'
+    lista_titulo = 'Localidades y estados' if estados is not None else 'Localidades y niveles'
     return f'''<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: https://tile.openstreetmap.org{fuente_viirs}; connect-src {conexiones}; object-src 'none'; base-uri 'none'; form-action 'none'">
@@ -498,13 +523,13 @@ body:has(.viirs-control[open]) .mapa-leyenda{{visibility:hidden}}
 <div class="mapa-herramientas" role="search" aria-label="Buscar y filtrar localidades">
 <label for="mapa-buscar">Buscá tu localidad o provincia</label>
 <input id="mapa-buscar" type="search" placeholder="Ej.: Goya, Corrientes" autocomplete="off" aria-controls="mapa-lista mapa-litoral">
-<div class="mapa-herramientas-fila"><select id="mapa-nivel" aria-label="Filtrar por nivel"><option value="">Todos los niveles</option></select>
+<div class="mapa-herramientas-fila"><select id="mapa-nivel" aria-label="{filtro_titulo}"><option value="">{filtro_todos}</option></select>
 <div class="mapa-vistas" role="group" aria-label="Modo de consulta"><button type="button" id="mapa-vista-mapa" aria-pressed="true" aria-controls="mapa-panel">Mapa</button><button type="button" id="mapa-vista-lista" aria-pressed="false" aria-controls="mapa-lista">Lista</button></div></div></div>
 <div id="mapa-panel">
 <div id="mapa-litoral" role="region" aria-label="{escape(str(titulo), quote=True)}" data-estado="cargando"></div>
 <div id="mapa-aviso" class="mapa-aviso" role="status" hidden></div>
 <div id="mapa-fondo" role="status" hidden>Fondo de calles incompleto; los puntos y límites incluidos siguen visibles.</div>
-</div><div id="mapa-lista" role="region" aria-label="Localidades y niveles" hidden></div><p id="mapa-cuenta" role="status" aria-live="polite"></p></div>
+</div><div id="mapa-lista" role="region" aria-label="{lista_titulo}" hidden></div><p id="mapa-cuenta" role="status" aria-live="polite"></p></div>
 <dialog id="mapa-detalle" aria-labelledby="mapa-detalle-titulo"><div class="mapa-detalle-cabecera"><h2 id="mapa-detalle-titulo"></h2><button id="mapa-cerrar" type="button">Cerrar</button></div><div id="mapa-detalle-contenido"></div></dialog>
 <noscript>Activá JavaScript para ver el mapa. El selector y los datos de las localidades están debajo.</noscript>
 <script id="mapa-litoral-datos" type="application/json">{_json_html(datos)}</script>

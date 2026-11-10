@@ -1,6 +1,7 @@
 """Captura pública de las consultas ECMWF del monitor, sin credenciales.
 
-El monitor publica los valores originales, incluidos los ceros y los nulos.
+El monitor publica los valores válidos, incluidos los ceros reales y los nulos.
+Un valor fuera del dominio de su magnitud se retira, nunca se corrige a cero.
 La captura evita repetir la misma consulta para cada visitante de Streamlit;
 su fecha de consulta nunca se sustituye por la fecha de lectura.
 """
@@ -168,6 +169,41 @@ def unidades_compatibles(variable, unidad):
     return unidad in esperadas
 
 
+def valor_meteorologico_valido(variable, valor, diario=False):
+    """Comprueba el dominio de la magnitud, sin inventar límites climatológicos.
+
+    Un porcentaje, duración o código fuera de su dominio no es un dato
+    utilizable, aunque sea un número finito. Esta comprobación no acredita la
+    exactitud de un pronóstico ni reemplaza sus unidades o fecha de consulta.
+    """
+    if (isinstance(valor, bool) or not isinstance(valor, (int, float))
+            or abs(valor) > 1e12 or not math.isfinite(valor)):
+        return False
+    if variable.startswith("soil_moisture_"):
+        return 0 <= valor <= 1
+    if variable.startswith(("precipitation_probability", "relative_humidity", "cloud_cover")):
+        return 0 <= valor <= 100
+    if variable.startswith("wind_direction"):
+        return 0 <= valor <= 360
+    if variable == "weather_code":
+        return valor in {0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65,
+                         66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 97, 99}
+    if variable == "sunshine_duration":
+        return 0 <= valor <= (86400 if diario else 3600)
+    if variable == "precipitation_hours":
+        return 0 <= valor <= 24
+    if "temperature" in variable or variable == "dew_point_2m":
+        return valor >= -273.15
+    if variable in {"pressure_msl", "surface_pressure"}:
+        return valor > 0
+    if variable.startswith(("wind_speed", "wind_gusts", "cape")) or variable in {
+            "precipitation", "precipitation_sum", "rain", "rain_sum", "showers", "showers_sum",
+            "runoff", "evapotranspiration", "et0_fao_evapotranspiration",
+            "vapour_pressure_deficit", "shortwave_radiation", "shortwave_radiation_sum"}:
+        return valor >= 0
+    return False
+
+
 def validar_coordenadas_respuesta(dato, nodo):
     """Una respuesta con celda identificada debe corresponder al nodo pedido.
 
@@ -230,7 +266,9 @@ def _dato(raw, estricto):
                 valores = bloque[clave]
                 if not isinstance(valores, list) or len(valores) != len(tiempos):
                     _error()
-                limpio[clave] = [None if v is None else _numero(v) for v in valores]
+                numeros = [None if v is None else _numero(v) for v in valores]
+                limpio[clave] = [v if v is None or valor_meteorologico_valido(
+                    clave, v, diario=campo == "daily") else None for v in numeros]
             salida[campo] = limpio
         unidades = campo + "_units"
         if unidades in raw:
@@ -245,7 +283,7 @@ def _dato(raw, estricto):
                     # en un modelo, acompañada por una serie completamente nula.
                     # Conservarla evita perder el resto del pronóstico válido;
                     # nunca se interpreta una magnitud numérica sin unidad.
-                    valores = salida.get(campo, {}).get(clave)
+                    valores = raw.get(campo, {}).get(clave)
                     if (clave == "time" or not isinstance(valores, list) or
                             any(valor is not None for valor in valores)):
                         _error(f"La unidad no disponible de {campo}.{clave} no corresponde a una serie nula.")

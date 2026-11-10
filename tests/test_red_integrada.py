@@ -66,7 +66,7 @@ def panorama():
         "estaciones": {
             "corrientes": {"nombre": "Corrientes", "rio": "Paraná",
                 "altura_m": 2.3, "alerta_m": 6.5, "evacuacion_m": 7.0,
-                "fecha": observed, "fecha_documento": observed,
+                "fecha": observed, "fecha_documento": observed, "precision_fecha": "fecha_hora_publicada",
                 "fuente": "https://alerta.ina.gob.ar/a5/observaciones?seriesId=19",
                 "nivel": "BAJO", "series_id": 19,
                 "pronostico_numerico": [{"fecha": (NOW + timedelta(hours=24)).isoformat(),
@@ -339,11 +339,13 @@ class SharedContract(unittest.TestCase):
         document = red.validar_red_integrada(self.fixture(), referencia=NOW + timedelta(hours=3))
         self.assertTrue(document["snapshot_vigente"])
 
-    def test_six_hour_local_water_boundary_and_one_second_after(self):
+    def test_port_record_with_unconfirmed_measurement_time_is_not_current(self):
         document = self.fixture()
         height = river_of(document, "Zárate")
         height["fecha_observada"] = (NOW - timedelta(hours=6)).isoformat()
-        self.assertTrue(river_of(red.validar_red_integrada(document, referencia=NOW), "Zárate")["observacion_vigente"])
+        checked = river_of(red.validar_red_integrada(document, referencia=NOW), "Zárate")
+        self.assertFalse(checked["observacion_vigente"])
+        self.assertEqual(checked["observacion_estado"], "HORA_MEDICION_NO_CONFIRMADA")
         height["fecha_observada"] = (NOW - timedelta(hours=6, seconds=1)).isoformat()
         checked = river_of(red.validar_red_integrada(document, referencia=NOW), "Zárate")
         self.assertFalse(checked["observacion_vigente"])

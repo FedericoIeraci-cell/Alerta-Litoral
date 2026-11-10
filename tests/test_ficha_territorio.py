@@ -25,6 +25,7 @@ def panorama_fluvial():
     return {'estaciones':{'paso de los libres':{
         'nombre':'Paso de los Libres', 'rio':'Uruguay', 'altura_m':9.28,
         'alerta_m':7.5, 'evacuacion_m':8.5, 'fecha':NOW.isoformat(),
+        'precision_fecha':'fecha_hora_publicada',
         'fuente':'https://alerta.ina.gob.ar/'}},
         'pronosticos':[], 'represas':{}, 'fuentes':[], 'avisos':[], 'smn':{}}
 

@@ -108,6 +108,7 @@ class Horizonte7DiasTests(unittest.TestCase):
         now=app.ahora()
         p={'estaciones':{'paso de los libres':{'nombre':'Paso de los Libres','rio':'Uruguay',
            'altura_m':9.28,'alerta_m':7.5,'evacuacion_m':8.5,'fecha':now.isoformat(),
+           'precision_fecha':'fecha_hora_publicada',
            'fuente':'https://alerta.ina.gob.ar/'}},'pronosticos':[],'represas':{},'avisos':[],'smn':{}}
         with patch.object(app.st,'session_state',{}):
             row=app.integrar_semaforo(app.pd.DataFrame([met]),panorama=p).iloc[0]

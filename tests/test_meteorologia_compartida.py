@@ -111,6 +111,39 @@ class CapturasMeteorologicasTests(unittest.TestCase):
         self.assertEqual(recibido["datos"][0]["hourly"]["precipitation"], [0, None])
         self.assertEqual(recibido["datos"][0]["hourly"]["temperature_2m"], [23.7, 23.3])
 
+    def test_valores_fuera_del_dominio_se_retiraron_sin_inventar_cero(self):
+        raw = datos()
+        raw[0]["hourly"].update(
+            precipitation=[-1, 0], relative_humidity_2m=[101, 0],
+            wind_direction_10m=[-1, 360], weather_code=[4, 97],
+            soil_moisture_0_to_7cm=[1.1, 0], pressure_msl=[0, 1013],
+        )
+        raw[0]["hourly_units"].update(
+            relative_humidity_2m="%", wind_direction_10m="°", weather_code="wmo code",
+            soil_moisture_0_to_7cm="m³/m³", pressure_msl="hPa",
+        )
+        raw[0]["daily"].update(sunshine_duration=[86401], precipitation_hours=[25])
+        raw[0]["daily_units"].update(sunshine_duration="s", precipitation_hours="h")
+        limpia = meteo.crear_captura(NODOS, raw, AHORA)
+        for variable in ("precipitation", "relative_humidity_2m", "wind_direction_10m",
+                         "weather_code", "soil_moisture_0_to_7cm", "pressure_msl"):
+            with self.subTest(variable=variable):
+                self.assertIsNone(limpia["datos"][0]["hourly"][variable][0])
+                self.assertEqual(limpia["datos"][0]["hourly"][variable][1],
+                                 raw[0]["hourly"][variable][1])
+        self.assertEqual(limpia["datos"][0]["daily"]["sunshine_duration"], [None])
+        self.assertEqual(limpia["datos"][0]["daily"]["precipitation_hours"], [None])
+        self.assertEqual(raw[0]["hourly"]["precipitation"], [-1, 0])
+
+    def test_duracion_valida_depende_del_intervalo_y_fallo_total_no_se_publica(self):
+        self.assertTrue(meteo.valor_meteorologico_valido("sunshine_duration", 3600))
+        self.assertFalse(meteo.valor_meteorologico_valido("sunshine_duration", 3601))
+        self.assertTrue(meteo.valor_meteorologico_valido("sunshine_duration", 86400, diario=True))
+        self.assertFalse(meteo.valor_meteorologico_valido("sunshine_duration", 86401, diario=True))
+        with self.assertRaises(meteo.CapturaMeteorologicaError):
+            meteo.crear_captura(NODOS, [{"hourly": {"time": ["2026-10-19T20:00"],
+                "precipitation": [-1]}}, {}], AHORA)
+
     def test_unidad_undefined_solo_admite_series_presentes_y_completamente_nulas(self):
         for campo, variable in (("hourly", "evapotranspiration"), ("daily", "cape_max")):
             raw = datos()

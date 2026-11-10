@@ -24,10 +24,12 @@ def panorama_archivado():
     p['represas'] = {}
     # Alturas exactas del snapshot de las 01:31; la previsión textual es el
     # reporte INA del 14/10 preservado como fixture, nunca una respuesta de red.
+    # Su etiqueta legada de precisión no verifica una hora física de medición.
     for r in HIST['rios']:
         p['estaciones'][h.normalizar(r['estacion'])] = {
             'nombre':r['estacion'],'altura_m':r['altura_m'],'alerta_m':r['alerta_m'],
             'evacuacion_m':r['evacuacion_m'],'fecha':r['fecha_observada_original'],
+            'precision_fecha':'fecha_registro_fuente',
             'fuente':r['fuente'],'fuente_umbrales':h.INA_URL,
         }
     return p
@@ -71,27 +73,33 @@ class TrazabilidadTests(unittest.TestCase):
                 _, evaluar = app.cargar_motor_hidrologico()
                 lectura = evaluar('Reconquista', panorama_archivado(), referencia=NOW)
                 self.assertEqual(h.VERSION_EVIDENCIAS, 1)
-                self.assertEqual(h.VERSION_MOTOR, '2026-10-18.1')
+                self.assertEqual(h.VERSION_MOTOR, '2026-11-10.1')
                 self.assertTrue(lectura['hidrologia_evidencias'])
 
     def test_despliegue_motor_actual_no_necesita_recarga(self):
         with patch.object(h, 'VERSION_EVIDENCIAS', 1), \
-             patch.object(h, 'VERSION_MOTOR', '2026-10-18.1'), \
+             patch.object(h, 'VERSION_MOTOR', '2026-11-10.1'), \
              patch('importlib.reload', side_effect=AssertionError('Motor vigente no se recarga')):
             panorama, evaluar = app.cargar_motor_hidrologico()
             self.assertIs(panorama, h.obtener_panorama)
             self.assertIs(evaluar, h.evaluar_localidad)
 
-    def test_ocho_rojos_con_causa_y_mismo_indice(self):
+    def test_archivo_revalida_causas_sin_renovar_observaciones_antiguas(self):
         tipos = {'Reconquista':'pronostico_fluvial','Corrientes':'pronostico_fluvial',
                  'Goya':'pronostico_fluvial','Resistencia':'pronostico_fluvial',
-                 'Barranqueras':'pronostico_fluvial','Paso de los Libres':'observacion_fluvial',
-                 'Puerto Iguazú':'observacion_fluvial','Andresito':'meteorologia'}
+                 'Barranqueras':'pronostico_fluvial',
+                 'Puerto Iguazú':'meteorologia','Andresito':'meteorologia'}
         for node in HIST['nodos']:
             with self.subTest(node=node['localidad']):
                 row = self.evaluar(node['localidad'],node['indice_experimental'])
-                self.assertEqual(row['nivel'],'ROJO')
                 self.assertEqual(row['indice'],node['indice_experimental'])
+                self.assertFalse(row['hidrologia_vigente'], 'El archivo no renueva lecturas de más de seis horas')
+                self.assertFalse(any(c['tipo']=='observacion_fluvial' for c in row['desencadenantes']))
+                if node['localidad'] == 'Paso de los Libres':
+                    self.assertEqual(row['nivel'], 'SIN DATOS')
+                    self.assertEqual(row['desencadenantes'], [])
+                    continue
+                self.assertEqual(row['nivel'],'ROJO')
                 self.assertEqual(row['desencadenantes'][0]['tipo'],tipos[node['localidad']])
                 self.assertTrue(all(c['rango']==2 for c in row['desencadenantes']))
                 self.assertFalse(any(c['tipo']=='represa' for c in row['desencadenantes']))
@@ -121,7 +129,8 @@ class TrazabilidadTests(unittest.TestCase):
             self.assertIn('18/10/2026',motivo)
             self.assertIn('72 h',motivo)
             self.assertIn(h.INA_URL,mensaje)
-            self.assertIn('4.35 m',mensaje)
+            self.assertNotIn('4.35 m',mensaje, 'La lectura archivada no se publica como evidencia actual')
+            self.assertIn('sin evidencia vigente verificable', mensaje)
             self.assertIn('VERDE',mensaje)
             self.assertNotIn('Yacyretá',motivo)
             app.procesar_alertas_telegram(app.pd.DataFrame([actual]))
@@ -134,9 +143,22 @@ class TrazabilidadTests(unittest.TestCase):
             self.assertEqual(c['fuente'],h.INA_URL)
             self.assertIsNone(c['central_m'])
             self.assertIn('sin altura numérica',row['motivo_principal'])
-            self.assertEqual(row['nivel_hidrologico_observado'],'BAJO')
+            self.assertEqual(row['nivel_hidrologico_observado'],'SIN_DATOS')
+            self.assertFalse(row['hidrologia_vigente'])
             self.assertEqual(c['precision_desde'],'fecha_sin_hora')
             self.assertIn('14/10/2026 · hora no publicada',e.detalle_evidencia(c))
+
+    def test_registro_diario_del_mismo_dia_no_se_promueve_a_lectura_actual(self):
+        p = panorama_archivado()
+        p['pronosticos'] = []
+        p['estaciones']['paso de los libres'].update(
+            fecha=NOW.replace(hour=0, minute=0, second=0).isoformat(),
+            precision_fecha='fecha_sin_hora')
+        row = self.evaluar('Paso de los Libres', indice=27.0, panorama=p)
+        self.assertFalse(row['hidrologia_vigente'])
+        self.assertEqual(row['nivel_hidrologico_observado'], 'SIN_DATOS')
+        self.assertEqual(row['nivel'], 'SIN DATOS')
+        self.assertFalse(any(c['tipo']=='observacion_fluvial' for c in row['desencadenantes']))
 
     def test_sin_fuente_o_fallo_documentado_no_atribuye_causa(self):
         for fuente in (None,'https://noticias.example/crecida','javascript:alert(1)',h.INA_URL):
@@ -171,7 +193,12 @@ class TrazabilidadTests(unittest.TestCase):
         self.assertEqual(row['nivel'],'AMARILLO')
 
     def test_umbral_observado_y_fuente_umbrales_separada(self):
-        row=self.evaluar('Paso de los Libres',indice=27.0)
+        p = panorama_archivado()
+        # Escenario sintético con una medición horaria actual declarada. El
+        # archivo original permanece antiguo en las demás pruebas.
+        p['estaciones']['paso de los libres'].update(
+            fecha=(NOW-timedelta(hours=1)).isoformat(), precision_fecha='fecha_hora_publicada')
+        row=self.evaluar('Paso de los Libres',indice=27.0,panorama=p)
         c=row['desencadenantes'][0]
         self.assertEqual(c['altura_m'],9.37)
         self.assertEqual(c['evacuacion_m'],8.5)
@@ -180,7 +207,12 @@ class TrazabilidadTests(unittest.TestCase):
         self.assertIn('9,37 m',e.hover_nodo(row))
 
     def test_multiples_causas_y_rojo_meteorologico(self):
-        row=self.evaluar('Puerto Iguazú',56.1)
+        p = panorama_archivado()
+        # Dos causas sólo coinciden si la observación horaria del escenario
+        # sintético tiene fecha actual, no por conservar el color del archivo.
+        p['estaciones']['puerto iguazu'].update(
+            fecha=(NOW-timedelta(hours=1)).isoformat(), precision_fecha='fecha_hora_publicada')
+        row=self.evaluar('Puerto Iguazú',56.1,panorama=p)
         self.assertEqual({c['tipo'] for c in row['desencadenantes']},{'observacion_fluvial','meteorologia'})
         row=self.evaluar('Rafaela',60)
         self.assertEqual(row['desencadenantes'][0]['tipo'],'meteorologia')

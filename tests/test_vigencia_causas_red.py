@@ -41,10 +41,49 @@ class VigenciaCausasRedTests(unittest.TestCase):
         self.assertEqual(node_of(checked, "Litoral", "Goya")["nivel_integrado_vigente"], "ROJO")
         node = node_of(document, "Litoral", "Goya")
         segunda = deepcopy(node["desencadenantes"][0])
-        segunda.update(tipo="observacion_fluvial", valida_hasta=(NOW + timedelta(hours=1)).isoformat())
+        segunda.update(tipo="observacion_fluvial", valida_hasta=(NOW + timedelta(hours=1)).isoformat(),
+                       precision_fecha="fecha_hora_publicada", fecha_observada=NOW.isoformat())
         node["desencadenantes"].append(segunda)
         checked = red.validar_red_integrada(document, NOW + timedelta(minutes=11))
         self.assertEqual(node_of(checked, "Litoral", "Goya")["nivel_integrado_vigente"], "ROJO")
+
+    def test_snapshot_que_daba_por_vigente_una_fecha_registro_no_sostiene_alerta(self):
+        for tipo in ("observacion_fluvial", "aguas_arriba"):
+            for precision in (None, "fecha_registro_fuente", "fecha_sin_hora",
+                              "hora_no_verificada_en_reporte_diario"):
+                with self.subTest(tipo=tipo, precision=precision):
+                    document = self.documento(tipo=tipo)
+                    node = node_of(document, "Litoral", "Goya")
+                    for campo in ("desencadenantes", "evidencias_alerta"):
+                        node[campo][0].update(precision_fecha=precision, fecha_observada=NOW.isoformat())
+                    checked = red.validar_red_integrada(document, NOW)
+                    verified = node_of(checked, "Litoral", "Goya")
+                    self.assertEqual(verified["nivel_integrado_vigente"], "SIN DATOS")
+                    self.assertEqual(verified["nivel_vigente"], "SIN DATOS")
+                    self.assertFalse(verified["desencadenantes"][0]["vigente"])
+
+    def test_hora_publicada_sin_verificacion_no_sostiene_alerta(self):
+        document = self.documento(tipo="observacion_fluvial")
+        node = node_of(document, "Litoral", "Goya")
+        for campo in ("desencadenantes", "evidencias_alerta"):
+            node[campo][0].update(precision_fecha="fecha_hora_publicada",
+                fecha_observada=NOW.isoformat(), verificada=None)
+        checked = red.validar_red_integrada(document, NOW)
+        self.assertEqual(node_of(checked, "Litoral", "Goya")["nivel_integrado_vigente"], "SIN DATOS")
+
+    def test_observacion_confirmada_limite_seis_horas_y_nunca_futura(self):
+        for desplazamiento, vigente in ((timedelta(hours=-6), True),
+                                        (timedelta(hours=-6, seconds=-1), False),
+                                        (timedelta(seconds=1), False)):
+            with self.subTest(desplazamiento=desplazamiento):
+                document = self.documento(tipo="observacion_fluvial")
+                node = node_of(document, "Litoral", "Goya")
+                for campo in ("desencadenantes", "evidencias_alerta"):
+                    node[campo][0].update(precision_fecha="fecha_hora_publicada",
+                        fecha_observada=(NOW + desplazamiento).isoformat())
+                checked = red.validar_red_integrada(document, NOW)
+                verified = node_of(checked, "Litoral", "Goya")
+                self.assertEqual(verified["nivel_integrado_vigente"], "ROJO" if vigente else "SIN DATOS")
 
     def test_una_evidencia_de_menor_rango_no_sostiene_el_rojo_anterior(self):
         document = self.documento()

@@ -274,6 +274,7 @@ def _rio_automatico_zarate(observacion, referencia=None):
                cero_ign_m=dato.get("cero_ign_m"), error=dato.get("error") or "",
                error_pronostico="La previsión local se muestra por separado; esta fila identifica la medición automática.",
                observacion_automatica=dato, zona_horaria_verificada=bool(dato.get("fecha_observada")),
+               precision_observada="fecha_hora_publicada", fecha_medicion_confirmada=True,
                tipo_observacion="Estación automática RHN / INA")
     return rio
 
@@ -613,7 +614,7 @@ def _normalizar_rio_ala(key, item):
     observada = _iso(item.get("fecha"))
     # El lector anterior del reporte diario puede normalizar sólo una fecha a
     # medianoche ART. Esa normalización no acredita hora observada publicada.
-    precision = item.get("precision_fecha") or "fecha_hora_publicada"
+    precision = item.get("precision_fecha") or "precision_no_confirmada"
     if "/diario/reporte_diario" in fuente:
         precision = "hora_no_verificada_en_reporte_diario"
     return {"red": "Litoral", "estacion": _texto(item.get("nombre") or key), "serie_observada": item.get("series_id"),
@@ -774,7 +775,18 @@ def validar_red_integrada(payload, referencia=None):
                     raise ValueError("Evidencia no válida")
                 limite_publicado = e.get("valida_hasta") or e.get("hasta")
                 limite = _fecha(limite_publicado)
-                e["vigente"] = bool(e.get("vigente") is True and integrada_vigente
+                observacion_confirmada = True
+                if e.get("tipo") in {"observacion_fluvial", "aguas_arriba"}:
+                    # Los snapshots previos contaban la fecha del registro INA
+                    # como hora de medición. Releerlos no acredita esa hora.
+                    observacion_confirmada = bool(
+                        e.get("precision_fecha") == "fecha_hora_publicada"
+                        and e.get("fecha_medicion_confirmada") is not False
+                        and _fecha(e.get("fecha_observada")) is not None
+                        and _fecha(e.get("fecha_observada")) <= ref
+                        and _estado_fecha(e.get("fecha_observada"), ref, 6)["vigente"])
+                e["vigente"] = bool(e.get("vigente") is True and e.get("verificada") is True
+                    and observacion_confirmada and integrada_vigente
                     and (e.get("tipo") != "meteorologia" or node["vigente"])
                     and (not limite_publicado or limite is not None and ref <= limite))
             node[campo] = evidencias
@@ -783,11 +795,14 @@ def validar_red_integrada(payload, referencia=None):
         # color. Sin un desencadenante vigente del mismo rango, no se deduce un
         # color menor: faltan una evaluación y una cobertura actuales.
         rango = {"VERDE": 0, "AMARILLO": 1, "ROJO": 2}.get(node["nivel_integrado_vigente"])
-        causa_vigente = any(e.get("vigente") is True and e.get("verificada") is not False
+        causa_vigente = any(e.get("vigente") is True and e.get("verificada") is True
             and e.get("rango", rango) == rango for e in node["desencadenantes"])
         causa_vencida = bool(node.get("explicacion_version") == 1 and rango is not None and not causa_vigente)
         if causa_vencida:
             node["nivel_integrado_vigente"] = "SIN DATOS"
+        # El alias anterior también representa la evaluación integrada. No
+        # conserva un rojo/amarillo que el contrato actual acaba de descartar.
+        node["nivel_vigente"] = node["nivel_integrado_vigente"]
         node["explicacion_estado"] = ("Evaluación histórica; revisar vigencia de cada evidencia" if not integrada_vigente
             else "Desencadenantes sin vigencia; falta una evaluación integrada actual" if causa_vencida
             else "Trazabilidad disponible" if node.get("explicacion_version") == 1 else "Informe anterior sin desencadenante estructurado")
@@ -819,7 +834,14 @@ def validar_red_integrada(payload, referencia=None):
             rio["fecha_medicion_confirmada"] = False
         for field in ("altura_m", "alerta_m", "evacuacion_m", "cero_ign_m"):
             rio[field] = _numero(rio.get(field), -10, 100)
-        temporal = _estado_fecha(rio.get("fecha_observada"), ref, 6 if rio.get("red") == "Zárate–Campana" else 48)
+        temporal = _estado_fecha(rio.get("fecha_observada"), ref, 6)
+        fecha_observada = _fecha(rio.get("fecha_observada"))
+        if fecha_observada is not None and fecha_observada > ref:
+            temporal.update(vigente=False, estado_tiempo="FECHA_FUTURA")
+        hora_confirmada = (rio.get("precision_observada") == "fecha_hora_publicada"
+                           and rio.get("fecha_medicion_confirmada") is not False)
+        if not hora_confirmada and temporal["vigente"]:
+            temporal.update(vigente=False, estado_tiempo="HORA_MEDICION_NO_CONFIRMADA")
         rio.update(edad_observada_horas=temporal["edad_horas"], observacion_estado=temporal["estado_tiempo"],
                    observacion_vigente=temporal["vigente"] and out["snapshot_vigente"] and rio["altura_m"] is not None)
         if es_automatica:
@@ -1148,6 +1170,7 @@ def estado_publico(estado, vigente, informe_vigente=True, error=""):
         return "Dentro del plazo de uso"
     return {"VENCIDO": "Dato antiguo: no confirma la situación actual",
             "FECHA_FUTURA": "Fecha inconsistente: no usar como dato actual",
+            "HORA_MEDICION_NO_CONFIRMADA": "Hora de medición sin confirmar: antecedente sin vigencia actual",
             "SIN_FECHA_HORA_VERIFICADA": "Fecha u hora sin verificar"}.get(estado, "Situación actual sin confirmar")
 
 
