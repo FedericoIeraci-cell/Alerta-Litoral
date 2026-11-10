@@ -1,0 +1,34 @@
+name: Preparar revision de datos verificables
+on:
+  push:
+    branches: ['codex/ala-datos-verificados-20261110']
+    paths: ['scripts/ala_revision_20261110.patch.b64']
+permissions:
+  contents: write
+jobs:
+  preparar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+      - name: Aplicar revision comprobada y retirar preparacion
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib, subprocess
+          path = Path('scripts/ala_revision_20261110.patch.b64')
+          patch = gzip.decompress(base64.b64decode(path.read_text()))
+          assert hashlib.sha256(patch).hexdigest() == '542b69cdfdb0024168f7b528198ee5f6da39892b53b4dc80e31285cc785e2600'
+          subprocess.run(['git', 'apply', '--check', '-'], input=patch, check=True)
+          subprocess.run(['git', 'apply', '-'], input=patch, check=True)
+          path.unlink()
+          Path('.github/workflows/ala-preparar-revision.yml').unlink()
+          PY
+          python3 -m py_compile app.py pagina_confiable.py hidrologia.py hidro_actual.py meteorologia_compartida.py red_integrada.py mapa_litoral.py
+          git diff --check
+          git add -A
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Mostrar solo datos validos y retirar evaluaciones sin respaldo'
+          git push origin HEAD:refs/heads/codex/ala-datos-verificados-20261110
