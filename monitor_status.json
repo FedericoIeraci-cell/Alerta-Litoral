@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-13T22:30:07.738740+00:00",
-  "checked_at_art": "2026-11-13T19:30:07.738740-03:00",
+  "checked_at": "2026-11-14T03:03:47.268600+00:00",
+  "checked_at_art": "2026-11-14T00:03:47.268600-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 38,
-  "nodes_red": 1,
-  "nodes_invalid": 10,
-  "nodes_yellow": 18,
-  "nodes_green": 19,
+  "nodes_valid": 45,
+  "nodes_red": 5,
+  "nodes_invalid": 3,
+  "nodes_yellow": 37,
+  "nodes_green": 3,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -37,16 +37,31 @@
     "configurado": true,
     "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 1,
-    "omitidas": 0,
+    "pendientes": 5,
+    "omitidas": 4,
     "inicializadas": 0,
-    "sin_datos": 17,
+    "sin_datos": 7,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "9f85f77cd250",
+      "creado": "2026-11-14T03:03:47.268951+00:00",
+      "intento": "2026-11-14T03:03:47.268951+00:00",
+      "localidad": "La Paz",
+      "provincia": "Entre Ríos",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Previsión fluvial en La Paz: posible superación del umbral de evacuación (6,15 m) para el punto publicado 17/11/2026 00:00 ART; escenario central 6,20 m; bandas 5,80–6,40 m. Entra en la ventana de preparación de 72 h según la fecha publicada. La previsión antes en prealerta ahora está dentro de la ventana de 72 h; esto no demuestra una subida observada del río. Índice meteorológico: 9,8 → 8,6/100; se evalúa por separado.",
+      "indice_anterior": 9.8,
+      "indice": 8.6,
+      "estado": "enviado",
+      "message_id": 146,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "aa1192b64a5b",
       "creado": "2026-11-13T22:30:07.739189+00:00",
@@ -481,21 +496,6 @@
       "message_id": 117,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "fdfca16b213b",
-      "creado": "2026-11-01T16:45:06.486451+00:00",
-      "intento": "2026-11-01T16:45:06.486451+00:00",
-      "localidad": "Barranqueras",
-      "provincia": "Chaco",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 13.3 puntos. Río observado en Barranqueras: 7,02 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 20,1 → 33,4/100; se evalúa por separado.",
-      "indice_anterior": 20.1,
-      "indice": 33.4,
-      "estado": "enviado",
-      "message_id": 118,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -509,27 +509,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 325544,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "c7bce1fc9ad0bfcf92d9c81ac252c84d50924abf",
-    "commit_sha": "680f2fc8a5157e3564a880ce12dda782f69b36fc",
-    "bytes": 325544,
-    "generated_at": "2026-11-13T22:30:13.312851+00:00",
-    "verified_at": "2026-11-13T22:30:14.872446+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "aba927a84a81ee4f0ee32f7c152d74b66907cb22",
-    "commit_sha": "b1b2a325f55edee93b5d0acd5b31fb2f64364ca0",
-    "bytes": 1227910,
-    "consultado": "2026-11-13T22:30:01.885816+00:00",
-    "verified_at": "2026-11-13T22:30:21.164247+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
