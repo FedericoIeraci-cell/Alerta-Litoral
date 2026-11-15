@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-15T01:45:38.795730+00:00",
-  "checked_at_art": "2026-11-14T22:45:38.795730-03:00",
+  "checked_at": "2026-11-15T09:11:53.472810+00:00",
+  "checked_at_art": "2026-11-15T06:11:53.472810-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 43,
-  "nodes_red": 5,
-  "nodes_invalid": 5,
-  "nodes_yellow": 31,
-  "nodes_green": 7,
+  "nodes_valid": 23,
+  "nodes_red": 0,
+  "nodes_invalid": 25,
+  "nodes_yellow": 4,
+  "nodes_green": 19,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 48,
+      "vigentes": 47,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 14,
+      "vigentes": 5,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 18,
+      "vigentes": 4,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -37,10 +37,10 @@
     "configurado": true,
     "enviadas": 0,
     "fallidas": 0,
-    "pendientes": 5,
-    "omitidas": 5,
+    "pendientes": 0,
+    "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 9,
+    "sin_datos": 25,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -501,34 +501,18 @@
   "health": "datos_parciales",
   "ok": false,
   "errors": [
+    "47/48 puntos aplicables con meteorología completa.",
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
-    "14/29 puntos aplicables con pronóstico fluvial vigente.",
-    "18/20 puntos aplicables con información vigente de represas.",
+    "5/29 puntos aplicables con pronóstico fluvial vigente.",
+    "4/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 390987,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "2842bc1039eedc2593beb112d5e38c18257394e6",
-    "commit_sha": "9a2b238d26851216e50832989fc5f512b923f604",
-    "bytes": 390987,
-    "generated_at": "2026-11-15T01:45:40.956867+00:00",
-    "verified_at": "2026-11-15T01:45:42.464680+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "107175602b771755525d1cfd25416b8f48e39c09",
-    "commit_sha": "59e012989f9c8c4daf741fb0b35c2a8fdb98d218",
-    "bytes": 1227722,
-    "consultado": "2026-11-15T01:45:32.621307+00:00",
-    "verified_at": "2026-11-15T01:45:48.576564+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
