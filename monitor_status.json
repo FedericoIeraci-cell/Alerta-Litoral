@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-18T12:56:48.782662+00:00",
-  "checked_at_art": "2026-11-18T09:56:48.782662-03:00",
+  "checked_at": "2026-11-18T21:20:23.666778+00:00",
+  "checked_at_art": "2026-11-18T18:20:23.666778-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
+  "nodes_valid": 40,
   "nodes_red": 0,
-  "nodes_invalid": 3,
-  "nodes_yellow": 38,
-  "nodes_green": 7,
+  "nodes_invalid": 8,
+  "nodes_yellow": 23,
+  "nodes_green": 17,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -40,7 +40,7 @@
     "pendientes": 0,
     "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 12,
+    "sin_datos": 16,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 437903,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "f2e80096511df3f64818e91dbcc695fa37678443",
-    "commit_sha": "db364e5500f748f9572c0695f618b6e767bb18c1",
-    "bytes": 437903,
-    "generated_at": "2026-11-18T12:56:51.094180+00:00",
-    "verified_at": "2026-11-18T12:56:52.872859+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "02530b4efb0ae73cdbe76a39302d9ff20b3f881a",
-    "commit_sha": "f9b627771a18537ffe8a1c99792c8a1bcb34e1f1",
-    "bytes": 1225970,
-    "consultado": "2026-11-18T12:56:41.250906+00:00",
-    "verified_at": "2026-11-18T12:56:58.683767+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
