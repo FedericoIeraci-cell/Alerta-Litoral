@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-17T21:43:56.055154+00:00",
-  "checked_at_art": "2026-11-17T18:43:56.055154-03:00",
+  "checked_at": "2026-11-18T03:38:07.373831+00:00",
+  "checked_at_art": "2026-11-18T00:38:07.373831-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 42,
+  "nodes_valid": 45,
   "nodes_red": 0,
-  "nodes_invalid": 6,
+  "nodes_invalid": 3,
   "nodes_yellow": 37,
-  "nodes_green": 5,
+  "nodes_green": 8,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 47,
+      "vigentes": 48,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -21,7 +21,7 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 6,
+      "vigentes": 14,
       "aplicables": 29
     },
     "represas": {
@@ -501,35 +501,17 @@
   "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "47/48 puntos aplicables con meteorología completa.",
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
-    "6/29 puntos aplicables con pronóstico fluvial vigente.",
+    "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 334700,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "98115de2b97b5654023883492847985762393868",
-    "commit_sha": "29d973f3ac3663a00195a0f5ecd479b71923b29f",
-    "bytes": 334700,
-    "generated_at": "2026-11-17T21:43:58.777513+00:00",
-    "verified_at": "2026-11-17T21:44:00.578255+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "c5e2e7c82638f17423413fd6ba2f470a7273d6e9",
-    "commit_sha": "586834649fac65818b1ef73243254743b88b7d66",
-    "bytes": 1206682,
-    "consultado": "2026-11-17T21:43:51.374036+00:00",
-    "verified_at": "2026-11-17T21:44:07.143246+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
