@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-19T03:12:54.544789+00:00",
-  "checked_at_art": "2026-11-19T00:12:54.544789-03:00",
+  "checked_at": "2026-11-19T12:52:08.160283+00:00",
+  "checked_at_art": "2026-11-19T09:52:08.160283-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 41,
+  "nodes_valid": 35,
   "nodes_red": 0,
-  "nodes_invalid": 7,
-  "nodes_yellow": 39,
-  "nodes_green": 2,
+  "nodes_invalid": 13,
+  "nodes_yellow": 35,
+  "nodes_green": 0,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 24,
+      "vigentes": 0,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -40,7 +40,7 @@
     "pendientes": 0,
     "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 16,
+    "sin_datos": 22,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -501,7 +501,7 @@
   "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "24/48 puntos aplicables con meteorología completa.",
+    "0/48 puntos aplicables con meteorología completa.",
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
     "6/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
@@ -510,27 +510,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 378265,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "17c6441b90a868507438c4c040eb4a5e8adee9ac",
-    "commit_sha": "24602f3bf210a71561e3a35849527bdfa680be64",
-    "bytes": 378265,
-    "generated_at": "2026-11-19T03:12:57.010277+00:00",
-    "verified_at": "2026-11-19T03:12:59.016355+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "19f8a45bfa521ebe6492a350c43e99d75b47c056",
-    "commit_sha": "19d5addcb207e7a72c278cd8d6f2b1577ebeacaa",
-    "bytes": 605086,
-    "consultado": "2026-11-19T03:12:11.816226+00:00",
-    "verified_at": "2026-11-19T03:13:03.083578+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
