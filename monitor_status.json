@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-19T12:52:08.160283+00:00",
-  "checked_at_art": "2026-11-19T09:52:08.160283-03:00",
+  "checked_at": "2026-11-19T21:23:19.026224+00:00",
+  "checked_at_art": "2026-11-19T18:23:19.026224-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 35,
+  "nodes_valid": 46,
   "nodes_red": 0,
-  "nodes_invalid": 13,
-  "nodes_yellow": 35,
-  "nodes_green": 0,
+  "nodes_invalid": 2,
+  "nodes_yellow": 38,
+  "nodes_green": 8,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 0,
+      "vigentes": 48,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -29,7 +29,7 @@
       "aplicables": 20
     },
     "avisos_smn": {
-      "vigentes": 0,
+      "vigentes": 48,
       "aplicables": 48
     }
   },
@@ -40,7 +40,7 @@
     "pendientes": 0,
     "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 22,
+    "sin_datos": 11,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
@@ -498,36 +498,20 @@
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "0/48 puntos aplicables con meteorología completa.",
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
     "6/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
-    "0/48 puntos aplicables con cobertura vigente del canal de avisos SMN.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Meteorología compartida: fallo en preparacion (captura_no_valida)."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
   "meteorologia_publicada": false,
-  "meteorologia_estado": "error",
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 342011,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "3e65f850c55e3f8c8175ad7e5e5064d8eb260583",
-    "commit_sha": "478ed6bbb8b4cabd08f8764ae12bbe2ede1268a2",
-    "bytes": 342011,
-    "generated_at": "2026-11-19T12:52:11.165584+00:00",
-    "verified_at": "2026-11-19T12:52:13.959940+00:00"
-  },
-  "meteorologia_error": "Meteorología compartida: fallo en preparacion (captura_no_valida).",
-  "meteorologia_etapa": "preparacion",
-  "meteorologia_error_codigo": "captura_no_valida",
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
