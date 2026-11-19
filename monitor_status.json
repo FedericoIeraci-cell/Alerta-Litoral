@@ -510,10 +510,27 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": false,
-  "red_integrada_estado": "pendiente",
-  "meteorologia_publicada": false,
-  "meteorologia_estado": "pendiente",
+  "red_integrada_publicada": true,
+  "red_integrada_estado": "verificada",
+  "meteorologia_publicada": true,
+  "meteorologia_estado": "verificada",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente"
+  "meteorologia_zc_estado": "proceso_independiente",
+  "red_integrada_bytes": 378265,
+  "red_integrada_limite_bytes": 2000000,
+  "red_integrada_confirmacion": {
+    "sha": "17c6441b90a868507438c4c040eb4a5e8adee9ac",
+    "commit_sha": "24602f3bf210a71561e3a35849527bdfa680be64",
+    "bytes": 378265,
+    "generated_at": "2026-11-19T03:12:57.010277+00:00",
+    "verified_at": "2026-11-19T03:12:59.016355+00:00"
+  },
+  "meteorologia_confirmacion": {
+    "sha": "19f8a45bfa521ebe6492a350c43e99d75b47c056",
+    "commit_sha": "19d5addcb207e7a72c278cd8d6f2b1577ebeacaa",
+    "bytes": 605086,
+    "consultado": "2026-11-19T03:12:11.816226+00:00",
+    "verified_at": "2026-11-19T03:13:03.083578+00:00"
+  },
+  "health_evaluacion": "datos_parciales"
 }
