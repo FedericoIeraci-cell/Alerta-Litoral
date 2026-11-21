@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-20T19:58:55.733994+00:00",
-  "checked_at_art": "2026-11-20T16:58:55.733994-03:00",
+  "checked_at": "2026-11-21T01:22:50.606317+00:00",
+  "checked_at_art": "2026-11-20T22:22:50.606317-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 46,
+  "nodes_valid": 44,
   "nodes_red": 1,
-  "nodes_invalid": 2,
-  "nodes_yellow": 41,
-  "nodes_green": 4,
+  "nodes_invalid": 4,
+  "nodes_yellow": 27,
+  "nodes_green": 16,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -21,7 +21,7 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 6,
+      "vigentes": 14,
       "aplicables": 29
     },
     "represas": {
@@ -29,7 +29,7 @@
       "aplicables": 20
     },
     "avisos_smn": {
-      "vigentes": 48,
+      "vigentes": 0,
       "aplicables": 48
     }
   },
@@ -40,13 +40,28 @@
     "pendientes": 1,
     "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 11,
+    "sin_datos": 13,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "4b64cf46e533",
+      "creado": "2026-11-21T01:22:50.606706+00:00",
+      "intento": "2026-11-21T01:22:50.606706+00:00",
+      "localidad": "Pirané",
+      "provincia": "Formosa",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 59,6/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 51,6 → 59,6/100; se evalúa por separado.",
+      "indice_anterior": 51.6,
+      "indice": 59.6,
+      "estado": "enviado",
+      "message_id": 148,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "50da0323dddc",
       "creado": "2026-11-20T19:58:55.734465+00:00",
@@ -481,54 +496,23 @@
       "message_id": 121,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "7e72ac9da60b",
-      "creado": "2026-11-01T16:45:06.486451+00:00",
-      "intento": "2026-11-01T16:45:06.486451+00:00",
-      "localidad": "Corrientes",
-      "provincia": "Corrientes",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 12.0 puntos. Río observado en Corrientes: 7,16 m, supera o alcanza el umbral de evacuación (7,00 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 24,1 → 36,1/100; se evalúa por separado.",
-      "indice_anterior": 24.1,
-      "indice": 36.1,
-      "estado": "enviado",
-      "message_id": 116,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
   "ok": false,
   "errors": [
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
-    "6/29 puntos aplicables con pronóstico fluvial vigente.",
+    "14/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
+    "0/48 puntos aplicables con cobertura vigente del canal de avisos SMN.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 378116,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "a90ac5396890a6a0a7e4a4cb80234b8ce3395175",
-    "commit_sha": "4a9e443b5426dabc00b01fbce84a734753618a8c",
-    "bytes": 378116,
-    "generated_at": "2026-11-20T19:59:01.411196+00:00",
-    "verified_at": "2026-11-20T19:59:03.277111+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "31bb28a6c4792c561b5989e09c9322cdf2d904d1",
-    "commit_sha": "cf1514047a44ae624ec79685520aa743e2e08276",
-    "bytes": 1226298,
-    "consultado": "2026-11-20T19:58:52.204180+00:00",
-    "verified_at": "2026-11-20T19:59:09.468005+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
