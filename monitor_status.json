@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-24T05:55:08.661538+00:00",
-  "checked_at_art": "2026-11-24T02:55:08.661538-03:00",
+  "checked_at": "2026-11-24T17:29:30.408740+00:00",
+  "checked_at_art": "2026-11-24T14:29:30.408740-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 45,
-  "nodes_red": 0,
-  "nodes_invalid": 3,
-  "nodes_yellow": 44,
-  "nodes_green": 1,
+  "nodes_valid": 42,
+  "nodes_red": 1,
+  "nodes_invalid": 6,
+  "nodes_yellow": 36,
+  "nodes_green": 5,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -21,11 +21,11 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 5,
+      "vigentes": 6,
       "aplicables": 29
     },
     "represas": {
-      "vigentes": 4,
+      "vigentes": 18,
       "aplicables": 20
     },
     "avisos_smn": {
@@ -35,9 +35,9 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 0,
+    "pendientes": 1,
     "omitidas": 0,
     "inicializadas": 0,
     "sin_datos": 12,
@@ -47,6 +47,21 @@
     "registro_error": false
   },
   "history": [
+    {
+      "id": "dddd073de3f1",
+      "creado": "2026-11-24T17:29:30.409093+00:00",
+      "intento": "2026-11-24T17:29:30.409093+00:00",
+      "localidad": "Posadas",
+      "provincia": "Misiones",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 73,5/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 41,4 → 73,5/100; se evalúa por separado.",
+      "indice_anterior": 41.4,
+      "indice": 73.5,
+      "estado": "enviado",
+      "message_id": 152,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "2da459362f75",
       "creado": "2026-11-22T18:26:56.765403+00:00",
@@ -481,54 +496,22 @@
       "message_id": 123,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "526a4f79ed03",
-      "creado": "2026-11-02T07:36:12.489410+00:00",
-      "intento": "2026-11-02T07:36:12.489410+00:00",
-      "localidad": "Barranqueras",
-      "provincia": "Chaco",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 12.7 puntos. Río observado en Barranqueras: 7,02 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 01/11/2026 · hora de medición no confirmada. Índice meteorológico: 17,2 → 29,9/100; se evalúa por separado.",
-      "indice_anterior": 17.2,
-      "indice": 29.9,
-      "estado": "enviado",
-      "message_id": 124,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
   "ok": false,
   "errors": [
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
-    "5/29 puntos aplicables con pronóstico fluvial vigente.",
-    "4/20 puntos aplicables con información vigente de represas.",
+    "6/29 puntos aplicables con pronóstico fluvial vigente.",
+    "18/20 puntos aplicables con información vigente de represas.",
     "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 404121,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "66c66e3ffb21d8064fcdbfc319ddffe44523e468",
-    "commit_sha": "35a642e8a3a21a06498712d183fe189d110da9cf",
-    "bytes": 404121,
-    "generated_at": "2026-11-24T05:55:12.079707+00:00",
-    "verified_at": "2026-11-24T05:55:14.736581+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "007685bc31c3e5bb8adc566c7d56cedadaf8d654",
-    "commit_sha": "726ec13d5630e56c426fcc9084bd0ac7831d7a16",
-    "bytes": 1215606,
-    "consultado": "2026-11-24T05:55:05.097668+00:00",
-    "verified_at": "2026-11-24T05:55:20.431846+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
