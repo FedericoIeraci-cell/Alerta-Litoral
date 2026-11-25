@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-25T12:35:53.504866+00:00",
-  "checked_at_art": "2026-11-25T09:35:53.504866-03:00",
+  "checked_at": "2026-11-25T22:24:16.018287+00:00",
+  "checked_at_art": "2026-11-25T19:24:16.018287-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 41,
-  "nodes_red": 6,
-  "nodes_invalid": 7,
-  "nodes_yellow": 19,
+  "nodes_valid": 45,
+  "nodes_red": 2,
+  "nodes_invalid": 3,
+  "nodes_yellow": 27,
   "nodes_green": 16,
   "configured_nodes": 48,
   "coverage": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 2,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 6,
-    "omitidas": 4,
+    "pendientes": 2,
+    "omitidas": 1,
     "inicializadas": 0,
-    "sin_datos": 16,
+    "sin_datos": 12,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "1678bddc65c8",
+      "creado": "2026-11-25T22:24:16.018628+00:00",
+      "intento": "2026-11-25T22:24:16.018628+00:00",
+      "localidad": "Puerto Iguazú",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 11.3 puntos. Índice meteorológico 59,3/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 70,6 → 59,3/100; se evalúa por separado.",
+      "indice_anterior": 70.6,
+      "indice": 59.3,
+      "estado": "enviado",
+      "message_id": 160,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "18569946d776",
       "creado": "2026-11-25T12:35:53.505312+00:00",
@@ -481,21 +496,6 @@
       "message_id": 129,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "df51392e20e6",
-      "creado": "2026-11-04T14:20:22.945433+00:00",
-      "intento": "2026-11-04T14:20:22.945433+00:00",
-      "localidad": "Eldorado",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 77,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 40,1 → 77,0/100; se evalúa por separado.",
-      "indice_anterior": 40.1,
-      "indice": 77.0,
-      "estado": "enviado",
-      "message_id": 130,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 355499,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "f6676a24bf42b04886e03026f971cbd4c5ff7889",
-    "commit_sha": "9b884c2d75ad4e7c74f167ad86ebaf97b4da08bc",
-    "bytes": 355499,
-    "generated_at": "2026-11-25T12:36:03.402631+00:00",
-    "verified_at": "2026-11-25T12:36:05.956010+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "12692bb7a00c6e4ec1a33425998bd6ef2ed004d0",
-    "commit_sha": "9efeab713660aa6211f55b8ffa7fcf118265f987",
-    "bytes": 1228190,
-    "consultado": "2026-11-25T12:35:49.315838+00:00",
-    "verified_at": "2026-11-25T12:36:12.294865+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
