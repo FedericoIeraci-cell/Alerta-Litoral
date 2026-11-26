@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-26T04:55:05.600267+00:00",
-  "checked_at_art": "2026-11-26T01:55:05.600267-03:00",
+  "checked_at": "2026-11-26T14:58:57.266719+00:00",
+  "checked_at_art": "2026-11-26T11:58:57.266719-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 46,
-  "nodes_red": 2,
-  "nodes_invalid": 2,
-  "nodes_yellow": 29,
-  "nodes_green": 15,
+  "nodes_valid": 45,
+  "nodes_red": 1,
+  "nodes_invalid": 3,
+  "nodes_yellow": 28,
+  "nodes_green": 16,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 2,
-    "omitidas": 2,
+    "pendientes": 1,
+    "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 11,
+    "sin_datos": 12,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "52145c07d89a",
+      "creado": "2026-11-26T14:58:57.267059+00:00",
+      "intento": "2026-11-26T14:58:57.267059+00:00",
+      "localidad": "San Vicente",
+      "provincia": "Misiones",
+      "tipo": "ACTUALIZACIÓN DE ALERTA",
+      "motivo": "Permanece ROJO; el índice meteorológico bajó 13.7 puntos. Índice meteorológico 56,9/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 70,6 → 56,9/100; se evalúa por separado.",
+      "indice_anterior": 70.6,
+      "indice": 56.9,
+      "estado": "enviado",
+      "message_id": 161,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "1678bddc65c8",
       "creado": "2026-11-25T22:24:16.018628+00:00",
@@ -481,21 +496,6 @@
       "message_id": 128,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "de8dfbf06f45",
-      "creado": "2026-11-04T14:20:22.945433+00:00",
-      "intento": "2026-11-04T14:20:22.945433+00:00",
-      "localidad": "Resistencia",
-      "provincia": "Chaco",
-      "tipo": "ACTUALIZACIÓN DE ALERTA",
-      "motivo": "Permanece ROJO; el índice meteorológico subió 14.0 puntos. Río observado en Barranqueras: 6,90 m, supera o alcanza el umbral de evacuación (6,50 m). Lectura 04/11/2026 · hora de medición no confirmada. Índice meteorológico: 17,2 → 31,2/100; se evalúa por separado.",
-      "indice_anterior": 17.2,
-      "indice": 31.2,
-      "estado": "enviado",
-      "message_id": 129,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
   "health": "datos_parciales",
@@ -508,27 +508,10 @@
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
-  "meteorologia_publicada": true,
-  "meteorologia_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
+  "meteorologia_publicada": false,
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 304035,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "683ae608b4174c06a9683c0bab4e618715fb6a07",
-    "commit_sha": "9fa9d669b21248a6d9d30dfea8da5ea0c4e8601e",
-    "bytes": 304035,
-    "generated_at": "2026-11-26T04:55:08.345364+00:00",
-    "verified_at": "2026-11-26T04:55:10.216535+00:00"
-  },
-  "meteorologia_confirmacion": {
-    "sha": "d1c59ad64d82d1cacfe7b673186af70fc927875d",
-    "commit_sha": "46780100bd8e38f4a0088f3b584f8d5332282ae1",
-    "bytes": 1180502,
-    "consultado": "2026-11-26T04:55:03.671618+00:00",
-    "verified_at": "2026-11-26T04:55:15.262391+00:00"
-  },
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
