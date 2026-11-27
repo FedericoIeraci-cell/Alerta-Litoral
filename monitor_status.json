@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-11-27T08:08:20.609774+00:00",
-  "checked_at_art": "2026-11-27T05:08:20.609774-03:00",
+  "checked_at": "2026-11-27T18:08:06.648202+00:00",
+  "checked_at_art": "2026-11-27T15:08:06.648202-03:00",
   "frequency_minutes": 60,
   "scope": "Meteorología + hidrología + represas",
   "nodes_total": 48,
-  "nodes_valid": 23,
-  "nodes_red": 0,
-  "nodes_invalid": 25,
-  "nodes_yellow": 23,
-  "nodes_green": 0,
+  "nodes_valid": 46,
+  "nodes_red": 1,
+  "nodes_invalid": 2,
+  "nodes_yellow": 31,
+  "nodes_green": 14,
   "configured_nodes": 48,
   "coverage": {
     "meteorologia": {
-      "vigentes": 0,
+      "vigentes": 48,
       "aplicables": 48
     },
     "hidrologia_observada": {
@@ -21,7 +21,7 @@
       "aplicables": 29
     },
     "hidrologia_prevista": {
-      "vigentes": 6,
+      "vigentes": 10,
       "aplicables": 29
     },
     "represas": {
@@ -35,18 +35,33 @@
   },
   "result": {
     "configurado": true,
-    "enviadas": 0,
+    "enviadas": 1,
     "fallidas": 0,
-    "pendientes": 0,
+    "pendientes": 1,
     "omitidas": 0,
     "inicializadas": 0,
-    "sin_datos": 34,
+    "sin_datos": 11,
     "atrasadas": 0,
     "inciertas": 0,
     "pausado_sesion": false,
     "registro_error": false
   },
   "history": [
+    {
+      "id": "842e56ff89cb",
+      "creado": "2026-11-27T18:08:06.648685+00:00",
+      "intento": "2026-11-27T18:08:06.648685+00:00",
+      "localidad": "Santo Tomé",
+      "provincia": "Corrientes",
+      "tipo": "ALERTA NUEVA",
+      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 76,0/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: Sin dato → 76,0/100; se evalúa por separado.",
+      "indice_anterior": null,
+      "indice": 76.0,
+      "estado": "enviado",
+      "message_id": 163,
+      "intentos": 1,
+      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
+    },
     {
       "id": "dbfd180c68a0",
       "creado": "2026-11-26T23:43:27.279752+00:00",
@@ -481,53 +496,23 @@
       "message_id": 134,
       "intentos": 1,
       "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
-    },
-    {
-      "id": "e0304a3916e3",
-      "creado": "2026-11-04T21:14:49.894013+00:00",
-      "intento": "2026-11-04T21:14:49.894013+00:00",
-      "localidad": "San Vicente",
-      "provincia": "Misiones",
-      "tipo": "ALERTA NUEVA",
-      "motivo": "Riesgo integrado: AMARILLO → ROJO. Índice meteorológico 56,2/100: ROJO; umbrales experimentales amarillo ≥ 35, rojo ≥ 55. Índice meteorológico: 42,8 → 56,2/100; se evalúa por separado.",
-      "indice_anterior": 42.8,
-      "indice": 56.2,
-      "estado": "enviado",
-      "message_id": 135,
-      "intentos": 1,
-      "detalle": "Bot API confirmó el envío; recepción en el chat pendiente de comprobar"
     }
   ],
-  "health": "error_meteorologia",
+  "health": "datos_parciales",
   "ok": false,
   "errors": [
-    "0/48 puntos aplicables con meteorología completa.",
     "0/29 puntos aplicables con observaciones fluviales vigentes.",
-    "6/29 puntos aplicables con pronóstico fluvial vigente.",
+    "10/29 puntos aplicables con pronóstico fluvial vigente.",
     "18/20 puntos aplicables con información vigente de represas.",
     "0/48 puntos aplicables con cobertura vigente del canal de avisos SMN.",
-    "Una parte de las localidades no tuvo un semáforo interpretable.",
-    "Meteorología compartida: fallo en preparacion (captura_no_valida)."
+    "Una parte de las localidades no tuvo un semáforo interpretable."
   ],
   "dry_run": false,
   "publication_only": false,
-  "red_integrada_publicada": true,
-  "red_integrada_estado": "verificada",
+  "red_integrada_publicada": false,
+  "red_integrada_estado": "pendiente",
   "meteorologia_publicada": false,
-  "meteorologia_estado": "error",
+  "meteorologia_estado": "pendiente",
   "region": "Litoral",
-  "meteorologia_zc_estado": "proceso_independiente",
-  "red_integrada_bytes": 293593,
-  "red_integrada_limite_bytes": 2000000,
-  "red_integrada_confirmacion": {
-    "sha": "8e25d916b7a61d4334a2708c65de733f5c13bce3",
-    "commit_sha": "d0a59e24954a6f5ab64c51f9ea3aca1a47a468fd",
-    "bytes": 293593,
-    "generated_at": "2026-11-27T08:08:23.334178+00:00",
-    "verified_at": "2026-11-27T08:08:25.372551+00:00"
-  },
-  "meteorologia_error": "Meteorología compartida: fallo en preparacion (captura_no_valida).",
-  "meteorologia_etapa": "preparacion",
-  "meteorologia_error_codigo": "captura_no_valida",
-  "health_evaluacion": "datos_parciales"
+  "meteorologia_zc_estado": "proceso_independiente"
 }
